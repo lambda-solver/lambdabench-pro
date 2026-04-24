@@ -35,10 +35,11 @@
         "@/components/leaderboard/ProblemsPanel",
         "@/components/leaderboard/MatrixPanel",
         "@/components/leaderboard/TaskModal",
+        "@/lib/useMusicPlayer",
         "@/lib/utils"
       ],
       "language": "typescript",
-      "mtime": "2026-04-24T22:45:39.277Z"
+      "mtime": "2026-04-24T22:49:55.198Z"
     },
     "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/BarChart.test.tsx": {
       "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/BarChart.test.tsx",
@@ -157,7 +158,7 @@
         "@/components/theme-toggle"
       ],
       "language": "typescript",
-      "mtime": "2026-04-24T22:45:27.343Z"
+      "mtime": "2026-04-24T22:49:34.782Z"
     },
     "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/TaskModal.tsx": {
       "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/TaskModal.tsx",
@@ -227,16 +228,14 @@
       "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/theme-toggle.tsx",
       "moduleName": "apps/client/src/components/theme-toggle.tsx",
       "exports": [
-        "ControlBar",
-        "ThemeToggle"
+        "ControlBar"
       ],
       "imports": [
         "react",
-        "@/lib/useMusicPlayer",
         "@/lib/utils"
       ],
       "language": "typescript",
-      "mtime": "2026-04-24T22:45:13.570Z"
+      "mtime": "2026-04-24T22:49:24.265Z"
     },
     "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/badge.tsx": {
       "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/badge.tsx",
@@ -484,17 +483,31 @@
       "language": "typescript",
       "mtime": "2026-04-24T20:30:51.113Z"
     },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/useMusicPlayer.test.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/useMusicPlayer.test.ts",
+      "moduleName": "apps/client/src/lib/useMusicPlayer.test.ts",
+      "exports": [],
+      "imports": [
+        "vitest",
+        "vitest-browser-react",
+        "./useMusicPlayer"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T22:56:59.132Z"
+    },
     "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/useMusicPlayer.ts": {
       "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/useMusicPlayer.ts",
       "moduleName": "apps/client/src/lib/useMusicPlayer.ts",
       "exports": [
+        "DELAY_MS",
+        "musicUrl",
         "useMusicPlayer"
       ],
       "imports": [
         "react"
       ],
       "language": "typescript",
-      "mtime": "2026-04-24T22:45:58.415Z"
+      "mtime": "2026-04-24T22:58:05.058Z"
     },
     "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/utils.ts": {
       "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/utils.ts",
@@ -1574,6 +1587,12 @@
       "importType": "named"
     },
     {
+      "source": "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/useMusicPlayer.test.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/useMusicPlayer.ts",
+      "importSpecifier": "./useMusicPlayer",
+      "importType": "named"
+    },
+    {
       "source": "/workspaces/typescript-node/lambench-pro/apps/client/src/main.tsx",
       "target": "/workspaces/typescript-node/lambench-pro/apps/client/src/app.tsx",
       "importSpecifier": "./app",
@@ -1977,9 +1996,9 @@
     }
   ],
   "metadata": {
-    "generatedAt": "2026-04-24T22:45:58.531Z",
+    "generatedAt": "2026-04-24T22:58:05.127Z",
     "generator": "repo-graph",
-    "nodeCount": 94,
-    "edgeCount": 85
+    "nodeCount": 95,
+    "edgeCount": 86
   }
 }
