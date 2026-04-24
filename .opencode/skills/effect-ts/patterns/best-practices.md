@@ -117,3 +117,17 @@ AsyncResult.match(result, {
   onSuccess: (data) => <View data={data.value} />,
 })
 ```
+
+## Local dev workflow with OpenCode
+
+Run `bun dev --filter=client` in a **separate terminal** and leave it running.
+OpenCode edits files in this terminal; Vite HMR picks up every save and hot-reloads
+the browser automatically (~100 ms). No need to restart the dev server between edits.
+
+```bash
+# Terminal 1 — keep running
+bun dev --filter=client   # → http://localhost:3000
+
+# Terminal 2 — OpenCode session
+# Ask OpenCode to make changes; browser updates live
+```
