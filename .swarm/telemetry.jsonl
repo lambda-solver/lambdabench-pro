@@ -317,3 +317,15 @@
 {"timestamp":"2026-04-24T21:55:11.243Z","event":"heartbeat","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl"}
 {"timestamp":"2026-04-24T21:55:43.374Z","event":"heartbeat","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl"}
 {"timestamp":"2026-04-24T21:56:21.834Z","event":"heartbeat","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl"}
+{"timestamp":"2026-04-24T22:06:13.414Z","event":"delegation_begin","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl","agentName":"build","taskId":"unknown"}
+{"timestamp":"2026-04-24T22:06:14.181Z","event":"heartbeat","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl"}
+{"timestamp":"2026-04-24T22:06:14.271Z","event":"session_started","sessionId":"ses_23e78870affe74CCAzawJATLAs","agentName":"curator_init"}
+{"timestamp":"2026-04-24T22:06:14.272Z","event":"delegation_begin","sessionId":"ses_23e78870affe74CCAzawJATLAs","agentName":"curator_init","taskId":"unknown"}
+{"timestamp":"2026-04-24T22:06:14.393Z","event":"heartbeat","sessionId":"ses_23e78870affe74CCAzawJATLAs"}
+{"timestamp":"2026-04-24T22:06:44.347Z","event":"heartbeat","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl"}
+{"timestamp":"2026-04-24T22:07:45.224Z","event":"delegation_begin","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl","agentName":"build","taskId":"unknown"}
+{"timestamp":"2026-04-24T22:07:45.545Z","event":"heartbeat","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl"}
+{"timestamp":"2026-04-24T22:08:41.156Z","event":"delegation_begin","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl","agentName":"build","taskId":"unknown"}
+{"timestamp":"2026-04-24T22:08:41.563Z","event":"heartbeat","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl"}
+{"timestamp":"2026-04-24T22:09:20.766Z","event":"heartbeat","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl"}
+{"timestamp":"2026-04-24T22:09:33.238Z","event":"delegation_begin","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl","agentName":"build","taskId":"unknown"}

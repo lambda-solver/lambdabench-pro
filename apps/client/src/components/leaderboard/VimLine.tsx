@@ -30,7 +30,7 @@ export function VimLine({ n, children, className, tilde = false }: VimLineProps)
       >
         {n == null ? "" : String(n)}
       </span>
-      <span className="flex-1 pr-[1ch] whitespace-pre-wrap break-words flex items-center gap-0">
+      <span className="flex-1 pr-[1ch] whitespace-pre-wrap break-words">
         {children}
       </span>
     </div>
