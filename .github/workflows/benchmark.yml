@@ -1,0 +1,99 @@
+name: Benchmark
+
+on:
+  schedule:
+    # Every Monday at 04:00 UTC
+    - cron: "0 4 * * 1"
+  workflow_dispatch:
+    inputs:
+      top_models:
+        description: "Comma-separated model IDs to benchmark (leave blank to auto-fetch top 2)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  run-benchmark:
+    name: "Run Benchmark"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install monorepo dependencies
+        run: bun install
+
+      - name: Install lambench runner dependencies
+        run: bun install
+        working-directory: reference/lambench
+
+      - name: Fetch top models
+        working-directory: reference/lambench
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          TOP_MODELS: ${{ github.event.inputs.top_models }}
+        run: bun src/eval-runner.ts
+
+      - name: Run evaluations
+        working-directory: reference/lambench
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          TOP_MODELS: ${{ github.event.inputs.top_models }}
+        run: bun src/check.ts
+
+      - name: Build results JSON
+        working-directory: reference/lambench
+        run: bun scripts/build-results.ts
+
+      - name: Commit results
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update benchmark results [skip ci]"
+          file_pattern: "apps/client/public/data/results.json"
+          commit_user_name: "github-actions[bot]"
+          commit_user_email: "github-actions[bot]@users.noreply.github.com"
+
+  deploy:
+    name: "Deploy to GitHub Pages"
+    needs: run-benchmark
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Pull the freshly committed results.json
+          ref: main
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build client
+        run: bun run build --filter=client
+        env:
+          VITE_BASE_URL: /${{ github.event.repository.name }}/
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/client/dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
