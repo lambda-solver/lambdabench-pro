@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "music-muted";
-export const DELAY_MS = 3_000;
+export const DELAY_MS = 10_000;
 
 /**
  * Returns the URL to the music file.
