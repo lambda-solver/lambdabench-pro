@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { ControlBar } from "@/components/theme-toggle";
 
 export type TabId = "intelligence" | "speed" | "elegance" | "value" | "problems" | "matrix";
 
@@ -17,33 +18,45 @@ interface TabLineProps {
 }
 
 /**
- * Sticky top tab strip, Vim-style.
- * Renders tab buttons using Solarized tokens.
+ * Sticky top bar — three-column layout:
+ *   left spacer (equal width to ControlBar) | centered tabs | ControlBar
+ * This keeps the tabs visually centered while controls sit flush right.
  */
 export function TabLine({ active, onTabChange }: TabLineProps) {
   return (
     <div
       className={cn(
-        "flex justify-center sticky top-0 z-10",
+        "flex items-stretch sticky top-0 z-10",
         "bg-[var(--sol-base2)] border-b border-[var(--sol-base1)]",
       )}
     >
-      {TABS.map(({ id, label }) => (
-        <button
-          key={id}
-          type="button"
-          onClick={() => onTabChange(id)}
-          className={cn(
-            "font-mono text-sm px-[2ch] leading-[1.8] cursor-pointer border-none",
-            "transition-colors",
-            active === id
-              ? "bg-[var(--sol-base3)] text-[var(--sol-base00)] font-bold"
-              : "bg-[var(--sol-base2)] text-[var(--sol-base01)] hover:bg-[var(--sol-base3)]",
-          )}
-        >
-          {label}
-        </button>
-      ))}
+      {/* Left spacer — mirrors ControlBar width so tabs stay centered */}
+      <div className="flex-1" />
+
+      {/* Centered tabs */}
+      <div className="flex items-stretch">
+        {TABS.map(({ id, label }) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => onTabChange(id)}
+            className={cn(
+              "font-mono text-sm px-[2ch] leading-[1.8] cursor-pointer border-none",
+              "transition-colors",
+              active === id
+                ? "bg-[var(--sol-base3)] text-[var(--sol-base00)] font-bold"
+                : "bg-[var(--sol-base2)] text-[var(--sol-base01)] hover:bg-[var(--sol-base3)]",
+            )}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* Right controls */}
+      <div className="flex-1 flex justify-end">
+        <ControlBar />
+      </div>
     </div>
   );
 }

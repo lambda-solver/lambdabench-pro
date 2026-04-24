@@ -2,7 +2,6 @@ import { AsyncResult } from "effect/unstable/reactivity";
 import { useAtomValue } from "@effect/atom-react";
 import { useState } from "react";
 import { benchmarkAtom } from "@/lib/atoms/benchmark-atom";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { TabLine, type TabId } from "@/components/leaderboard/TabLine";
 import { IntelligencePanel } from "@/components/leaderboard/IntelligencePanel";
 import { SpeedPanel } from "@/components/leaderboard/SpeedPanel";
@@ -53,9 +52,7 @@ function App() {
             "bg-[var(--sol-base3)] text-[var(--sol-base00)]",
           )}
         >
-          <ThemeToggle />
-
-          {/* Vim-style tabline — sticky top */}
+          {/* Vim-style tabline (with ControlBar embedded on the right) — sticky top */}
           <TabLine active={activeTab} onTabChange={setActiveTab} />
 
           {/* Buffer — each panel is pre-computed, hidden via display:none for instant switching */}

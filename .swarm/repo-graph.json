@@ -27,7 +27,6 @@
         "@effect/atom-react",
         "react",
         "@/lib/atoms/benchmark-atom",
-        "@/components/theme-toggle",
         "@/components/leaderboard/TabLine",
         "@/components/leaderboard/IntelligencePanel",
         "@/components/leaderboard/SpeedPanel",
@@ -39,71 +38,7 @@
         "@/lib/utils"
       ],
       "language": "typescript",
-      "mtime": "2026-04-24T20:18:49.238Z"
-    },
-    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chat-box.tsx": {
-      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chat-box.tsx",
-      "moduleName": "apps/client/src/components/chat-box.tsx",
-      "exports": [],
-      "imports": [],
-      "language": "typescript",
-      "mtime": "2026-04-24T20:19:46.029Z"
-    },
-    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chunker-options.tsx": {
-      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chunker-options.tsx",
-      "moduleName": "apps/client/src/components/chunker-options.tsx",
-      "exports": [],
-      "imports": [],
-      "language": "typescript",
-      "mtime": "2026-04-24T20:19:46.029Z"
-    },
-    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chunker-visualizer.tsx": {
-      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chunker-visualizer.tsx",
-      "moduleName": "apps/client/src/components/chunker-visualizer.tsx",
-      "exports": [],
-      "imports": [],
-      "language": "typescript",
-      "mtime": "2026-04-24T20:19:46.029Z"
-    },
-    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chunker/useFastChunkerConfig.tsx": {
-      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chunker/useFastChunkerConfig.tsx",
-      "moduleName": "apps/client/src/components/chunker/useFastChunkerConfig.tsx",
-      "exports": [],
-      "imports": [],
-      "language": "typescript",
-      "mtime": "2026-04-24T20:19:51.942Z"
-    },
-    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chunker/useRecursiveChunkerConfig.tsx": {
-      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chunker/useRecursiveChunkerConfig.tsx",
-      "moduleName": "apps/client/src/components/chunker/useRecursiveChunkerConfig.tsx",
-      "exports": [],
-      "imports": [],
-      "language": "typescript",
-      "mtime": "2026-04-24T20:19:51.942Z"
-    },
-    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chunker/useSentenceChunkerConfig.tsx": {
-      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chunker/useSentenceChunkerConfig.tsx",
-      "moduleName": "apps/client/src/components/chunker/useSentenceChunkerConfig.tsx",
-      "exports": [],
-      "imports": [],
-      "language": "typescript",
-      "mtime": "2026-04-24T20:19:51.942Z"
-    },
-    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chunker/useTableChunkerConfig.tsx": {
-      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chunker/useTableChunkerConfig.tsx",
-      "moduleName": "apps/client/src/components/chunker/useTableChunkerConfig.tsx",
-      "exports": [],
-      "imports": [],
-      "language": "typescript",
-      "mtime": "2026-04-24T20:19:51.942Z"
-    },
-    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chunker/useTokenChunkerConfig.tsx": {
-      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chunker/useTokenChunkerConfig.tsx",
-      "moduleName": "apps/client/src/components/chunker/useTokenChunkerConfig.tsx",
-      "exports": [],
-      "imports": [],
-      "language": "typescript",
-      "mtime": "2026-04-24T20:19:51.942Z"
+      "mtime": "2026-04-24T22:45:39.277Z"
     },
     "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/BarChart.test.tsx": {
       "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/BarChart.test.tsx",
@@ -218,10 +153,11 @@
         "TabLine"
       ],
       "imports": [
-        "@/lib/utils"
+        "@/lib/utils",
+        "@/components/theme-toggle"
       ],
       "language": "typescript",
-      "mtime": "2026-04-24T21:50:52.942Z"
+      "mtime": "2026-04-24T22:45:27.343Z"
     },
     "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/TaskModal.tsx": {
       "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/TaskModal.tsx",
@@ -291,15 +227,16 @@
       "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/theme-toggle.tsx",
       "moduleName": "apps/client/src/components/theme-toggle.tsx",
       "exports": [
+        "ControlBar",
         "ThemeToggle"
       ],
       "imports": [
         "react",
-        "./ui/card",
-        "./ui/switch"
+        "@/lib/useMusicPlayer",
+        "@/lib/utils"
       ],
       "language": "typescript",
-      "mtime": "2026-04-24T17:58:43.676Z"
+      "mtime": "2026-04-24T22:45:13.570Z"
     },
     "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/badge.tsx": {
       "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/badge.tsx",
@@ -505,14 +442,6 @@
       "language": "typescript",
       "mtime": "2026-04-24T17:58:43.680Z"
     },
-    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/upload-card.tsx": {
-      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/upload-card.tsx",
-      "moduleName": "apps/client/src/components/upload-card.tsx",
-      "exports": [],
-      "imports": [],
-      "language": "typescript",
-      "mtime": "2026-04-24T20:19:46.029Z"
-    },
     "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/atom.ts": {
       "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/atom.ts",
       "moduleName": "apps/client/src/lib/atom.ts",
@@ -555,37 +484,17 @@
       "language": "typescript",
       "mtime": "2026-04-24T20:30:51.113Z"
     },
-    "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/atoms/chat-atom.ts": {
-      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/atoms/chat-atom.ts",
-      "moduleName": "apps/client/src/lib/atoms/chat-atom.ts",
-      "exports": [],
-      "imports": [],
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/useMusicPlayer.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/useMusicPlayer.ts",
+      "moduleName": "apps/client/src/lib/useMusicPlayer.ts",
+      "exports": [
+        "useMusicPlayer"
+      ],
+      "imports": [
+        "react"
+      ],
       "language": "typescript",
-      "mtime": "2026-04-24T20:19:46.029Z"
-    },
-    "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/atoms/chunker-atom.ts": {
-      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/atoms/chunker-atom.ts",
-      "moduleName": "apps/client/src/lib/atoms/chunker-atom.ts",
-      "exports": [],
-      "imports": [],
-      "language": "typescript",
-      "mtime": "2026-04-24T20:19:46.029Z"
-    },
-    "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/atoms/upload-atom.ts": {
-      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/atoms/upload-atom.ts",
-      "moduleName": "apps/client/src/lib/atoms/upload-atom.ts",
-      "exports": [],
-      "imports": [],
-      "language": "typescript",
-      "mtime": "2026-04-24T20:19:46.029Z"
-    },
-    "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/rpc-client.ts": {
-      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/rpc-client.ts",
-      "moduleName": "apps/client/src/lib/rpc-client.ts",
-      "exports": [],
-      "imports": [],
-      "language": "typescript",
-      "mtime": "2026-04-24T20:19:46.029Z"
+      "mtime": "2026-04-24T22:45:58.415Z"
     },
     "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/utils.ts": {
       "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/utils.ts",
@@ -1641,18 +1550,6 @@
       "importType": "named"
     },
     {
-      "source": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/theme-toggle.tsx",
-      "target": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/card.tsx",
-      "importSpecifier": "./ui/card",
-      "importType": "named"
-    },
-    {
-      "source": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/theme-toggle.tsx",
-      "target": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/switch.tsx",
-      "importSpecifier": "./ui/switch",
-      "importType": "named"
-    },
-    {
       "source": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/segment.tsx",
       "target": "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/utils.ts",
       "importSpecifier": "../../lib/utils",
@@ -2080,9 +1977,9 @@
     }
   ],
   "metadata": {
-    "generatedAt": "2026-04-24T22:09:20.122Z",
+    "generatedAt": "2026-04-24T22:45:58.531Z",
     "generator": "repo-graph",
-    "nodeCount": 106,
-    "edgeCount": 87
+    "nodeCount": 94,
+    "edgeCount": 85
   }
 }
