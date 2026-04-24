@@ -4,10 +4,10 @@
 
 | Tool | Calls | Success | Failed | Avg Duration |
 |------|-------|---------|--------|--------------|
-| bash | 374 | 374 | 0 | 2455ms |
-| read | 161 | 161 | 0 | 67ms |
-| write | 65 | 65 | 0 | 20ms |
-| edit | 63 | 63 | 0 | 21ms |
+| bash | 384 | 384 | 0 | 2443ms |
+| read | 165 | 165 | 0 | 66ms |
+| write | 68 | 68 | 0 | 19ms |
+| edit | 66 | 66 | 0 | 22ms |
 | glob | 29 | 29 | 0 | 57ms |
 | grep | 29 | 29 | 0 | 32ms |
 | update_task_status | 26 | 26 | 0 | 19ms |

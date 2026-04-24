@@ -366,3 +366,14 @@
 {"timestamp":"2026-04-24T22:57:58.042Z","event":"delegation_begin","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl","agentName":"build","taskId":"unknown"}
 {"timestamp":"2026-04-24T22:58:50.793Z","event":"delegation_begin","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl","agentName":"build","taskId":"unknown"}
 {"timestamp":"2026-04-24T22:58:51.060Z","event":"heartbeat","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl"}
+{"timestamp":"2026-04-24T23:08:25.198Z","event":"heartbeat","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl"}
+{"timestamp":"2026-04-24T23:10:17.403Z","event":"agent_activated","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl","agentName":"plan","oldName":"build"}
+{"timestamp":"2026-04-24T23:10:17.403Z","event":"delegation_begin","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl","agentName":"plan","taskId":"unknown"}
+{"timestamp":"2026-04-24T23:10:17.665Z","event":"heartbeat","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl"}
+{"timestamp":"2026-04-24T23:11:03.226Z","event":"delegation_begin","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl","agentName":"plan","taskId":"unknown"}
+{"timestamp":"2026-04-24T23:11:03.497Z","event":"heartbeat","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl"}
+{"timestamp":"2026-04-24T23:11:48.032Z","event":"agent_activated","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl","agentName":"build","oldName":"plan"}
+{"timestamp":"2026-04-24T23:11:48.032Z","event":"delegation_begin","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl","agentName":"build","taskId":"unknown"}
+{"timestamp":"2026-04-24T23:11:48.322Z","event":"heartbeat","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl"}
+{"timestamp":"2026-04-24T23:12:36.986Z","event":"delegation_begin","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl","agentName":"build","taskId":"unknown"}
+{"timestamp":"2026-04-24T23:12:37.226Z","event":"heartbeat","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl"}
