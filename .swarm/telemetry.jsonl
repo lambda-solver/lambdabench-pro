@@ -275,3 +275,16 @@
 {"timestamp":"2026-04-24T20:54:53.466Z","event":"heartbeat","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl"}
 {"timestamp":"2026-04-24T20:55:05.729Z","event":"delegation_begin","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl","agentName":"build","taskId":"unknown"}
 {"timestamp":"2026-04-24T20:55:18.718Z","event":"delegation_begin","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl","agentName":"build","taskId":"unknown"}
+{"timestamp":"2026-04-24T21:21:27.649Z","event":"delegation_begin","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl","agentName":"build","taskId":"unknown"}
+{"timestamp":"2026-04-24T21:21:28.064Z","event":"heartbeat","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl"}
+{"timestamp":"2026-04-24T21:21:28.274Z","event":"session_started","sessionId":"ses_23ea18339ffe4QRvHFMQFCSSLA","agentName":"curator_init"}
+{"timestamp":"2026-04-24T21:21:28.275Z","event":"delegation_begin","sessionId":"ses_23ea18339ffe4QRvHFMQFCSSLA","agentName":"curator_init","taskId":"unknown"}
+{"timestamp":"2026-04-24T21:21:28.449Z","event":"heartbeat","sessionId":"ses_23ea18339ffe4QRvHFMQFCSSLA"}
+{"timestamp":"2026-04-24T21:22:00.770Z","event":"heartbeat","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl"}
+{"timestamp":"2026-04-24T21:22:34.415Z","event":"delegation_begin","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl","agentName":"build","taskId":"unknown"}
+{"timestamp":"2026-04-24T21:22:34.654Z","event":"heartbeat","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl"}
+{"timestamp":"2026-04-24T21:23:08.522Z","event":"heartbeat","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl"}
+{"timestamp":"2026-04-24T21:41:15.077Z","event":"delegation_begin","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl","agentName":"build","taskId":"unknown"}
+{"timestamp":"2026-04-24T21:41:15.363Z","event":"heartbeat","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl"}
+{"timestamp":"2026-04-24T21:42:42.233Z","event":"delegation_begin","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl","agentName":"build","taskId":"unknown"}
+{"timestamp":"2026-04-24T21:42:42.465Z","event":"heartbeat","sessionId":"ses_23eec3c36ffeKfsBdCjW6NF0cl"}

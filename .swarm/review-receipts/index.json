@@ -8,6 +8,14 @@
       "scope_hash": "d04755b6c06eda6a31c68f86520176fa5febc429551d56349fe20ada3b034f40",
       "agent": "curator",
       "filename": "2026-04-24-dea5259e-bfdf-4e72-8ea3-f38a2376175f.json"
+    },
+    {
+      "id": "113d6488-c667-4446-9705-8cae86a98e3e",
+      "verdict": "approved",
+      "reviewed_at": "2026-04-24T21:21:34.168Z",
+      "scope_hash": "670a792a6a46df518af79f289e89a5dd2138d136f3e1caa30da20e892730e844",
+      "agent": "curator",
+      "filename": "2026-04-24-113d6488-c667-4446-9705-8cae86a98e3e.json"
     }
   ]
 }

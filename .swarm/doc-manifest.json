@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "scanned_at": "2026-04-24T20:33:01.679Z",
+  "scanned_at": "2026-04-24T20:57:03.798Z",
   "files": [
     {
       "path": ".github/actions/setup/action.yml",
@@ -34,8 +34,8 @@
       "path": ".github/workflows/check-client.yml",
       "title": "check-client.yml",
       "summary": "name: Check - Client on: workflow_dispatch: push: branches: - main paths: - \"apps/client/**\" - \"packages/domain/**\" pull_request: branches: - main paths: - \"apps/client/**\" - \"packages/domain/**\" j...",
-      "lines": 74,
-      "mtime": 1777062779584.551
+      "lines": 77,
+      "mtime": 1777064222153.649
     },
     {
       "path": ".github/workflows/check-server.yml",
