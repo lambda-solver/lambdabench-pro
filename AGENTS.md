@@ -23,6 +23,12 @@
 Bun 1.2+, TypeScript 5.9, Effect 4-beta, React 19, Vite 8, Vitest 4, Tailwind CSS
 4, Biome 2.4
 
+## Git Discipline
+
+**Only commit and push when explicitly asked.** Do not automatically push after
+every file change. Completing a task does not imply the user wants a commit —
+wait for an explicit "commit", "push", or "save this" instruction.
+
 ## Code Style
 
 - **Formatting**: Spaces (not tabs), double quotes for strings

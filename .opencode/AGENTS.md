@@ -145,6 +145,12 @@ Each phase has a checklist that MUST pass before proceeding:
 | 13-pr-review | Approved, CI green |
 | 14-memory-update | MEMORY.md updated |
 
+## Git Discipline
+
+**Only commit and push when explicitly asked.** Do not automatically push after
+every file change. Completing a task does not imply the user wants a commit —
+wait for an explicit "commit", "push", or "save this" instruction.
+
 ## Branch Strategy
 
 **All new features MUST be developed on a feature branch, never directly on `main`.**
