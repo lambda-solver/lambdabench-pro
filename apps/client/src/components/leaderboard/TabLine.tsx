@@ -24,7 +24,7 @@ export function TabLine({ active, onTabChange }: TabLineProps) {
   return (
     <div
       className={cn(
-        "flex sticky top-0 z-10",
+        "flex justify-center sticky top-0 z-10",
         "bg-[var(--sol-base2)] border-b border-[var(--sol-base1)]",
       )}
     >

@@ -10,6 +10,10 @@ on:
         description: "Comma-separated model IDs to benchmark (leave blank to auto-fetch top 2)"
         required: false
         default: ""
+      skip_benchmark:
+        description: "Skip benchmark run and only deploy (true/false)"
+        required: false
+        default: "false"
 
 permissions:
   contents: write
@@ -20,6 +24,7 @@ jobs:
   run-benchmark:
     name: "Run Benchmark"
     runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.skip_benchmark != 'true' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -64,7 +69,8 @@ jobs:
 
   deploy:
     name: "Deploy to GitHub Pages"
-    needs: run-benchmark
+    needs: [run-benchmark]
+    if: ${{ always() && (needs.run-benchmark.result == 'success' || needs.run-benchmark.result == 'skipped') }}
     runs-on: ubuntu-latest
     environment:
       name: github-pages

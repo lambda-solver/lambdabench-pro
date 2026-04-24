@@ -1,193 +1,136 @@
-# edu_effect-rag-builder
+# LamBench Pro
 
-An experimental AI/RAG toolkit monorepo for exploring different retrieval
-pipelines, sources, and interaction patterns. Built with Bun, Effect, Vite, and
-React for end-to-end type safety and fast iteration.
+A lambda calculus benchmark leaderboard for AI models. Evaluates the top OpenRouter models weekly on 120 lambda calculus tasks and publishes results as a Solarized/Vim-style tabbed leaderboard on GitHub Pages.
 
-![screenshot of client app](./e2e/smoke.spec.ts-snapshots/app-layout-chromium-darwin.png)
+**Live site:** https://lambda-solver.github.io/lambdabench-pro/
 
-## What It Is
+## What It Does
 
-- **RAG-first experiments**: Try different ingestion, chunking, retrieval, and
-  evaluation strategies without rebuilding the stack
-- **Chat + agents**: Streaming chat flows with tool-driven workflows
-- **Shared domain**: Effect Schema types shared across client and server
-- **Modern TypeScript stack**: Bun, Vite, React, Effect, Turborepo
-- **Optional observability**: OpenTelemetry wiring when env vars are set
+- **Benchmarks AI models** on 120 lambda calculus tasks (identity, church numerals, booleans, BLC encoding, etc.) using a pure Bun interpreter — no external binary needed
+- **Fetches the top 2 models** automatically from OpenRouter rankings each week
+- **Publishes results** as a static React app on GitHub Pages with six leaderboard panels
+- **Tracks over time** by committing `results.json` to the repo after each run
 
-## Features
+## Leaderboard Panels
 
-- **End-to-end TypeScript**: Full type safety from client to server
-- **RAG pipeline building blocks**: Schemas and RPC endpoints to iterate on
-  retrieval approaches
-- **Streaming UX**: UI and RPC for chat and agent workflows
-- **Zero config DX**: Biome linting/formatting, Turbo builds, Bun runtime
-- **Flexible deployment**: Docker compose for local experiments
+| Tab | Metric |
+|-----|--------|
+| `:intelligence` | Models ranked by pass rate (problems solved) |
+| `:speed` | Models ranked by average response time |
+| `:elegance` | Models ranked by solution brevity vs. reference |
+| `:value` | Pass rate per dollar (cost efficiency) |
+| `:problems` | Browse tasks by category, click for details |
+| `:matrix` | Full model × task pass/fail grid |
+
+## Project Structure
+
+```
+.
+├── apps/
+│   └── client/                  # React leaderboard UI (Vite + Effect Atom)
+│       └── public/data/
+│           └── results.json     # Committed benchmark results (seed data included)
+├── packages/
+│   └── domain/                  # Shared Effect Schema types (BenchmarkData, Ranking, etc.)
+├── reference/
+│   └── lambench/                # Benchmark runner (standalone Bun scripts)
+│       ├── src/
+│       │   ├── lamb.ts          # Pure Bun lambda calculus interpreter
+│       │   ├── lamb.test.ts     # 19 unit tests
+│       │   ├── check.ts         # Evaluates model outputs against tasks
+│       │   └── eval-runner.ts   # Fetches top models from OpenRouter
+│       └── scripts/
+│           ├── build-results.ts # Writes apps/client/public/data/results.json
+│           └── seed-data.ts     # Generates mock results for local dev
+└── .github/
+    └── workflows/
+        └── benchmark.yml        # Weekly CI: eval → commit → Pages deploy
+```
 
 ## Quick Start
 
 ```bash
-# Install dependencies
+# Install monorepo dependencies
 bun install
 
-# Start development
-bun dev
-
-# Build for production
-bun run build
-```
-
-### Local ChromaDB (Docker)
-
-For local dev, run the ChromaDB container and point the server at it:
-
-```bash
-# Start the ChromaDB service only
-docker run -d --name edu_chroma -p 8000:8000 chromadb/chroma
-
-# In another shell, run the server with ChromaDB env vars
-CHROMA_HOST=localhost CHROMA_PORT=8000 bun dev --filter=server
-```
-
-ChromaDB will be available at `http://localhost:8000`.
-
-### Formatting and Linting
-
-Format and lint the codebase using Ultracite:
-
-```bash
-# Format code
-bun format
-
-# Lint code
-bun lint
-
-# Type check
-bun run type-check
-```
-
-### Testing
-
-Run tests across the monorepo:
-
-```bash
-# Run all unit tests
-bun run test
-
-# Run tests for specific apps
-bun run test --filter=client
-bun run test --filter=server
-
-# Run E2E and visual regression tests
-bun run test:e2e
-
-# Update visual regression baselines
-bun run test:e2e -- --update-snapshots
-```
-
-### Test Stack
-
-- **Client**: Vitest 4.x with Browser Mode (Playwright), vitest-browser-react
-- **Server**: Vitest 4.x with Node environment, @effect/vitest
-- **E2E**: Playwright with visual regression testing
-
-### CI/CD Workflows
-
-This repo currently ships with local dev and test scripts. Add CI workflows when
-you are ready to stabilize experiment paths.
-
-## Project Structure
-
-```txt
-.
-├── apps/
-│   ├── client/             # React demo UI (Vite + React)
-│   └── server/             # Bun + Effect backend API
-├── e2e/                     # Playwright end-to-end tests
-├── packages/
-│   ├── ai/                 # AI services and toolkits
-│   ├── config-typescript/  # TypeScript configurations
-│   ├── domain/             # Shared Schema definitions
-│   └── observability/      # OpenTelemetry setup
-├── docker-compose.yaml     # Docker Compose configuration for deployment
-├── package.json            # Root package.json with workspaces
-└── turbo.json              # Turborepo configuration
-```
-
-### Apps
-
-| App      | Description                                                            |
-| -------- | ---------------------------------------------------------------------- |
-| `client` | Demo UI for RAG experiments and chat flows                             |
-| `server` | Effect Platform API for ingestion, retrieval, and chat/agent workflows |
-
-### Packages
-
-| Package                   | Description                                                                                    |
-| ------------------------- | ---------------------------------------------------------------------------------------------- |
-| `@repo/config-typescript` | TypeScript configurations used throughout the monorepo                                         |
-| `@repo/domain`            | Shared schemas and RPC contracts for ingestion, retrieval, and chat flows                      |
-| `@repo/ai`                | AI tooling and service layers built on [@effect/ai](https://github.com/tim-smart/effect-io-ai) |
-| `@repo/observability`     | Shared OpenTelemetry setup                                                                     |
-
-## Development
-
-```bash
-# Start development server
-bun dev
-# Run specific app
+# Start the leaderboard UI (port 3000)
 bun dev --filter=client
-bun dev --filter=server
-
-
-# Build all apps
-bun run build
 ```
 
-## Deployment
+Open http://localhost:3000 — the UI loads from the committed `results.json` seed data, no API key needed.
 
-To run the application using Docker, you can use the provided
-`docker-compose.yaml` file.
-
-First, ensure you have Docker and Docker Compose installed on your system.
-
-Then, run the following command to build and start the services in the
-background:
+## Running the Benchmark Locally
 
 ```bash
-docker-compose up -d --build
-```
+cd reference/lambench
+bun install
 
-This will start the `client` and `server` services.
+# Copy env and configure
+cp .env.example .env
+# Edit .env: set DEV_MODE=true for mock data, or add OPENROUTER_API_KEY for real runs
+
+# Run the full pipeline
+bun src/eval-runner.ts       # Fetch/resolve top models
+bun src/check.ts             # Evaluate model outputs
+bun scripts/build-results.ts # Write results.json
+```
 
 ### Environment Variables
 
-You can configure the deployment using environment variables:
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `DEV_MODE` | `true` | Skip live fetch, use mock models — no API key needed |
+| `OPENROUTER_API_KEY` | — | Required for real runs (`DEV_MODE=false`) |
+| `TOP_MODELS` | — | Comma-separated model IDs to override auto-fetch |
+| `VITE_BASE_URL` | `/` | Base path for the client (set to `/lambdabench-pro/` for Pages) |
 
-```bash
-# Example .env file
-CLIENT_PORT=3000
-SERVER_PORT=9000
-ANTHROPIC_API_KEY=your_key_here
-```
+## CI / GitHub Pages
 
-## Type Safety
+The `benchmark.yml` workflow runs every **Monday at 04:00 UTC** (and on `workflow_dispatch`):
 
-Import shared types from the domain package:
+1. Fetches the top 2 models from OpenRouter
+2. Runs all 120 lambda calculus tasks against each model
+3. Commits updated `results.json` to `main`
+4. Builds the Vite client with `VITE_BASE_URL=/lambdabench-pro/`
+5. Deploys to GitHub Pages
 
-```typescript
-import { ApiResponse } from "@repo/domain/Api";
-```
+To trigger a deploy without running the benchmark (e.g. after a UI change), use `workflow_dispatch` with `skip_benchmark: true`.
 
-## Notes For Experiments
+To set up in your own fork:
+1. Add `OPENROUTER_API_KEY` as a repository secret (`Settings → Secrets → Actions`)
+2. Enable GitHub Pages via Actions (`Settings → Pages → Source: GitHub Actions`)
 
-- The RAG pipeline is intentionally modular. Swap sources, chunking strategies,
-  or embedding models as you iterate.
-- The demo client is expected to evolve quickly. Update snapshots if UI changes
-  are intentional.
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Runtime | Bun 1.2+ |
+| Language | TypeScript 5.9 |
+| UI framework | React 19 + Vite 8 |
+| State management | Effect Atom (`@effect/atom-react`) |
+| Schema / validation | Effect Schema 4-beta |
+| Styling | Tailwind CSS 4 + Solarized palette |
+| Monorepo | Turborepo |
+| Linting / formatting | Biome 2.4 |
+| Tests | Vitest 4 (38 unit tests) |
+
+## Development Commands
+
+| Command | Description |
+|---------|-------------|
+| `bun install` | Install all dependencies |
+| `bun dev --filter=client` | Start UI dev server (port 3000, HMR) |
+| `bun run build --filter=client` | Production build |
+| `bun test` | Run all tests (Vitest) |
+| `bun lint` | Lint with Biome |
+| `bun format` | Format with Biome |
+| `bun run type-check` | TypeScript check across all packages |
+
+> **Tip:** Run `bun dev --filter=client` in a separate terminal while using OpenCode. Vite's HMR picks up every file save and updates the browser in ~100 ms.
 
 ## Learn More
 
-- [Turborepo](https://turborepo.com/docs)
 - [Effect](https://effect.website/docs/introduction)
-- [Vite](https://vitejs.dev/guide/)
+- [OpenRouter](https://openrouter.ai)
+- [Original LamBench](https://github.com/VictorTaelin/lambench)
+- [Turborepo](https://turborepo.com/docs)

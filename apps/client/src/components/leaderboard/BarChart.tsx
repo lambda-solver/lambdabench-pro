@@ -25,9 +25,9 @@ export function BarChart({ pct, width = 28, className }: BarChartProps) {
     : "text-[var(--sol-red)]";
 
   return (
-    <span className={cn("inline-block align-middle", className)}>
-      <span className={colorClass}>{filledS}</span>
-      <span className="text-[var(--sol-base1)]">{emptyS}</span>
+    <span className={cn("inline-flex items-center leading-none", className)}>
+      <span className={colorClass} style={{ lineHeight: 1 }}>{filledS}</span>
+      <span className="text-[var(--sol-base1)]" style={{ lineHeight: 1 }}>{emptyS}</span>
     </span>
   );
 }
