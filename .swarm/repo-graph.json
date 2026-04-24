@@ -1,0 +1,1978 @@
+{
+  "schema_version": "1.0.0",
+  "workspaceRoot": "/workspaces/typescript-node/lambench-pro",
+  "nodes": {
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/app.test.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/app.test.tsx",
+      "moduleName": "apps/client/src/app.test.tsx",
+      "exports": [],
+      "imports": [
+        "vitest",
+        "vitest-browser-react",
+        "./app"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.676Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/app.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/app.tsx",
+      "moduleName": "apps/client/src/app.tsx",
+      "exports": [
+        "App"
+      ],
+      "imports": [
+        "effect/unstable/reactivity",
+        "@effect/atom-react",
+        "react",
+        "@/lib/atoms/benchmark-atom",
+        "@/components/theme-toggle",
+        "@/components/leaderboard/TabLine",
+        "@/components/leaderboard/IntelligencePanel",
+        "@/components/leaderboard/SpeedPanel",
+        "@/components/leaderboard/ElegancePanel",
+        "@/components/leaderboard/ValuePanel",
+        "@/components/leaderboard/ProblemsPanel",
+        "@/components/leaderboard/MatrixPanel",
+        "@/components/leaderboard/TaskModal",
+        "@/lib/utils"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:18:49.238Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chat-box.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chat-box.tsx",
+      "moduleName": "apps/client/src/components/chat-box.tsx",
+      "exports": [],
+      "imports": [],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:19:46.029Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chunker-options.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chunker-options.tsx",
+      "moduleName": "apps/client/src/components/chunker-options.tsx",
+      "exports": [],
+      "imports": [],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:19:46.029Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chunker-visualizer.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chunker-visualizer.tsx",
+      "moduleName": "apps/client/src/components/chunker-visualizer.tsx",
+      "exports": [],
+      "imports": [],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:19:46.029Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chunker/useFastChunkerConfig.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chunker/useFastChunkerConfig.tsx",
+      "moduleName": "apps/client/src/components/chunker/useFastChunkerConfig.tsx",
+      "exports": [],
+      "imports": [],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:19:51.942Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chunker/useRecursiveChunkerConfig.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chunker/useRecursiveChunkerConfig.tsx",
+      "moduleName": "apps/client/src/components/chunker/useRecursiveChunkerConfig.tsx",
+      "exports": [],
+      "imports": [],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:19:51.942Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chunker/useSentenceChunkerConfig.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chunker/useSentenceChunkerConfig.tsx",
+      "moduleName": "apps/client/src/components/chunker/useSentenceChunkerConfig.tsx",
+      "exports": [],
+      "imports": [],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:19:51.942Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chunker/useTableChunkerConfig.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chunker/useTableChunkerConfig.tsx",
+      "moduleName": "apps/client/src/components/chunker/useTableChunkerConfig.tsx",
+      "exports": [],
+      "imports": [],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:19:51.942Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chunker/useTokenChunkerConfig.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/chunker/useTokenChunkerConfig.tsx",
+      "moduleName": "apps/client/src/components/chunker/useTokenChunkerConfig.tsx",
+      "exports": [],
+      "imports": [],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:19:51.942Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/BarChart.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/BarChart.tsx",
+      "moduleName": "apps/client/src/components/leaderboard/BarChart.tsx",
+      "exports": [
+        "BarChart"
+      ],
+      "imports": [
+        "@/lib/utils"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:05:39.822Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/ElegancePanel.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/ElegancePanel.tsx",
+      "moduleName": "apps/client/src/components/leaderboard/ElegancePanel.tsx",
+      "exports": [
+        "ElegancePanel"
+      ],
+      "imports": [
+        "effect",
+        "./BarChart",
+        "./VimLine"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:07:01.188Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/IntelligencePanel.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/IntelligencePanel.tsx",
+      "moduleName": "apps/client/src/components/leaderboard/IntelligencePanel.tsx",
+      "exports": [
+        "IntelligencePanel"
+      ],
+      "imports": [
+        "effect",
+        "./BarChart",
+        "./VimLine"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:06:25.280Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/MatrixPanel.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/MatrixPanel.tsx",
+      "moduleName": "apps/client/src/components/leaderboard/MatrixPanel.tsx",
+      "exports": [
+        "MatrixPanel"
+      ],
+      "imports": [
+        "@/lib/utils",
+        "effect"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:07:50.752Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/ProblemsPanel.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/ProblemsPanel.tsx",
+      "moduleName": "apps/client/src/components/leaderboard/ProblemsPanel.tsx",
+      "exports": [
+        "ProblemsPanel"
+      ],
+      "imports": [
+        "@/lib/utils",
+        "react",
+        "./VimLine"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:07:33.205Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/SpeedPanel.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/SpeedPanel.tsx",
+      "moduleName": "apps/client/src/components/leaderboard/SpeedPanel.tsx",
+      "exports": [
+        "SpeedPanel"
+      ],
+      "imports": [
+        "effect",
+        "./BarChart",
+        "./VimLine"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:06:39.535Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/TabLine.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/TabLine.tsx",
+      "moduleName": "apps/client/src/components/leaderboard/TabLine.tsx",
+      "exports": [
+        "TabId",
+        "TabLine"
+      ],
+      "imports": [
+        "@/lib/utils"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:05:49.591Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/TaskModal.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/TaskModal.tsx",
+      "moduleName": "apps/client/src/components/leaderboard/TaskModal.tsx",
+      "exports": [
+        "TaskModal"
+      ],
+      "imports": [
+        "@/lib/utils",
+        "react",
+        "./VimLine"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:06:11.635Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/ValuePanel.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/ValuePanel.tsx",
+      "moduleName": "apps/client/src/components/leaderboard/ValuePanel.tsx",
+      "exports": [
+        "ValuePanel"
+      ],
+      "imports": [
+        "@/lib/atoms/benchmark-atom",
+        "./VimLine"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:07:16.139Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/VimLine.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/VimLine.tsx",
+      "moduleName": "apps/client/src/components/leaderboard/VimLine.tsx",
+      "exports": [
+        "VimLine",
+        "TildeLine"
+      ],
+      "imports": [
+        "@/lib/utils"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:05:32.123Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/theme-toggle.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/theme-toggle.tsx",
+      "moduleName": "apps/client/src/components/theme-toggle.tsx",
+      "exports": [
+        "ThemeToggle"
+      ],
+      "imports": [
+        "react",
+        "./ui/card",
+        "./ui/switch"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.676Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/badge.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/badge.tsx",
+      "moduleName": "apps/client/src/components/ui/badge.tsx",
+      "exports": [],
+      "imports": [
+        "@base-ui/react/merge-props",
+        "@base-ui/react/use-render",
+        "class-variance-authority",
+        "@/lib/utils"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.680Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/button.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/button.tsx",
+      "moduleName": "apps/client/src/components/ui/button.tsx",
+      "exports": [],
+      "imports": [
+        "@base-ui/react/button",
+        "class-variance-authority",
+        "@/lib/utils"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.680Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/card.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/card.tsx",
+      "moduleName": "apps/client/src/components/ui/card.tsx",
+      "exports": [],
+      "imports": [
+        "@/lib/utils"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.680Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/field.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/field.tsx",
+      "moduleName": "apps/client/src/components/ui/field.tsx",
+      "exports": [],
+      "imports": [
+        "class-variance-authority",
+        "react",
+        "@/components/ui/label",
+        "@/components/ui/separator",
+        "@/lib/utils"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.680Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/input.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/input.tsx",
+      "moduleName": "apps/client/src/components/ui/input.tsx",
+      "exports": [],
+      "imports": [
+        "@base-ui/react/input",
+        "@/lib/utils"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.680Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/label.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/label.tsx",
+      "moduleName": "apps/client/src/components/ui/label.tsx",
+      "exports": [],
+      "imports": [
+        "@/lib/utils"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.680Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/markdown.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/markdown.tsx",
+      "moduleName": "apps/client/src/components/ui/markdown.tsx",
+      "exports": [
+        "Markdown"
+      ],
+      "imports": [
+        "react",
+        "react-markdown",
+        "rehype-highlight",
+        "remark-gfm"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.680Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/response-card.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/response-card.tsx",
+      "moduleName": "apps/client/src/components/ui/response-card.tsx",
+      "exports": [
+        "ResponseState"
+      ],
+      "imports": [
+        "@/components/ui/badge",
+        "@/components/ui/card",
+        "@/lib/utils"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.680Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/segment.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/segment.tsx",
+      "moduleName": "apps/client/src/components/ui/segment.tsx",
+      "exports": [],
+      "imports": [
+        "lucide-react",
+        "../../lib/utils",
+        "./tooltip"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.680Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/select.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/select.tsx",
+      "moduleName": "apps/client/src/components/ui/select.tsx",
+      "exports": [],
+      "imports": [
+        "@base-ui/react/select",
+        "lucide-react",
+        "@/lib/utils"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.680Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/separator.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/separator.tsx",
+      "moduleName": "apps/client/src/components/ui/separator.tsx",
+      "exports": [],
+      "imports": [
+        "@base-ui/react/separator",
+        "@/lib/utils"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.680Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/slider.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/slider.tsx",
+      "moduleName": "apps/client/src/components/ui/slider.tsx",
+      "exports": [],
+      "imports": [
+        "@base-ui/react/slider",
+        "react",
+        "@/lib/utils"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.680Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/switch.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/switch.tsx",
+      "moduleName": "apps/client/src/components/ui/switch.tsx",
+      "exports": [],
+      "imports": [
+        "@base-ui/react/switch",
+        "@/lib/utils"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.680Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/textarea.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/textarea.tsx",
+      "moduleName": "apps/client/src/components/ui/textarea.tsx",
+      "exports": [],
+      "imports": [
+        "@/lib/utils"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.680Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/toggle-group.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/toggle-group.tsx",
+      "moduleName": "apps/client/src/components/ui/toggle-group.tsx",
+      "exports": [],
+      "imports": [
+        "@base-ui/react/toggle",
+        "@base-ui/react/toggle-group",
+        "react",
+        "@/components/ui/toggle",
+        "@/lib/utils"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.680Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/toggle.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/toggle.tsx",
+      "moduleName": "apps/client/src/components/ui/toggle.tsx",
+      "exports": [],
+      "imports": [
+        "@base-ui/react/toggle",
+        "class-variance-authority",
+        "@/lib/utils"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.680Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/tooltip.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/tooltip.tsx",
+      "moduleName": "apps/client/src/components/ui/tooltip.tsx",
+      "exports": [],
+      "imports": [
+        "@base-ui/react/tooltip",
+        "@/lib/utils"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.680Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/components/upload-card.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/upload-card.tsx",
+      "moduleName": "apps/client/src/components/upload-card.tsx",
+      "exports": [],
+      "imports": [],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:19:46.029Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/atom.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/atom.ts",
+      "moduleName": "apps/client/src/lib/atom.ts",
+      "exports": [
+        "runtime"
+      ],
+      "imports": [
+        "effect",
+        "effect/unstable/devtools",
+        "effect/unstable/reactivity",
+        "effect/unstable/http"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:04:39.432Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/atoms/benchmark-atom.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/atoms/benchmark-atom.ts",
+      "moduleName": "apps/client/src/lib/atoms/benchmark-atom.ts",
+      "exports": [
+        "computeValueEntries",
+        "benchmarkAtom"
+      ],
+      "imports": [
+        "@repo/domain/Benchmark",
+        "effect",
+        "effect/unstable/http",
+        "../atom"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:04:52.133Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/atoms/chat-atom.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/atoms/chat-atom.ts",
+      "moduleName": "apps/client/src/lib/atoms/chat-atom.ts",
+      "exports": [],
+      "imports": [],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:19:46.029Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/atoms/chunker-atom.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/atoms/chunker-atom.ts",
+      "moduleName": "apps/client/src/lib/atoms/chunker-atom.ts",
+      "exports": [],
+      "imports": [],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:19:46.029Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/atoms/upload-atom.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/atoms/upload-atom.ts",
+      "moduleName": "apps/client/src/lib/atoms/upload-atom.ts",
+      "exports": [],
+      "imports": [],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:19:46.029Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/rpc-client.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/rpc-client.ts",
+      "moduleName": "apps/client/src/lib/rpc-client.ts",
+      "exports": [],
+      "imports": [],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:19:46.029Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/utils.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/utils.ts",
+      "moduleName": "apps/client/src/lib/utils.ts",
+      "exports": [
+        "cn"
+      ],
+      "imports": [
+        "clsx",
+        "tailwind-merge"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.680Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/main.tsx": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/main.tsx",
+      "moduleName": "apps/client/src/main.tsx",
+      "exports": [],
+      "imports": [
+        "react",
+        "react-dom/client",
+        "./index.css",
+        "./app"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.680Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/test-setup.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/test-setup.ts",
+      "moduleName": "apps/client/src/test-setup.ts",
+      "exports": [],
+      "imports": [
+        "vitest-browser-react",
+        "@testing-library/jest-dom/vitest",
+        "./index.css"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.680Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/src/vite-env.d.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/src/vite-env.d.ts",
+      "moduleName": "apps/client/src/vite-env.d.ts",
+      "exports": [],
+      "imports": [],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.680Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/vite.config.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/vite.config.ts",
+      "moduleName": "apps/client/vite.config.ts",
+      "exports": [
+        "defineConfig"
+      ],
+      "imports": [
+        "node:path",
+        "@tailwindcss/vite",
+        "@vitejs/plugin-react",
+        "vite"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:20:02.970Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/apps/client/vitest.config.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/apps/client/vitest.config.ts",
+      "moduleName": "apps/client/vitest.config.ts",
+      "exports": [
+        "defineConfig"
+      ],
+      "imports": [
+        "node:path",
+        "@tailwindcss/vite",
+        "@vitejs/plugin-react",
+        "@vitest/browser-playwright",
+        "vitest/config"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.680Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/e2e/smoke.spec.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/e2e/smoke.spec.ts",
+      "moduleName": "e2e/smoke.spec.ts",
+      "exports": [],
+      "imports": [
+        "@playwright/test"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.680Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/ai/src/index.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/ai/src/index.ts",
+      "moduleName": "packages/ai/src/index.ts",
+      "exports": [],
+      "imports": [
+        "./LanguageModel",
+        "./services/ChatService",
+        "./toolkits/SampleToolkit",
+        "./workflow/AgenticLoop"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.684Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/ai/src/LanguageModel.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/ai/src/LanguageModel.ts",
+      "moduleName": "packages/ai/src/LanguageModel.ts",
+      "exports": [
+        "SmartModelLive",
+        "FastModelLive",
+        "EmbeddingModelLive"
+      ],
+      "imports": [
+        "effect"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T18:10:37.956Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/ai/src/services/ChatService.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/ai/src/services/ChatService.ts",
+      "moduleName": "packages/ai/src/services/ChatService.ts",
+      "exports": [
+        "ChatServiceApi",
+        "ChatService",
+        "ChatServiceLive"
+      ],
+      "imports": [
+        "effect",
+        "effect/unstable/ai",
+        "../toolkits/RagToolkit",
+        "../toolkits/SampleToolkit",
+        "../workflow/AgenticLoop"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.684Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/ai/src/toolkits/RagToolkit.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/ai/src/toolkits/RagToolkit.ts",
+      "moduleName": "packages/ai/src/toolkits/RagToolkit.ts",
+      "exports": [
+        "RagToolkit",
+        "RagToolkitLive"
+      ],
+      "imports": [
+        "@repo/rag",
+        "effect",
+        "effect/unstable/ai"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.684Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/ai/src/toolkits/SampleToolkit.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/ai/src/toolkits/SampleToolkit.ts",
+      "moduleName": "packages/ai/src/toolkits/SampleToolkit.ts",
+      "exports": [
+        "SampleToolkit",
+        "SampleToolkitLive"
+      ],
+      "imports": [
+        "effect",
+        "effect/unstable/ai"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.684Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/ai/src/workflow/AgenticLoop.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/ai/src/workflow/AgenticLoop.ts",
+      "moduleName": "packages/ai/src/workflow/AgenticLoop.ts",
+      "exports": [
+        "ToolParamsSchema",
+        "runAgenticLoop"
+      ],
+      "imports": [
+        "effect",
+        "./MailboxEvents"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.684Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/ai/src/workflow/MailboxEvents.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/ai/src/workflow/MailboxEvents.ts",
+      "moduleName": "packages/ai/src/workflow/MailboxEvents.ts",
+      "exports": [
+        "createMailboxEvents"
+      ],
+      "imports": [
+        "effect"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.684Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/domain/src/Api.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/domain/src/Api.ts",
+      "moduleName": "packages/domain/src/Api.ts",
+      "exports": [
+        "ApiResponse",
+        "HealthGroup",
+        "HelloGroup",
+        "Api"
+      ],
+      "imports": [
+        "effect",
+        "effect/unstable/httpapi"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.684Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/domain/src/Benchmark.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/domain/src/Benchmark.ts",
+      "moduleName": "packages/domain/src/Benchmark.ts",
+      "exports": [
+        "BenchmarkTest",
+        "BenchmarkTest",
+        "BenchmarkTask",
+        "BenchmarkTask",
+        "BenchmarkCategory",
+        "BenchmarkCategory",
+        "Ranking",
+        "Ranking",
+        "BenchmarkData",
+        "BenchmarkData",
+        "ValueEntry",
+        "ValueEntry"
+      ],
+      "imports": [
+        "effect"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T19:38:48.657Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/domain/src/Chat.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/domain/src/Chat.ts",
+      "moduleName": "packages/domain/src/Chat.ts",
+      "exports": [
+        "ChatStreamPart",
+        "ChatStreamPart",
+        "ChatMessage",
+        "ChatMessage",
+        "ToolCall",
+        "ToolCall",
+        "MessageSegment",
+        "MessageSegment",
+        "UsageMetadata",
+        "UsageMetadata",
+        "ErrorMetadata",
+        "ErrorMetadata",
+        "ChatResponse",
+        "ChatResponse"
+      ],
+      "imports": [
+        "effect"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.684Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/domain/src/Chunk.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/domain/src/Chunk.ts",
+      "moduleName": "packages/domain/src/Chunk.ts",
+      "exports": [
+        "ChunkError",
+        "ChunkError.message",
+        "ChunkError.cause",
+        "TokenizerError",
+        "TokenizerError.message",
+        "TokenizerError.cause",
+        "Chunk",
+        "Chunk",
+        "Tokenizer",
+        "Chunker"
+      ],
+      "imports": [
+        "effect"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.684Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/domain/src/Rpc.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/domain/src/Rpc.ts",
+      "moduleName": "packages/domain/src/Rpc.ts",
+      "exports": [
+        "TickEvent",
+        "EventRpc"
+      ],
+      "imports": [
+        "effect",
+        "effect/unstable/rpc",
+        "./Chat",
+        "./Upload"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.684Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/domain/src/Upload.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/domain/src/Upload.ts",
+      "moduleName": "packages/domain/src/Upload.ts",
+      "exports": [
+        "ACCEPTED_MIME_TYPES",
+        "ACCEPTED_EXTENSIONS",
+        "CHUNK_SIZE",
+        "MAX_FILE_SIZE",
+        "FileUploadStatus",
+        "FileUploadStatus",
+        "FileUploadEntry",
+        "FileUploadEntry",
+        "UploadChunk",
+        "UploadChunk",
+        "UploadIngestEvent",
+        "UploadIngestEvent"
+      ],
+      "imports": [
+        "effect"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.684Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/domain/src/WebSocket.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/domain/src/WebSocket.ts",
+      "moduleName": "packages/domain/src/WebSocket.ts",
+      "exports": [
+        "ClientId",
+        "ClientStatus",
+        "ClientStatus",
+        "ClientInfo",
+        "ClientInfo",
+        "WebSocketEvent",
+        "WebSocketEvent",
+        "WebSocketRpc"
+      ],
+      "imports": [
+        "effect",
+        "effect/unstable/rpc"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.684Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/observability/src/index.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/observability/src/index.ts",
+      "moduleName": "packages/observability/src/index.ts",
+      "exports": [
+        "Observability",
+        "ObservabilityLive"
+      ],
+      "imports": [
+        "@effect/opentelemetry",
+        "@opentelemetry/exporter-trace-otlp-http",
+        "@opentelemetry/sdk-trace-base",
+        "effect"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.684Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/rag/scratchpad.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/rag/scratchpad.ts",
+      "moduleName": "packages/rag/scratchpad.ts",
+      "exports": [],
+      "imports": [
+        "effect",
+        "./src"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.684Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/FastChunker.test.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/FastChunker.test.ts",
+      "moduleName": "packages/rag/src/chunker/FastChunker.test.ts",
+      "exports": [],
+      "imports": [
+        "@effect/vitest",
+        "@repo/domain/Chunk",
+        "effect",
+        "effect/Schema",
+        "./FastChunker"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.684Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/FastChunker.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/FastChunker.ts",
+      "moduleName": "packages/rag/src/chunker/FastChunker.ts",
+      "exports": [
+        "FastChunkerConfig",
+        "FastChunker",
+        "FastChunker.make",
+        "FastChunker.bytes",
+        "FastChunker.start",
+        "FastChunker.targetEnd",
+        "FastChunker.delimiters",
+        "FastChunker.for",
+        "FastChunker.bytes",
+        "FastChunker.start",
+        "FastChunker.end",
+        "FastChunker.if",
+        "FastChunker.if",
+        "FastChunker.isContinuationByte",
+        "FastChunker.while",
+        "FastChunker.text",
+        "FastChunker.startIdx",
+        "FastChunker.endIdx",
+        "FastChunker.tokenCount",
+        "FastChunker.name",
+        "FastChunkerLive"
+      ],
+      "imports": [
+        "@repo/domain/Chunk",
+        "effect",
+        "./utils"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.684Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/RecursiveChunker.test.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/RecursiveChunker.test.ts",
+      "moduleName": "packages/rag/src/chunker/RecursiveChunker.test.ts",
+      "exports": [],
+      "imports": [
+        "@effect/vitest",
+        "@repo/domain/Chunk",
+        "effect",
+        "effect/Schema",
+        "../tokenizer/DelimTokenizer",
+        "./RecursiveChunker"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.684Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/RecursiveChunker.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/RecursiveChunker.ts",
+      "moduleName": "packages/rag/src/chunker/RecursiveChunker.ts",
+      "exports": [
+        "RecursiveRule",
+        "RecursiveChunkerConfig",
+        "RecursiveChunker",
+        "RecursiveChunkerLive"
+      ],
+      "imports": [
+        "@repo/domain/Chunk",
+        "effect",
+        "../tokenizer/DelimTokenizer",
+        "./utils"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.684Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/SentenceChunker.test.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/SentenceChunker.test.ts",
+      "moduleName": "packages/rag/src/chunker/SentenceChunker.test.ts",
+      "exports": [],
+      "imports": [
+        "@effect/vitest",
+        "@repo/domain/Chunk",
+        "effect",
+        "effect/Schema",
+        "../tokenizer/DelimTokenizer",
+        "./SentenceChunker"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.684Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/SentenceChunker.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/SentenceChunker.ts",
+      "moduleName": "packages/rag/src/chunker/SentenceChunker.ts",
+      "exports": [
+        "SentenceChunkerConfig",
+        "SentenceChunker",
+        "SentenceChunkerLive"
+      ],
+      "imports": [
+        "@repo/domain/Chunk",
+        "effect",
+        "../tokenizer/DelimTokenizer",
+        "./utils"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.684Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/TableChunker.test.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/TableChunker.test.ts",
+      "moduleName": "packages/rag/src/chunker/TableChunker.test.ts",
+      "exports": [],
+      "imports": [
+        "@effect/vitest",
+        "@repo/domain/Chunk",
+        "effect",
+        "effect/Schema",
+        "../tokenizer/DelimTokenizer",
+        "./TableChunker"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.684Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/TableChunker.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/TableChunker.ts",
+      "moduleName": "packages/rag/src/chunker/TableChunker.ts",
+      "exports": [
+        "TableChunkerConfig",
+        "TableChunkerConfig",
+        "TableChunker",
+        "TableChunkerLive"
+      ],
+      "imports": [
+        "@repo/domain/Chunk",
+        "effect",
+        "../tokenizer/DelimTokenizer",
+        "./utils"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.684Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/TokenChunker.test.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/TokenChunker.test.ts",
+      "moduleName": "packages/rag/src/chunker/TokenChunker.test.ts",
+      "exports": [],
+      "imports": [
+        "@effect/vitest",
+        "@repo/domain/Chunk",
+        "effect",
+        "effect/Schema",
+        "../tokenizer/DelimTokenizer",
+        "./TokenChunker"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.688Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/TokenChunker.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/TokenChunker.ts",
+      "moduleName": "packages/rag/src/chunker/TokenChunker.ts",
+      "exports": [
+        "TokenChunkerConfig",
+        "TokenChunker",
+        "TokenChunkerLive"
+      ],
+      "imports": [
+        "@repo/domain/Chunk",
+        "effect",
+        "../tokenizer/DelimTokenizer",
+        "./utils"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.688Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/utils.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/utils.ts",
+      "moduleName": "packages/rag/src/chunker/utils.ts",
+      "exports": [
+        "IncludeDelim",
+        "IncludeDelim",
+        "TextSpan",
+        "isBlank",
+        "buildDelimiterPattern",
+        "findDelimiterSpans",
+        "splitTextByMatches",
+        "splitLines"
+      ],
+      "imports": [
+        "effect"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.688Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/rag/src/index.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/rag/src/index.ts",
+      "moduleName": "packages/rag/src/index.ts",
+      "exports": [],
+      "imports": [
+        "./chunker/FastChunker",
+        "./chunker/RecursiveChunker",
+        "./chunker/SentenceChunker",
+        "./chunker/TableChunker",
+        "./chunker/TokenChunker",
+        "./services/ChromaService",
+        "./services/ChunkService/ChunkService",
+        "./services/PdfService/PdfDocument",
+        "./services/PdfService/PdfService",
+        "./services/RagService",
+        "./tokenizer/DelimTokenizer"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.688Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/ChromaService.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/ChromaService.ts",
+      "moduleName": "packages/rag/src/services/ChromaService.ts",
+      "exports": [
+        "ChromaError",
+        "ChromaError.cause",
+        "ChromaService"
+      ],
+      "imports": [
+        "chromadb",
+        "effect"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.688Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/ChunkService/ChunkService.test.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/ChunkService/ChunkService.test.ts",
+      "moduleName": "packages/rag/src/services/ChunkService/ChunkService.test.ts",
+      "exports": [],
+      "imports": [
+        "@effect/vitest",
+        "effect",
+        "../../chunker/FastChunker",
+        "../../chunker/RecursiveChunker",
+        "../../chunker/SentenceChunker",
+        "../../chunker/TableChunker",
+        "../../chunker/TokenChunker",
+        "../../tokenizer/DelimTokenizer",
+        "../PdfService/PdfService",
+        "./ChunkService"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.688Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/ChunkService/ChunkService.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/ChunkService/ChunkService.ts",
+      "moduleName": "packages/rag/src/services/ChunkService/ChunkService.ts",
+      "exports": [
+        "ChunkService"
+      ],
+      "imports": [
+        "effect",
+        "../../chunker/FastChunker",
+        "../../chunker/RecursiveChunker",
+        "../../chunker/SentenceChunker",
+        "../../chunker/TableChunker",
+        "../../chunker/TokenChunker",
+        "../../tokenizer/DelimTokenizer",
+        "../../utils",
+        "../PdfService/PdfService"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.688Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/PdfService/PdfDocument.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/PdfService/PdfDocument.ts",
+      "moduleName": "packages/rag/src/services/PdfService/PdfDocument.ts",
+      "exports": [
+        "PdfParagraphBlock",
+        "PdfTableBlock",
+        "PdfBlock",
+        "PdfBlock",
+        "PdfPage",
+        "PdfPage",
+        "PdfDocument",
+        "PdfDocument"
+      ],
+      "imports": [
+        "effect"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.688Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/PdfService/PdfService.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/PdfService/PdfService.ts",
+      "moduleName": "packages/rag/src/services/PdfService/PdfService.ts",
+      "exports": [
+        "PdfError",
+        "PdfError.message",
+        "PdfError.cause",
+        "PdfService",
+        "PdfService.make",
+        "PdfService.buffer",
+        "PdfService.options",
+        "PdfService.sourceName",
+        "PdfService.try",
+        "PdfService.text",
+        "PdfService.pageCount",
+        "PdfService.blocks",
+        "PdfService.catch",
+        "PdfService.message"
+      ],
+      "imports": [
+        "effect",
+        "unpdf",
+        "./PdfDocument",
+        "./segmentPage"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.688Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/PdfService/segmentPage.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/PdfService/segmentPage.ts",
+      "moduleName": "packages/rag/src/services/PdfService/segmentPage.ts",
+      "exports": [
+        "segmentPdfPage"
+      ],
+      "imports": [
+        "effect",
+        "../../utils"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.688Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/RagService.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/RagService.ts",
+      "moduleName": "packages/rag/src/services/RagService.ts",
+      "exports": [
+        "RagError",
+        "RagError.message",
+        "RagError.cause",
+        "RagHit",
+        "RagService",
+        "RagService.make",
+        "RagService.collection",
+        "RagService.label",
+        "RagService.try",
+        "RagService.limit",
+        "RagService.include",
+        "RagService.catch",
+        "RagService.message",
+        "RagService.cause",
+        "RagService.input",
+        "RagService.collection",
+        "RagService.ids",
+        "RagService.documents",
+        "RagService.embeddings",
+        "RagService.metadatas",
+        "RagService.if",
+        "RagService.try",
+        "RagService.ids",
+        "RagService.documents",
+        "RagService.catch",
+        "RagService.message",
+        "RagService.cause",
+        "RagService.try",
+        "RagService.catch",
+        "RagService.message",
+        "RagService.cause",
+        "RagService.if",
+        "RagService.input",
+        "RagService.collection",
+        "RagService.queries",
+        "RagService.embedding",
+        "RagService.topK",
+        "RagService.where",
+        "RagService.whereDocument",
+        "RagService.try",
+        "RagService.catch",
+        "RagService.message",
+        "RagService.cause",
+        "RagService.if",
+        "RagService.try",
+        "RagService.nResults",
+        "RagService.include",
+        "RagService.catch",
+        "RagService.message",
+        "RagService.cause",
+        "RagService.hits",
+        "RagService.ids",
+        "RagService.documents",
+        "RagService.metadatas",
+        "RagService.distances",
+        "RagService.collection",
+        "RagService.query",
+        "RagService.limit",
+        "RagService.try",
+        "RagService.include",
+        "RagService.catch",
+        "RagService.message",
+        "RagService.cause",
+        "RagService.id",
+        "RagService.document",
+        "RagService.metadata",
+        "RagService.collection"
+      ],
+      "imports": [
+        "effect",
+        "./ChromaService"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.688Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/rag/src/tokenizer/DelimTokenizer.test.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/rag/src/tokenizer/DelimTokenizer.test.ts",
+      "moduleName": "packages/rag/src/tokenizer/DelimTokenizer.test.ts",
+      "exports": [],
+      "imports": [
+        "@effect/vitest",
+        "@repo/domain/Chunk",
+        "effect",
+        "./DelimTokenizer"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.688Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/rag/src/tokenizer/DelimTokenizer.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/rag/src/tokenizer/DelimTokenizer.ts",
+      "moduleName": "packages/rag/src/tokenizer/DelimTokenizer.ts",
+      "exports": [
+        "DelimTokenizer",
+        "CharacterTokenizerLive",
+        "WordTokenizerLive",
+        "SentenceTokenizerLive"
+      ],
+      "imports": [
+        "@repo/domain/Chunk",
+        "effect"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.688Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/packages/rag/src/utils.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/packages/rag/src/utils.ts",
+      "moduleName": "packages/rag/src/utils.ts",
+      "exports": [
+        "normalizeWhitespace",
+        "getFileExtension",
+        "resolveMimeTypeForFile"
+      ],
+      "imports": [
+        "effect"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.688Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/playwright.config.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/playwright.config.ts",
+      "moduleName": "playwright.config.ts",
+      "exports": [
+        "defineConfig"
+      ],
+      "imports": [
+        "@playwright/test"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.688Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambench/scripts/build-results.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambench/scripts/build-results.ts",
+      "moduleName": "reference/lambench/scripts/build-results.ts",
+      "exports": [],
+      "imports": [
+        "effect",
+        "fs",
+        "path"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:03:11.142Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambench/scripts/build.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambench/scripts/build.ts",
+      "moduleName": "reference/lambench/scripts/build.ts",
+      "exports": [],
+      "imports": [
+        "fs",
+        "path"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T18:44:18.586Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambench/scripts/seed-data.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambench/scripts/seed-data.ts",
+      "moduleName": "reference/lambench/scripts/seed-data.ts",
+      "exports": [],
+      "imports": [
+        "effect",
+        "fs",
+        "path"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:03:41.881Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambench/src/bench.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambench/src/bench.ts",
+      "moduleName": "reference/lambench/src/bench.ts",
+      "exports": [],
+      "imports": [
+        "child_process",
+        "ai",
+        "@ai-sdk/anthropic",
+        "@ai-sdk/google",
+        "@ai-sdk/openai-compatible",
+        "@ai-sdk/xai",
+        "fs",
+        "os",
+        "path",
+        "./check",
+        "./check"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T18:44:18.586Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambench/src/check.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambench/src/check.ts",
+      "moduleName": "reference/lambench/src/check.ts",
+      "exports": [
+        "Test",
+        "Task",
+        "Result",
+        "parse_task",
+        "load_tasks",
+        "REF_DIR",
+        "LAM_BIN",
+        "LAM_TIMEOUT_MS",
+        "lam_run",
+        "bin_size",
+        "task_score",
+        "show_result"
+      ],
+      "imports": [
+        "child_process",
+        "fs",
+        "path"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T19:59:07.886Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambench/src/eval-runner.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambench/src/eval-runner.ts",
+      "moduleName": "reference/lambench/src/eval-runner.ts",
+      "exports": [
+        "TopModel",
+        "TopModel"
+      ],
+      "imports": [
+        "effect",
+        "effect/unstable/http",
+        "effect/unstable/http",
+        "fs"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T20:01:45.628Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambench/src/lamb.test.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambench/src/lamb.test.ts",
+      "moduleName": "reference/lambench/src/lamb.test.ts",
+      "exports": [],
+      "imports": [
+        "bun:test",
+        "fs",
+        "path",
+        "./lamb"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T19:56:37.870Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambench/src/lamb.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambench/src/lamb.ts",
+      "moduleName": "reference/lambench/src/lamb.ts",
+      "exports": [],
+      "imports": [
+        "fs"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T19:53:19.626Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/vitest.config.ts": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/vitest.config.ts",
+      "moduleName": "vitest.config.ts",
+      "exports": [
+        "defineConfig"
+      ],
+      "imports": [
+        "vitest/config"
+      ],
+      "language": "typescript",
+      "mtime": "2026-04-24T17:58:43.688Z"
+    }
+  },
+  "edges": [
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/apps/client/src/app.test.tsx",
+      "target": "/workspaces/typescript-node/lambench-pro/apps/client/src/app.tsx",
+      "importSpecifier": "./app",
+      "importType": "default"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/ElegancePanel.tsx",
+      "target": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/BarChart.tsx",
+      "importSpecifier": "./BarChart",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/ElegancePanel.tsx",
+      "target": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/VimLine.tsx",
+      "importSpecifier": "./VimLine",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/IntelligencePanel.tsx",
+      "target": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/BarChart.tsx",
+      "importSpecifier": "./BarChart",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/IntelligencePanel.tsx",
+      "target": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/VimLine.tsx",
+      "importSpecifier": "./VimLine",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/ProblemsPanel.tsx",
+      "target": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/VimLine.tsx",
+      "importSpecifier": "./VimLine",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/SpeedPanel.tsx",
+      "target": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/BarChart.tsx",
+      "importSpecifier": "./BarChart",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/SpeedPanel.tsx",
+      "target": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/VimLine.tsx",
+      "importSpecifier": "./VimLine",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/TaskModal.tsx",
+      "target": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/VimLine.tsx",
+      "importSpecifier": "./VimLine",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/ValuePanel.tsx",
+      "target": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/leaderboard/VimLine.tsx",
+      "importSpecifier": "./VimLine",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/theme-toggle.tsx",
+      "target": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/card.tsx",
+      "importSpecifier": "./ui/card",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/theme-toggle.tsx",
+      "target": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/switch.tsx",
+      "importSpecifier": "./ui/switch",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/segment.tsx",
+      "target": "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/utils.ts",
+      "importSpecifier": "../../lib/utils",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/segment.tsx",
+      "target": "/workspaces/typescript-node/lambench-pro/apps/client/src/components/ui/tooltip.tsx",
+      "importSpecifier": "./tooltip",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/atoms/benchmark-atom.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/apps/client/src/lib/atom.ts",
+      "importSpecifier": "../atom",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/apps/client/src/main.tsx",
+      "target": "/workspaces/typescript-node/lambench-pro/apps/client/src/app.tsx",
+      "importSpecifier": "./app",
+      "importType": "default"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/apps/client/src/main.tsx",
+      "target": "/workspaces/typescript-node/lambench-pro/apps/client/src/index.css",
+      "importSpecifier": "./index.css",
+      "importType": "sideeffect"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/apps/client/src/test-setup.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/apps/client/src/index.css",
+      "importSpecifier": "./index.css",
+      "importType": "sideeffect"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/ai/src/index.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/ai/src/LanguageModel.ts",
+      "importSpecifier": "./LanguageModel",
+      "importType": "namespace"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/ai/src/index.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/ai/src/services/ChatService.ts",
+      "importSpecifier": "./services/ChatService",
+      "importType": "namespace"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/ai/src/index.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/ai/src/toolkits/SampleToolkit.ts",
+      "importSpecifier": "./toolkits/SampleToolkit",
+      "importType": "namespace"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/ai/src/index.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/ai/src/workflow/AgenticLoop.ts",
+      "importSpecifier": "./workflow/AgenticLoop",
+      "importType": "namespace"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/ai/src/services/ChatService.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/ai/src/toolkits/RagToolkit.ts",
+      "importSpecifier": "../toolkits/RagToolkit",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/ai/src/services/ChatService.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/ai/src/toolkits/SampleToolkit.ts",
+      "importSpecifier": "../toolkits/SampleToolkit",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/ai/src/services/ChatService.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/ai/src/workflow/AgenticLoop.ts",
+      "importSpecifier": "../workflow/AgenticLoop",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/ai/src/workflow/AgenticLoop.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/ai/src/workflow/MailboxEvents.ts",
+      "importSpecifier": "./MailboxEvents",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/domain/src/Rpc.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/domain/src/Chat.ts",
+      "importSpecifier": "./Chat",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/domain/src/Rpc.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/domain/src/Upload.ts",
+      "importSpecifier": "./Upload",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/scratchpad.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src",
+      "importSpecifier": "./src",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/FastChunker.test.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/FastChunker.ts",
+      "importSpecifier": "./FastChunker",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/FastChunker.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/utils.ts",
+      "importSpecifier": "./utils",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/RecursiveChunker.test.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/tokenizer/DelimTokenizer.ts",
+      "importSpecifier": "../tokenizer/DelimTokenizer",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/RecursiveChunker.test.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/RecursiveChunker.ts",
+      "importSpecifier": "./RecursiveChunker",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/RecursiveChunker.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/tokenizer/DelimTokenizer.ts",
+      "importSpecifier": "../tokenizer/DelimTokenizer",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/RecursiveChunker.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/utils.ts",
+      "importSpecifier": "./utils",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/SentenceChunker.test.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/tokenizer/DelimTokenizer.ts",
+      "importSpecifier": "../tokenizer/DelimTokenizer",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/SentenceChunker.test.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/SentenceChunker.ts",
+      "importSpecifier": "./SentenceChunker",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/SentenceChunker.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/tokenizer/DelimTokenizer.ts",
+      "importSpecifier": "../tokenizer/DelimTokenizer",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/SentenceChunker.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/utils.ts",
+      "importSpecifier": "./utils",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/TableChunker.test.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/tokenizer/DelimTokenizer.ts",
+      "importSpecifier": "../tokenizer/DelimTokenizer",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/TableChunker.test.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/TableChunker.ts",
+      "importSpecifier": "./TableChunker",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/TableChunker.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/tokenizer/DelimTokenizer.ts",
+      "importSpecifier": "../tokenizer/DelimTokenizer",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/TableChunker.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/utils.ts",
+      "importSpecifier": "./utils",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/TokenChunker.test.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/tokenizer/DelimTokenizer.ts",
+      "importSpecifier": "../tokenizer/DelimTokenizer",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/TokenChunker.test.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/TokenChunker.ts",
+      "importSpecifier": "./TokenChunker",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/TokenChunker.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/tokenizer/DelimTokenizer.ts",
+      "importSpecifier": "../tokenizer/DelimTokenizer",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/TokenChunker.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/utils.ts",
+      "importSpecifier": "./utils",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/index.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/FastChunker.ts",
+      "importSpecifier": "./chunker/FastChunker",
+      "importType": "namespace"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/index.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/RecursiveChunker.ts",
+      "importSpecifier": "./chunker/RecursiveChunker",
+      "importType": "namespace"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/index.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/SentenceChunker.ts",
+      "importSpecifier": "./chunker/SentenceChunker",
+      "importType": "namespace"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/index.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/TableChunker.ts",
+      "importSpecifier": "./chunker/TableChunker",
+      "importType": "namespace"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/index.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/TokenChunker.ts",
+      "importSpecifier": "./chunker/TokenChunker",
+      "importType": "namespace"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/index.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/ChromaService.ts",
+      "importSpecifier": "./services/ChromaService",
+      "importType": "namespace"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/index.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/ChunkService/ChunkService.ts",
+      "importSpecifier": "./services/ChunkService/ChunkService",
+      "importType": "namespace"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/index.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/PdfService/PdfDocument.ts",
+      "importSpecifier": "./services/PdfService/PdfDocument",
+      "importType": "namespace"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/index.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/PdfService/PdfService.ts",
+      "importSpecifier": "./services/PdfService/PdfService",
+      "importType": "namespace"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/index.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/RagService.ts",
+      "importSpecifier": "./services/RagService",
+      "importType": "namespace"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/index.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/tokenizer/DelimTokenizer.ts",
+      "importSpecifier": "./tokenizer/DelimTokenizer",
+      "importType": "namespace"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/ChunkService/ChunkService.test.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/FastChunker.ts",
+      "importSpecifier": "../../chunker/FastChunker",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/ChunkService/ChunkService.test.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/RecursiveChunker.ts",
+      "importSpecifier": "../../chunker/RecursiveChunker",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/ChunkService/ChunkService.test.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/SentenceChunker.ts",
+      "importSpecifier": "../../chunker/SentenceChunker",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/ChunkService/ChunkService.test.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/TableChunker.ts",
+      "importSpecifier": "../../chunker/TableChunker",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/ChunkService/ChunkService.test.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/TokenChunker.ts",
+      "importSpecifier": "../../chunker/TokenChunker",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/ChunkService/ChunkService.test.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/tokenizer/DelimTokenizer.ts",
+      "importSpecifier": "../../tokenizer/DelimTokenizer",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/ChunkService/ChunkService.test.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/PdfService/PdfService.ts",
+      "importSpecifier": "../PdfService/PdfService",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/ChunkService/ChunkService.test.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/ChunkService/ChunkService.ts",
+      "importSpecifier": "./ChunkService",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/ChunkService/ChunkService.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/FastChunker.ts",
+      "importSpecifier": "../../chunker/FastChunker",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/ChunkService/ChunkService.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/RecursiveChunker.ts",
+      "importSpecifier": "../../chunker/RecursiveChunker",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/ChunkService/ChunkService.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/SentenceChunker.ts",
+      "importSpecifier": "../../chunker/SentenceChunker",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/ChunkService/ChunkService.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/TableChunker.ts",
+      "importSpecifier": "../../chunker/TableChunker",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/ChunkService/ChunkService.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/chunker/TokenChunker.ts",
+      "importSpecifier": "../../chunker/TokenChunker",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/ChunkService/ChunkService.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/tokenizer/DelimTokenizer.ts",
+      "importSpecifier": "../../tokenizer/DelimTokenizer",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/ChunkService/ChunkService.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/utils.ts",
+      "importSpecifier": "../../utils",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/ChunkService/ChunkService.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/PdfService/PdfService.ts",
+      "importSpecifier": "../PdfService/PdfService",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/PdfService/PdfService.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/PdfService/PdfDocument.ts",
+      "importSpecifier": "./PdfDocument",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/PdfService/PdfService.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/PdfService/segmentPage.ts",
+      "importSpecifier": "./segmentPage",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/PdfService/segmentPage.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/utils.ts",
+      "importSpecifier": "../../utils",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/RagService.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/services/ChromaService.ts",
+      "importSpecifier": "./ChromaService",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/packages/rag/src/tokenizer/DelimTokenizer.test.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/packages/rag/src/tokenizer/DelimTokenizer.ts",
+      "importSpecifier": "./DelimTokenizer",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/reference/lambench/src/bench.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/reference/lambench/src/check.ts",
+      "importSpecifier": "./check",
+      "importType": "named"
+    },
+    {
+      "source": "/workspaces/typescript-node/lambench-pro/reference/lambench/src/lamb.test.ts",
+      "target": "/workspaces/typescript-node/lambench-pro/reference/lambench/src/lamb.ts",
+      "importSpecifier": "./lamb",
+      "importType": "named"
+    }
+  ],
+  "metadata": {
+    "generatedAt": "2026-04-24T20:20:03.009Z",
+    "generator": "repo-graph",
+    "nodeCount": 100,
+    "edgeCount": 81
+  }
+}

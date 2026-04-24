@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "scanned_at": "2026-04-24T18:32:03.079Z",
+  "files": [
+    {
+      "path": ".github/actions/setup/action.yml",
+      "title": "action.yml",
+      "summary": "name: Setup with Bun description: Perform standard setup and install dependencies using bun. inputs: node-version: description: The version of Node.js to install required: true default: 22.x runs: ...",
+      "lines": 34,
+      "mtime": 1777053523676.1985
+    },
+    {
+      "path": ".github/copilot-instructions.md",
+      "title": "copilot-instructions.md",
+      "summary": "AGENTS.md",
+      "lines": 1,
+      "mtime": 1777053523676.1985
+    },
+    {
+      "path": ".github/pull_request_template.md",
+      "title": "pull_request_template.md",
+      "summary": "<!--- What was the goal and scope of this PR ---> <!--- How should it be measured as successful--> <!--- What would you like the reviewer to focus on --> <!--- Provide a general summary of the PR -...",
+      "lines": 25,
+      "mtime": 1777053523676.1985
+    },
+    {
+      "path": ".github/workflows/check-client.yml",
+      "title": "check-client.yml",
+      "summary": "name: Check - Client on: workflow_dispatch: push: branches: - main paths: - \"apps/client/**\" - \"packages/domain/**\" pull_request: branches: - main paths: - \"apps/client/**\" - \"packages/domain/**\" j...",
+      "lines": 77,
+      "mtime": 1777053523676.1985
+    },
+    {
+      "path": ".github/workflows/check-server.yml",
+      "title": "check-server.yml",
+      "summary": "name: Check - Server on: workflow_dispatch: push: branches: - main paths: - \"apps/server/**\" - \"packages/domain/**\" pull_request: branches: - main paths: - \"apps/server/**\" - \"packages/domain/**\" j...",
+      "lines": 74,
+      "mtime": 1777053523676.1985
+    },
+    {
+      "path": ".opencode/AGENTS.md",
+      "title": "AGENTS.md — Master Rules & Workflow",
+      "summary": "| Section | Location | |---------|----------| | Project Brain | [MEMORY.md](./MEMORY.md) | | Directory Structure | [below](#directory-structure) | | Workflow | [below](#workflow) | | Branch Strateg...",
+      "lines": 247,
+      "mtime": 1777052923355.6704
+    },
+    {
+      "path": ".opencode/specs/README.md",
+      "title": "Specifications",
+      "summary": "This directory contains specifications for all major features and enhancements in the Effect library, following a structured spec-driven development approach that ensures systematic planning, imple...",
+      "lines": 26,
+      "mtime": 1777052927243.9656
+    },
+    {
+      "path": "AGENTS.md",
+      "title": "AGENTS.md",
+      "summary": "> Note: This file is the authoritative source for coding agent instructions. If > in doubt, prefer AGENTS.md over README.md. See nested AGENTS.md files in each > workspace for app-specific patterns...",
+      "lines": 78,
+      "mtime": 1777053523676.1985
+    },
+    {
+      "path": "apps/client/AGENTS.md",
+      "title": "Client AGENTS.md",
+      "summary": "> See root `/AGENTS.md` for monorepo conventions. | Command                    | Purpose                      | | -------------------------- | ---------------------------- | | `bun dev --filter=cli...",
+      "lines": 104,
+      "mtime": 1777053523676.1985
+    },
+    {
+      "path": "apps/client/README.md",
+      "title": "Client App",
+      "summary": "Demo UI for the edu_effect-rag-builder experiment. Built with Vite + React and designed to showcase RAG and chat/agent flows. - **React 19** - UI framework - **Vite 8** - Build tool and dev server ...",
+      "lines": 84,
+      "mtime": 1777053523676.1985
+    },
+    {
+      "path": "e2e/README.md",
+      "title": "E2E Tests",
+      "summary": "End-to-end tests using Playwright. ```bash bun run test:e2e ``` This runs tests directly on your machine. Note that visual regression tests may fail locally on macOS since snapshots are generated f...",
+      "lines": 60,
+      "mtime": 1777053523680.1987
+    },
+    {
+      "path": "packages/ai/README.md",
+      "title": "@repo/ai",
+      "summary": "Shared AI tooling for edu_effect-rag-builder, built with Effect and @effect/ai. This package provides reusable language model layers, a chat service that streams events, and toolkits for agentic wo...",
+      "lines": 54,
+      "mtime": 1777053523684.1992
+    },
+    {
+      "path": "packages/domain/AGENTS.md",
+      "title": "Domain Package AGENTS.md",
+      "summary": "> See root `/AGENTS.md` for monorepo conventions. Shared schemas, types, and RPC definitions used by both client and server. ```typescript // 1. Branded types for type-safe IDs export const ClientI...",
+      "lines": 104,
+      "mtime": 1777053523684.1992
+    },
+    {
+      "path": "packages/domain/README.md",
+      "title": "@repo/domain",
+      "summary": "Shared schemas and RPC contracts for the edu_effect-rag-builder experiment, built with Effect Schema. This package provides type-safe schemas and utilities shared between the client and server appl...",
+      "lines": 49,
+      "mtime": 1777053523684.1992
+    },
+    {
+      "path": "packages/observability/AGENTS.md",
+      "title": "Observability Package AGENTS.md",
+      "summary": "> See root `/AGENTS.md` for monorepo conventions. Shared OpenTelemetry wiring for Effect apps. Enables tracing when required environment variables are set and no-ops otherwise. - `OTEL_EXPORTER_OTL...",
+      "lines": 29,
+      "mtime": 1777053523684.1992
+    },
+    {
+      "path": "packages/observability/README.md",
+      "title": "@repo/observability",
+      "summary": "Shared OpenTelemetry setup for edu_effect-rag-builder using Effect. This package centralizes OTEL configuration so apps can enable tracing by providing environment variables instead of wiring expor...",
+      "lines": 57,
+      "mtime": 1777053523684.1992
+    },
+    {
+      "path": "packages/rag/README.md",
+      "title": "@repo/rag",
+      "summary": "",
+      "lines": 2,
+      "mtime": 1777053523684.1992
+    },
+    {
+      "path": "README.md",
+      "title": "edu_effect-rag-builder",
+      "summary": "An experimental AI/RAG toolkit monorepo for exploring different retrieval pipelines, sources, and interaction patterns. Built with Bun, Effect, Vite, and React for end-to-end type safety and fast i...",
+      "lines": 194,
+      "mtime": 1777053523676.1985
+    }
+  ]
+}

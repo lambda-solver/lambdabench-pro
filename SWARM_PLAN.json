@@ -1,0 +1,281 @@
+{
+  "schema_version": "1.0.0",
+  "title": "LamBench-Pro Leaderboard on GitHub Pages",
+  "swarm": "lambench-pro-leaderboard",
+  "current_phase": 1,
+  "phases": [
+    {
+      "id": 1,
+      "name": "Domain schemas",
+      "status": "in_progress",
+      "tasks": [
+        {
+          "id": "1.1",
+          "phase": 1,
+          "status": "in_progress",
+          "size": "small",
+          "description": "Create packages/domain/src/Benchmark.ts with Effect Schema types: Ranking (model, right, total, pct, avgTime, timestamp, tasks pass map, taskBits, taskRefs, pricePerMOutputTokens), BenchmarkData (rankings, tasks, categories, generatedAt), ValueEntry (model, passRate, price, passPerDollar). Export schemas and TypeScript types. All schemas use Schema.Struct, Schema.Array, Schema.Record(key,value) per Effect 4 beta API.",
+          "depends": [],
+          "acceptance": "BenchmarkData schema compiles, types exported from domain package index",
+          "files_touched": []
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Lamb interpreter",
+      "status": "in_progress",
+      "tasks": [
+        {
+          "id": "2.1",
+          "phase": 2,
+          "status": "in_progress",
+          "size": "large",
+          "description": "Write reference/lambench/src/lamb.ts: minimal Lamb interpreter in Bun TypeScript. Parser: tokenize and parse @name=term, lambda x., application f(a,b), variables, @refs. Evaluator: normal-order beta reduction to full normal form (normalize under lambdas). Printer: canonical variable names (a,b,c,...). --to-bin flag: BLC encoding. NOTE: lamb.ts is a CLI script run by Bun, NOT an Effect program - plain TS is correct here since it replaces an external binary.",
+          "depends": [],
+          "acceptance": "bun lamb.ts evaluates cnat_add correctly (@main(0,0)=la.lb.b), --to-bin returns bit string, tests pass",
+          "files_touched": []
+        },
+        {
+          "id": "2.2",
+          "phase": 2,
+          "status": "pending",
+          "size": "small",
+          "description": "Update reference/lambench/src/check.ts: if lam-hs and lam not found, default LAM_BIN to 'bun <abs-path>/lamb.ts'. Add reference/lambench/src/lamb.test.ts with unit tests for parse+eval (identity, cnat_add(0,0), bool not). NOTE: check.ts and bench.ts are also plain Bun scripts (not Effect programs) - keep them in their existing style.",
+          "depends": [
+            "2.1"
+          ],
+          "acceptance": "check.ts falls back to lamb.ts, bun test passes lamb.test.ts",
+          "files_touched": []
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Evaluation runner and build script",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "3.1",
+          "phase": 3,
+          "status": "pending",
+          "size": "medium",
+          "description": "Create reference/lambench/src/eval-runner.ts: fetch GET https://openrouter.ai/api/v1/models with OPENROUTER_API_KEY, fetch https://openrouter.ai/rankings HTML to determine top 2 model IDs by rank, output {modelId, pricePerMOutput}[] for top 2. Fallback: TOP_MODELS env var. Modify reference/lambench/src/bench.ts to accept --price-per-m flag and embed pricePerMOutputTokens in report JSON. Plain Bun scripts, no Effect.",
+          "depends": [],
+          "acceptance": "eval-runner.ts outputs JSON with 2 models including pricing when OPENROUTER_API_KEY set",
+          "files_touched": []
+        },
+        {
+          "id": "3.2",
+          "phase": 3,
+          "status": "pending",
+          "size": "medium",
+          "description": "Modify reference/lambench/scripts/build.ts to output apps/client/public/data/results.json (BenchmarkData schema shape) alongside or instead of docs/index.html. Include generatedAt ISO timestamp and pricePerMOutputTokens per ranking. Add reference/lambench/scripts/seed-data.ts: generates mock results.json with 2 sample models for local dev. Plain Bun scripts.",
+          "depends": [
+            "3.1"
+          ],
+          "acceptance": "build.ts writes valid results.json; seed-data.ts creates usable mock data matching BenchmarkData schema",
+          "files_touched": []
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Client atom and CSS",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "4.1",
+          "phase": 4,
+          "status": "pending",
+          "size": "medium",
+          "description": "Update apps/client/src/lib/atom.ts: remove RpcClient layer, use Layer.empty (static site, no server). Delete rpc-client.ts, atoms/chat-atom.ts, atoms/chunker-atom.ts, atoms/upload-atom.ts. Create apps/client/src/lib/atoms/benchmark-atom.ts using Effect Atom pattern: runtime.fn(() => Effect.gen(function*() { ... })) to fetch and decode results.json via FetchHttpClient. Use AsyncResult.match in components. Compute ValueEntry[] client-side.",
+          "depends": [],
+          "acceptance": "benchmark-atom loads results.json, AsyncResult states (Initial/Success/Failure) work, type-check passes",
+          "files_touched": []
+        },
+        {
+          "id": "4.2",
+          "phase": 4,
+          "status": "pending",
+          "size": "small",
+          "description": "Add Solarized CSS variables to apps/client/src/index.css alongside existing OKLCH tokens: --sol-base03 through --sol-base3, --sol-yellow, --sol-orange, --sol-red, --sol-magenta, --sol-violet, --sol-blue, --sol-cyan, --sol-green. Light mode: Solarized light background. Dark mode: Solarized dark. Map to custom Tailwind tokens in @theme inline block.",
+          "depends": [],
+          "acceptance": "CSS variables defined for both light and dark modes, custom Tailwind tokens available",
+          "files_touched": []
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "UI primitives",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "5.1",
+          "phase": 5,
+          "status": "pending",
+          "size": "small",
+          "description": "Create apps/client/src/components/leaderboard/VimLine.tsx: Vim-style line with optional line number (ln) and content (lc) columns. Create BarChart.tsx: ASCII block bar with Solarized color thresholds (>=70% green, >=45% blue, >=20% yellow, else red). Create TabLine.tsx: sticky top tab strip with tab buttons using Solarized tokens. All pure React components using cn() and existing Tailwind patterns.",
+          "depends": [],
+          "acceptance": "Components render correctly, VimLine shows ln+lc columns, BarChart fills correctly",
+          "files_touched": []
+        },
+        {
+          "id": "5.2",
+          "phase": 5,
+          "status": "pending",
+          "size": "small",
+          "description": "Create apps/client/src/components/leaderboard/TaskModal.tsx: modal overlay showing task id, category, description lines, sample tests (input/expected), per-model pass/fail icons. Closes on Escape key (useEffect keydown) or overlay click. Uses VimLine for rows. Pure React component.",
+          "depends": [],
+          "acceptance": "Modal opens with task data, closes on Escape, shows tests and model results",
+          "files_touched": []
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "Leaderboard panels",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "6.1",
+          "phase": 6,
+          "status": "pending",
+          "size": "medium",
+          "description": "Create IntelligencePanel.tsx, SpeedPanel.tsx, ElegancePanel.tsx in apps/client/src/components/leaderboard/. Each receives BenchmarkData as props (no async inside). Intelligence: sorted by right desc, VimLine+BarChart per model. Speed: 60/avgTime desc. Elegance: mean shorter% = (1-bits/ref)*100. Pure React components using Solarized CSS vars.",
+          "depends": [],
+          "acceptance": "All 3 panels render with correct sorting and bar chart fill",
+          "files_touched": []
+        },
+        {
+          "id": "6.2",
+          "phase": 6,
+          "status": "pending",
+          "size": "medium",
+          "description": "Create ValuePanel.tsx: table Model|Pass%|Price/1M output|Pass/Dollar sorted by passPerDollar desc, styled with Solarized tokens. Create ProblemsPanel.tsx: category filter buttons, task list with pass/fail dots per model, click opens TaskModal via onTaskClick prop. Create MatrixPanel.tsx: scrollable model x task grid with checkmark/cross per cell, row click opens TaskModal. Pure React components.",
+          "depends": [
+            "6.1"
+          ],
+          "acceptance": "ValuePanel shows correct pass/dollar, ProblemsPanel filters work, MatrixPanel scrolls horizontally",
+          "files_touched": []
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "App shell and Vite config",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "7.1",
+          "phase": 7,
+          "status": "pending",
+          "size": "medium",
+          "description": "Rewrite apps/client/src/app.tsx: useAtomValue(benchmarkAtom) for data (or useAtom), useState for active tab (instant switch, no re-fetch), render TabLine + 6 panels + StatusLine. Use AsyncResult.match for loading/error/success states. Remove all RAG imports. Delete chat-box.tsx, chunker-visualizer.tsx, upload-card.tsx, components/chunker/ directory. Update app.test.tsx for new structure.",
+          "depends": [
+            "6.2",
+            "4.1"
+          ],
+          "acceptance": "App renders leaderboard with 6 tabs, tab switching is instant, loading/error states shown",
+          "files_touched": []
+        },
+        {
+          "id": "7.2",
+          "phase": 7,
+          "status": "pending",
+          "size": "small",
+          "description": "Update apps/client/vite.config.ts: base from VITE_BASE_URL env var defaulting to /. Remove @repo/rag from optimizeDeps. Create apps/client/.env.example with VITE_BASE_URL=/ docs. Update apps/client/package.json: remove @repo/rag dependency. Update main.tsx if needed to remove server-dependent providers.",
+          "depends": [
+            "7.1"
+          ],
+          "acceptance": "vite build succeeds, BASE_URL configurable via .env",
+          "files_touched": []
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "GitHub Actions workflows",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "8.1",
+          "phase": 8,
+          "status": "pending",
+          "size": "medium",
+          "description": "Create .github/workflows/benchmark.yml: schedule cron 0 4 * * 1 + workflow_dispatch. Steps: checkout, setup bun, install deps, run eval-runner to get top 2 models, run bench.ts for each, run build.ts to write results.json, commit+push results.json, vite build with VITE_BASE_URL, deploy to GitHub Pages via actions/upload-pages-artifact + actions/deploy-pages. Env: OPENROUTER_API_KEY secret, VITE_BASE_URL var.",
+          "depends": [],
+          "acceptance": "Workflow YAML is valid, has correct GitHub Pages deployment permissions (id-token: write, pages: write)",
+          "files_touched": []
+        },
+        {
+          "id": "8.2",
+          "phase": 8,
+          "status": "pending",
+          "size": "small",
+          "description": "Update .github/workflows/check-client.yml: fix actions/checkout from v6 to v4 (v6 does not exist). Add deploy job triggered on main push that builds and deploys current results.json to GitHub Pages (reuses existing results.json without re-running eval). Setup action must also use correct version.",
+          "depends": [
+            "8.1"
+          ],
+          "acceptance": "check-client.yml has valid action versions and correct deploy job",
+          "files_touched": []
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Tests",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "9.1",
+          "phase": 9,
+          "status": "pending",
+          "size": "medium",
+          "description": "Write client tests using vitest-browser-react pattern: app.test.tsx (6 tabs present, tab switching works with mock BenchmarkData). VimLine.test.tsx (renders ln+lc). BarChart.test.tsx (correct color class per threshold). IntelligencePanel.test.tsx (sorted by pass rate). ValuePanel.test.tsx (passPerDollar = passRate/price). benchmark-atom.test.ts (mock fetch, AsyncResult Initial->Success state). All tests import from @effect/atom-react for hook testing context.",
+          "depends": [
+            "7.1"
+          ],
+          "acceptance": "bun test --filter=client passes all tests",
+          "files_touched": []
+        },
+        {
+          "id": "9.2",
+          "phase": 9,
+          "status": "pending",
+          "size": "small",
+          "description": "Write reference/lambench/src/lamb.test.ts: unit tests for Lamb interpreter. Test: identity function, cnat_add(0,0)=la.lb.b, cnat_add(1,1)=la.lb.a(a(b)), bool not, --to-bin returns non-empty string. Uses bun:test.",
+          "depends": [
+            "2.2"
+          ],
+          "acceptance": "bun test in reference/lambench passes lamb.test.ts",
+          "files_touched": []
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "Seed data and local dev verification",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "10.1",
+          "phase": 10,
+          "status": "pending",
+          "size": "small",
+          "description": "Run bun reference/lambench/scripts/seed-data.ts to generate apps/client/public/data/results.json with 2 mock model entries. Verify bun dev --filter=client starts and leaderboard loads from mock data with all 6 tabs rendering. Run bun build --filter=client to verify production build succeeds for GitHub Pages.",
+          "depends": [
+            "9.1",
+            "3.2"
+          ],
+          "acceptance": "bun dev --filter=client works offline with mock data, bun build --filter=client succeeds",
+          "files_touched": []
+        }
+      ]
+    }
+  ],
+  "migration_status": "native",
+  "specMtime": "2026-04-24T19:10:22.285Z",
+  "specHash": "db3966c86d39db2a25b4cfa03b3cdda94530ebbc1f5d924ee889f22702eccf43"
+}
