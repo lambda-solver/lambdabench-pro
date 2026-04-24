@@ -4,10 +4,10 @@
 
 | Tool | Calls | Success | Failed | Avg Duration |
 |------|-------|---------|--------|--------------|
-| bash | 316 | 316 | 0 | 2362ms |
-| read | 137 | 137 | 0 | 72ms |
-| write | 55 | 55 | 0 | 19ms |
-| edit | 52 | 52 | 0 | 18ms |
+| bash | 333 | 333 | 0 | 2344ms |
+| read | 147 | 147 | 0 | 69ms |
+| edit | 59 | 59 | 0 | 20ms |
+| write | 57 | 57 | 0 | 20ms |
 | grep | 29 | 29 | 0 | 32ms |
 | update_task_status | 26 | 26 | 0 | 19ms |
 | glob | 25 | 25 | 0 | 61ms |
@@ -22,3 +22,4 @@
 | set_qa_gates | 1 | 1 | 0 | 32ms |
 | get_qa_gate_profile | 1 | 1 | 0 | 6ms |
 | lint | 1 | 1 | 0 | 374ms |
+| webfetch | 1 | 1 | 0 | 126ms |

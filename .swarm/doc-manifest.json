@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "scanned_at": "2026-04-24T22:14:10.299Z",
+  "scanned_at": "2026-04-24T22:32:24.386Z",
   "files": [
     {
       "path": ".github/actions/setup/action.yml",
@@ -68,9 +68,9 @@
     {
       "path": "apps/client/AGENTS.md",
       "title": "Client AGENTS.md",
-      "summary": "> See root `/AGENTS.md` for monorepo conventions. | Command                    | Purpose                      | | -------------------------- | ---------------------------- | | `bun dev --filter=cli...",
-      "lines": 104,
-      "mtime": 1777053523676.1985
+      "summary": "> See root `/AGENTS.md` for monorepo conventions. | Command                    | Purpose                                      | | -------------------------- | --------------------------------------...",
+      "lines": 146,
+      "mtime": 1777069942018.0024
     },
     {
       "path": "apps/client/README.md",
