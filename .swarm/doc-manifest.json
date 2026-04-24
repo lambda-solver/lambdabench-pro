@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "scanned_at": "2026-04-24T20:57:03.798Z",
+  "scanned_at": "2026-04-24T21:53:31.576Z",
   "files": [
     {
       "path": ".github/actions/setup/action.yml",
@@ -27,8 +27,8 @@
       "path": ".github/workflows/benchmark.yml",
       "title": "Every Monday at 04:00 UTC",
       "summary": "name: Benchmark on: schedule: - cron: \"0 4 * * 1\" workflow_dispatch: inputs: top_models: description: \"Comma-separated model IDs to benchmark (leave blank to auto-fetch top 2)\" required: false defa...",
-      "lines": 100,
-      "mtime": 1777062772019.9197
+      "lines": 106,
+      "mtime": 1777067567389.4443
     },
     {
       "path": ".github/workflows/check-client.yml",
@@ -130,10 +130,10 @@
     },
     {
       "path": "README.md",
-      "title": "edu_effect-rag-builder",
-      "summary": "An experimental AI/RAG toolkit monorepo for exploring different retrieval pipelines, sources, and interaction patterns. Built with Bun, Effect, Vite, and React for end-to-end type safety and fast i...",
-      "lines": 194,
-      "mtime": 1777053523676.1985
+      "title": "LamBench Pro",
+      "summary": "A lambda calculus benchmark leaderboard for AI models. Evaluates the top OpenRouter models weekly on 120 lambda calculus tasks and publishes results as a Solarized/Vim-style tabbed leaderboard on G...",
+      "lines": 137,
+      "mtime": 1777067610019.7446
     },
     {
       "path": "reference/lambench/README.md",
