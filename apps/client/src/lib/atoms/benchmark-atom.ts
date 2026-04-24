@@ -1,6 +1,6 @@
 import type { BenchmarkData, ValueEntry } from "@repo/domain/Benchmark";
 import { BenchmarkData as BenchmarkDataSchema } from "@repo/domain/Benchmark";
-import { Array as Arr, Effect, Schema } from "effect";
+import { Array as Arr, Effect, Order, Schema } from "effect";
 import { HttpClient } from "effect/unstable/http";
 import { runtime } from "../atom";
 
@@ -14,6 +14,12 @@ const resultsUrl = (): string => {
 
 // ─── Derived: Value entries (pass rate / price per 1M output) ─────────────────
 
+const byPassPerDollarDesc = Order.make<ValueEntry>((a, b) => {
+  if (b.passPerDollar > a.passPerDollar) return 1;
+  if (b.passPerDollar < a.passPerDollar) return -1;
+  return 0;
+});
+
 export const computeValueEntries = (data: BenchmarkData): ReadonlyArray<ValueEntry> =>
   Arr.sort(
     data.rankings.map(r => ({
@@ -25,7 +31,7 @@ export const computeValueEntries = (data: BenchmarkData): ReadonlyArray<ValueEnt
           ? parseFloat(r.pct) / r.pricePerMOutputTokens
           : 0,
     })),
-    { compare: (a, b) => b.passPerDollar - a.passPerDollar },
+    byPassPerDollarDesc,
   );
 
 // ─── Atom ─────────────────────────────────────────────────────────────────────
@@ -47,7 +53,7 @@ export const benchmarkAtom = runtime.atom(
     const client = yield* HttpClient.HttpClient;
     const response = yield* client.get(resultsUrl());
     const body = yield* response.json;
-    const data = yield* Schema.decode(BenchmarkDataSchema)(body);
+    const data = yield* Schema.decodeUnknownEffect(BenchmarkDataSchema)(body);
     return data;
   }),
 );

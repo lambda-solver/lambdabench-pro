@@ -58,7 +58,7 @@ export function ProblemsPanel({ data, onTaskClick }: ProblemsPanelProps) {
             : <span key={r.model} className="text-[var(--sol-red)]">●</span>,
         );
 
-        const desc = task.description.split("\n")[0];
+        const desc = task.description.split("\n")[0] ?? "";
         const truncated = desc.length > 60 ? desc.slice(0, 57) + "..." : desc;
 
         return (

@@ -97,6 +97,71 @@ import { HttpClient } from "effect/unstable/http"  // in packages/domain/
 import { HttpClient } from "effect/unstable/http"  // in apps/client/
 ```
 
+## ❌ let reassignment inside Effect.gen
+
+Branching with `let` and reassigning inside `Effect.gen` defeats the functional
+model — the type system can't guarantee the variable is always initialised and
+the intent becomes harder to follow.
+
+```typescript
+// ❌ let reassignment — value depends on implicit mutation
+const program = Effect.gen(function* () {
+  let top: ReadonlyArray<TopModel>
+
+  if (devMode) {
+    yield* Effect.log("dev mode")
+    top = DEV_MOCK_MODELS           // mutation
+  } else if (!apiKey) {
+    top = topModelsFromEnv(fallbackEnv!)  // mutation
+  } else {
+    top = yield* getTopModels(apiKey, 2) // mutation
+  }
+
+  process.stdout.write(JSON.stringify(top))
+})
+```
+
+**Fix:** extract a helper that returns an `Effect` for each branch, then
+`const value = yield*` it once in the generator:
+
+```typescript
+// ✅ Each branch returns Effect; caller binds with const
+const resolveTopModels = (
+  devMode: boolean,
+  apiKey: string | undefined,
+  fallbackEnv: string | undefined,
+): Effect.Effect<ReadonlyArray<TopModel>, Error, HttpClient.HttpClient> => {
+  if (devMode) {
+    return Effect.andThen(
+      Effect.log("dev mode"),
+      Effect.succeed(DEV_MOCK_MODELS),
+    )
+  }
+  if (!apiKey) {
+    return fallbackEnv
+      ? Effect.succeed(topModelsFromEnv(fallbackEnv))
+      : Effect.fail(new Error("no credentials"))
+  }
+  return getTopModels(apiKey, 2).pipe(
+    Effect.catchAll((e) =>
+      fallbackEnv
+        ? Effect.succeed(topModelsFromEnv(fallbackEnv))
+        : Effect.fail(e instanceof Error ? e : new Error(String(e))),
+    ),
+  )
+}
+
+const program = Effect.gen(function* () {
+  const top = yield* resolveTopModels(devMode, apiKey, fallbackEnv) // const ✓
+  process.stdout.write(JSON.stringify(top))
+})
+```
+
+> **Note:** `let` is fine in plain Bun/TS scripts (no Effect involved), in
+> accumulator loops over plain data, and in React render line-counters.
+> The anti-pattern is specifically `let` + branch-reassignment *inside*
+> `Effect.gen` where the mutation obscures which effect path ran.
+
 ## ❌ async/await inside Effect.gen
 
 ```typescript

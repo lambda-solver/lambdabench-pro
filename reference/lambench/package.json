@@ -1,0 +1,18 @@
+{
+  "name": "lambench",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "bench": "bun src/bench.ts",
+    "check": "bun src/check.ts",
+    "build": "bun scripts/build.ts"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "^3.0.71",
+    "@ai-sdk/google": "^3.0.64",
+    "@ai-sdk/openai-compatible": "^2.0.41",
+    "@ai-sdk/xai": "^3.0.83",
+    "ai": "^6.0.168",
+    "effect": "4.0.0-beta.41"
+  }
+}

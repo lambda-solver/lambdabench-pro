@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LamBench</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --base03:  #002b36;
+  --base02:  #073642;
+  --base01:  #586e75;
+  --base00:  #657b83;
+  --base0:   #839496;
+  --base1:   #93a1a1;
+  --base2:   #eee8d5;
+  --base3:   #fdf6e3;
+  --yellow:  #b58900;
+  --orange:  #cb4b16;
+  --red:     #dc322f;
+  --magenta: #d33682;
+  --violet:  #6c71c4;
+  --blue:    #268bd2;
+  --cyan:    #2aa198;
+  --green:   #859900;
+}
+
+body {
+  font-family: 'SF Mono', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  background: var(--base3);
+  color: var(--base00);
+  min-height: 100vh;
+}
+
+/* ── vim chrome ──────────────────────────────────────── */
+
+.vim {
+  max-width: 820px;
+  margin: 0 auto;
+  border-left: 1px solid var(--base2);
+  border-right: 1px solid var(--base2);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.buf {
+  flex: 1;
+  padding: 0;
+}
+
+.line {
+  display: flex;
+  min-height: 1.5em;
+}
+
+.ln {
+  width: 4ch;
+  text-align: right;
+  padding-right: 1ch;
+  color: var(--base1);
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.lc {
+  flex: 1;
+  padding-right: 1ch;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.tilde .ln { color: var(--blue); }
+.tilde .lc { color: var(--blue); }
+
+/* ── statusline ──────────────────────────────────────── */
+
+.statusline {
+  background: var(--base2);
+  color: var(--base01);
+  padding: 0 1ch;
+  display: flex;
+  justify-content: space-between;
+  line-height: 1.8;
+  border-top: 1px solid var(--base1);
+  position: sticky;
+  bottom: 0;
+}
+
+.statusline a {
+  color: var(--blue);
+  text-decoration: none;
+}
+.statusline a:hover { text-decoration: underline; }
+
+/* ── tabline ─────────────────────────────────────────── */
+
+.tabline {
+  background: var(--base2);
+  display: flex;
+  border-bottom: 1px solid var(--base1);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.tabline button {
+  font-family: inherit;
+  font-size: inherit;
+  background: var(--base2);
+  color: var(--base01);
+  border: none;
+  padding: 0 2ch;
+  line-height: 1.8;
+  cursor: pointer;
+}
+
+.tabline button:hover { background: var(--base3); }
+.tabline button.active {
+  background: var(--base3);
+  color: var(--base00);
+  font-weight: bold;
+}
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ── colors ──────────────────────────────────────────── */
+
+.h1      { color: var(--yellow); font-weight: bold; }
+.h2      { color: var(--orange); font-weight: bold; }
+.comment { color: var(--base1); }
+.keyword { color: var(--green); }
+.string  { color: var(--cyan); }
+.type    { color: var(--violet); }
+.func    { color: var(--blue); }
+.err     { color: var(--red); }
+.ok      { color: var(--green); }
+.num     { color: var(--magenta); }
+.bold    { font-weight: bold; }
+.dim     { color: var(--base1); }
+
+/* ── bar chart ───────────────────────────────────────── */
+
+.bar {
+  display: inline-block;
+  height: 1em;
+  vertical-align: middle;
+  border-radius: 1px;
+}
+
+.bar-green  { background: var(--green); }
+.bar-blue   { background: var(--blue); }
+.bar-yellow { background: var(--yellow); }
+.bar-red    { background: var(--red); }
+.bar-bg     { background: var(--base2); display: inline-block; height: 1em; vertical-align: middle; border-radius: 1px; }
+
+/* ── filter row ──────────────────────────────────────── */
+
+.filter-row { padding: 0; }
+
+.fbtn {
+  font-family: inherit;
+  font-size: inherit;
+  background: none;
+  border: none;
+  color: var(--base1);
+  cursor: pointer;
+  padding: 0;
+  margin-right: 1ch;
+}
+.fbtn:hover { color: var(--base00); }
+.fbtn.active { color: var(--yellow); font-weight: bold; }
+
+/* ── task row hover ──────────────────────────────────── */
+
+.task-line { cursor: pointer; }
+.task-line:hover .lc { background: var(--base2); }
+.task-line .lc {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── matrix table ──────────────────────────────────── */
+
+.matrix-wrap {
+  overflow-x: auto;
+  padding: 0.5em 0;
+}
+
+table.matrix {
+  border-collapse: collapse;
+  font-family: inherit;
+  font-size: 12px;
+  margin: 0 auto;
+}
+
+table.matrix th, table.matrix td {
+  padding: 2px 6px;
+  border: 1px solid var(--base2);
+  text-align: center;
+  white-space: nowrap;
+}
+
+table.matrix thead th {
+  position: sticky;
+  top: 0;
+  background: var(--base3);
+  border-bottom: 1px solid var(--base1);
+  color: var(--base01);
+  font-weight: normal;
+}
+
+table.matrix th.mcol {
+  height: 8em;
+  vertical-align: bottom;
+  padding: 4px 2px;
+  min-width: 1.8em;
+  max-width: 1.8em;
+  width: 1.8em;
+}
+
+table.matrix th.mcol > div {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  white-space: nowrap;
+  color: var(--blue);
+  font-family: inherit;
+}
+
+table.matrix td.pid {
+  text-align: left;
+  color: var(--keyword, var(--green));
+  font-weight: bold;
+  padding-right: 10px;
+}
+
+table.matrix .ok  { color: var(--green); }
+table.matrix .err { color: var(--red); }
+
+table.matrix tbody tr:hover td { background: var(--base2); }
+
+/* ── modal ────────────────────────────────────────────── */
+
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,43,54,0.35);
+  z-index: 100;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 4em 1em;
+  overflow-y: auto;
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--base3);
+  border: 1px solid var(--base1);
+  max-width: 760px;
+  width: 100%;
+  padding: 0;
+  font-size: 13px;
+}
+
+.modal-tabline {
+  background: var(--base2);
+  border-bottom: 1px solid var(--base1);
+  display: flex;
+  justify-content: space-between;
+  padding: 0 1ch;
+  line-height: 1.8;
+}
+
+.modal-tabline .title { color: var(--base00); font-weight: bold; }
+.modal-close {
+  font-family: inherit;
+  background: none;
+  border: none;
+  color: var(--base01);
+  cursor: pointer;
+  font-size: inherit;
+}
+.modal-close:hover { color: var(--red); }
+
+.modal-buf {
+  padding: 0;
+  max-height: 65vh;
+  overflow-y: auto;
+}
+
+.modal-status {
+  background: var(--base2);
+  border-top: 1px solid var(--base1);
+  padding: 0 1ch;
+  line-height: 1.8;
+  color: var(--base01);
+}
+
+@media (max-width: 640px) {
+  body { font-size: 12px; }
+  .ln { width: 3ch; }
+}
+</style>
+</head>
+<body>
+<div class="vim">
+
+<div class="tabline">
+  <button class="active" data-panel="intelligence">:intelligence</button>
+  <button data-panel="speed">:speed</button>
+  <button data-panel="elegance">:elegance</button>
+  <button data-panel="problems">:problems</button>
+  <button data-panel="matrix">:matrix</button>
+</div>
+
+<div class="buf">
+
+<!-- ═══ INTELLIGENCE PANEL ═══ -->
+<div id="intelligence" class="panel active">
+  <div id="intelligence-buf"></div>
+</div>
+
+<!-- ═══ SPEED PANEL ═══ -->
+<div id="speed" class="panel">
+  <div id="speed-buf"></div>
+</div>
+
+<!-- ═══ ELEGANCE PANEL ═══ -->
+<div id="elegance" class="panel">
+  <div id="elegance-buf"></div>
+</div>
+
+<!-- ═══ PROBLEMS PANEL ═══ -->
+<div id="problems" class="panel">
+  <div id="filter-buf"></div>
+  <div id="tasks-buf"></div>
+</div>
+
+<!-- ═══ MATRIX PANEL ═══ -->
+<div id="matrix" class="panel">
+  <div id="matrix-buf"></div>
+</div>
+
+</div><!-- /buf -->
+
+<div class="statusline">
+  <span><a href="https://github.com/VictorTaelin/LamBench">github.com/VictorTaelin/LamBench</a></span>
+  <span id="status-right">v1</span>
+</div>
+
+</div><!-- /vim -->
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal"></div>
+</div>
+
+<script>
+const D = {"rankings":[],"tasks":[{"id":"algo_bfi","category":"algo","categoryName":"Algorithms","description":"Brainfuck interpreter. Given a program (Scott list of\ninstructions) and an input stream (Scott list of Scott\nnats), return the output stream (Scott list of Scott nats).\n\nThe tape is infinite in both directions. All cells start\nat zero. Cells hold natural numbers; Dec on zero stays\nat zero. The loop executes its body while the current\ncell is nonzero.\n\nInstruction encoding (7-variant Scott):\n  Right = λr.λl.λi.λd.λo.λn.λp.r\n  Left  = λr.λl.λi.λd.λo.λn.λp.l\n  Inc   = λr.λl.λi.λd.λo.λn.λp.i\n  Dec   = λr.λl.λi.λd.λo.λn.λp.d\n  Out   = λr.λl.λi.λd.λo.λn.λp.o\n  In    = λr.λl.λi.λd.λo.λn.λp.n\n  Loop(body) = λr.λl.λi.λd.λo.λn.λp.p(body)\nwhere body is itself a Scott list of instructions.\n\nScott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).\nScott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).\n\n@main takes (program, input) and returns the output list.","testCount":10,"tests":[{"input":"@main(λc.λn.n, λc.λn.n)","expected":"λa.λb.b"},{"input":"@main(λc.λn.c(λr.λl.λi.λd.λo.λn.λp.i, λc.λn.c(λr.λl.λi.λd.λo.λn.λp.o, λc.λn.n)), λc.λn.n)","expected":"λa.λb.a(λc.λd.c(λe.λf.f), λc.λd.d)"},{"input":"@main(λc.λn.c(λr.λl.λi.λd.λo.λn.λp.i, λc.λn.c(λr.λl.λi.λd.λo.λn.λp.i, λc.λn.c(λr.λl.λi.λd.λo.λn.λp.i, λc.λn.c(λr.λl.λi.λd.λo.λn.λp.o, λc.λn.n)))), λc.λn.n)","expected":"λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.j))), λc.λd.d)"}]},{"id":"algo_bre","category":"algo","categoryName":"Algorithms","description":"Bresenham's line rasterization. Given two points as\nScott pairs, return a Scott list of all pixel\ncoordinates on the rasterized line from start to end.\n\nThis version only handles cases where the end point\nis greater than or equal to the start point in both\ncoordinates (x1 >= x0 and y1 >= y0).\n\nScott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).\nScott pair: P(x,y) = λp.p(x, y).\nScott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).\n\n@main(P1, P2) returns the list of points on the line.","testCount":10,"tests":[{"input":"@main(λp.p(λs.λz.z, λs.λz.z), λp.p(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))), λs.λz.z))","expected":"λa.λb.a(λc.c(λd.λe.e, λd.λe.e), λc.λd.c(λe.e(λf.λg.f(λh.λi.i), λf.λg.g), λe.λf.e(λg.g(λh.λi.h(λj.λk.j(λl.λm.m)), λh.λi.i), λg.λh.g(λi.i(λj.λk.j(λl.λm.l(λn.λo.n(λp.λq.q))), λj.λk.k), λi.λj.j))))"},{"input":"@main(λp.p(λs.λz.z, λs.λz.z), λp.p(λs.λz.z, λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z)))))","expected":"λa.λb.a(λc.c(λd.λe.e, λd.λe.e), λc.λd.c(λe.e(λf.λg.g, λf.λg.f(λh.λi.i)), λe.λf.e(λg.g(λh.λi.i, λh.λi.h(λj.λk.j(λl.λm.m))), λg.λh.g(λi.i(λj.λk.k, λj.λk.j(λl.λm.l(λn.λo.n(λp.λq.q)))), λi.λj.j))))"},{"input":"@main(λp.p(λs.λz.z, λs.λz.z), λp.p(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))), λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z)))))","expected":"λa.λb.a(λc.c(λd.λe.e, λd.λe.e), λc.λd.c(λe.e(λf.λg.f(λh.λi.i), λf.λg.f(λh.λi.i)), λe.λf.e(λg.g(λh.λi.h(λj.λk.j(λl.λm.m)), λh.λi.h(λj.λk.j(λl.λm.m))), λg.λh.g(λi.i(λj.λk.j(λl.λm.l(λn.λo.n(λp.λq.q))), λj.λk.j(λl.λm.l(λn.λo.n(λp.λq.q)))), λi.λj.j))))"}]},{"id":"algo_dpl","category":"algo","categoryName":"Algorithms","description":"Determine whether a small CNF formula is satisfiable.\nReturn True (λa.λb.a) if SAT, False (λa.λb.b) if UNSAT.\n\nInput: a Scott list of clauses. Each clause is a Scott\nlist of literals. A literal is either:\n  Pos(n) = λp.λn.p(n)  — variable n is positive\n  Neg(n) = λp.λn.n(n)  — variable n is negated\nwhere n is a Scott nat giving the variable index.\n\nAn empty formula (no clauses) is satisfiable. A formula\nwith an empty clause is unsatisfiable.\n\nScott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).\nScott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).\nChurch bool: True = λa.λb.a, False = λa.λb.b.","testCount":11,"tests":[{"input":"@main(λc.λn.n)","expected":"λa.λb.a"},{"input":"@main(λc.λn.c(λc.λn.c(λp.λn.p(λs.λz.z), λc.λn.n), λc.λn.n))","expected":"λa.λb.a"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.n))","expected":"λa.λb.b"}]},{"id":"algo_evl","category":"algo","categoryName":"Algorithms","description":"Lambda calculus evaluator. Given a Scott-encoded lambda\nterm using de Bruijn indices, return its beta-normal form\n(also Scott-encoded).\n\nTerm encoding (3-variant Scott):\n  Lam(body)    = λlam.λapp.λvar.lam(body)\n  App(fun,arg) = λlam.λapp.λvar.app(fun, arg)\n  Var(idx)     = λlam.λapp.λvar.var(idx)\nwhere idx is a Scott nat (de Bruijn index).\n\nScott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).\n\nDe Bruijn convention: Var(0) inside one Lam refers to\nthat binder; higher indices reach outer binders or are\nfree. Beta-reduction must handle shifting and\nsubstitution of de Bruijn indices correctly.\n\n@main takes one Term and returns its beta-normal form.","testCount":0,"tests":[]},{"id":"algo_hul","category":"algo","categoryName":"Algorithms","description":"Convex hull of 2D integer points.\n\nInput: a Scott list of points. Each point is a Scott\npair λp.p(x, y) where x, y are Scott nats.\n\nOutput: a Scott list of points on the convex hull in\ncounter-clockwise order, starting from the\nlexicographically smallest point (smallest x first,\nthen smallest y). Collinear boundary points are\nexcluded — only true vertices of the hull.\n\nDegenerate cases: for 1 point return it; for 2 points\nreturn both in lex order; for all-collinear input\nreturn the two endpoints.\n\nScott nat: Z = λs.λz.z, S(n) = λs.λz.s(n)\nScott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t)\nScott pair: P(x,y) = λp.p(x, y)","testCount":10,"tests":[{"input":"@main(λc.λn.c(λp.p(λs.λz.z, λs.λz.z), λc.λn.n))","expected":"λa.λb.a(λc.c(λd.λe.e, λd.λe.e), λc.λd.d)"},{"input":"@main(λc.λn.c(λp.p(λs.λz.s(λs.λz.s(λs.λz.z)), λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z)))), λc.λn.c(λp.p(λs.λz.z, λs.λz.s(λs.λz.z)), λc.λn.n)))","expected":"λa.λb.a(λc.c(λd.λe.e, λd.λe.d(λf.λg.g)), λc.λd.c(λe.e(λf.λg.f(λh.λi.h(λj.λk.k)), λf.λg.f(λh.λi.h(λj.λk.j(λl.λm.m)))), λe.λf.f))"},{"input":"@main(λc.λn.c(λp.p(λs.λz.z, λs.λz.z), λc.λn.c(λp.p(λs.λz.s(λs.λz.z), λs.λz.s(λs.λz.z)), λc.λn.c(λp.p(λs.λz.s(λs.λz.s(λs.λz.z)), λs.λz.s(λs.λz.s(λs.λz.z))), λc.λn.n))))","expected":"λa.λb.a(λc.c(λd.λe.e, λd.λe.e), λc.λd.c(λe.e(λf.λg.f(λh.λi.h(λj.λk.k)), λf.λg.f(λh.λi.h(λj.λk.k))), λe.λf.f))"}]},{"id":"algo_maz","category":"algo","categoryName":"Algorithms","description":"Shortest path in a 2D grid. The input is a grid\nencoded as a Scott list of rows, where each row is\na Scott list of Church booleans: True means open,\nFalse means wall. Find the shortest path from the\ntop-left corner (0,0) to the bottom-right corner\n(H-1,W-1), moving up/down/left/right through open\ncells only. Return the path length as a Scott nat\n(number of steps). If no path exists, return Z (0).\nStart and end cells are guaranteed open.\n\nScott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).\nScott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).\nChurch bool: True = λa.λb.a, False = λa.λb.b.","testCount":10,"tests":[{"input":"@main(λc.λn.c(λc.λn.c(λa.λb.a, λc.λn.n), λc.λn.n))","expected":"λa.λb.b"},{"input":"@main(λc.λn.c(λc.λn.c(λa.λb.a, λc.λn.c(λa.λb.a, λc.λn.n)), λc.λn.c(λc.λn.c(λa.λb.a, λc.λn.c(λa.λb.a, λc.λn.n)), λc.λn.n)))","expected":"λa.λb.a(λc.λd.c(λe.λf.f))"},{"input":"@main(λc.λn.c(λc.λn.c(λa.λb.a, λc.λn.c(λa.λb.a, λc.λn.c(λa.λb.a, λc.λn.n))), λc.λn.c(λc.λn.c(λa.λb.a, λc.λn.c(λa.λb.a, λc.λn.c(λa.λb.a, λc.λn.n))), λc.λn.c(λc.λn.c(λa.λb.a, λc.λn.c(λa.λb.a, λc.λn.c(λa.λb.a, λc.λn.n))), λc.λn.n))))","expected":"λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.j))))"}]},{"id":"algo_mst","category":"algo","categoryName":"Algorithms","description":"Given a connected undirected weighted graph, compute the\ntotal weight of a minimum spanning tree. Return the sum\nof edge weights in the MST as a Scott nat.\n\nInput: a Scott nat N (node count) and a Scott list of\nedges. Each edge is a triple λe.e(U, V, W) where U and\nV are Scott nat node indices and W is the Scott nat\nweight.\n\nScott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).\nScott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).\nScott triple: T(a,b,c) = λt.t(a, b, c).","testCount":10,"tests":[{"input":"@main(λs.λz.s(λs.λz.s(λs.λz.z)), λc.λn.c(λe.e(λs.λz.z, λs.λz.s(λs.λz.z), λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z)))), λc.λn.n))","expected":"λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.h)))"},{"input":"@main(λs.λz.s(λs.λz.s(λs.λz.z)), λc.λn.c(λe.e(λs.λz.z, λs.λz.s(λs.λz.z), λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z)))))))), λc.λn.n))","expected":"λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.p)))))))"},{"input":"@main(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))), λc.λn.c(λe.e(λs.λz.z, λs.λz.s(λs.λz.z), λs.λz.s(λs.λz.s(λs.λz.z))), λc.λn.c(λe.e(λs.λz.s(λs.λz.z), λs.λz.s(λs.λz.s(λs.λz.z)), λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z)))), λc.λn.c(λe.e(λs.λz.z, λs.λz.s(λs.λz.s(λs.λz.z)), λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))), λc.λn.n))))","expected":"λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.l)))))"}]},{"id":"algo_stl","category":"algo","categoryName":"Algorithms","description":"Type-check a simply-typed lambda calculus term. Given a\nScott-encoded STLC term with type annotations, return a\nChurch boolean: True if the term is well-typed in the\nempty context, False otherwise.\n\nTypes use de Bruijn indices for base types:\n  Base(n)  = λbase.λarr.base(n)\n  Arr(a,b) = λbase.λarr.arr(a, b)\n\nTerms use de Bruijn indices for variables:\n  Lam(ty, body) = λlam.λapp.λvar.lam(ty, body)\n  App(fun, arg) = λlam.λapp.λvar.app(fun, arg)\n  Var(idx)      = λlam.λapp.λvar.var(idx)\n\nwhere n and idx are Scott nats:\n  Z = λs.λz.z, S(n) = λs.λz.s(n).\n\nChurch booleans: True = λa.λb.a, False = λa.λb.b.\n\nTwo types are equal iff they have identical structure.\nIn App(f, x), f must have type Arr(A, B) and x must\nhave type A; the result has type B.","testCount":10,"tests":[{"input":"@main(λlam.λapp.λvar.lam(λbase.λarr.base(λs.λz.z), λlam.λapp.λvar.var(λs.λz.z)))","expected":"λa.λb.a"},{"input":"@main(λlam.λapp.λvar.var(λs.λz.z))","expected":"λa.λb.b"},{"input":"@main(λlam.λapp.λvar.lam(λbase.λarr.base(λs.λz.z), λlam.λapp.λvar.lam(λbase.λarr.base(λs.λz.s(λs.λz.z)), λlam.λapp.λvar.var(λs.λz.s(λs.λz.z)))))","expected":"λa.λb.a"}]},{"id":"algo_sud","category":"algo","categoryName":"Algorithms","description":"Solve a 4×4 Sudoku puzzle.\n\nInput: a Scott list of 4 rows, each row a Scott\nlist of 4 Scott nats. Empty cells are Z (zero),\nfilled cells use S(Z) through S(S(S(S(Z)))) for\ndigits 1 through 4.\n\nOutput: the completed grid in the same format with\nevery cell filled (1-4), satisfying:\n- Each row contains 1, 2, 3, 4 exactly once\n- Each column contains 1, 2, 3, 4 exactly once\n- Each 2×2 box contains 1, 2, 3, 4 exactly once\n\nThe puzzle always has a unique solution.\n\nScott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).\nScott list: Nil = λc.λn.n,\n  Cons(h, t) = λc.λn.c(h, t).","testCount":10,"tests":[{"input":"@main(λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.h), λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.l)), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.p))), λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)))), λk.λl.l)))), λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.n))), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.r)))), λi.λj.i(λk.λl.k(λm.λn.n), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.r)), λm.λn.n)))), λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.n)), λi.λj.i(λk.λl.k(λm.λn.n), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.s(λu.λv.v)))), λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.s(λu.λv.v))), λo.λp.p)))), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)))), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t))), λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)), λo.λp.o(λq.λr.q(λs.λt.t), λq.λr.r)))), λi.λj.j)))))","expected":"λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.h), λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.l)), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.p))), λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)))), λk.λl.l)))), λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.n))), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.r)))), λi.λj.i(λk.λl.k(λm.λn.n), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.r)), λm.λn.n)))), λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.n)), λi.λj.i(λk.λl.k(λm.λn.n), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.s(λu.λv.v)))), λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.s(λu.λv.v))), λo.λp.p)))), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)))), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t))), λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)), λo.λp.o(λq.λr.q(λs.λt.t), λq.λr.r)))), λi.λj.j))))"},{"input":"@main(λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.h), λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.l)), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.p))), λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)))), λk.λl.l)))), λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.n))), λg.λh.g(λi.λj.j, λi.λj.i(λk.λl.k(λm.λn.n), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.r)), λm.λn.n)))), λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.n)), λi.λj.i(λk.λl.k(λm.λn.n), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.s(λu.λv.v)))), λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.s(λu.λv.v))), λo.λp.p)))), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)))), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t))), λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)), λo.λp.o(λq.λr.q(λs.λt.t), λq.λr.r)))), λi.λj.j)))))","expected":"λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.h), λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.l)), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.p))), λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)))), λk.λl.l)))), λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.n))), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.r)))), λi.λj.i(λk.λl.k(λm.λn.n), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.r)), λm.λn.n)))), λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.n)), λi.λj.i(λk.λl.k(λm.λn.n), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.s(λu.λv.v)))), λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.s(λu.λv.v))), λo.λp.p)))), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)))), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t))), λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)), λo.λp.o(λq.λr.q(λs.λt.t), λq.λr.r)))), λi.λj.j))))"},{"input":"@main(λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.h), λe.λf.e(λg.λh.h, λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.n)), λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)))), λk.λl.l)))), λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.l)), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.r)))), λi.λj.i(λk.λl.k(λm.λn.n), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t))), λm.λn.n)))), λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.p))), λi.λj.i(λk.λl.k(λm.λn.n), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.s(λu.λv.v)))), λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)), λo.λp.p)))), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)))), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.r)), λm.λn.m(λo.λp.p, λo.λp.o(λq.λr.q(λs.λt.t), λq.λr.r)))), λi.λj.j)))))","expected":"λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.h), λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.n))), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.n)), λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)))), λk.λl.l)))), λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.l)), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.r)))), λi.λj.i(λk.λl.k(λm.λn.n), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t))), λm.λn.n)))), λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.p))), λi.λj.i(λk.λl.k(λm.λn.n), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.s(λu.λv.v)))), λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)), λo.λp.p)))), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)))), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.r)), λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.s(λu.λv.v))), λo.λp.o(λq.λr.q(λs.λt.t), λq.λr.r)))), λi.λj.j))))"}]},{"id":"algo_tsp","category":"algo","categoryName":"Algorithms","description":"Exact Traveling Salesman Problem (TSP). Given N cities and\na distance matrix D (Scott list of Scott lists of Scott\nnats), find the minimum total distance of a Hamiltonian\ncycle that visits every city exactly once and returns to\nthe start.\n\n@main takes two arguments: a Scott nat N (number of\ncities) and the N×N distance matrix D, where D[i][j] is\nthe distance from city i to city j. Distances may be\nasymmetric. Return the minimum tour cost as a Scott nat.\n\nScott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).\nScott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).","testCount":10,"tests":[{"input":"@main(λs.λz.s(λs.λz.s(λs.λz.z)), λc.λn.c(λc.λn.c(λs.λz.z, λc.λn.c(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))), λc.λn.n)), λc.λn.c(λc.λn.c(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))), λc.λn.c(λs.λz.z, λc.λn.n)), λc.λn.n)))","expected":"λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.n))))))"},{"input":"@main(λs.λz.s(λs.λz.s(λs.λz.z)), λc.λn.c(λc.λn.c(λs.λz.z, λc.λn.c(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))), λc.λn.n)), λc.λn.c(λc.λn.c(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))))), λc.λn.c(λs.λz.z, λc.λn.n)), λc.λn.n)))","expected":"λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.s(λu.λv.u(λw.λx.w(λy.λz.z))))))))))))"},{"input":"@main(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))), λc.λn.c(λc.λn.c(λs.λz.z, λc.λn.c(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))), λc.λn.c(λs.λz.s(λs.λz.z), λc.λn.n))), λc.λn.c(λc.λn.c(λs.λz.s(λs.λz.z), λc.λn.c(λs.λz.z, λc.λn.c(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))), λc.λn.n))), λc.λn.c(λc.λn.c(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z)))), λc.λn.c(λs.λz.s(λs.λz.s(λs.λz.z)), λc.λn.c(λs.λz.z, λc.λn.n))), λc.λn.n))))","expected":"λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.j))))"}]},{"id":"cadt_chi","category":"cadt","categoryName":"Church ADTs","description":"Given a type descriptor and a Church-encoded value,\nreturn its recursive children as a Scott list\nof Church values.\nConstructors with no recursive fields return [].\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Church value folds recursive fields by applying\nthem to all case-handlers:\n  Nat Z:       λz.λs.z\n  Nat S(S(Z)): λz.λs.s(s(z))\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).","testCount":10,"tests":[{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0)","expected":"λa.λb.b"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v1)","expected":"λa.λb.b"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v0)","expected":"λa.λb.b"}]},{"id":"cadt_ctr","category":"cadt","categoryName":"Church ADTs","description":"Build the Nth constructor function for a\nChurch-encoded algebraic data type.\nUnlike Scott, recursive fields are folded by\napplying them to all case-handlers.\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Church value folds recursive fields by applying\nthem to all case-handlers:\n  Nat Z:       λz.λs.z\n  Nat S(S(Z)): λz.λs.s(s(z))\n\nIndex is a Scott nat:\n  Z = λs.λz.z, S(n) = λs.λz.s(n)","testCount":10,"tests":[{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λs.λz.z)","expected":"λa.λb.a"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λs.λz.s(λs.λz.z))","expected":"λa.λb.b"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λs.λz.z)","expected":"λa.λb.a"}]},{"id":"cadt_des","category":"cadt","categoryName":"Church ADTs","description":"Deserialize a Scott list of Church booleans\ninto a Church-encoded value.\n\nEncoding: for N constructors, each index uses\nceil(log2(N)) bits (MSB first), then children.\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Church value folds recursive fields by applying\nthem to all case-handlers:\n  Nat Z:       λz.λs.z\n  Nat S(S(Z)): λz.λs.s(s(z))\n\nChurch booleans: True = λa.λb.a, False = λa.λb.b.\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).","testCount":10,"tests":[{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λc.λn.c(λa.λb.b, λc.λn.n))","expected":"λa.λb.a"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λc.λn.c(λa.λb.a, λc.λn.n))","expected":"λa.λb.b"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λc.λn.c(λa.λb.b, λc.λn.n))","expected":"λa.λb.a"}]},{"id":"cadt_eql","category":"cadt","categoryName":"Church ADTs","description":"Test two Church-encoded values for structural equality.\nReturn True if equal, False otherwise.\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Church value folds recursive fields by applying\nthem to all case-handlers:\n  Nat Z:       λz.λs.z\n  Nat S(S(Z)): λz.λs.s(s(z))\n\nChurch booleans: True = λa.λb.a, False = λa.λb.b.","testCount":10,"tests":[{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0, λv0.λv1.v0)","expected":"λa.λb.a"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0, λv0.λv1.v1)","expected":"λa.λb.b"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v0, λv0.λv1.v0)","expected":"λa.λb.a"}]},{"id":"cadt_fol","category":"cadt","categoryName":"Church ADTs","description":"Convert a Church-encoded value to Scott encoding\n(unfold).\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Church value folds recursive fields by applying\nthem to all case-handlers:\n  Nat Z:       λz.λs.z\n  Nat S(S(Z)): λz.λs.s(s(z))\n\nA Scott value selects the ith of N case-handlers,\napplied to its fields:\n  Nat Z:    λz.λs.z\n  Nat S(n): λn.λz.λs.s(n)","testCount":10,"tests":[{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0)","expected":"λa.λb.a"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v1)","expected":"λa.λb.b"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v0)","expected":"λa.λb.a"}]},{"id":"cadt_idx","category":"cadt","categoryName":"Church ADTs","description":"Given a type descriptor and a Church-encoded value,\nreturn the outermost constructor index as a Scott nat.\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Church value folds recursive fields by applying\nthem to all case-handlers:\n  Nat Z:       λz.λs.z\n  Nat S(S(Z)): λz.λs.s(s(z))\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).","testCount":10,"tests":[{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0)","expected":"λa.λb.b"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v1)","expected":"λa.λb.a(λc.λd.d)"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v0)","expected":"λa.λb.b"}]},{"id":"cadt_len","category":"cadt","categoryName":"Church ADTs","description":"Count all constructors in a Church-encoded value,\nrecursively. Each constructor counts as 1.\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Church value folds recursive fields by applying\nthem to all case-handlers:\n  Nat Z:       λz.λs.z\n  Nat S(S(Z)): λz.λs.s(s(z))\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).","testCount":10,"tests":[{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0)","expected":"λa.λb.a(λc.λd.d)"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v0)","expected":"λa.λb.a(λc.λd.d)"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v1((λv0.λv1.v1((λv0.λv1.v1((λv0.λv1.v0)(v0, v1)))(v0, v1)))(v0, v1)))","expected":"λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.j))))"}]},{"id":"cadt_mrg","category":"cadt","categoryName":"Church ADTs","description":"Merge two Church-encoded values with function F.\nIf both have the same constructor and it has\nrecursive fields, recurse on corresponding children.\nOtherwise return F(V1, V2).\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Church value folds recursive fields by applying\nthem to all case-handlers:\n  Nat Z:       λz.λs.z\n  Nat S(S(Z)): λz.λs.s(s(z))","testCount":10,"tests":[{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λa.λb.λp.p(a, b), λv0.λv1.v0, λv0.λv1.v0)","expected":"λa.a(λb.λc.b, λb.λc.b)"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λa.λb.λp.p(a, b), λv0.λv1.v0, λv0.λv1.v1)","expected":"λa.a(λb.λc.b, λb.λc.c)"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λa.λb.λp.p(a, b), λv0.λv1.v0, λv0.λv1.v0)","expected":"λa.a(λb.λc.b, λb.λc.b)"}]},{"id":"cadt_rev","category":"cadt","categoryName":"Church ADTs","description":"Reverse the fields of every constructor in a\nChurch-encoded value, recursively.\n(a,b) becomes (b,a). 0 or 1 fields: unchanged.\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Church value folds recursive fields by applying\nthem to all case-handlers:\n  Nat Z:       λz.λs.z\n  Nat S(S(Z)): λz.λs.s(s(z))","testCount":10,"tests":[{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0)","expected":"λa.λb.a"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v1((λv0.λv1.v1((λv0.λv1.v0)(v0, v1)))(v0, v1)))","expected":"λa.λb.b(b(a))"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.c(λx.x, λc.λn.n)), λc.λn.n)), λv0.λv1.v0)","expected":"λa.λb.a"}]},{"id":"cadt_ser","category":"cadt","categoryName":"Church ADTs","description":"Serialize a Church-encoded value to a flat Scott list\nof Church booleans (bits).\n\nEncoding: for N constructors, each index uses\nceil(log2(N)) bits (MSB first), then children.\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Church value folds recursive fields by applying\nthem to all case-handlers:\n  Nat Z:       λz.λs.z\n  Nat S(S(Z)): λz.λs.s(s(z))\n\nChurch booleans: True = λa.λb.a, False = λa.λb.b.\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).","testCount":10,"tests":[{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0)","expected":"λa.λb.a(λc.λd.d, λc.λd.d)"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v1)","expected":"λa.λb.a(λc.λd.c, λc.λd.d)"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v0)","expected":"λa.λb.a(λc.λd.d, λc.λd.d)"}]},{"id":"cbin_add","category":"cbin","categoryName":"Church Binaries","description":"Add two Church binary numbers. Return A + B.\n\nA Church binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x(o,i,e))\n  I(x) = λo.λi.λe.i(x(o,i,e))\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).\nA Church Bin folds: I(O(I(E))) = λo.λi.λe.i(o(i(e))).","testCount":10,"tests":[{"input":"@main(λo.λi.λe.e, λo.λi.λe.e)","expected":"λa.λb.λc.c"},{"input":"@main(λo.λi.λe.e, λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))","expected":"λa.λb.λc.b(b(c))"},{"input":"@main(λo.λi.λe.i((λo.λi.λe.e)(o, i, e)), λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))","expected":"λa.λb.λc.a(b(c))"}]},{"id":"cbin_div","category":"cbin","categoryName":"Church Binaries","description":"Divide two Church binaries. floor(A/B). (B>0)\n\nA Church binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x(o,i,e))\n  I(x) = λo.λi.λe.i(x(o,i,e))\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).\nA Church Bin folds: I(O(I(E))) = λo.λi.λe.i(o(i(e))).","testCount":10,"tests":[{"input":"@main(λo.λi.λe.e, λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))","expected":"λa.λb.λc.c"},{"input":"@main(λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))(o, i, e)), λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))","expected":"λa.λb.λc.b(b(c))"},{"input":"@main(λo.λi.λe.i((λo.λi.λe.o((λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))(o, i, e)))(o, i, e)), λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))","expected":"λa.λb.λc.b(b(c))"}]},{"id":"cbin_exp","category":"cbin","categoryName":"Church Binaries","description":"Exponentiate two Church binaries. A^B. (0^0=1)\n\nA Church binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x(o,i,e))\n  I(x) = λo.λi.λe.i(x(o,i,e))\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).\nA Church Bin folds: I(O(I(E))) = λo.λi.λe.i(o(i(e))).","testCount":10,"tests":[{"input":"@main(λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)), λo.λi.λe.e)","expected":"λa.λb.λc.b(c)"},{"input":"@main(λo.λi.λe.e, λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))","expected":"λa.λb.λc.c"},{"input":"@main(λo.λi.λe.i((λo.λi.λe.e)(o, i, e)), λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))(o, i, e)))","expected":"λa.λb.λc.b(c)"}]},{"id":"cbin_gcd","category":"cbin","categoryName":"Church Binaries","description":"GCD of two Church binary numbers.\n\nA Church binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x(o,i,e))\n  I(x) = λo.λi.λe.i(x(o,i,e))\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).\nA Church Bin folds: I(O(I(E))) = λo.λi.λe.i(o(i(e))).","testCount":10,"tests":[{"input":"@main(λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))(o, i, e)), λo.λi.λe.o((λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))(o, i, e)))","expected":"λa.λb.λc.a(b(c))"},{"input":"@main(λo.λi.λe.o((λo.λi.λe.o((λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))(o, i, e)))(o, i, e)), λo.λi.λe.o((λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))(o, i, e)))(o, i, e)))","expected":"λa.λb.λc.a(a(b(c)))"},{"input":"@main(λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))(o, i, e)), λo.λi.λe.i((λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))(o, i, e)))","expected":"λa.λb.λc.b(c)"}]},{"id":"cbin_log","category":"cbin","categoryName":"Church Binaries","description":"Floor logarithm of Church binary numbers.\nGiven A and base B (B ≥ 2, A ≥ 1),\nreturn floor(log_B(A)).\n\nA Church binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x(o,i,e))\n  I(x) = λo.λi.λe.i(x(o,i,e))\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).\nA Church Bin folds: I(O(I(E))) = λo.λi.λe.i(o(i(e))).","testCount":10,"tests":[{"input":"@main(λo.λi.λe.i((λo.λi.λe.e)(o, i, e)), λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))","expected":"λa.λb.λc.c"},{"input":"@main(λo.λi.λe.o((λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))(o, i, e)), λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))","expected":"λa.λb.λc.a(b(c))"},{"input":"@main(λo.λi.λe.o((λo.λi.λe.o((λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))(o, i, e)))(o, i, e)), λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))","expected":"λa.λb.λc.b(b(c))"}]},{"id":"cbin_mod","category":"cbin","categoryName":"Church Binaries","description":"Modulo of two Church binaries. A mod B. (B>0)\n\nA Church binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x(o,i,e))\n  I(x) = λo.λi.λe.i(x(o,i,e))\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).\nA Church Bin folds: I(O(I(E))) = λo.λi.λe.i(o(i(e))).","testCount":10,"tests":[{"input":"@main(λo.λi.λe.e, λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))","expected":"λa.λb.λc.c"},{"input":"@main(λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))(o, i, e)), λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))","expected":"λa.λb.λc.b(c)"},{"input":"@main(λo.λi.λe.i((λo.λi.λe.o((λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))(o, i, e)))(o, i, e)), λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))","expected":"λa.λb.λc.c"}]},{"id":"cbin_mul","category":"cbin","categoryName":"Church Binaries","description":"Multiply two Church binary numbers. A * B.\n\nA Church binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x(o,i,e))\n  I(x) = λo.λi.λe.i(x(o,i,e))\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).\nA Church Bin folds: I(O(I(E))) = λo.λi.λe.i(o(i(e))).","testCount":10,"tests":[{"input":"@main(λo.λi.λe.e, λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))","expected":"λa.λb.λc.c"},{"input":"@main(λo.λi.λe.i((λo.λi.λe.e)(o, i, e)), λo.λi.λe.i((λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))(o, i, e)))","expected":"λa.λb.λc.b(a(b(c)))"},{"input":"@main(λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)), λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))","expected":"λa.λb.λc.a(b(b(c)))"}]},{"id":"cbin_pri","category":"cbin","categoryName":"Church Binaries","description":"Primality test on a Church binary number.\nReturn True if prime, False otherwise.\n\nA Church binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x(o,i,e))\n  I(x) = λo.λi.λe.i(x(o,i,e))\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).\nA Church Bin folds: I(O(I(E))) = λo.λi.λe.i(o(i(e))).\n\nChurch booleans: True = λa.λb.a, False = λa.λb.b.","testCount":10,"tests":[{"input":"@main(λo.λi.λe.e)","expected":"λa.λb.b"},{"input":"@main(λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))","expected":"λa.λb.b"},{"input":"@main(λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))","expected":"λa.λb.a"}]},{"id":"cbin_sqr","category":"cbin","categoryName":"Church Binaries","description":"Integer square root of a Church binary. floor(√N).\n\nA Church binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x(o,i,e))\n  I(x) = λo.λi.λe.i(x(o,i,e))\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).\nA Church Bin folds: I(O(I(E))) = λo.λi.λe.i(o(i(e))).","testCount":10,"tests":[{"input":"@main(λo.λi.λe.e)","expected":"λa.λb.λc.c"},{"input":"@main(λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))","expected":"λa.λb.λc.b(c)"},{"input":"@main(λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))","expected":"λa.λb.λc.b(c)"}]},{"id":"cbin_tot","category":"cbin","categoryName":"Church Binaries","description":"Euler's totient φ(N) of a Church binary number:\ncount of integers 1..N coprime with N.\n\nA Church binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x(o,i,e))\n  I(x) = λo.λi.λe.i(x(o,i,e))\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).\nA Church Bin folds: I(O(I(E))) = λo.λi.λe.i(o(i(e))).","testCount":10,"tests":[{"input":"@main(λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))","expected":"λa.λb.λc.b(c)"},{"input":"@main(λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))","expected":"λa.λb.λc.b(c)"},{"input":"@main(λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))","expected":"λa.λb.λc.a(b(c))"}]},{"id":"clst_dot","category":"clst","categoryName":"Church Lists","description":"Dot product of two Church lists.\n\nGiven add A, mul M, zero Z, and [a1..aN], [x1..xN]:\n  A(M(a1,x1), A(M(a2,x2), ...A(M(aN,xN), Z)...))\n\nA Church list folds over its elements:\n  Nil       = λc.λn.n\n  Cons(h,t) = λc.λn.c(h, t(c,n))\nSo [A,B,C] = λc.λn.c(A, c(B, c(C, n))).","testCount":10,"tests":[{"input":"λC.λD.λE.λA.λB.@main(C, D, E, λc.λn.c(A, n), λc.λn.c(B, n))","expected":"λa.λb.λc.λd.λe.a(b(d, e), c)"},{"input":"λE.λF.λG.λA.λB.λC.λD.@main(E, F, G, λc.λn.c(A, c(B, n)), λc.λn.c(C, c(D, n)))","expected":"λa.λb.λc.λd.λe.λf.λg.a(b(d, f), a(b(e, g), c))"},{"input":"λG.λH.λI.λA.λB.λC.λD.λE.λF.@main(G, H, I, λc.λn.c(A, c(B, c(C, n))), λc.λn.c(D, c(E, c(F, n))))","expected":"λa.λb.λc.λd.λe.λf.λg.λh.λi.a(b(d, g), a(b(e, h), a(b(f, i), c)))"}]},{"id":"clst_fol","category":"clst","categoryName":"Church Lists","description":"Right-fold a Church list.\nGiven F, Z, and [A,B,C], return F(A, F(B, F(C, Z))).\n\nA Church list folds over its elements:\n  Nil       = λc.λn.n\n  Cons(h,t) = λc.λn.c(h, t(c,n))\nSo [A,B,C] = λc.λn.c(A, c(B, c(C, n))).","testCount":10,"tests":[{"input":"λB.λC.λA.@main(B, C, λc.λn.c(A, n))","expected":"λa.λb.λc.a(c, b)"},{"input":"λC.λD.λA.λB.@main(C, D, λc.λn.c(A, c(B, n)))","expected":"λa.λb.λc.λd.a(c, a(d, b))"},{"input":"λD.λE.λA.λB.λC.@main(D, E, λc.λn.c(A, c(B, c(C, n))))","expected":"λa.λb.λc.λd.λe.a(c, a(d, a(e, b)))"}]},{"id":"clst_hed","category":"clst","categoryName":"Church Lists","description":"Return the first element of a Church list.\n\nA Church list folds over its elements:\n  Nil       = λc.λn.n\n  Cons(h,t) = λc.λn.c(h, t(c,n))\nSo [A,B,C] = λc.λn.c(A, c(B, c(C, n))).","testCount":10,"tests":[{"input":"λA.@main(λc.λn.c(A, n))","expected":"λa.a"},{"input":"λA.λB.@main(λc.λn.c(A, c(B, n)))","expected":"λa.λb.a"},{"input":"λA.λB.λC.@main(λc.λn.c(A, c(B, c(C, n))))","expected":"λa.λb.λc.a"}]},{"id":"clst_map","category":"clst","categoryName":"Church Lists","description":"Apply F to every element of a Church list.\n\nA Church list folds over its elements:\n  Nil       = λc.λn.n\n  Cons(h,t) = λc.λn.c(h, t(c,n))\nSo [A,B,C] = λc.λn.c(A, c(B, c(C, n))).","testCount":10,"tests":[{"input":"λB.λA.@main(B, λc.λn.c(A, n))","expected":"λa.λb.λc.λd.c(a(b), d)"},{"input":"λC.λA.λB.@main(C, λc.λn.c(A, c(B, n)))","expected":"λa.λb.λc.λd.λe.d(a(b), d(a(c), e))"},{"input":"λD.λA.λB.λC.@main(D, λc.λn.c(A, c(B, c(C, n))))","expected":"λa.λb.λc.λd.λe.λf.e(a(b), e(a(c), e(a(d), f)))"}]},{"id":"clst_nth","category":"clst","categoryName":"Church Lists","description":"Return the element at index I (Church nat, 0-based)\nof a Church list.\n\nA Church list folds over its elements:\n  Nil       = λc.λn.n\n  Cons(h,t) = λc.λn.c(h, t(c,n))\nSo [A,B,C] = λc.λn.c(A, c(B, c(C, n))).\n\nA Church nat:\n  0 = λf.λx.x\n  1 = λf.λx.f(x)\n  2 = λf.λx.f(f(x))","testCount":10,"tests":[{"input":"λA.λB.λC.@main(λf.λx.x, λc.λn.c(A, c(B, c(C, n))))","expected":"λa.λb.λc.a"},{"input":"λA.λB.λC.@main(λf.λx.f(x), λc.λn.c(A, c(B, c(C, n))))","expected":"λa.λb.λc.b"},{"input":"λA.λB.λC.@main(λf.λx.f(f(x)), λc.λn.c(A, c(B, c(C, n))))","expected":"λa.λb.λc.c"}]},{"id":"clst_rev","category":"clst","categoryName":"Church Lists","description":"Reverse a Church list.\n\nA Church list folds over its elements:\n  Nil       = λc.λn.n\n  Cons(h,t) = λc.λn.c(h, t(c,n))\nSo [A,B,C] = λc.λn.c(A, c(B, c(C, n))).","testCount":10,"tests":[{"input":"λA.@main(λc.λn.c(A, n))","expected":"λa.λb.λc.b(a, c)"},{"input":"λA.λB.@main(λc.λn.c(A, c(B, n)))","expected":"λa.λb.λc.λd.c(b, c(a, d))"},{"input":"λA.λB.λC.@main(λc.λn.c(A, c(B, c(C, n))))","expected":"λa.λb.λc.λd.λe.d(c, d(b, d(a, e)))"}]},{"id":"clst_shl","category":"clst","categoryName":"Church Lists","description":"Rotate a Church list left by one. [A,B,C]→[B,C,A].\n\nA Church list folds over its elements:\n  Nil       = λc.λn.n\n  Cons(h,t) = λc.λn.c(h, t(c,n))\nSo [A,B,C] = λc.λn.c(A, c(B, c(C, n))).","testCount":10,"tests":[{"input":"λA.@main(λc.λn.c(A, n))","expected":"λa.λb.λc.b(a, c)"},{"input":"λA.λB.@main(λc.λn.c(A, c(B, n)))","expected":"λa.λb.λc.λd.c(b, c(a, d))"},{"input":"λA.λB.λC.@main(λc.λn.c(A, c(B, c(C, n))))","expected":"λa.λb.λc.λd.λe.d(b, d(c, d(a, e)))"}]},{"id":"clst_shr","category":"clst","categoryName":"Church Lists","description":"Rotate a Church list right by one. [A,B,C]→[C,A,B].\n\nA Church list folds over its elements:\n  Nil       = λc.λn.n\n  Cons(h,t) = λc.λn.c(h, t(c,n))\nSo [A,B,C] = λc.λn.c(A, c(B, c(C, n))).","testCount":10,"tests":[{"input":"λA.@main(λc.λn.c(A, n))","expected":"λa.λb.λc.b(a, c)"},{"input":"λA.λB.@main(λc.λn.c(A, c(B, n)))","expected":"λa.λb.λc.λd.c(b, c(a, d))"},{"input":"λA.λB.λC.@main(λc.λn.c(A, c(B, c(C, n))))","expected":"λa.λb.λc.λd.λe.d(c, d(a, d(b, e)))"}]},{"id":"clst_srt","category":"clst","categoryName":"Church Lists","description":"Sort a Church list of Church booleans.\nAll False values come before True.\n\nA Church list folds over its elements:\n  Nil       = λc.λn.n\n  Cons(h,t) = λc.λn.c(h, t(c,n))\nSo [A,B,C] = λc.λn.c(A, c(B, c(C, n))).\n\nChurch booleans: True = λa.λb.a, False = λa.λb.b.","testCount":10,"tests":[{"input":"@main(λc.λn.c(λa.λb.a, n))","expected":"λa.λb.a(λc.λd.c, b)"},{"input":"@main(λc.λn.c(λa.λb.b, n))","expected":"λa.λb.a(λc.λd.d, b)"},{"input":"@main(λc.λn.c(λa.λb.a, c(λa.λb.b, n)))","expected":"λa.λb.a(λc.λd.d, a(λc.λd.c, b))"}]},{"id":"clst_zip","category":"clst","categoryName":"Church Lists","description":"Zip two Church lists with function F.\n[A,B,C] zip [X,Y,Z] = [F(A,X), F(B,Y), F(C,Z)].\n\nA Church list folds over its elements:\n  Nil       = λc.λn.n\n  Cons(h,t) = λc.λn.c(h, t(c,n))\nSo [A,B,C] = λc.λn.c(A, c(B, c(C, n))).","testCount":10,"tests":[{"input":"λC.λA.λB.@main(C, λc.λn.c(A, n), λc.λn.c(B, n))","expected":"λa.λb.λc.λd.λe.d(a(b, c), e)"},{"input":"λE.λA.λB.λC.λD.@main(E, λc.λn.c(A, c(B, n)), λc.λn.c(C, c(D, n)))","expected":"λa.λb.λc.λd.λe.λf.λg.f(a(b, d), f(a(c, e), g))"},{"input":"λG.λA.λB.λC.λD.λE.λF.@main(G, λc.λn.c(A, c(B, c(C, n))), λc.λn.c(D, c(E, c(F, n))))","expected":"λa.λb.λc.λd.λe.λf.λg.λh.λi.h(a(b, e), h(a(c, f), h(a(d, g), i)))"}]},{"id":"cnat_add","category":"cnat","categoryName":"Church Naturals","description":"Add two Church nats. Return A + B.\n\nA Church nat:\n  0 = λf.λx.x\n  1 = λf.λx.f(x)\n  2 = λf.λx.f(f(x))","testCount":10,"tests":[{"input":"@main(λf.λx.x, λf.λx.x)","expected":"λa.λb.b"},{"input":"@main(λf.λx.x, λf.λx.f(f(f(x))))","expected":"λa.λb.a(a(a(b)))"},{"input":"@main(λf.λx.f(x), λf.λx.f(x))","expected":"λa.λb.a(a(b))"}]},{"id":"cnat_div","category":"cnat","categoryName":"Church Naturals","description":"Divide two Church nats. Return floor(A / B).\n\nA Church nat:\n  0 = λf.λx.x\n  1 = λf.λx.f(x)\n  2 = λf.λx.f(f(x))","testCount":10,"tests":[{"input":"@main(λf.λx.x, λf.λx.f(f(f(x))))","expected":"λa.λb.b"},{"input":"@main(λf.λx.f(f(f(f(f(f(f(x))))))), λf.λx.f(f(x)))","expected":"λa.λb.a(a(a(b)))"},{"input":"@main(λf.λx.f(f(f(f(f(f(f(f(f(x))))))))), λf.λx.f(f(f(x))))","expected":"λa.λb.a(a(a(b)))"}]},{"id":"cnat_exp","category":"cnat","categoryName":"Church Naturals","description":"Exponentiate two Church nats. Return A ^ B.\n\nA Church nat:\n  0 = λf.λx.x\n  1 = λf.λx.f(x)\n  2 = λf.λx.f(f(x))","testCount":10,"tests":[{"input":"@main(λf.λx.f(f(x)), λf.λx.x)","expected":"λa.λb.a(b)"},{"input":"@main(λf.λx.x, λf.λx.f(f(f(x))))","expected":"λa.λb.b"},{"input":"@main(λf.λx.f(x), λf.λx.f(f(f(f(f(f(f(x))))))))","expected":"λa.λb.a(b)"}]},{"id":"cnat_gcd","category":"cnat","categoryName":"Church Naturals","description":"GCD of two Church nats.\n\nA Church nat:\n  0 = λf.λx.x\n  1 = λf.λx.f(x)\n  2 = λf.λx.f(f(x))","testCount":10,"tests":[{"input":"@main(λf.λx.f(f(f(f(f(f(x)))))), λf.λx.f(f(f(f(x)))))","expected":"λa.λb.a(a(b))"},{"input":"@main(λf.λx.f(f(f(f(f(f(f(f(x)))))))), λf.λx.f(f(f(f(f(f(f(f(f(f(f(f(x)))))))))))))","expected":"λa.λb.a(a(a(a(b))))"},{"input":"@main(λf.λx.f(f(f(f(f(f(f(x))))))), λf.λx.f(f(f(f(f(x))))))","expected":"λa.λb.a(b)"}]},{"id":"cnat_log","category":"cnat","categoryName":"Church Naturals","description":"Floor logarithm of two Church nats.\nGiven N and base B (B ≥ 2, N ≥ 1),\nreturn floor(log_B(N)).\n\nA Church nat:\n  0 = λf.λx.x\n  1 = λf.λx.f(x)\n  2 = λf.λx.f(f(x))","testCount":10,"tests":[{"input":"@main(λf.λx.f(x), λf.λx.f(f(x)))","expected":"λa.λb.b"},{"input":"@main(λf.λx.f(f(f(f(x)))), λf.λx.f(f(x)))","expected":"λa.λb.a(a(b))"},{"input":"@main(λf.λx.f(f(f(f(f(f(f(f(x)))))))), λf.λx.f(f(x)))","expected":"λa.λb.a(a(a(b)))"}]},{"id":"cnat_mod","category":"cnat","categoryName":"Church Naturals","description":"Modulo of two Church nats. Return A mod B.\n\nA Church nat:\n  0 = λf.λx.x\n  1 = λf.λx.f(x)\n  2 = λf.λx.f(f(x))","testCount":10,"tests":[{"input":"@main(λf.λx.x, λf.λx.f(f(f(x))))","expected":"λa.λb.b"},{"input":"@main(λf.λx.f(f(f(f(f(f(f(x))))))), λf.λx.f(f(x)))","expected":"λa.λb.a(b)"},{"input":"@main(λf.λx.f(f(f(f(f(f(f(f(f(x))))))))), λf.λx.f(f(f(x))))","expected":"λa.λb.b"}]},{"id":"cnat_mul","category":"cnat","categoryName":"Church Naturals","description":"Multiply two Church nats. Return A * B.\n\nA Church nat:\n  0 = λf.λx.x\n  1 = λf.λx.f(x)\n  2 = λf.λx.f(f(x))","testCount":10,"tests":[{"input":"@main(λf.λx.x, λf.λx.f(f(f(x))))","expected":"λa.λb.b"},{"input":"@main(λf.λx.f(x), λf.λx.f(f(f(f(f(x))))))","expected":"λa.λb.a(a(a(a(a(b)))))"},{"input":"@main(λf.λx.f(f(x)), λf.λx.f(f(f(x))))","expected":"λa.λb.a(a(a(a(a(a(b))))))"}]},{"id":"cnat_pri","category":"cnat","categoryName":"Church Naturals","description":"Primality test on a Church nat.\nReturn True if N is prime, False otherwise.\n\nA Church nat:\n  0 = λf.λx.x\n  1 = λf.λx.f(x)\n  2 = λf.λx.f(f(x))\n\nChurch booleans: True = λa.λb.a, False = λa.λb.b.","testCount":10,"tests":[{"input":"@main(λf.λx.x)","expected":"λa.λb.b"},{"input":"@main(λf.λx.f(x))","expected":"λa.λb.b"},{"input":"@main(λf.λx.f(f(x)))","expected":"λa.λb.a"}]},{"id":"cnat_sqr","category":"cnat","categoryName":"Church Naturals","description":"Integer square root of a Church nat. floor(√N).\n\nA Church nat:\n  0 = λf.λx.x\n  1 = λf.λx.f(x)\n  2 = λf.λx.f(f(x))","testCount":10,"tests":[{"input":"@main(λf.λx.x)","expected":"λa.λb.b"},{"input":"@main(λf.λx.f(x))","expected":"λa.λb.a(b)"},{"input":"@main(λf.λx.f(f(x)))","expected":"λa.λb.a(b)"}]},{"id":"cnat_tot","category":"cnat","categoryName":"Church Naturals","description":"Euler's totient φ(N) of a Church nat:\ncount of integers 1..N coprime with N.\n\nA Church nat:\n  0 = λf.λx.x\n  1 = λf.λx.f(x)\n  2 = λf.λx.f(f(x))","testCount":10,"tests":[{"input":"@main(λf.λx.f(x))","expected":"λa.λb.a(b)"},{"input":"@main(λf.λx.f(f(x)))","expected":"λa.λb.a(b)"},{"input":"@main(λf.λx.f(f(f(x))))","expected":"λa.λb.a(a(b))"}]},{"id":"ctre_bfs","category":"ctre","categoryName":"Church Trees","description":"Flatten a Church tree into a Scott list in\nbreadth-first order. Shallowest leaves first,\nleft-to-right within each depth.\n\nNode(Node(Leaf(A), Leaf(B)), Leaf(C)) → [C, A, B]\n\nA Church tree folds over its structure:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a(n,l), b(n,l))\nSo Node(Leaf(A), Leaf(B)) = λn.λl.n(l(A), l(B)).\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).","testCount":10,"tests":[{"input":"λA.@main(λn.λl.l(A))","expected":"λa.λb.λc.b(a, λd.λe.e)"},{"input":"λA.λB.@main(λn.λl.n((λp.λq.q(A))(n, l), (λp.λq.q(B))(n, l)))","expected":"λa.λb.λc.λd.c(a, λe.λf.e(b, λg.λh.h))"},{"input":"λA.λB.λC.@main(λn.λl.n((λp.λq.p((λr.λs.s(A))(p, q), (λr.λs.s(B))(p, q)))(n, l), (λp.λq.q(C))(n, l)))","expected":"λa.λb.λc.λd.λe.d(c, λf.λg.f(a, λh.λi.h(b, λj.λk.k)))"}]},{"id":"ctre_fft","category":"ctre","categoryName":"Church Trees","description":"Compute the Discrete Fourier Transform\nusing the GN number system.\n\nBalanced Ternary (BT), Church-encoded, LSB first:\n  E       = λt.λo.λi.λe.e\n  T(rest) = λt.λo.λi.λe.t(rest(t,o,i,e))\n  O(rest) = λt.λo.λi.λe.o(rest(t,o,i,e))\n  I(rest) = λt.λo.λi.λe.i(rest(t,o,i,e))\nExample: T(I(E)) = -1 + 1*3 = 2.\nOutputs must be canonical (no trailing O).\n\nGN numbers are Church trees of BT integers:\n  L(n)   = λn.λl.l(n)\n  B(a,b) = λn.λl.n(a(n,l), b(n,l))\n\nFor N-point FFT (N = 2^k), each coefficient is a\nGN(k-1) number. Input coefficients are in\nbit-reversal order:\n  [c0,c1,c2,c3] is stored as B(B(c0,c2),B(c1,c3))\nThe DFT evaluates c0 + c1*x + c2*x² + ...\nat all Nth roots of unity.","testCount":10,"tests":[{"input":"@main(λn.λl.n(λn.λl.l(λn.λl.l(λt.λo.λi.λe.o(i(e))))(n, l), λn.λl.l(λn.λl.l(λt.λo.λi.λe.i(e)))(n, l)))","expected":"λa.λb.a(λc.λd.d(λe.λf.f(λg.λh.λi.λj.i(i(j))), c, d), λc.λd.d(λe.λf.f(λg.λh.λi.λj.g(i(j))), c, d))"},{"input":"@main(λn.λl.n(λn.λl.l(λn.λl.l(λt.λo.λi.λe.t(t(i(e)))))(n, l), λn.λl.l(λn.λl.l(λt.λo.λi.λe.t(i(e))))(n, l)))","expected":"λa.λb.a(λc.λd.d(λe.λf.f(λg.λh.λi.λj.i(g(i(j)))), c, d), λc.λd.d(λe.λf.f(λg.λh.λi.λj.h(i(j))), c, d))"},{"input":"@main(λn.λl.n(λn.λl.l(λn.λl.l(λt.λo.λi.λe.i(t(i(e)))))(n, l), λn.λl.l(λn.λl.l(λt.λo.λi.λe.o(i(e))))(n, l)))","expected":"λa.λb.a(λc.λd.d(λe.λf.f(λg.λh.λi.λj.i(h(i(j)))), c, d), λc.λd.d(λe.λf.f(λg.λh.λi.λj.i(i(j))), c, d))"}]},{"id":"ctre_idx","category":"ctre","categoryName":"Church Trees","description":"Label each leaf of a Church tree with its\nleft-to-right index (Scott nat) using function F.\nOutput is a Church tree.\n\nindex(F, Node(Leaf(A), Leaf(B)))\n  = Node(Leaf(F(0,A)), Leaf(F(1,B)))\n\nA Church tree folds over its structure:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a(n,l), b(n,l))\nSo Node(Leaf(A), Leaf(B)) = λn.λl.n(l(A), l(B)).\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).","testCount":10,"tests":[{"input":"λF.λA.@main(F, λn.λl.l(A))","expected":"λa.λb.λc.λd.d(a(λe.λf.f, b))"},{"input":"λF.λA.λB.@main(F, λn.λl.n((λp.λq.q(A))(n, l), (λp.λq.q(B))(n, l)))","expected":"λa.λb.λc.λd.λe.d(e(a(λf.λg.g, b)), e(a(λf.λg.f(λh.λi.i), c)))"},{"input":"λF.λA.λB.λC.@main(F, λn.λl.n((λp.λq.p((λr.λs.s(A))(p, q), (λr.λs.s(B))(p, q)))(n, l), (λp.λq.q(C))(n, l)))","expected":"λa.λb.λc.λd.λe.λf.e(e(f(a(λg.λh.h, b)), f(a(λg.λh.g(λi.λj.j), c))), f(a(λg.λh.g(λi.λj.i(λk.λl.l)), d)))"}]},{"id":"ctre_inv","category":"ctre","categoryName":"Church Trees","description":"Bit-reversal permutation on a perfect Church tree.\nLeaf at index i moves to bit_reverse(i).\n[A,B,C,D] → [A,C,B,D].\n\nA Church tree folds over its structure:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a(n,l), b(n,l))\nSo Node(Leaf(A), Leaf(B)) = λn.λl.n(l(A), l(B)).","testCount":10,"tests":[{"input":"λA.@main(λn.λl.l(A))","expected":"λa.λb.λc.c(a)"},{"input":"λA.@main(λn.λl.l(A))","expected":"λa.λb.λc.c(a)"},{"input":"λA.λB.@main(λn.λl.n(l(A), l(B)))","expected":"λa.λb.λc.λd.c(d(a), d(b))"}]},{"id":"ctre_lst","category":"ctre","categoryName":"Church Trees","description":"Flatten a Church tree into a Church list of its leaves,\nleft to right.\n\nA Church tree folds over its structure:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a(n,l), b(n,l))\nSo Node(Leaf(A), Leaf(B)) = λn.λl.n(l(A), l(B)).\n\nA Church list folds over its elements:\n  Nil       = λc.λn.n\n  Cons(h,t) = λc.λn.c(h, t(c,n))\nSo [A,B,C] = λc.λn.c(A, c(B, c(C, n))).","testCount":10,"tests":[{"input":"λA.@main(λn.λl.l(A))","expected":"λa.λb.λc.b(a, c)"},{"input":"λA.λB.@main(λn.λl.n((λp.λq.q(A))(n, l), (λp.λq.q(B))(n, l)))","expected":"λa.λb.λc.λd.c(a, c(b, d))"},{"input":"λA.λB.λC.@main(λn.λl.n((λp.λq.p((λr.λs.s(A))(p, q), (λr.λs.s(B))(p, q)))(n, l), (λp.λq.q(C))(n, l)))","expected":"λa.λb.λc.λd.λe.d(a, d(b, d(c, e)))"}]},{"id":"ctre_mrg","category":"ctre","categoryName":"Church Trees","description":"Merge two same-shape Church trees, combining\ncorresponding leaves with function F.\nOutput is a Church tree.\n\nmerge(F, Node(Leaf(A),Leaf(B)), Node(Leaf(P),Leaf(Q)))\n  = Node(Leaf(F(A,P)), Leaf(F(B,Q)))\n\nA Church tree folds over its structure:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a(n,l), b(n,l))\nSo Node(Leaf(A), Leaf(B)) = λn.λl.n(l(A), l(B)).","testCount":10,"tests":[{"input":"λF.λA.λP.@main(F, λn.λl.l(A), λn.λl.l(P))","expected":"λa.λb.λc.λd.λe.e(a(b, c))"},{"input":"λF.λA.λB.λP.λQ.@main(F, λn.λl.n((λp.λq.q(A))(n, l), (λp.λq.q(B))(n, l)), λn.λl.n((λp.λq.q(P))(n, l), (λp.λq.q(Q))(n, l)))","expected":"λa.λb.λc.λd.λe.λf.λg.f(g(a(b, d)), g(a(c, e)))"},{"input":"λF.λA.λB.λC.λP.λQ.λR.@main(F, λn.λl.n((λp.λq.p((λr.λs.s(A))(p, q), (λr.λs.s(B))(p, q)))(n, l), (λp.λq.q(C))(n, l)), λn.λl.n((λp.λq.p((λr.λs.s(P))(p, q), (λr.λs.s(Q))(p, q)))(n, l), (λp.λq.q(R))(n, l)))","expected":"λa.λb.λc.λd.λe.λf.λg.λh.λi.h(h(i(a(b, e)), i(a(c, f))), i(a(d, g)))"}]},{"id":"ctre_rev","category":"ctre","categoryName":"Church Trees","description":"Reverse the leaves of a perfect Church tree.\n[A,B,C,D] → [D,C,B,A].\n\nA Church tree folds over its structure:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a(n,l), b(n,l))\nSo Node(Leaf(A), Leaf(B)) = λn.λl.n(l(A), l(B)).","testCount":10,"tests":[{"input":"λA.@main(λn.λl.l(A))","expected":"λa.λb.λc.c(a)"},{"input":"λA.@main(λn.λl.l(A))","expected":"λa.λb.λc.c(a)"},{"input":"λA.λB.@main(λn.λl.n(l(A), l(B)))","expected":"λa.λb.λc.λd.c(d(b), d(a))"}]},{"id":"ctre_rtl","category":"ctre","categoryName":"Church Trees","description":"Rotate leaves of a perfect Church tree left by one.\n[A,B,C,D] → [B,C,D,A].\n\nA Church tree folds over its structure:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a(n,l), b(n,l))\nSo Node(Leaf(A), Leaf(B)) = λn.λl.n(l(A), l(B)).","testCount":10,"tests":[{"input":"λA.@main(λn.λl.l(A))","expected":"λa.λb.λc.c(a)"},{"input":"λA.@main(λn.λl.l(A))","expected":"λa.λb.λc.c(a)"},{"input":"λA.λB.@main(λn.λl.n(l(A), l(B)))","expected":"λa.λb.λc.λd.c(d(b), d(a))"}]},{"id":"ctre_rtr","category":"ctre","categoryName":"Church Trees","description":"Rotate leaves of a perfect Church tree right by one.\n[A,B,C,D] → [D,A,B,C].\n\nA Church tree folds over its structure:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a(n,l), b(n,l))\nSo Node(Leaf(A), Leaf(B)) = λn.λl.n(l(A), l(B)).","testCount":10,"tests":[{"input":"λA.@main(λn.λl.l(A))","expected":"λa.λb.λc.c(a)"},{"input":"λA.@main(λn.λl.l(A))","expected":"λa.λb.λc.c(a)"},{"input":"λA.λB.@main(λn.λl.n(l(A), l(B)))","expected":"λa.λb.λc.λd.c(d(b), d(a))"}]},{"id":"ctre_scn","category":"ctre","categoryName":"Church Trees","description":"Exclusive prefix scan over a Church tree's leaves,\npreserving shape. Each leaf_i becomes the fold of\nall leaves before it. Output is a Church tree.\n\nscan(F, Z, Node(Leaf(A), Leaf(B)))\n  = Node(Leaf(Z), Leaf(F(Z,A)))\n\nA Church tree folds over its structure:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a(n,l), b(n,l))\nSo Node(Leaf(A), Leaf(B)) = λn.λl.n(l(A), l(B)).","testCount":10,"tests":[{"input":"λF.λZ.λA.@main(F, Z, λn.λl.l(A))","expected":"λa.λb.λc.λd.λe.e(b)"},{"input":"λF.λZ.λA.λB.@main(F, Z, λn.λl.n((λp.λq.q(A))(n, l), (λp.λq.q(B))(n, l)))","expected":"λa.λb.λc.λd.λe.λf.e(f(b), f(a(b, c)))"},{"input":"λF.λZ.λA.λB.λC.@main(F, Z, λn.λl.n((λp.λq.p((λr.λs.s(A))(p, q), (λr.λs.s(B))(p, q)))(n, l), (λp.λq.q(C))(n, l)))","expected":"λa.λb.λc.λd.λe.λf.λg.f(f(g(b), g(a(b, c))), g(a(a(b, c), d)))"}]},{"id":"ntup_dot","category":"ntup","categoryName":"N-Tuples","description":"Dot product of two N-tuples.\n\nGiven add A, mul M, zero Z, and tuples (a1..aN),\n(x1..xN), return:\n  A(M(a1,x1), A(M(a2,x2), ...A(M(aN,xN), Z)...))\n\nAn N-tuple packs N elements into one function:\n  λt.t(A,B,C,...)\nThe size N is passed as a Church nat.","testCount":10,"tests":[{"input":"λC.λD.λE.λA.λB.@main(λf.λx.f(x), C, D, E, λt.t(A), λt.t(B))","expected":"λa.λb.λc.λd.λe.a(b(d, e), c)"},{"input":"λE.λF.λG.λA.λB.λC.λD.@main(λf.λx.f(f(x)), E, F, G, λt.t(A,B), λt.t(C,D))","expected":"λa.λb.λc.λd.λe.λf.λg.a(b(d, f), a(b(e, g), c))"},{"input":"λG.λH.λI.λA.λB.λC.λD.λE.λF.@main(λf.λx.f(f(f(x))), G, H, I, λt.t(A,B,C), λt.t(D,E,F))","expected":"λa.λb.λc.λd.λe.λf.λg.λh.λi.a(b(d, g), a(b(e, h), a(b(f, i), c)))"}]},{"id":"ntup_fol","category":"ntup","categoryName":"N-Tuples","description":"Right-fold an N-tuple.\nGiven F, Z, and (A,B,C), return F(A, F(B, F(C, Z))).\n\nAn N-tuple packs N elements into one function:\n  λt.t(A,B,C,...)\nThe size N is passed as a Church nat.","testCount":10,"tests":[{"input":"λB.λC.λA.@main(λf.λx.f(x), B, C, λt.t(A))","expected":"λa.λb.λc.a(c, b)"},{"input":"λC.λD.λA.λB.@main(λf.λx.f(f(x)), C, D, λt.t(A,B))","expected":"λa.λb.λc.λd.a(c, a(d, b))"},{"input":"λD.λE.λA.λB.λC.@main(λf.λx.f(f(f(x))), D, E, λt.t(A,B,C))","expected":"λa.λb.λc.λd.λe.a(c, a(d, a(e, b)))"}]},{"id":"ntup_hed","category":"ntup","categoryName":"N-Tuples","description":"Return the first element of an N-tuple.\n\nAn N-tuple packs N elements into one function:\n  λt.t(A,B,C,...)\nThe size N is passed as a Church nat.","testCount":10,"tests":[{"input":"λA.@main(λf.λx.f(x), λt.t(A))","expected":"λa.a"},{"input":"λA.λB.@main(λf.λx.f(f(x)), λt.t(A,B))","expected":"λa.λb.a"},{"input":"λA.λB.λC.@main(λf.λx.f(f(f(x))), λt.t(A,B,C))","expected":"λa.λb.λc.a"}]},{"id":"ntup_map","category":"ntup","categoryName":"N-Tuples","description":"Apply function F to every element of an N-tuple.\n\nAn N-tuple packs N elements into one function:\n  λt.t(A,B,C,...)\nThe size N is passed as a Church nat.","testCount":10,"tests":[{"input":"λB.λA.@main(B, λf.λx.f(x), λt.t(A))","expected":"λa.λb.λc.c(a(b))"},{"input":"λC.λA.λB.@main(C, λf.λx.f(f(x)), λt.t(A,B))","expected":"λa.λb.λc.λd.d(a(b), a(c))"},{"input":"λD.λA.λB.λC.@main(D, λf.λx.f(f(f(x))), λt.t(A,B,C))","expected":"λa.λb.λc.λd.λe.e(a(b), a(c), a(d))"}]},{"id":"ntup_nth","category":"ntup","categoryName":"N-Tuples","description":"Return the element at index I (Church nat, 0-based)\nof an N-tuple.\n\nAn N-tuple packs N elements into one function:\n  λt.t(A,B,C,...)\nThe size N is passed as a Church nat.","testCount":10,"tests":[{"input":"λA.λB.λC.@main(λf.λx.f(f(f(x))), λf.λx.x, λt.t(A,B,C))","expected":"λa.λb.λc.a"},{"input":"λA.λB.λC.@main(λf.λx.f(f(f(x))), λf.λx.f(x), λt.t(A,B,C))","expected":"λa.λb.λc.b"},{"input":"λA.λB.λC.@main(λf.λx.f(f(f(x))), λf.λx.f(f(x)), λt.t(A,B,C))","expected":"λa.λb.λc.c"}]},{"id":"ntup_rev","category":"ntup","categoryName":"N-Tuples","description":"Reverse an N-tuple. (A,B,C) becomes (C,B,A).\n\nAn N-tuple packs N elements into one function:\n  λt.t(A,B,C,...)\nThe size N is passed as a Church nat.","testCount":10,"tests":[{"input":"λA.@main(λf.λx.f(x), λt.t(A))","expected":"λa.λb.b(a)"},{"input":"λA.λB.@main(λf.λx.f(f(x)), λt.t(A,B))","expected":"λa.λb.λc.c(b, a)"},{"input":"λA.λB.λC.@main(λf.λx.f(f(f(x))), λt.t(A,B,C))","expected":"λa.λb.λc.λd.d(c, b, a)"}]},{"id":"ntup_shl","category":"ntup","categoryName":"N-Tuples","description":"Rotate an N-tuple left by one.\n(A,B,C) becomes (B,C,A).\n\nAn N-tuple packs N elements into one function:\n  λt.t(A,B,C,...)\nThe size N is passed as a Church nat.","testCount":10,"tests":[{"input":"λA.@main(λf.λx.f(x), λt.t(A))","expected":"λa.λb.b(a)"},{"input":"λA.λB.@main(λf.λx.f(f(x)), λt.t(A,B))","expected":"λa.λb.λc.c(b, a)"},{"input":"λA.λB.λC.@main(λf.λx.f(f(f(x))), λt.t(A,B,C))","expected":"λa.λb.λc.λd.d(b, c, a)"}]},{"id":"ntup_shr","category":"ntup","categoryName":"N-Tuples","description":"Rotate an N-tuple right by one.\n(A,B,C) becomes (C,A,B).\n\nAn N-tuple packs N elements into one function:\n  λt.t(A,B,C,...)\nThe size N is passed as a Church nat.","testCount":10,"tests":[{"input":"λA.@main(λf.λx.f(x), λt.t(A))","expected":"λa.λb.b(a)"},{"input":"λA.λB.@main(λf.λx.f(f(x)), λt.t(A,B))","expected":"λa.λb.λc.c(b, a)"},{"input":"λA.λB.λC.@main(λf.λx.f(f(f(x))), λt.t(A,B,C))","expected":"λa.λb.λc.λd.d(c, a, b)"}]},{"id":"ntup_srt","category":"ntup","categoryName":"N-Tuples","description":"Sort an N-tuple of Church booleans.\nAll False values come before True.\n\nAn N-tuple packs N elements into one function:\n  λt.t(A,B,C,...)\nThe size N is passed as a Church nat.\n\nChurch booleans: True = λa.λb.a, False = λa.λb.b.","testCount":10,"tests":[{"input":"@main(λf.λx.f(x), λt.t(λa.λb.a))","expected":"λa.a(λb.λc.b)"},{"input":"@main(λf.λx.f(x), λt.t(λa.λb.b))","expected":"λa.a(λb.λc.c)"},{"input":"@main(λf.λx.f(f(x)), λt.t(λa.λb.a,λa.λb.b))","expected":"λa.a(λb.λc.c, λb.λc.b)"}]},{"id":"ntup_zip","category":"ntup","categoryName":"N-Tuples","description":"Zip two N-tuples with function F.\n(A,B,C) zip (X,Y,Z) = (F(A,X), F(B,Y), F(C,Z)).\n\nAn N-tuple packs N elements into one function:\n  λt.t(A,B,C,...)\nThe size N is passed as a Church nat.","testCount":10,"tests":[{"input":"λC.λA.λB.@main(λf.λx.f(x), C, λt.t(A), λt.t(B))","expected":"λa.λb.λc.λd.d(a(b, c))"},{"input":"λE.λA.λB.λC.λD.@main(λf.λx.f(f(x)), E, λt.t(A,B), λt.t(C,D))","expected":"λa.λb.λc.λd.λe.λf.f(a(b, d), a(c, e))"},{"input":"λG.λA.λB.λC.λD.λE.λF.@main(λf.λx.f(f(f(x))), G, λt.t(A,B,C), λt.t(D,E,F))","expected":"λa.λb.λc.λd.λe.λf.λg.λh.h(a(b, e), a(c, f), a(d, g))"}]},{"id":"sadt_chi","category":"sadt","categoryName":"Scott ADTs","description":"Given a type descriptor and a Scott-encoded value,\nreturn its recursive children as a Scott list.\nConstructors with no recursive fields return [].\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Scott value selects the ith of N case-handlers,\napplied to its fields:\n  Nat Z:    λz.λs.z\n  Nat S(n): λn.λz.λs.s(n)\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).","testCount":10,"tests":[{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0)","expected":"λa.λb.b"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v1)","expected":"λa.λb.b"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v0)","expected":"λa.λb.b"}]},{"id":"sadt_ctr","category":"sadt","categoryName":"Scott ADTs","description":"Build the Nth constructor function for a\nScott-encoded algebraic data type.\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Scott value selects the ith of N case-handlers,\napplied to its fields:\n  Nat Z:    λz.λs.z\n  Nat S(n): λn.λz.λs.s(n)\n\nIndex is a Scott nat:\n  Z = λs.λz.z, S(n) = λs.λz.s(n)","testCount":10,"tests":[{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λs.λz.z)","expected":"λa.λb.a"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λs.λz.s(λs.λz.z))","expected":"λa.λb.b"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λs.λz.z)","expected":"λa.λb.a"}]},{"id":"sadt_des","category":"sadt","categoryName":"Scott ADTs","description":"Deserialize a Scott list of Church booleans\ninto a Scott-encoded value.\n\nEncoding: for N constructors, each index uses\nceil(log2(N)) bits (MSB first), then children.\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Scott value selects the ith of N case-handlers,\napplied to its fields:\n  Nat Z:    λz.λs.z\n  Nat S(n): λn.λz.λs.s(n)\n\nChurch booleans: True = λa.λb.a, False = λa.λb.b.\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).","testCount":10,"tests":[{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λc.λn.c(λa.λb.b, λc.λn.n))","expected":"λa.λb.a"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λc.λn.c(λa.λb.a, λc.λn.n))","expected":"λa.λb.b"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λc.λn.c(λa.λb.b, λc.λn.n))","expected":"λa.λb.a"}]},{"id":"sadt_eql","category":"sadt","categoryName":"Scott ADTs","description":"Test two Scott-encoded values for structural equality.\nReturn True if equal, False otherwise.\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Scott value selects the ith of N case-handlers,\napplied to its fields:\n  Nat Z:    λz.λs.z\n  Nat S(n): λn.λz.λs.s(n)\n\nChurch booleans: True = λa.λb.a, False = λa.λb.b.","testCount":10,"tests":[{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0, λv0.λv1.v0)","expected":"λa.λb.a"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0, λv0.λv1.v1)","expected":"λa.λb.b"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v0, λv0.λv1.v0)","expected":"λa.λb.a"}]},{"id":"sadt_fol","category":"sadt","categoryName":"Scott ADTs","description":"Convert a Scott-encoded value to Church encoding (fold).\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Scott value selects the ith of N case-handlers,\napplied to its fields:\n  Nat Z:    λz.λs.z\n  Nat S(n): λn.λz.λs.s(n)\n\nA Church value folds recursive fields by applying\nthem to all case-handlers:\n  Nat Z:       λz.λs.z\n  Nat S(S(Z)): λz.λs.s(s(z))","testCount":10,"tests":[{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0)","expected":"λa.λb.a"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v1)","expected":"λa.λb.b"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v0)","expected":"λa.λb.a"}]},{"id":"sadt_idx","category":"sadt","categoryName":"Scott ADTs","description":"Given a type descriptor and a Scott-encoded value,\nreturn the outermost constructor index as a Scott nat.\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Scott value selects the ith of N case-handlers,\napplied to its fields:\n  Nat Z:    λz.λs.z\n  Nat S(n): λn.λz.λs.s(n)\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).","testCount":10,"tests":[{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0)","expected":"λa.λb.b"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v1)","expected":"λa.λb.a(λc.λd.d)"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v0)","expected":"λa.λb.b"}]},{"id":"sadt_len","category":"sadt","categoryName":"Scott ADTs","description":"Count all constructors in a Scott-encoded value,\nrecursively. Each constructor counts as 1.\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Scott value selects the ith of N case-handlers,\napplied to its fields:\n  Nat Z:    λz.λs.z\n  Nat S(n): λn.λz.λs.s(n)\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).","testCount":10,"tests":[{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0)","expected":"λa.λb.a(λc.λd.d)"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v0)","expected":"λa.λb.a(λc.λd.d)"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v1(λv0.λv1.v1(λv0.λv1.v1(λv0.λv1.v0))))","expected":"λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.j))))"}]},{"id":"sadt_mrg","category":"sadt","categoryName":"Scott ADTs","description":"Merge two Scott-encoded values with function F.\nIf both have the same constructor and it has\nrecursive fields, recurse on corresponding children.\nOtherwise return F(V1, V2).\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Scott value selects the ith of N case-handlers,\napplied to its fields:\n  Nat Z:    λz.λs.z\n  Nat S(n): λn.λz.λs.s(n)","testCount":10,"tests":[{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λa.λb.λp.p(a, b), λv0.λv1.v0, λv0.λv1.v0)","expected":"λa.a(λb.λc.b, λb.λc.b)"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λa.λb.λp.p(a, b), λv0.λv1.v0, λv0.λv1.v1)","expected":"λa.a(λb.λc.b, λb.λc.c)"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λa.λb.λp.p(a, b), λv0.λv1.v0, λv0.λv1.v0)","expected":"λa.a(λb.λc.b, λb.λc.b)"}]},{"id":"sadt_rev","category":"sadt","categoryName":"Scott ADTs","description":"Reverse the fields of every constructor in a\nScott-encoded value, recursively.\n(a,b) becomes (b,a). 0 or 1 fields: unchanged.\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Scott value selects the ith of N case-handlers,\napplied to its fields:\n  Nat Z:    λz.λs.z\n  Nat S(n): λn.λz.λs.s(n)","testCount":10,"tests":[{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0)","expected":"λa.λb.a"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v1(λv0.λv1.v1(λv0.λv1.v0)))","expected":"λa.λb.b(λc.λd.d(λe.λf.e))"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.c(λx.x, λc.λn.n)), λc.λn.n)), λv0.λv1.v0)","expected":"λa.λb.a"}]},{"id":"sadt_ser","category":"sadt","categoryName":"Scott ADTs","description":"Serialize a Scott-encoded value to a flat Scott list\nof Church booleans (bits).\n\nEncoding: for N constructors, each index uses\nceil(log2(N)) bits (MSB first), then children.\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Scott value selects the ith of N case-handlers,\napplied to its fields:\n  Nat Z:    λz.λs.z\n  Nat S(n): λn.λz.λs.s(n)\n\nChurch booleans: True = λa.λb.a, False = λa.λb.b.\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).","testCount":10,"tests":[{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0)","expected":"λa.λb.a(λc.λd.d, λc.λd.d)"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v1)","expected":"λa.λb.a(λc.λd.c, λc.λd.d)"},{"input":"@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v0)","expected":"λa.λb.a(λc.λd.d, λc.λd.d)"}]},{"id":"sbin_add","category":"sbin","categoryName":"Scott Binaries","description":"Add two Scott binary numbers. Return A + B.\n\nA Scott binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x)\n  I(x) = λo.λi.λe.i(x)\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).","testCount":10,"tests":[{"input":"@main(λo.λi.λe.e, λo.λi.λe.e)","expected":"λa.λb.λc.c"},{"input":"@main(λo.λi.λe.e, λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e)))","expected":"λa.λb.λc.b(λd.λe.λf.e(λg.λh.λi.i))"},{"input":"@main(λo.λi.λe.i(λo.λi.λe.e), λo.λi.λe.i(λo.λi.λe.e))","expected":"λa.λb.λc.a(λd.λe.λf.e(λg.λh.λi.i))"}]},{"id":"sbin_div","category":"sbin","categoryName":"Scott Binaries","description":"Divide two Scott binaries. floor(A / B). (B>0)\n\nA Scott binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x)\n  I(x) = λo.λi.λe.i(x)\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).","testCount":10,"tests":[{"input":"@main(λo.λi.λe.e, λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e)))","expected":"λa.λb.λc.c"},{"input":"@main(λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e))), λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e)))","expected":"λa.λb.λc.b(λd.λe.λf.e(λg.λh.λi.i))"},{"input":"@main(λo.λi.λe.i(λo.λi.λe.o(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e)))), λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e)))","expected":"λa.λb.λc.b(λd.λe.λf.e(λg.λh.λi.i))"}]},{"id":"sbin_exp","category":"sbin","categoryName":"Scott Binaries","description":"Exponentiate two Scott binaries. A ^ B. (0^0=1)\n\nA Scott binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x)\n  I(x) = λo.λi.λe.i(x)\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).","testCount":10,"tests":[{"input":"@main(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e)), λo.λi.λe.e)","expected":"λa.λb.λc.b(λd.λe.λf.f)"},{"input":"@main(λo.λi.λe.e, λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e)))","expected":"λa.λb.λc.c"},{"input":"@main(λo.λi.λe.i(λo.λi.λe.e), λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e))))","expected":"λa.λb.λc.b(λd.λe.λf.f)"}]},{"id":"sbin_gcd","category":"sbin","categoryName":"Scott Binaries","description":"GCD of two Scott binary numbers.\n\nA Scott binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x)\n  I(x) = λo.λi.λe.i(x)\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).","testCount":10,"tests":[{"input":"@main(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e))), λo.λi.λe.o(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e))))","expected":"λa.λb.λc.a(λd.λe.λf.e(λg.λh.λi.i))"},{"input":"@main(λo.λi.λe.o(λo.λi.λe.o(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e)))), λo.λi.λe.o(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e)))))","expected":"λa.λb.λc.a(λd.λe.λf.d(λg.λh.λi.h(λj.λk.λl.l)))"},{"input":"@main(λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e))), λo.λi.λe.i(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e))))","expected":"λa.λb.λc.b(λd.λe.λf.f)"}]},{"id":"sbin_log","category":"sbin","categoryName":"Scott Binaries","description":"Floor logarithm of Scott binary numbers.\nGiven A and base B (B ≥ 2, A ≥ 1),\nreturn floor(log_B(A)).\n\nA Scott binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x)\n  I(x) = λo.λi.λe.i(x)\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).","testCount":10,"tests":[{"input":"@main(λo.λi.λe.i(λo.λi.λe.e), λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e)))","expected":"λa.λb.λc.c"},{"input":"@main(λo.λi.λe.o(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e))), λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e)))","expected":"λa.λb.λc.a(λd.λe.λf.e(λg.λh.λi.i))"},{"input":"@main(λo.λi.λe.o(λo.λi.λe.o(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e)))), λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e)))","expected":"λa.λb.λc.b(λd.λe.λf.e(λg.λh.λi.i))"}]},{"id":"sbin_mod","category":"sbin","categoryName":"Scott Binaries","description":"Modulo of two Scott binaries. A mod B. (B>0)\n\nA Scott binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x)\n  I(x) = λo.λi.λe.i(x)\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).","testCount":10,"tests":[{"input":"@main(λo.λi.λe.e, λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e)))","expected":"λa.λb.λc.c"},{"input":"@main(λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e))), λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e)))","expected":"λa.λb.λc.b(λd.λe.λf.f)"},{"input":"@main(λo.λi.λe.i(λo.λi.λe.o(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e)))), λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e)))","expected":"λa.λb.λc.c"}]},{"id":"sbin_mul","category":"sbin","categoryName":"Scott Binaries","description":"Multiply two Scott binary numbers. A * B.\n\nA Scott binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x)\n  I(x) = λo.λi.λe.i(x)\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).","testCount":10,"tests":[{"input":"@main(λo.λi.λe.e, λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e)))","expected":"λa.λb.λc.c"},{"input":"@main(λo.λi.λe.i(λo.λi.λe.e), λo.λi.λe.i(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e))))","expected":"λa.λb.λc.b(λd.λe.λf.d(λg.λh.λi.h(λj.λk.λl.l)))"},{"input":"@main(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e)), λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e)))","expected":"λa.λb.λc.a(λd.λe.λf.e(λg.λh.λi.h(λj.λk.λl.l)))"}]},{"id":"sbin_pri","category":"sbin","categoryName":"Scott Binaries","description":"Primality test on a Scott binary number.\nReturn True if prime, False otherwise.\n\nA Scott binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x)\n  I(x) = λo.λi.λe.i(x)\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).\n\nChurch booleans: True = λa.λb.a, False = λa.λb.b.","testCount":10,"tests":[{"input":"@main(λo.λi.λe.e)","expected":"λa.λb.b"},{"input":"@main(λo.λi.λe.i(λo.λi.λe.e))","expected":"λa.λb.b"},{"input":"@main(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e)))","expected":"λa.λb.a"}]},{"id":"sbin_sqr","category":"sbin","categoryName":"Scott Binaries","description":"Integer square root of a Scott binary. floor(√N).\n\nA Scott binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x)\n  I(x) = λo.λi.λe.i(x)\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).","testCount":10,"tests":[{"input":"@main(λo.λi.λe.e)","expected":"λa.λb.λc.c"},{"input":"@main(λo.λi.λe.i(λo.λi.λe.e))","expected":"λa.λb.λc.b(λd.λe.λf.f)"},{"input":"@main(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e)))","expected":"λa.λb.λc.b(λd.λe.λf.f)"}]},{"id":"sbin_tot","category":"sbin","categoryName":"Scott Binaries","description":"Euler's totient φ(N) of a Scott binary number:\ncount of integers 1..N coprime with N.\n\nA Scott binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x)\n  I(x) = λo.λi.λe.i(x)\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).","testCount":10,"tests":[{"input":"@main(λo.λi.λe.i(λo.λi.λe.e))","expected":"λa.λb.λc.b(λd.λe.λf.f)"},{"input":"@main(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e)))","expected":"λa.λb.λc.b(λd.λe.λf.f)"},{"input":"@main(λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e)))","expected":"λa.λb.λc.a(λd.λe.λf.e(λg.λh.λi.i))"}]},{"id":"slst_dot","category":"slst","categoryName":"Scott Lists","description":"Dot product of two Scott lists.\n\nGiven add A, mul M, zero Z, and [a1..aN], [x1..xN]:\n  A(M(a1,x1), A(M(a2,x2), ...A(M(aN,xN), Z)...))\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).","testCount":10,"tests":[{"input":"λC.λD.λE.λA.λB.@main(C, D, E, λc.λn.c(A, λc.λn.n), λc.λn.c(B, λc.λn.n))","expected":"λa.λb.λc.λd.λe.a(b(d, e), c)"},{"input":"λE.λF.λG.λA.λB.λC.λD.@main(E, F, G, λc.λn.c(A, λc.λn.c(B, λc.λn.n)), λc.λn.c(C, λc.λn.c(D, λc.λn.n)))","expected":"λa.λb.λc.λd.λe.λf.λg.a(b(d, f), a(b(e, g), c))"},{"input":"λG.λH.λI.λA.λB.λC.λD.λE.λF.@main(G, H, I, λc.λn.c(A, λc.λn.c(B, λc.λn.c(C, λc.λn.n))), λc.λn.c(D, λc.λn.c(E, λc.λn.c(F, λc.λn.n))))","expected":"λa.λb.λc.λd.λe.λf.λg.λh.λi.a(b(d, g), a(b(e, h), a(b(f, i), c)))"}]},{"id":"slst_fol","category":"slst","categoryName":"Scott Lists","description":"Right-fold a Scott list.\nGiven F, Z, and [A,B,C], return F(A, F(B, F(C, Z))).\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).","testCount":10,"tests":[{"input":"λB.λC.λA.@main(B, C, λc.λn.c(A, λc.λn.n))","expected":"λa.λb.λc.a(c, b)"},{"input":"λC.λD.λA.λB.@main(C, D, λc.λn.c(A, λc.λn.c(B, λc.λn.n)))","expected":"λa.λb.λc.λd.a(c, a(d, b))"},{"input":"λD.λE.λA.λB.λC.@main(D, E, λc.λn.c(A, λc.λn.c(B, λc.λn.c(C, λc.λn.n))))","expected":"λa.λb.λc.λd.λe.a(c, a(d, a(e, b)))"}]},{"id":"slst_hed","category":"slst","categoryName":"Scott Lists","description":"Return the first element of a Scott list.\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).","testCount":10,"tests":[{"input":"λA.@main(λc.λn.c(A, λc.λn.n))","expected":"λa.a"},{"input":"λA.λB.@main(λc.λn.c(A, λc.λn.c(B, λc.λn.n)))","expected":"λa.λb.a"},{"input":"λA.λB.λC.@main(λc.λn.c(A, λc.λn.c(B, λc.λn.c(C, λc.λn.n))))","expected":"λa.λb.λc.a"}]},{"id":"slst_map","category":"slst","categoryName":"Scott Lists","description":"Apply F to every element of a Scott list.\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).","testCount":10,"tests":[{"input":"λB.λA.@main(B, λc.λn.c(A, λc.λn.n))","expected":"λa.λb.λc.λd.c(a(b), λe.λf.f)"},{"input":"λC.λA.λB.@main(C, λc.λn.c(A, λc.λn.c(B, λc.λn.n)))","expected":"λa.λb.λc.λd.λe.d(a(b), λf.λg.f(a(c), λh.λi.i))"},{"input":"λD.λA.λB.λC.@main(D, λc.λn.c(A, λc.λn.c(B, λc.λn.c(C, λc.λn.n))))","expected":"λa.λb.λc.λd.λe.λf.e(a(b), λg.λh.g(a(c), λi.λj.i(a(d), λk.λl.l)))"}]},{"id":"slst_nth","category":"slst","categoryName":"Scott Lists","description":"Return the element at index I (Scott nat, 0-based)\nof a Scott list.\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).","testCount":10,"tests":[{"input":"λA.λB.λC.@main(λs.λz.z, λc.λn.c(A, λc.λn.c(B, λc.λn.c(C, λc.λn.n))))","expected":"λa.λb.λc.a"},{"input":"λA.λB.λC.@main(λs.λz.s(λs.λz.z), λc.λn.c(A, λc.λn.c(B, λc.λn.c(C, λc.λn.n))))","expected":"λa.λb.λc.b"},{"input":"λA.λB.λC.@main(λs.λz.s(λs.λz.s(λs.λz.z)), λc.λn.c(A, λc.λn.c(B, λc.λn.c(C, λc.λn.n))))","expected":"λa.λb.λc.c"}]},{"id":"slst_rev","category":"slst","categoryName":"Scott Lists","description":"Reverse a Scott list.\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).","testCount":10,"tests":[{"input":"λA.@main(λc.λn.c(A, λc.λn.n))","expected":"λa.λb.λc.b(a, λd.λe.e)"},{"input":"λA.λB.@main(λc.λn.c(A, λc.λn.c(B, λc.λn.n)))","expected":"λa.λb.λc.λd.c(b, λe.λf.e(a, λg.λh.h))"},{"input":"λA.λB.λC.@main(λc.λn.c(A, λc.λn.c(B, λc.λn.c(C, λc.λn.n))))","expected":"λa.λb.λc.λd.λe.d(c, λf.λg.f(b, λh.λi.h(a, λj.λk.k)))"}]},{"id":"slst_shl","category":"slst","categoryName":"Scott Lists","description":"Rotate a Scott list left by one. [A,B,C]→[B,C,A].\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).","testCount":10,"tests":[{"input":"λA.@main(λc.λn.c(A, λc.λn.n))","expected":"λa.λb.λc.b(a, λd.λe.e)"},{"input":"λA.λB.@main(λc.λn.c(A, λc.λn.c(B, λc.λn.n)))","expected":"λa.λb.λc.λd.c(b, λe.λf.e(a, λg.λh.h))"},{"input":"λA.λB.λC.@main(λc.λn.c(A, λc.λn.c(B, λc.λn.c(C, λc.λn.n))))","expected":"λa.λb.λc.λd.λe.d(b, λf.λg.f(c, λh.λi.h(a, λj.λk.k)))"}]},{"id":"slst_shr","category":"slst","categoryName":"Scott Lists","description":"Rotate a Scott list right by one. [A,B,C]→[C,A,B].\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).","testCount":10,"tests":[{"input":"λA.@main(λc.λn.c(A, λc.λn.n))","expected":"λa.λb.λc.b(a, λd.λe.e)"},{"input":"λA.λB.@main(λc.λn.c(A, λc.λn.c(B, λc.λn.n)))","expected":"λa.λb.λc.λd.c(b, λe.λf.e(a, λg.λh.h))"},{"input":"λA.λB.λC.@main(λc.λn.c(A, λc.λn.c(B, λc.λn.c(C, λc.λn.n))))","expected":"λa.λb.λc.λd.λe.d(c, λf.λg.f(a, λh.λi.h(b, λj.λk.k)))"}]},{"id":"slst_srt","category":"slst","categoryName":"Scott Lists","description":"Sort a Scott list of Church booleans.\nAll False values come before True.\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).\n\nChurch booleans: True = λa.λb.a, False = λa.λb.b.","testCount":10,"tests":[{"input":"@main(λc.λn.c(λa.λb.a, λc.λn.n))","expected":"λa.λb.a(λc.λd.c, λc.λd.d)"},{"input":"@main(λc.λn.c(λa.λb.b, λc.λn.n))","expected":"λa.λb.a(λc.λd.d, λc.λd.d)"},{"input":"@main(λc.λn.c(λa.λb.a, λc.λn.c(λa.λb.b, λc.λn.n)))","expected":"λa.λb.a(λc.λd.d, λc.λd.c(λe.λf.e, λe.λf.f))"}]},{"id":"slst_zip","category":"slst","categoryName":"Scott Lists","description":"Zip two Scott lists with function F.\n[A,B,C] zip [X,Y,Z] = [F(A,X), F(B,Y), F(C,Z)].\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).","testCount":10,"tests":[{"input":"λC.λA.λB.@main(C, λc.λn.c(A, λc.λn.n), λc.λn.c(B, λc.λn.n))","expected":"λa.λb.λc.λd.λe.d(a(b, c), λf.λg.g)"},{"input":"λE.λA.λB.λC.λD.@main(E, λc.λn.c(A, λc.λn.c(B, λc.λn.n)), λc.λn.c(C, λc.λn.c(D, λc.λn.n)))","expected":"λa.λb.λc.λd.λe.λf.λg.f(a(b, d), λh.λi.h(a(c, e), λj.λk.k))"},{"input":"λG.λA.λB.λC.λD.λE.λF.@main(G, λc.λn.c(A, λc.λn.c(B, λc.λn.c(C, λc.λn.n))), λc.λn.c(D, λc.λn.c(E, λc.λn.c(F, λc.λn.n))))","expected":"λa.λb.λc.λd.λe.λf.λg.λh.λi.h(a(b, e), λj.λk.j(a(c, f), λl.λm.l(a(d, g), λn.λo.o)))"}]},{"id":"snat_add","category":"snat","categoryName":"Scott Naturals","description":"Add two Scott nats. Return A + B.\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).","testCount":10,"tests":[{"input":"@main(λs.λz.z, λs.λz.z)","expected":"λa.λb.b"},{"input":"@main(λs.λz.z, λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))","expected":"λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.h)))"},{"input":"@main(λs.λz.s(λs.λz.z), λs.λz.s(λs.λz.z))","expected":"λa.λb.a(λc.λd.c(λe.λf.f))"}]},{"id":"snat_div","category":"snat","categoryName":"Scott Naturals","description":"Divide two Scott nats. Return floor(A / B).\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).","testCount":10,"tests":[{"input":"@main(λs.λz.z, λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))","expected":"λa.λb.b"},{"input":"@main(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))))), λs.λz.s(λs.λz.s(λs.λz.z)))","expected":"λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.h)))"},{"input":"@main(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))))))), λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))","expected":"λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.h)))"}]},{"id":"snat_exp","category":"snat","categoryName":"Scott Naturals","description":"Exponentiate two Scott nats. Return A ^ B.\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).","testCount":10,"tests":[{"input":"@main(λs.λz.s(λs.λz.s(λs.λz.z)), λs.λz.z)","expected":"λa.λb.a(λc.λd.d)"},{"input":"@main(λs.λz.z, λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))","expected":"λa.λb.b"},{"input":"@main(λs.λz.s(λs.λz.z), λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))))))","expected":"λa.λb.a(λc.λd.d)"}]},{"id":"snat_gcd","category":"snat","categoryName":"Scott Naturals","description":"GCD of two Scott nats.\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).","testCount":10,"tests":[{"input":"@main(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z)))))), λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z)))))","expected":"λa.λb.a(λc.λd.c(λe.λf.f))"},{"input":"@main(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z)))))))), λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z)))))))))))))","expected":"λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.j))))"},{"input":"@main(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))))), λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))))","expected":"λa.λb.a(λc.λd.d)"}]},{"id":"snat_log","category":"snat","categoryName":"Scott Naturals","description":"Floor logarithm of two Scott nats.\nGiven N and base B (B ≥ 2, N ≥ 1),\nreturn floor(log_B(N)).\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).","testCount":10,"tests":[{"input":"@main(λs.λz.s(λs.λz.z), λs.λz.s(λs.λz.s(λs.λz.z)))","expected":"λa.λb.b"},{"input":"@main(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z)))), λs.λz.s(λs.λz.s(λs.λz.z)))","expected":"λa.λb.a(λc.λd.c(λe.λf.f))"},{"input":"@main(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z)))))))), λs.λz.s(λs.λz.s(λs.λz.z)))","expected":"λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.h)))"}]},{"id":"snat_mod","category":"snat","categoryName":"Scott Naturals","description":"Modulo of two Scott nats. Return A mod B.\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).","testCount":10,"tests":[{"input":"@main(λs.λz.z, λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))","expected":"λa.λb.b"},{"input":"@main(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))))), λs.λz.s(λs.λz.s(λs.λz.z)))","expected":"λa.λb.a(λc.λd.d)"},{"input":"@main(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))))))), λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))","expected":"λa.λb.b"}]},{"id":"snat_mul","category":"snat","categoryName":"Scott Naturals","description":"Multiply two Scott nats. Return A * B.\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).","testCount":10,"tests":[{"input":"@main(λs.λz.z, λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))","expected":"λa.λb.b"},{"input":"@main(λs.λz.s(λs.λz.z), λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))))","expected":"λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.l)))))"},{"input":"@main(λs.λz.s(λs.λz.s(λs.λz.z)), λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))","expected":"λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.n))))))"}]},{"id":"snat_pri","category":"snat","categoryName":"Scott Naturals","description":"Primality test on a Scott nat.\nReturn True if N is prime, False otherwise.\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).\n\nChurch booleans: True = λa.λb.a, False = λa.λb.b.","testCount":10,"tests":[{"input":"@main(λs.λz.z)","expected":"λa.λb.b"},{"input":"@main(λs.λz.s(λs.λz.z))","expected":"λa.λb.b"},{"input":"@main(λs.λz.s(λs.λz.s(λs.λz.z)))","expected":"λa.λb.a"}]},{"id":"snat_sqr","category":"snat","categoryName":"Scott Naturals","description":"Integer square root of a Scott nat. floor(√N).\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).","testCount":10,"tests":[{"input":"@main(λs.λz.z)","expected":"λa.λb.b"},{"input":"@main(λs.λz.s(λs.λz.z))","expected":"λa.λb.a(λc.λd.d)"},{"input":"@main(λs.λz.s(λs.λz.s(λs.λz.z)))","expected":"λa.λb.a(λc.λd.d)"}]},{"id":"snat_tot","category":"snat","categoryName":"Scott Naturals","description":"Euler's totient φ(N) of a Scott nat:\ncount of integers 1..N coprime with N.\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).","testCount":10,"tests":[{"input":"@main(λs.λz.s(λs.λz.z))","expected":"λa.λb.a(λc.λd.d)"},{"input":"@main(λs.λz.s(λs.λz.s(λs.λz.z)))","expected":"λa.λb.a(λc.λd.d)"},{"input":"@main(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))","expected":"λa.λb.a(λc.λd.c(λe.λf.f))"}]},{"id":"stre_bfs","category":"stre","categoryName":"Scott Trees","description":"Flatten a Scott tree into a Scott list in\nbreadth-first order. Shallowest leaves first,\nleft-to-right within each depth.\n\nNode(Node(Leaf(A), Leaf(B)), Leaf(C)) → [C, A, B]\n\nA Scott tree:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a,b)\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).","testCount":10,"tests":[{"input":"λA.@main(λn.λl.l(A))","expected":"λa.λb.λc.b(a, λd.λe.e)"},{"input":"λA.λB.@main(λn.λl.n(λn.λl.l(A), λn.λl.l(B)))","expected":"λa.λb.λc.λd.c(a, λe.λf.e(b, λg.λh.h))"},{"input":"λA.λB.λC.@main(λn.λl.n(λn.λl.n(λn.λl.l(A), λn.λl.l(B)), λn.λl.l(C)))","expected":"λa.λb.λc.λd.λe.d(c, λf.λg.f(a, λh.λi.h(b, λj.λk.k)))"}]},{"id":"stre_fft","category":"stre","categoryName":"Scott Trees","description":"Compute the Discrete Fourier Transform\nusing the GN number system.\n\nBalanced Ternary (BT), Scott-encoded, LSB first:\n  E       = λt.λo.λi.λe.e\n  T(rest) = λt.λo.λi.λe.t(rest)   (digit -1)\n  O(rest) = λt.λo.λi.λe.o(rest)   (digit  0)\n  I(rest) = λt.λo.λi.λe.i(rest)   (digit +1)\nExample: T(I(E)) = -1 + 1*3 = 2.\nOutputs must be canonical (no trailing O).\n\nGN numbers are Scott trees of BT integers:\n  L(n)   = λn.λl.l(n)     (scalar)\n  B(a,b) = λn.λl.n(a,b)   (pair: a + b*w)\n\nFor N-point FFT (N = 2^k), each coefficient is a\nGN(k-1) number. Input coefficients are in\nbit-reversal order:\n  [c0,c1,c2,c3] is stored as B(B(c0,c2),B(c1,c3))\nThe DFT evaluates c0 + c1*x + c2*x² + ...\nat all Nth roots of unity.","testCount":10,"tests":[{"input":"@main(λb.λl.b(λb.λl.l(λb.λl.l(λt.λo.λi.λe.o(λt.λo.λi.λe.i(λt.λo.λi.λe.e)))), λb.λl.l(λb.λl.l(λt.λo.λi.λe.i(λt.λo.λi.λe.e)))))","expected":"λa.λb.a(λc.λd.d(λe.λf.f(λg.λh.λi.λj.i(λk.λl.λm.λn.m(λo.λp.λq.λr.r)))), λc.λd.d(λe.λf.f(λg.λh.λi.λj.g(λk.λl.λm.λn.m(λo.λp.λq.λr.r)))))"},{"input":"@main(λb.λl.b(λb.λl.l(λb.λl.l(λt.λo.λi.λe.t(λt.λo.λi.λe.t(λt.λo.λi.λe.i(λt.λo.λi.λe.e))))), λb.λl.l(λb.λl.l(λt.λo.λi.λe.t(λt.λo.λi.λe.i(λt.λo.λi.λe.e))))))","expected":"λa.λb.a(λc.λd.d(λe.λf.f(λg.λh.λi.λj.i(λk.λl.λm.λn.k(λo.λp.λq.λr.q(λs.λt.λu.λv.v))))), λc.λd.d(λe.λf.f(λg.λh.λi.λj.h(λk.λl.λm.λn.m(λo.λp.λq.λr.r)))))"},{"input":"@main(λb.λl.b(λb.λl.l(λb.λl.l(λt.λo.λi.λe.i(λt.λo.λi.λe.t(λt.λo.λi.λe.i(λt.λo.λi.λe.e))))), λb.λl.l(λb.λl.l(λt.λo.λi.λe.o(λt.λo.λi.λe.i(λt.λo.λi.λe.e))))))","expected":"λa.λb.a(λc.λd.d(λe.λf.f(λg.λh.λi.λj.i(λk.λl.λm.λn.l(λo.λp.λq.λr.q(λs.λt.λu.λv.v))))), λc.λd.d(λe.λf.f(λg.λh.λi.λj.i(λk.λl.λm.λn.m(λo.λp.λq.λr.r)))))"}]},{"id":"stre_idx","category":"stre","categoryName":"Scott Trees","description":"Label each leaf of a Scott tree with its left-to-right\nindex (Scott nat) using function F.\n\nindex(F, Node(Leaf(A), Leaf(B)))\n  = Node(Leaf(F(0,A)), Leaf(F(1,B)))\n\nA Scott tree:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a,b)\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).","testCount":10,"tests":[{"input":"λF.λA.@main(F, λn.λl.l(A))","expected":"λa.λb.λc.λd.d(a(λe.λf.f, b))"},{"input":"λF.λA.λB.@main(F, λn.λl.n(λn.λl.l(A), λn.λl.l(B)))","expected":"λa.λb.λc.λd.λe.d(λf.λg.g(a(λh.λi.i, b)), λf.λg.g(a(λh.λi.h(λj.λk.k), c)))"},{"input":"λF.λA.λB.λC.@main(F, λn.λl.n(λn.λl.n(λn.λl.l(A), λn.λl.l(B)), λn.λl.l(C)))","expected":"λa.λb.λc.λd.λe.λf.e(λg.λh.g(λi.λj.j(a(λk.λl.l, b)), λi.λj.j(a(λk.λl.k(λm.λn.n), c))), λg.λh.h(a(λi.λj.i(λk.λl.k(λm.λn.n)), d)))"}]},{"id":"stre_inv","category":"stre","categoryName":"Scott Trees","description":"Bit-reversal permutation on a perfect Scott tree.\nLeaf at index i moves to bit_reverse(i).\n[A,B,C,D] → [A,C,B,D].\n\nA Scott tree:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a,b)","testCount":10,"tests":[{"input":"λA.@main(λn.λl.l(A))","expected":"λa.λb.λc.c(a)"},{"input":"λA.@main(λn.λl.l(A))","expected":"λa.λb.λc.c(a)"},{"input":"λA.λB.@main(λn.λl.n(λn.λl.l(A), λn.λl.l(B)))","expected":"λa.λb.λc.λd.c(λe.λf.f(a), λe.λf.f(b))"}]},{"id":"stre_lst","category":"stre","categoryName":"Scott Trees","description":"Flatten a Scott tree into a Scott list of its leaves,\nleft to right.\n\nA Scott tree:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a,b)\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).","testCount":10,"tests":[{"input":"λA.@main(λn.λl.l(A))","expected":"λa.λb.λc.b(a, λd.λe.e)"},{"input":"λA.λB.@main(λn.λl.n(λn.λl.l(A), λn.λl.l(B)))","expected":"λa.λb.λc.λd.c(a, λe.λf.e(b, λg.λh.h))"},{"input":"λA.λB.λC.@main(λn.λl.n(λn.λl.n(λn.λl.l(A), λn.λl.l(B)), λn.λl.l(C)))","expected":"λa.λb.λc.λd.λe.d(a, λf.λg.f(b, λh.λi.h(c, λj.λk.k)))"}]},{"id":"stre_mrg","category":"stre","categoryName":"Scott Trees","description":"Merge two same-shape Scott trees, combining\ncorresponding leaves with function F.\n\nmerge(F, Node(Leaf(A),Leaf(B)), Node(Leaf(P),Leaf(Q)))\n  = Node(Leaf(F(A,P)), Leaf(F(B,Q)))\n\nA Scott tree:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a,b)","testCount":10,"tests":[{"input":"λF.λA.λP.@main(F, λn.λl.l(A), λn.λl.l(P))","expected":"λa.λb.λc.λd.λe.e(a(b, c))"},{"input":"λF.λA.λB.λP.λQ.@main(F, λn.λl.n(λn.λl.l(A), λn.λl.l(B)), λn.λl.n(λn.λl.l(P), λn.λl.l(Q)))","expected":"λa.λb.λc.λd.λe.λf.λg.f(λh.λi.i(a(b, d)), λh.λi.i(a(c, e)))"},{"input":"λF.λA.λB.λC.λP.λQ.λR.@main(F, λn.λl.n(λn.λl.n(λn.λl.l(A), λn.λl.l(B)), λn.λl.l(C)), λn.λl.n(λn.λl.n(λn.λl.l(P), λn.λl.l(Q)), λn.λl.l(R)))","expected":"λa.λb.λc.λd.λe.λf.λg.λh.λi.h(λj.λk.j(λl.λm.m(a(b, e)), λl.λm.m(a(c, f))), λj.λk.k(a(d, g)))"}]},{"id":"stre_rev","category":"stre","categoryName":"Scott Trees","description":"Reverse the leaves of a perfect Scott tree.\n[A,B,C,D] → [D,C,B,A].\n\nA Scott tree:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a,b)","testCount":10,"tests":[{"input":"λA.@main(λn.λl.l(A))","expected":"λa.λb.λc.c(a)"},{"input":"λA.@main(λn.λl.l(A))","expected":"λa.λb.λc.c(a)"},{"input":"λA.λB.@main(λn.λl.n(λn.λl.l(A), λn.λl.l(B)))","expected":"λa.λb.λc.λd.c(λe.λf.f(b), λe.λf.f(a))"}]},{"id":"stre_rtl","category":"stre","categoryName":"Scott Trees","description":"Rotate the leaves of a perfect Scott tree left by one.\n[A,B,C,D] → [B,C,D,A].\n\nA Scott tree:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a,b)","testCount":10,"tests":[{"input":"λA.@main(λn.λl.l(A))","expected":"λa.λb.λc.c(a)"},{"input":"λA.@main(λn.λl.l(A))","expected":"λa.λb.λc.c(a)"},{"input":"λA.λB.@main(λn.λl.n(λn.λl.l(A), λn.λl.l(B)))","expected":"λa.λb.λc.λd.c(λe.λf.f(b), λe.λf.f(a))"}]},{"id":"stre_rtr","category":"stre","categoryName":"Scott Trees","description":"Rotate the leaves of a perfect Scott tree right by one.\n[A,B,C,D] → [D,A,B,C].\n\nA Scott tree:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a,b)","testCount":10,"tests":[{"input":"λA.@main(λn.λl.l(A))","expected":"λa.λb.λc.c(a)"},{"input":"λA.@main(λn.λl.l(A))","expected":"λa.λb.λc.c(a)"},{"input":"λA.λB.@main(λn.λl.n(λn.λl.l(A), λn.λl.l(B)))","expected":"λa.λb.λc.λd.c(λe.λf.f(b), λe.λf.f(a))"}]},{"id":"stre_scn","category":"stre","categoryName":"Scott Trees","description":"Exclusive prefix scan over a Scott tree's leaves,\npreserving shape. Each leaf_i becomes the fold of\nall leaves before it.\n\nscan(F, Z, Node(Leaf(A), Leaf(B)))\n  = Node(Leaf(Z), Leaf(F(Z,A)))\n\nA Scott tree:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a,b)","testCount":10,"tests":[{"input":"λF.λZ.λA.@main(F, Z, λn.λl.l(A))","expected":"λa.λb.λc.λd.λe.e(b)"},{"input":"λF.λZ.λA.λB.@main(F, Z, λn.λl.n(λn.λl.l(A), λn.λl.l(B)))","expected":"λa.λb.λc.λd.λe.λf.e(λg.λh.h(b), λg.λh.h(a(b, c)))"},{"input":"λF.λZ.λA.λB.λC.@main(F, Z, λn.λl.n(λn.λl.n(λn.λl.l(A), λn.λl.l(B)), λn.λl.l(C)))","expected":"λa.λb.λc.λd.λe.λf.λg.f(λh.λi.h(λj.λk.k(b), λj.λk.k(a(b, c))), λh.λi.i(a(a(b, c), d)))"}]}],"categories":[{"id":"algo","name":"Algorithms"},{"id":"cnat","name":"Church Naturals"},{"id":"cbin","name":"Church Binaries"},{"id":"clst","name":"Church Lists"},{"id":"ctre","name":"Church Trees"},{"id":"cadt","name":"Church ADTs"},{"id":"snat","name":"Scott Naturals"},{"id":"sbin","name":"Scott Binaries"},{"id":"slst","name":"Scott Lists"},{"id":"stre","name":"Scott Trees"},{"id":"sadt","name":"Scott ADTs"},{"id":"ntup","name":"N-Tuples"}]};
+
+// ── helpers ─────────────────────────────────────────────────────────
+
+function esc(s) {
+  var d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function L(n, c, cls) {
+  return '<div class="line'+(cls?' '+cls:'')+'">' +
+    '<span class="ln">'+(n===''?'':n)+'</span>' +
+    '<span class="lc">'+c+'</span></div>';
+}
+
+function tilde() { return L('~', '', 'tilde'); }
+
+function fmtModel(m) {
+  // Strip provider prefix, keep the rest as-is.
+  var p = m.split('/');
+  return p.slice(1).join('/');
+}
+
+function barHtml(pct, w) {
+  var filled = Math.round(pct/100*w);
+  var empty = w - filled;
+  var cls = pct>=70?'bar-green':pct>=45?'bar-blue':pct>=20?'bar-yellow':'bar-red';
+  var s = '';
+  for(var i=0;i<filled;i++) s+='█';
+  for(var i=0;i<empty;i++) s+='░';
+  return '<span class="'+cls+'">'+s.slice(0,filled)+'</span><span class="dim">'+s.slice(filled)+'</span>';
+}
+
+function pad(s,n) { while(s.length<n) s+=' '; return s; }
+function rpad(s,n) { while(s.length<n) s=' '+s; return s; }
+
+// ── intelligence + speed ────────────────────────────────────────────
+
+function maxNameLen() {
+  var m = 0;
+  D.rankings.forEach(function(r) {
+    var name = fmtModel(r.model);
+    if (name.length > m) m = name.length;
+  });
+  return m;
+}
+
+function renderHeader(lines, n) {
+  lines.push(L(n++, ''));
+  lines.push(L(n++, '<span class="h1">LamBench</span>  <span class="comment">-- Lambda Calculus Benchmark for AI</span>'));
+  lines.push(L(n++, ''));
+  return n;
+}
+
+function renderIntelligence() {
+  var el = document.getElementById('intelligence-buf');
+  var lines = [];
+  var n = 1;
+  n = renderHeader(lines, n);
+
+  lines.push(L(n++, '<span class="h2">Intelligence</span>  <span class="comment">-- by problems solved</span>'));
+  lines.push(L(n++, ''));
+
+  var maxName = maxNameLen();
+  var bw = 28;
+  var sorted = D.rankings.slice().sort(function(a, b){ return b.right - a.right; });
+
+  sorted.forEach(function(r) {
+    var name = fmtModel(r.model);
+    var pct = parseFloat(r.pct);
+    var score = r.right + '/' + r.total;
+    var pctStr = rpad(pct.toFixed(1) + '%', 6);
+    var line =
+      '<span class="func">' + esc(pad(name, maxName + 1)) + '</span>' +
+      barHtml(pct, bw) + ' ' +
+      '<span class="num">' + esc(rpad(score, 7)) + '</span> ' +
+      '<span class="dim">' + esc(pctStr) + '</span>';
+    lines.push(L(n++, line));
+  });
+
+  lines.push(L(n++, ''));
+  for (var i=0; i<8; i++) lines.push(tilde());
+
+  el.innerHTML = lines.join('');
+  document.getElementById('status-right').textContent =
+    D.rankings.length + ' models · 120 tasks';
+}
+
+// ── elegance ─────────────────────────────────────────────────────────
+//
+// Per-task "shorter":  s = (1 - bits/ref) * 100      (higher = shorter)
+//   s =   0%  -> matches reference
+//   s = +16%  -> 16% shorter than reference
+//   s = -30%  -> 30% longer than reference
+//
+// Model elegance = mean of per-task shorter% over tasks the model solved.
+// Failed/missing tasks are excluded, so this is independent of intelligence.
+
+function computeElegance() {
+  var refs = {};
+  D.rankings.forEach(function(r) {
+    Object.keys(r.taskRefs || {}).forEach(function(tid) {
+      if (refs[tid] == null) refs[tid] = r.taskRefs[tid];
+    });
+  });
+
+  var entries = D.rankings.map(function(r) {
+    var sum = 0;
+    var passing = 0;
+    D.tasks.forEach(function(t) {
+      var ref = refs[t.id];
+      var bits = (r.taskBits || {})[t.id];
+      if (r.tasks[t.id] && ref && bits > 0) {
+        sum += (1 - bits / ref);   // positive = shorter, negative = longer
+        passing += 1;
+      }
+    });
+    return {
+      model: r.model,
+      shorter: passing ? (sum / passing) * 100 : 0,  // as percentage
+      passing: passing,
+    };
+  });
+
+  var scored = entries.filter(function(e) { return e.passing > 0; });
+  var mean = scored.reduce(function(s, e){ return s + e.shorter; }, 0)
+    / Math.max(scored.length, 1);
+  entries.forEach(function(e) {
+    e.delta = e.passing > 0 ? e.shorter - mean : 0;
+  });
+  return { entries: entries, mean: mean };
+}
+
+function renderElegance() {
+  var el = document.getElementById('elegance-buf');
+  var lines = [];
+  var n = 1;
+  n = renderHeader(lines, n);
+
+  lines.push(L(n++, '<span class="h2">Elegance</span>  <span class="comment">-- how much shorter than reference (higher = more elegant)</span>'));
+  lines.push(L(n++, ''));
+
+  var t = computeElegance();
+  var sorted = t.entries.slice().sort(function(a, b){
+    if (a.passing === 0 && b.passing === 0) return 0;
+    if (a.passing === 0) return 1;
+    if (b.passing === 0) return -1;
+    return b.shorter - a.shorter;  // highest first
+  });
+
+  var maxName = maxNameLen();
+  var bw = 28;
+
+  // Bar: -40% => empty, +30% => full (clamped).
+  var barLo = -40, barHi = 30;
+
+  function fmtShorter(v) {
+    if (v >= 0) return '+' + v.toFixed(1) + '%';
+    return '−' + Math.abs(v).toFixed(1) + '%';
+  }
+
+  sorted.forEach(function(e) {
+    var name = fmtModel(e.model);
+    var valStr = e.passing
+      ? rpad(fmtShorter(e.shorter), 7)
+      : rpad('—', 7);
+    var barPct = e.passing
+      ? Math.max(0, Math.min(100, (e.shorter - barLo) * 100 / (barHi - barLo)))
+      : 0;
+    var line =
+      '<span class="func">' + esc(pad(name, maxName + 1)) + '</span>' +
+      barHtml(barPct, bw) + ' ' +
+      '<span class="num">' + esc(valStr) + '</span> ' +
+      '<span class="dim">(' + rpad(String(e.passing), 3) + '/' + D.tasks.length + ')</span>';
+    lines.push(L(n++, line));
+  });
+
+  lines.push(L(n++, ''));
+  lines.push(L(n++,
+    '<span class="comment">" mean: </span>' +
+    '<span class="num">' + fmtShorter(t.mean) + '</span>' +
+    '<span class="comment">  shorter than reference</span>'
+  ));
+
+  for (var i=0; i<8; i++) lines.push(tilde());
+
+  el.innerHTML = lines.join('');
+  document.getElementById('status-right').textContent =
+    sorted.length + ' models · mean ' + fmtShorter(t.mean) + ' shorter';
+}
+
+function renderSpeed() {
+  var el = document.getElementById('speed-buf');
+  var lines = [];
+  var n = 1;
+  n = renderHeader(lines, n);
+
+  lines.push(L(n++, '<span class="h2">Speed</span>  <span class="comment">-- tasks solved per minute (higher = faster)</span>'));
+  lines.push(L(n++, ''));
+
+  var valid = D.rankings.filter(function(r){ return r.avgTime > 0; });
+  // Compute tasks/min for each model.
+  var entries = valid.map(function(r) {
+    return { model: r.model, tpm: 60 / r.avgTime, avgTime: r.avgTime };
+  });
+  var sorted = entries.slice().sort(function(a, b){ return b.tpm - a.tpm; });
+  var maxTPM = sorted.length ? sorted[0].tpm : 1;
+
+  var maxName = maxNameLen();
+  var bw = 28;
+
+  sorted.forEach(function(e) {
+    var name = fmtModel(e.model);
+    var pct = (e.tpm / maxTPM) * 100;
+    var line =
+      '<span class="func">' + esc(pad(name, maxName + 1)) + '</span>' +
+      barHtml(pct, bw) + ' ' +
+      '<span class="num">' + esc(rpad(e.tpm.toFixed(2) + '/min', 10)) + '</span> ' +
+      '<span class="dim">(' + esc(e.avgTime.toFixed(0) + 's avg') + ')</span>';
+    lines.push(L(n++, line));
+  });
+
+  lines.push(L(n++, ''));
+  lines.push(L(n++, '<span class="comment">" Wall-clock time per passing task (model + interpreter)</span>'));
+
+  for (var i=0; i<8; i++) lines.push(tilde());
+
+  el.innerHTML = lines.join('');
+  document.getElementById('status-right').textContent =
+    sorted.length + ' models · tasks/min';
+}
+
+// ── problems ────────────────────────────────────────────────────────
+
+var activeFilter = 'all';
+
+function renderProblems() {
+  renderFilters();
+  renderTasks();
+}
+
+function renderFilters() {
+  var el = document.getElementById('filter-buf');
+  var cats = [{id:'all',name:'all'}].concat(D.categories.map(function(c){return {id:c.id,name:c.id};} ));
+  var btns = cats.map(function(c) {
+    return '<button class="fbtn'+(activeFilter===c.id?' active':'')+'" data-cat="'+c.id+'">'+esc(c.name)+'</button>';
+  }).join('');
+  var lines = [];
+  lines.push(L('', ''));
+  lines.push(L('', '<span class="comment">" filter:</span> ' + btns));
+  lines.push(L('', ''));
+  el.innerHTML = lines.join('');
+
+  el.querySelectorAll('.fbtn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      activeFilter = btn.dataset.cat;
+      renderProblems();
+    });
+  });
+}
+
+function renderTasks() {
+  var el = document.getElementById('tasks-buf');
+  var tasks = activeFilter==='all' ? D.tasks : D.tasks.filter(function(t){return t.category===activeFilter;});
+  var lines = [];
+  var n = 1;
+
+  tasks.forEach(function(t) {
+    var dots = D.rankings.map(function(r) {
+      return r.tasks[t.id] ? '<span class="ok">●</span>' : '<span class="err">●</span>';
+    }).join('');
+
+    var desc = t.description.split('\n')[0];
+    if (desc.length > 60) desc = desc.slice(0, 57) + '...';
+
+    var line =
+      '<span class="keyword">' + esc(pad(t.id, 10)) + '</span>' +
+      '  ' + dots +
+      '  <span class="comment">' + esc(desc) + '</span>';
+
+    lines.push('<div class="task-line" data-task="'+t.id+'">' + L(rpad(String(n),3), line).slice(0,-6) + '</div></div>');
+    n++;
+  });
+
+  for (var i=0; i<5; i++) lines.push(tilde());
+
+  el.innerHTML = lines.join('');
+
+  el.querySelectorAll('.task-line').forEach(function(row) {
+    row.addEventListener('click', function() { openTask(row.dataset.task); });
+  });
+
+  document.getElementById('status-right').textContent =
+    tasks.length + '/' + D.tasks.length + ' tasks';
+}
+
+// ── matrix ─────────────────────────────────────────────────────────
+
+function renderMatrix() {
+  var el = document.getElementById('matrix-buf');
+  var sorted = D.rankings.slice().sort(function(a, b){ return b.right - a.right; });
+
+  var head = '<tr><th>problem</th>';
+  sorted.forEach(function(r) {
+    head += '<th class="mcol"><div>' + esc(fmtModel(r.model)) + '</div></th>';
+  });
+  head += '</tr>';
+
+  var rows = D.tasks.map(function(t) {
+    var cells = '<td class="pid">' + esc(t.id) + '</td>';
+    sorted.forEach(function(r) {
+      var passed = r.tasks[t.id];
+      cells += '<td class="' + (passed ? 'ok' : 'err') + '">' +
+        (passed ? '✓' : '✗') + '</td>';
+    });
+    return '<tr data-task="' + t.id + '">' + cells + '</tr>';
+  }).join('');
+
+  el.innerHTML =
+    '<div class="matrix-wrap">' +
+    '<table class="matrix"><thead>' + head + '</thead>' +
+    '<tbody>' + rows + '</tbody></table></div>';
+
+  el.querySelectorAll('tbody tr').forEach(function(row) {
+    row.style.cursor = 'pointer';
+    row.addEventListener('click', function() { openTask(row.dataset.task); });
+  });
+
+  document.getElementById('status-right').textContent =
+    D.tasks.length + ' tasks × ' + sorted.length + ' models';
+}
+
+// ── modal ───────────────────────────────────────────────────────────
+
+function openTask(id) {
+  var task = D.tasks.find(function(t){return t.id===id;});
+  if (!task) return;
+
+  var lines = [];
+  var n = 1;
+
+  lines.push(L(n++, ''));
+  lines.push(L(n++, '<span class="h2">' + esc(task.id) + '</span>  <span class="dim">' + esc(task.categoryName) + '</span>'));
+  lines.push(L(n++, ''));
+
+  task.description.split('\n').forEach(function(ln) {
+    lines.push(L(n++, '<span class="comment">" ' + esc(ln) + '</span>'));
+  });
+
+  lines.push(L(n++, ''));
+  lines.push(L(n++, '<span class="type">Tests</span> <span class="dim">(' + task.tests.length + ' of ' + task.testCount + ')</span>'));
+  lines.push(L(n++, ''));
+
+  task.tests.forEach(function(t, i) {
+    lines.push(L(n++, '<span class="string">' + esc(t.input) + '</span>'));
+    lines.push(L(n++, '<span class="ok">= ' + esc(t.expected) + '</span>'));
+    lines.push(L(n++, ''));
+  });
+
+  lines.push(L(n++, '<span class="type">Model Results</span>'));
+  lines.push(L(n++, ''));
+
+  D.rankings.forEach(function(r) {
+    var passed = r.tasks[id];
+    var icon = passed ? '<span class="ok">✓</span>' : '<span class="err">✗</span>';
+    lines.push(L(n++, icon + ' ' + esc(fmtModel(r.model))));
+  });
+
+  lines.push(L(n++, ''));
+  for (var i=0; i<4; i++) lines.push(tilde());
+
+  document.getElementById('modal').innerHTML =
+    '<div class="modal-tabline"><span class="title">' + esc(task.id) + '.tsk</span>' +
+    '<button class="modal-close" id="modal-close">:q</button></div>' +
+    '<div class="modal-buf">' + lines.join('') + '</div>' +
+    '<div class="modal-status">' + esc(task.id) + ' [RO] ' + n + 'L</div>';
+
+  document.getElementById('modal-overlay').classList.add('open');
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+// ── tabs ────────────────────────────────────────────────────────────
+
+var PANEL_RENDERERS = {
+  intelligence: renderIntelligence,
+  speed:        renderSpeed,
+  elegance:      renderElegance,
+  problems:     renderProblems,
+  matrix:       renderMatrix,
+};
+
+document.querySelectorAll('.tabline button').forEach(function(tab) {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.tabline button').forEach(function(t){t.classList.remove('active');});
+    document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('active');});
+    tab.classList.add('active');
+    var p = document.getElementById(tab.dataset.panel);
+    p.classList.add('active');
+    var fn = PANEL_RENDERERS[tab.dataset.panel];
+    if (fn) fn();
+  });
+});
+
+document.getElementById('modal-overlay').addEventListener('click', function(e) {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal();
+});
+
+// ── init ────────────────────────────────────────────────────────────
+
+renderIntelligence();
+</script>
+</body>
+</html>

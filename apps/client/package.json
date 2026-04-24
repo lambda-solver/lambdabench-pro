@@ -3,19 +3,15 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "description": "Demo UI for the edu_effect-rag-builder experiment.",
+  "description": "LamBench leaderboard — Lambda Calculus Benchmark for AI models.",
   "keywords": [
-    "rag",
-    "ai",
-    "chat",
+    "lambda-calculus",
+    "benchmark",
+    "leaderboard",
     "effect",
     "react",
     "vite"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/your-org/edu_effect-rag-builder.git"
-  },
   "scripts": {
     "build": "vite build",
     "clean": "git clean -xdf .cache .turbo dist node_modules",

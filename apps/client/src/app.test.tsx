@@ -1,104 +1,85 @@
+import type { BenchmarkData } from "@repo/domain/Benchmark";
+import { AsyncResult } from "effect/unstable/reactivity";
 import { describe, expect, test, vi } from "vitest";
 import { render } from "vitest-browser-react";
 import App from "./app";
 
-// Mock the atom hooks (v4: @effect/atom-react)
+// ─── Fixtures ────────────────────────────────────────────────────────────────
+
+const mockData: BenchmarkData = {
+  generatedAt: "2026-01-01T00:00:00Z",
+  tasks: [
+    {
+      id: "bool_not",
+      category: "bool",
+      categoryName: "Boolean Logic",
+      description: "Implement boolean NOT",
+      testCount: 2,
+      tests: [
+        { input: "not(@true)", expected: "@false" },
+        { input: "not(@false)", expected: "@true" },
+      ],
+    },
+  ],
+  categories: [{ id: "bool", name: "Boolean Logic" }],
+  rankings: [
+    {
+      model: "openai/gpt-4o",
+      right: 1,
+      total: 1,
+      pct: "100.0",
+      avgTime: 3.5,
+      timestamp: "2026-01-01T00:00:00Z",
+      tasks: { bool_not: true },
+      taskBits: { bool_not: 12 },
+      taskRefs: { bool_not: 14 },
+      pricePerMOutputTokens: 10,
+    },
+  ],
+};
+
+// ─── Mocks ───────────────────────────────────────────────────────────────────
+
 vi.mock("@effect/atom-react", () => ({
-  useAtom: vi.fn(() => [{ _tag: "Initial" }, vi.fn()]),
-  useAtomSet: vi.fn(() => vi.fn()),
+  useAtomValue: vi.fn(() => AsyncResult.success(mockData)),
 }));
 
-// Mock AsyncResult from effect/unstable/reactivity
-vi.mock("effect/unstable/reactivity", () => ({
-  AsyncResult: {
-    getOrElse: vi.fn((_result: unknown, fallback: () => unknown) => {
-      return fallback();
-    }),
-    builder: vi.fn(() => ({
-      onSuccess: vi.fn().mockReturnThis(),
-      onFailure: vi.fn().mockReturnThis(),
-      onInitial: vi.fn().mockReturnThis(),
-      orNull: vi.fn(() => null),
-    })),
-    match: vi.fn((_result: unknown, _handlers: unknown) => null),
-    isSuccess: vi.fn(() => false),
-    isInitial: vi.fn(() => true),
-    isFailure: vi.fn(() => false),
-    isWaiting: vi.fn(() => false),
-  },
+vi.mock("@/lib/atoms/benchmark-atom", () => ({
+  benchmarkAtom: Symbol("benchmarkAtom"),
 }));
 
-vi.mock("@/lib/atoms/chat-atom", () => ({
-  chatAtom: vi.fn(),
-}));
+// ─── Tests ───────────────────────────────────────────────────────────────────
 
-vi.mock("@/lib/atoms/chunker-atom", () => ({
-  chunkerAtom: vi.fn(),
-}));
-
-vi.mock("@/lib/atoms/upload-atom", () => ({
-  uploadAtom: vi.fn(),
-  validateFiles: vi.fn(() => ({ valid: [], rejected: [] })),
-}));
-
-describe("App", () => {
+describe("App (leaderboard)", () => {
   test("renders without crashing", async () => {
-    const screen = await render(<App />);
-    await expect.element(screen.getByText("Effect RAG Builder")).toBeVisible();
+    const { getByText } = await render(<App />);
+    // TabLine is always visible
+    await expect.element(getByText("intelligence")).toBeVisible();
   });
 
-  test("displays the subtitle", async () => {
-    const screen = await render(<App />);
-    await expect
-      .element(
-        screen.getByText("Build, chunk, and query knowledge with Effect"),
-      )
-      .toBeVisible();
+  test("shows all 6 tabs", async () => {
+    const { getByText } = await render(<App />);
+    for (const tab of ["intelligence", "speed", "elegance", "value", "problems", "matrix"]) {
+      await expect.element(getByText(tab)).toBeVisible();
+    }
   });
 
-  test("displays the description", async () => {
-    const screen = await render(<App />);
-    await expect
-      .element(
-        screen.getByText(
-          "An educational workspace for RAG workflows and monorepo patterns",
-        ),
-      )
-      .toBeVisible();
+  test("statusline shows model and task counts", async () => {
+    const { getByText } = await render(<App />);
+    await expect.element(getByText(/1 models/)).toBeVisible();
+    await expect.element(getByText(/1 tasks/)).toBeVisible();
   });
 
-  test("renders chunker playground", async () => {
-    const screen = await render(<App />);
-    const chunkerHeading = screen.getByText("Chunker Playground");
-    chunkerHeading.element().scrollIntoView({ block: "center" });
-    await expect.element(chunkerHeading).toBeVisible();
-    await expect
-      .element(screen.getByRole("button", { name: "Chunk text" }))
-      .toBeVisible();
+  test("statusline links to github", async () => {
+    const { getByRole } = await render(<App />);
+    const link = getByRole("link", { name: /lambench/i });
+    await expect.element(link).toBeVisible();
   });
 
-  test("renders chat section", async () => {
-    const screen = await render(<App />);
-    const chatHeading = screen.getByText("Chat (RPC)");
-    chatHeading.element().scrollIntoView({ block: "center" });
-    await expect.element(chatHeading).toBeVisible();
-    await expect
-      .element(screen.getByPlaceholder("Send a message"))
-      .toBeVisible();
-  });
-
-  test("renders upload section", async () => {
-    const screen = await render(<App />);
-    const uploadHeading = screen.getByText("Document Upload");
-    uploadHeading.element().scrollIntoView({ block: "center" });
-    await expect.element(uploadHeading).toBeVisible();
-    await expect
-      .element(screen.getByRole("button", { name: "Add files" }))
-      .toBeVisible();
-  });
-
-  test("renders brand logo", async () => {
-    const screen = await render(<App />);
-    await expect.element(screen.getByAltText("Effect logo")).toBeVisible();
+  test("shows loading state when AsyncResult is Initial", async () => {
+    const { useAtomValue } = await import("@effect/atom-react");
+    vi.mocked(useAtomValue).mockReturnValueOnce(AsyncResult.initial());
+    const { getByText } = await render(<App />);
+    await expect.element(getByText(/Loading benchmark data/)).toBeVisible();
   });
 });

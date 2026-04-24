@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "checkpoints": [
+    {
+      "label": "spiral-session-ses_23ec87b1-1777063183533",
+      "sha": "eaab02bd29dae21e49048b6be5445c8944590689",
+      "timestamp": "2026-04-24T20:39:43.538Z"
+    },
+    {
+      "label": "spiral-session-ses_23ec87b1-1777063245527",
+      "sha": "cee7ce9c73703eb02bd1ad2c15590d4c9203fe28",
+      "timestamp": "2026-04-24T20:40:45.534Z"
+    }
+  ]
+}

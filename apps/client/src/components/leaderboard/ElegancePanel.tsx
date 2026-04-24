@@ -1,5 +1,5 @@
-import type { BenchmarkData, Ranking } from "@repo/domain/Benchmark";
-import { Array as Arr } from "effect";
+import type { BenchmarkData } from "@repo/domain/Benchmark";
+import { Array as Arr, Order } from "effect";
 import { BarChart } from "./BarChart";
 import { TildeLine, VimLine } from "./VimLine";
 
@@ -27,7 +27,7 @@ function rpad(s: string, n: number): string {
 }
 
 function fmtShorter(v: number): string {
-  return v >= 0 ? `+${v.toFixed(1)}%` : `−${Math.abs(v).toFixed(1)}%`;
+  return v >= 0 ? `+${v.toFixed(1)}%` : `\u2212${Math.abs(v).toFixed(1)}%`;
 }
 
 function computeElegance(data: BenchmarkData): { entries: EleganceEntry[]; mean: number } {
@@ -45,7 +45,7 @@ function computeElegance(data: BenchmarkData): { entries: EleganceEntry[]; mean:
     for (const t of data.tasks) {
       const ref  = refs[t.id];
       const bits = r.taskBits[t.id];
-      if (r.tasks[t.id] && ref && bits > 0) {
+      if (r.tasks[t.id] && ref !== undefined && bits !== undefined && bits > 0) {
         sum += 1 - bits / ref;
         passing++;
       }
@@ -70,6 +70,13 @@ function computeElegance(data: BenchmarkData): { entries: EleganceEntry[]; mean:
   return { entries, mean };
 }
 
+const byEleganceDesc = Order.make<EleganceEntry>((a, b) => {
+  if (a.passing === 0 && b.passing === 0) return 0;
+  if (a.passing === 0) return 1;
+  if (b.passing === 0) return -1;
+  return b.shorter > a.shorter ? 1 : b.shorter < a.shorter ? -1 : 0;
+});
+
 /**
  * Elegance panel: models ranked by how much shorter their solutions are vs reference.
  * Bar chart axis: –40% (empty) to +30% (full).
@@ -77,18 +84,7 @@ function computeElegance(data: BenchmarkData): { entries: EleganceEntry[]; mean:
 export function ElegancePanel({ data }: ElegancePanelProps) {
   const { entries, mean } = computeElegance(data);
 
-  const sorted = Arr.sort(
-    entries,
-    {
-      compare: (a, b) => {
-        if (a.passing === 0 && b.passing === 0) return 0;
-        if (a.passing === 0) return 1;
-        if (b.passing === 0) return -1;
-        return b.shorter - a.shorter;
-      },
-    },
-  );
-
+  const sorted  = Arr.sort(entries, byEleganceDesc);
   const maxName = Math.max(...sorted.map(e => fmtModel(e.model).length), 10);
   const barLo   = -40;
   const barHi   = 30;

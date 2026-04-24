@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
-import type { BenchmarkData, BenchmarkTask } from "@repo/domain/Benchmark";
-import { Array as Arr } from "effect";
+import type { BenchmarkData, BenchmarkTask, Ranking } from "@repo/domain/Benchmark";
+import { Array as Arr, Order } from "effect";
+import type React from "react";
 
 interface MatrixPanelProps {
   data: BenchmarkData;
@@ -16,10 +17,10 @@ function fmtModel(m: string): string {
  * Vertical model headers, ✓/✗ per cell. Row click opens TaskModal.
  */
 export function MatrixPanel({ data, onTaskClick }: MatrixPanelProps) {
-  const sorted = Arr.sort(
-    data.rankings,
-    { compare: (a, b) => b.right - a.right },
+  const byRightDesc = Order.make<Ranking>((a, b) =>
+    b.right > a.right ? 1 : b.right < a.right ? -1 : 0,
   );
+  const sorted = Arr.sort(data.rankings, byRightDesc);
 
   return (
     <div className="overflow-x-auto py-2">

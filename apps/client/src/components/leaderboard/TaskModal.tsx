@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import type { BenchmarkData, BenchmarkTask, Ranking } from "@repo/domain/Benchmark";
+import type { BenchmarkTask, Ranking } from "@repo/domain/Benchmark";
 import { useEffect } from "react";
 import { VimLine, TildeLine } from "./VimLine";
 

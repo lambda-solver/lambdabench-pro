@@ -1,5 +1,5 @@
-import type { BenchmarkData } from "@repo/domain/Benchmark";
-import { Array as Arr } from "effect";
+import type { BenchmarkData, Ranking } from "@repo/domain/Benchmark";
+import { Array as Arr, Order } from "effect";
 import { BarChart } from "./BarChart";
 import { TildeLine, VimLine } from "./VimLine";
 
@@ -23,10 +23,10 @@ function rpad(s: string, n: number): string {
  * Intelligence panel: models ranked by problems solved (pass rate).
  */
 export function IntelligencePanel({ data }: IntelligencePanelProps) {
-  const sorted = Arr.sort(
-    data.rankings,
-    { compare: (a, b) => b.right - a.right },
+  const byRightDesc = Order.make<Ranking>((a, b) =>
+    b.right > a.right ? 1 : b.right < a.right ? -1 : 0,
   );
+  const sorted = Arr.sort(data.rankings, byRightDesc);
 
   const maxNameLen = Math.max(...sorted.map(r => fmtModel(r.model).length), 10);
 

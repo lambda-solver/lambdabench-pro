@@ -1,5 +1,5 @@
 import type { BenchmarkData } from "@repo/domain/Benchmark";
-import { Array as Arr } from "effect";
+import { Array as Arr, Order } from "effect";
 import { BarChart } from "./BarChart";
 import { TildeLine, VimLine } from "./VimLine";
 
@@ -27,8 +27,11 @@ export function SpeedPanel({ data }: SpeedPanelProps) {
     .filter(r => r.avgTime > 0)
     .map(r => ({ model: r.model, tpm: 60 / r.avgTime, avgTime: r.avgTime }));
 
-  const sorted  = Arr.sort(entries, { compare: (a, b) => b.tpm - a.tpm });
-  const maxTPM  = sorted.length > 0 ? sorted[0].tpm : 1;
+  const byTPMDesc = Order.make<{ model: string; tpm: number; avgTime: number }>(
+    (a, b) => (b.tpm > a.tpm ? 1 : b.tpm < a.tpm ? -1 : 0),
+  );
+  const sorted  = Arr.sort(entries, byTPMDesc);
+  const maxTPM  = sorted.length > 0 ? (sorted[0]?.tpm ?? 1) : 1;
   const maxName = Math.max(...sorted.map(e => fmtModel(e.model).length), 10);
 
   let n = 1;
