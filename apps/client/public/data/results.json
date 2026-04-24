@@ -1,0 +1,2779 @@
+{
+  "rankings": [
+    {
+      "model": "openrouter/google/gemini-2.5-pro",
+      "right": 105,
+      "total": 120,
+      "pct": "87.5",
+      "avgTime": 12.5,
+      "timestamp": "2026y04m21d.10h00m00s",
+      "tasks": {
+        "algo_bfi": true,
+        "algo_bre": true,
+        "algo_dpl": true,
+        "algo_evl": true,
+        "algo_hul": true,
+        "algo_maz": true,
+        "algo_mst": true,
+        "algo_stl": true,
+        "algo_sud": true,
+        "algo_tsp": true,
+        "cadt_chi": true,
+        "cadt_ctr": true,
+        "cadt_des": true,
+        "cadt_eql": true,
+        "cadt_fol": true,
+        "cadt_idx": true,
+        "cadt_len": true,
+        "cadt_mrg": true,
+        "cadt_rev": true,
+        "cadt_ser": true,
+        "cbin_add": true,
+        "cbin_div": true,
+        "cbin_exp": true,
+        "cbin_gcd": true,
+        "cbin_log": true,
+        "cbin_mod": true,
+        "cbin_mul": true,
+        "cbin_pri": true,
+        "cbin_sqr": true,
+        "cbin_tot": true,
+        "clst_dot": true,
+        "clst_fol": true,
+        "clst_hed": true,
+        "clst_map": true,
+        "clst_nth": true,
+        "clst_rev": true,
+        "clst_shl": true,
+        "clst_shr": true,
+        "clst_srt": true,
+        "clst_zip": true,
+        "cnat_add": true,
+        "cnat_div": true,
+        "cnat_exp": true,
+        "cnat_gcd": true,
+        "cnat_log": true,
+        "cnat_mod": true,
+        "cnat_mul": true,
+        "cnat_pri": true,
+        "cnat_sqr": true,
+        "cnat_tot": true,
+        "ctre_bfs": true,
+        "ctre_fft": true,
+        "ctre_idx": true,
+        "ctre_inv": true,
+        "ctre_lst": true,
+        "ctre_mrg": true,
+        "ctre_rev": true,
+        "ctre_rtl": true,
+        "ctre_rtr": true,
+        "ctre_scn": true,
+        "ntup_dot": true,
+        "ntup_fol": true,
+        "ntup_hed": true,
+        "ntup_map": true,
+        "ntup_nth": true,
+        "ntup_rev": true,
+        "ntup_shl": true,
+        "ntup_shr": true,
+        "ntup_srt": true,
+        "ntup_zip": true,
+        "sadt_chi": true,
+        "sadt_ctr": true,
+        "sadt_des": true,
+        "sadt_eql": true,
+        "sadt_fol": true,
+        "sadt_idx": true,
+        "sadt_len": true,
+        "sadt_mrg": true,
+        "sadt_rev": true,
+        "sadt_ser": true,
+        "sbin_add": true,
+        "sbin_div": true,
+        "sbin_exp": true,
+        "sbin_gcd": true,
+        "sbin_log": true,
+        "sbin_mod": false,
+        "sbin_mul": false,
+        "sbin_pri": false,
+        "sbin_sqr": false,
+        "sbin_tot": false,
+        "slst_dot": false,
+        "slst_fol": false,
+        "slst_hed": false,
+        "slst_map": false,
+        "slst_nth": false,
+        "slst_rev": false,
+        "slst_shl": false,
+        "slst_shr": false,
+        "slst_srt": false,
+        "slst_zip": false,
+        "snat_add": true,
+        "snat_div": true,
+        "snat_exp": true,
+        "snat_gcd": true,
+        "snat_log": true,
+        "snat_mod": true,
+        "snat_mul": true,
+        "snat_pri": true,
+        "snat_sqr": true,
+        "snat_tot": true,
+        "stre_bfs": true,
+        "stre_fft": true,
+        "stre_idx": true,
+        "stre_inv": true,
+        "stre_lst": true,
+        "stre_mrg": true,
+        "stre_rev": true,
+        "stre_rtl": true,
+        "stre_rtr": true,
+        "stre_scn": true
+      },
+      "taskBits": {
+        "algo_bfi": 469,
+        "algo_bre": 420,
+        "algo_dpl": 453,
+        "algo_evl": 402,
+        "algo_hul": 506,
+        "algo_maz": 453,
+        "algo_mst": 478,
+        "algo_stl": 418,
+        "algo_sud": 558,
+        "algo_tsp": 549,
+        "cadt_chi": 588,
+        "cadt_ctr": 597,
+        "cadt_des": 505,
+        "cadt_eql": 437,
+        "cadt_fol": 487,
+        "cadt_idx": 457,
+        "cadt_len": 462,
+        "cadt_mrg": 429,
+        "cadt_rev": 568,
+        "cadt_ser": 496,
+        "cbin_add": 596,
+        "cbin_div": 575,
+        "cbin_exp": 489,
+        "cbin_gcd": 510,
+        "cbin_log": 552,
+        "cbin_mod": 426,
+        "cbin_mul": 462,
+        "cbin_pri": 471,
+        "cbin_sqr": 563,
+        "cbin_tot": 441,
+        "clst_dot": 524,
+        "clst_fol": 423,
+        "clst_hed": 438,
+        "clst_map": 576,
+        "clst_nth": 495,
+        "clst_rev": 480,
+        "clst_shl": 449,
+        "clst_shr": 494,
+        "clst_srt": 433,
+        "clst_zip": 533,
+        "cnat_add": 578,
+        "cnat_div": 498,
+        "cnat_exp": 563,
+        "cnat_gcd": 529,
+        "cnat_log": 517,
+        "cnat_mod": 416,
+        "cnat_mul": 461,
+        "cnat_pri": 420,
+        "cnat_sqr": 565,
+        "cnat_tot": 433,
+        "ctre_bfs": 462,
+        "ctre_fft": 476,
+        "ctre_idx": 538,
+        "ctre_inv": 439,
+        "ctre_lst": 412,
+        "ctre_mrg": 439,
+        "ctre_rev": 422,
+        "ctre_rtl": 483,
+        "ctre_rtr": 429,
+        "ctre_scn": 530,
+        "ntup_dot": 442,
+        "ntup_fol": 433,
+        "ntup_hed": 558,
+        "ntup_map": 488,
+        "ntup_nth": 473,
+        "ntup_rev": 491,
+        "ntup_shl": 501,
+        "ntup_shr": 446,
+        "ntup_srt": 597,
+        "ntup_zip": 503,
+        "sadt_chi": 549,
+        "sadt_ctr": 506,
+        "sadt_des": 591,
+        "sadt_eql": 499,
+        "sadt_fol": 507,
+        "sadt_idx": 527,
+        "sadt_len": 599,
+        "sadt_mrg": 444,
+        "sadt_rev": 422,
+        "sadt_ser": 503,
+        "sbin_add": 583,
+        "sbin_div": 491,
+        "sbin_exp": 497,
+        "sbin_gcd": 419,
+        "sbin_log": 437,
+        "snat_add": 508,
+        "snat_div": 553,
+        "snat_exp": 408,
+        "snat_gcd": 530,
+        "snat_log": 575,
+        "snat_mod": 405,
+        "snat_mul": 438,
+        "snat_pri": 597,
+        "snat_sqr": 566,
+        "snat_tot": 469,
+        "stre_bfs": 520,
+        "stre_fft": 587,
+        "stre_idx": 469,
+        "stre_inv": 403,
+        "stre_lst": 532,
+        "stre_mrg": 414,
+        "stre_rev": 459,
+        "stre_rtl": 444,
+        "stre_rtr": 480,
+        "stre_scn": 437
+      },
+      "taskRefs": {
+        "algo_bfi": 420,
+        "algo_bre": 420,
+        "algo_dpl": 420,
+        "algo_evl": 420,
+        "algo_hul": 420,
+        "algo_maz": 420,
+        "algo_mst": 420,
+        "algo_stl": 420,
+        "algo_sud": 420,
+        "algo_tsp": 420,
+        "cadt_chi": 420,
+        "cadt_ctr": 420,
+        "cadt_des": 420,
+        "cadt_eql": 420,
+        "cadt_fol": 420,
+        "cadt_idx": 420,
+        "cadt_len": 420,
+        "cadt_mrg": 420,
+        "cadt_rev": 420,
+        "cadt_ser": 420,
+        "cbin_add": 420,
+        "cbin_div": 420,
+        "cbin_exp": 420,
+        "cbin_gcd": 420,
+        "cbin_log": 420,
+        "cbin_mod": 420,
+        "cbin_mul": 420,
+        "cbin_pri": 420,
+        "cbin_sqr": 420,
+        "cbin_tot": 420,
+        "clst_dot": 420,
+        "clst_fol": 420,
+        "clst_hed": 420,
+        "clst_map": 420,
+        "clst_nth": 420,
+        "clst_rev": 420,
+        "clst_shl": 420,
+        "clst_shr": 420,
+        "clst_srt": 420,
+        "clst_zip": 420,
+        "cnat_add": 420,
+        "cnat_div": 420,
+        "cnat_exp": 420,
+        "cnat_gcd": 420,
+        "cnat_log": 420,
+        "cnat_mod": 420,
+        "cnat_mul": 420,
+        "cnat_pri": 420,
+        "cnat_sqr": 420,
+        "cnat_tot": 420,
+        "ctre_bfs": 420,
+        "ctre_fft": 420,
+        "ctre_idx": 420,
+        "ctre_inv": 420,
+        "ctre_lst": 420,
+        "ctre_mrg": 420,
+        "ctre_rev": 420,
+        "ctre_rtl": 420,
+        "ctre_rtr": 420,
+        "ctre_scn": 420,
+        "ntup_dot": 420,
+        "ntup_fol": 420,
+        "ntup_hed": 420,
+        "ntup_map": 420,
+        "ntup_nth": 420,
+        "ntup_rev": 420,
+        "ntup_shl": 420,
+        "ntup_shr": 420,
+        "ntup_srt": 420,
+        "ntup_zip": 420,
+        "sadt_chi": 420,
+        "sadt_ctr": 420,
+        "sadt_des": 420,
+        "sadt_eql": 420,
+        "sadt_fol": 420,
+        "sadt_idx": 420,
+        "sadt_len": 420,
+        "sadt_mrg": 420,
+        "sadt_rev": 420,
+        "sadt_ser": 420,
+        "sbin_add": 420,
+        "sbin_div": 420,
+        "sbin_exp": 420,
+        "sbin_gcd": 420,
+        "sbin_log": 420,
+        "sbin_mod": 420,
+        "sbin_mul": 420,
+        "sbin_pri": 420,
+        "sbin_sqr": 420,
+        "sbin_tot": 420,
+        "slst_dot": 420,
+        "slst_fol": 420,
+        "slst_hed": 420,
+        "slst_map": 420,
+        "slst_nth": 420,
+        "slst_rev": 420,
+        "slst_shl": 420,
+        "slst_shr": 420,
+        "slst_srt": 420,
+        "slst_zip": 420,
+        "snat_add": 420,
+        "snat_div": 420,
+        "snat_exp": 420,
+        "snat_gcd": 420,
+        "snat_log": 420,
+        "snat_mod": 420,
+        "snat_mul": 420,
+        "snat_pri": 420,
+        "snat_sqr": 420,
+        "snat_tot": 420,
+        "stre_bfs": 420,
+        "stre_fft": 420,
+        "stre_idx": 420,
+        "stre_inv": 420,
+        "stre_lst": 420,
+        "stre_mrg": 420,
+        "stre_rev": 420,
+        "stre_rtl": 420,
+        "stre_rtr": 420,
+        "stre_scn": 420
+      },
+      "pricePerMOutputTokens": 10
+    },
+    {
+      "model": "openrouter/anthropic/claude-opus-4",
+      "right": 67,
+      "total": 120,
+      "pct": "55.8",
+      "avgTime": 18.3,
+      "timestamp": "2026y04m21d.10h00m00s",
+      "tasks": {
+        "algo_bfi": true,
+        "algo_bre": true,
+        "algo_dpl": true,
+        "algo_evl": true,
+        "algo_hul": true,
+        "algo_maz": true,
+        "algo_mst": true,
+        "algo_stl": true,
+        "algo_sud": true,
+        "algo_tsp": true,
+        "cadt_chi": true,
+        "cadt_ctr": true,
+        "cadt_des": true,
+        "cadt_eql": true,
+        "cadt_fol": true,
+        "cadt_idx": true,
+        "cadt_len": true,
+        "cadt_mrg": true,
+        "cadt_rev": true,
+        "cadt_ser": true,
+        "cbin_add": true,
+        "cbin_div": true,
+        "cbin_exp": true,
+        "cbin_gcd": true,
+        "cbin_log": true,
+        "cbin_mod": true,
+        "cbin_mul": true,
+        "cbin_pri": true,
+        "cbin_sqr": true,
+        "cbin_tot": true,
+        "clst_dot": true,
+        "clst_fol": true,
+        "clst_hed": true,
+        "clst_map": true,
+        "clst_nth": true,
+        "clst_rev": true,
+        "clst_shl": true,
+        "clst_shr": true,
+        "clst_srt": true,
+        "clst_zip": true,
+        "cnat_add": true,
+        "cnat_div": true,
+        "cnat_exp": true,
+        "cnat_gcd": true,
+        "cnat_log": true,
+        "cnat_mod": true,
+        "cnat_mul": true,
+        "cnat_pri": false,
+        "cnat_sqr": false,
+        "cnat_tot": false,
+        "ctre_bfs": false,
+        "ctre_fft": false,
+        "ctre_idx": false,
+        "ctre_inv": false,
+        "ctre_lst": false,
+        "ctre_mrg": false,
+        "ctre_rev": false,
+        "ctre_rtl": false,
+        "ctre_rtr": false,
+        "ctre_scn": false,
+        "ntup_dot": false,
+        "ntup_fol": false,
+        "ntup_hed": false,
+        "ntup_map": false,
+        "ntup_nth": false,
+        "ntup_rev": false,
+        "ntup_shl": false,
+        "ntup_shr": false,
+        "ntup_srt": false,
+        "ntup_zip": false,
+        "sadt_chi": false,
+        "sadt_ctr": false,
+        "sadt_des": false,
+        "sadt_eql": false,
+        "sadt_fol": false,
+        "sadt_idx": false,
+        "sadt_len": false,
+        "sadt_mrg": false,
+        "sadt_rev": false,
+        "sadt_ser": false,
+        "sbin_add": false,
+        "sbin_div": false,
+        "sbin_exp": false,
+        "sbin_gcd": false,
+        "sbin_log": false,
+        "sbin_mod": false,
+        "sbin_mul": false,
+        "sbin_pri": false,
+        "sbin_sqr": false,
+        "sbin_tot": false,
+        "slst_dot": false,
+        "slst_fol": false,
+        "slst_hed": false,
+        "slst_map": false,
+        "slst_nth": false,
+        "slst_rev": false,
+        "slst_shl": false,
+        "slst_shr": false,
+        "slst_srt": false,
+        "slst_zip": false,
+        "snat_add": true,
+        "snat_div": true,
+        "snat_exp": true,
+        "snat_gcd": true,
+        "snat_log": true,
+        "snat_mod": true,
+        "snat_mul": true,
+        "snat_pri": true,
+        "snat_sqr": true,
+        "snat_tot": true,
+        "stre_bfs": true,
+        "stre_fft": true,
+        "stre_idx": true,
+        "stre_inv": true,
+        "stre_lst": true,
+        "stre_mrg": true,
+        "stre_rev": true,
+        "stre_rtl": true,
+        "stre_rtr": true,
+        "stre_scn": true
+      },
+      "taskBits": {
+        "algo_bfi": 551,
+        "algo_bre": 627,
+        "algo_dpl": 597,
+        "algo_evl": 671,
+        "algo_hul": 671,
+        "algo_maz": 543,
+        "algo_mst": 690,
+        "algo_stl": 551,
+        "algo_sud": 612,
+        "algo_tsp": 661,
+        "cadt_chi": 679,
+        "cadt_ctr": 650,
+        "cadt_des": 510,
+        "cadt_eql": 609,
+        "cadt_fol": 641,
+        "cadt_idx": 588,
+        "cadt_len": 677,
+        "cadt_mrg": 529,
+        "cadt_rev": 514,
+        "cadt_ser": 676,
+        "cbin_add": 500,
+        "cbin_div": 623,
+        "cbin_exp": 674,
+        "cbin_gcd": 637,
+        "cbin_log": 528,
+        "cbin_mod": 546,
+        "cbin_mul": 670,
+        "cbin_pri": 518,
+        "cbin_sqr": 624,
+        "cbin_tot": 683,
+        "clst_dot": 550,
+        "clst_fol": 517,
+        "clst_hed": 501,
+        "clst_map": 564,
+        "clst_nth": 630,
+        "clst_rev": 620,
+        "clst_shl": 575,
+        "clst_shr": 641,
+        "clst_srt": 572,
+        "clst_zip": 644,
+        "cnat_add": 525,
+        "cnat_div": 635,
+        "cnat_exp": 663,
+        "cnat_gcd": 504,
+        "cnat_log": 549,
+        "cnat_mod": 505,
+        "cnat_mul": 517,
+        "snat_add": 593,
+        "snat_div": 663,
+        "snat_exp": 667,
+        "snat_gcd": 675,
+        "snat_log": 684,
+        "snat_mod": 625,
+        "snat_mul": 668,
+        "snat_pri": 565,
+        "snat_sqr": 583,
+        "snat_tot": 685,
+        "stre_bfs": 559,
+        "stre_fft": 514,
+        "stre_idx": 533,
+        "stre_inv": 556,
+        "stre_lst": 585,
+        "stre_mrg": 544,
+        "stre_rev": 622,
+        "stre_rtl": 615,
+        "stre_rtr": 698,
+        "stre_scn": 500
+      },
+      "taskRefs": {
+        "algo_bfi": 420,
+        "algo_bre": 420,
+        "algo_dpl": 420,
+        "algo_evl": 420,
+        "algo_hul": 420,
+        "algo_maz": 420,
+        "algo_mst": 420,
+        "algo_stl": 420,
+        "algo_sud": 420,
+        "algo_tsp": 420,
+        "cadt_chi": 420,
+        "cadt_ctr": 420,
+        "cadt_des": 420,
+        "cadt_eql": 420,
+        "cadt_fol": 420,
+        "cadt_idx": 420,
+        "cadt_len": 420,
+        "cadt_mrg": 420,
+        "cadt_rev": 420,
+        "cadt_ser": 420,
+        "cbin_add": 420,
+        "cbin_div": 420,
+        "cbin_exp": 420,
+        "cbin_gcd": 420,
+        "cbin_log": 420,
+        "cbin_mod": 420,
+        "cbin_mul": 420,
+        "cbin_pri": 420,
+        "cbin_sqr": 420,
+        "cbin_tot": 420,
+        "clst_dot": 420,
+        "clst_fol": 420,
+        "clst_hed": 420,
+        "clst_map": 420,
+        "clst_nth": 420,
+        "clst_rev": 420,
+        "clst_shl": 420,
+        "clst_shr": 420,
+        "clst_srt": 420,
+        "clst_zip": 420,
+        "cnat_add": 420,
+        "cnat_div": 420,
+        "cnat_exp": 420,
+        "cnat_gcd": 420,
+        "cnat_log": 420,
+        "cnat_mod": 420,
+        "cnat_mul": 420,
+        "cnat_pri": 420,
+        "cnat_sqr": 420,
+        "cnat_tot": 420,
+        "ctre_bfs": 420,
+        "ctre_fft": 420,
+        "ctre_idx": 420,
+        "ctre_inv": 420,
+        "ctre_lst": 420,
+        "ctre_mrg": 420,
+        "ctre_rev": 420,
+        "ctre_rtl": 420,
+        "ctre_rtr": 420,
+        "ctre_scn": 420,
+        "ntup_dot": 420,
+        "ntup_fol": 420,
+        "ntup_hed": 420,
+        "ntup_map": 420,
+        "ntup_nth": 420,
+        "ntup_rev": 420,
+        "ntup_shl": 420,
+        "ntup_shr": 420,
+        "ntup_srt": 420,
+        "ntup_zip": 420,
+        "sadt_chi": 420,
+        "sadt_ctr": 420,
+        "sadt_des": 420,
+        "sadt_eql": 420,
+        "sadt_fol": 420,
+        "sadt_idx": 420,
+        "sadt_len": 420,
+        "sadt_mrg": 420,
+        "sadt_rev": 420,
+        "sadt_ser": 420,
+        "sbin_add": 420,
+        "sbin_div": 420,
+        "sbin_exp": 420,
+        "sbin_gcd": 420,
+        "sbin_log": 420,
+        "sbin_mod": 420,
+        "sbin_mul": 420,
+        "sbin_pri": 420,
+        "sbin_sqr": 420,
+        "sbin_tot": 420,
+        "slst_dot": 420,
+        "slst_fol": 420,
+        "slst_hed": 420,
+        "slst_map": 420,
+        "slst_nth": 420,
+        "slst_rev": 420,
+        "slst_shl": 420,
+        "slst_shr": 420,
+        "slst_srt": 420,
+        "slst_zip": 420,
+        "snat_add": 420,
+        "snat_div": 420,
+        "snat_exp": 420,
+        "snat_gcd": 420,
+        "snat_log": 420,
+        "snat_mod": 420,
+        "snat_mul": 420,
+        "snat_pri": 420,
+        "snat_sqr": 420,
+        "snat_tot": 420,
+        "stre_bfs": 420,
+        "stre_fft": 420,
+        "stre_idx": 420,
+        "stre_inv": 420,
+        "stre_lst": 420,
+        "stre_mrg": 420,
+        "stre_rev": 420,
+        "stre_rtl": 420,
+        "stre_rtr": 420,
+        "stre_scn": 420
+      },
+      "pricePerMOutputTokens": 15
+    }
+  ],
+  "tasks": [
+    {
+      "id": "algo_bfi",
+      "category": "algo",
+      "categoryName": "Algorithms",
+      "description": "Mock description for algo_bfi. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "algo_bre",
+      "category": "algo",
+      "categoryName": "Algorithms",
+      "description": "Mock description for algo_bre. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "algo_dpl",
+      "category": "algo",
+      "categoryName": "Algorithms",
+      "description": "Mock description for algo_dpl. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "algo_evl",
+      "category": "algo",
+      "categoryName": "Algorithms",
+      "description": "Mock description for algo_evl. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "algo_hul",
+      "category": "algo",
+      "categoryName": "Algorithms",
+      "description": "Mock description for algo_hul. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "algo_maz",
+      "category": "algo",
+      "categoryName": "Algorithms",
+      "description": "Mock description for algo_maz. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "algo_mst",
+      "category": "algo",
+      "categoryName": "Algorithms",
+      "description": "Mock description for algo_mst. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "algo_stl",
+      "category": "algo",
+      "categoryName": "Algorithms",
+      "description": "Mock description for algo_stl. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "algo_sud",
+      "category": "algo",
+      "categoryName": "Algorithms",
+      "description": "Mock description for algo_sud. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "algo_tsp",
+      "category": "algo",
+      "categoryName": "Algorithms",
+      "description": "Mock description for algo_tsp. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cadt_chi",
+      "category": "cadt",
+      "categoryName": "Church ADTs",
+      "description": "Mock description for cadt_chi. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cadt_ctr",
+      "category": "cadt",
+      "categoryName": "Church ADTs",
+      "description": "Mock description for cadt_ctr. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cadt_des",
+      "category": "cadt",
+      "categoryName": "Church ADTs",
+      "description": "Mock description for cadt_des. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cadt_eql",
+      "category": "cadt",
+      "categoryName": "Church ADTs",
+      "description": "Mock description for cadt_eql. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cadt_fol",
+      "category": "cadt",
+      "categoryName": "Church ADTs",
+      "description": "Mock description for cadt_fol. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cadt_idx",
+      "category": "cadt",
+      "categoryName": "Church ADTs",
+      "description": "Mock description for cadt_idx. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cadt_len",
+      "category": "cadt",
+      "categoryName": "Church ADTs",
+      "description": "Mock description for cadt_len. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cadt_mrg",
+      "category": "cadt",
+      "categoryName": "Church ADTs",
+      "description": "Mock description for cadt_mrg. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cadt_rev",
+      "category": "cadt",
+      "categoryName": "Church ADTs",
+      "description": "Mock description for cadt_rev. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cadt_ser",
+      "category": "cadt",
+      "categoryName": "Church ADTs",
+      "description": "Mock description for cadt_ser. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cbin_add",
+      "category": "cbin",
+      "categoryName": "Church Binaries",
+      "description": "Mock description for cbin_add. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cbin_div",
+      "category": "cbin",
+      "categoryName": "Church Binaries",
+      "description": "Mock description for cbin_div. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cbin_exp",
+      "category": "cbin",
+      "categoryName": "Church Binaries",
+      "description": "Mock description for cbin_exp. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cbin_gcd",
+      "category": "cbin",
+      "categoryName": "Church Binaries",
+      "description": "Mock description for cbin_gcd. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cbin_log",
+      "category": "cbin",
+      "categoryName": "Church Binaries",
+      "description": "Mock description for cbin_log. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cbin_mod",
+      "category": "cbin",
+      "categoryName": "Church Binaries",
+      "description": "Mock description for cbin_mod. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cbin_mul",
+      "category": "cbin",
+      "categoryName": "Church Binaries",
+      "description": "Mock description for cbin_mul. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cbin_pri",
+      "category": "cbin",
+      "categoryName": "Church Binaries",
+      "description": "Mock description for cbin_pri. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cbin_sqr",
+      "category": "cbin",
+      "categoryName": "Church Binaries",
+      "description": "Mock description for cbin_sqr. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cbin_tot",
+      "category": "cbin",
+      "categoryName": "Church Binaries",
+      "description": "Mock description for cbin_tot. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "clst_dot",
+      "category": "clst",
+      "categoryName": "Church Lists",
+      "description": "Mock description for clst_dot. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "clst_fol",
+      "category": "clst",
+      "categoryName": "Church Lists",
+      "description": "Mock description for clst_fol. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "clst_hed",
+      "category": "clst",
+      "categoryName": "Church Lists",
+      "description": "Mock description for clst_hed. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "clst_map",
+      "category": "clst",
+      "categoryName": "Church Lists",
+      "description": "Mock description for clst_map. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "clst_nth",
+      "category": "clst",
+      "categoryName": "Church Lists",
+      "description": "Mock description for clst_nth. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "clst_rev",
+      "category": "clst",
+      "categoryName": "Church Lists",
+      "description": "Mock description for clst_rev. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "clst_shl",
+      "category": "clst",
+      "categoryName": "Church Lists",
+      "description": "Mock description for clst_shl. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "clst_shr",
+      "category": "clst",
+      "categoryName": "Church Lists",
+      "description": "Mock description for clst_shr. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "clst_srt",
+      "category": "clst",
+      "categoryName": "Church Lists",
+      "description": "Mock description for clst_srt. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "clst_zip",
+      "category": "clst",
+      "categoryName": "Church Lists",
+      "description": "Mock description for clst_zip. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cnat_add",
+      "category": "cnat",
+      "categoryName": "Church Naturals",
+      "description": "Mock description for cnat_add. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cnat_div",
+      "category": "cnat",
+      "categoryName": "Church Naturals",
+      "description": "Mock description for cnat_div. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cnat_exp",
+      "category": "cnat",
+      "categoryName": "Church Naturals",
+      "description": "Mock description for cnat_exp. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cnat_gcd",
+      "category": "cnat",
+      "categoryName": "Church Naturals",
+      "description": "Mock description for cnat_gcd. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cnat_log",
+      "category": "cnat",
+      "categoryName": "Church Naturals",
+      "description": "Mock description for cnat_log. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cnat_mod",
+      "category": "cnat",
+      "categoryName": "Church Naturals",
+      "description": "Mock description for cnat_mod. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cnat_mul",
+      "category": "cnat",
+      "categoryName": "Church Naturals",
+      "description": "Mock description for cnat_mul. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cnat_pri",
+      "category": "cnat",
+      "categoryName": "Church Naturals",
+      "description": "Mock description for cnat_pri. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cnat_sqr",
+      "category": "cnat",
+      "categoryName": "Church Naturals",
+      "description": "Mock description for cnat_sqr. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "cnat_tot",
+      "category": "cnat",
+      "categoryName": "Church Naturals",
+      "description": "Mock description for cnat_tot. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "ctre_bfs",
+      "category": "ctre",
+      "categoryName": "Church Trees",
+      "description": "Mock description for ctre_bfs. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "ctre_fft",
+      "category": "ctre",
+      "categoryName": "Church Trees",
+      "description": "Mock description for ctre_fft. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "ctre_idx",
+      "category": "ctre",
+      "categoryName": "Church Trees",
+      "description": "Mock description for ctre_idx. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "ctre_inv",
+      "category": "ctre",
+      "categoryName": "Church Trees",
+      "description": "Mock description for ctre_inv. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "ctre_lst",
+      "category": "ctre",
+      "categoryName": "Church Trees",
+      "description": "Mock description for ctre_lst. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "ctre_mrg",
+      "category": "ctre",
+      "categoryName": "Church Trees",
+      "description": "Mock description for ctre_mrg. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "ctre_rev",
+      "category": "ctre",
+      "categoryName": "Church Trees",
+      "description": "Mock description for ctre_rev. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "ctre_rtl",
+      "category": "ctre",
+      "categoryName": "Church Trees",
+      "description": "Mock description for ctre_rtl. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "ctre_rtr",
+      "category": "ctre",
+      "categoryName": "Church Trees",
+      "description": "Mock description for ctre_rtr. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "ctre_scn",
+      "category": "ctre",
+      "categoryName": "Church Trees",
+      "description": "Mock description for ctre_scn. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "ntup_dot",
+      "category": "ntup",
+      "categoryName": "N-Tuples",
+      "description": "Mock description for ntup_dot. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "ntup_fol",
+      "category": "ntup",
+      "categoryName": "N-Tuples",
+      "description": "Mock description for ntup_fol. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "ntup_hed",
+      "category": "ntup",
+      "categoryName": "N-Tuples",
+      "description": "Mock description for ntup_hed. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "ntup_map",
+      "category": "ntup",
+      "categoryName": "N-Tuples",
+      "description": "Mock description for ntup_map. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "ntup_nth",
+      "category": "ntup",
+      "categoryName": "N-Tuples",
+      "description": "Mock description for ntup_nth. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "ntup_rev",
+      "category": "ntup",
+      "categoryName": "N-Tuples",
+      "description": "Mock description for ntup_rev. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "ntup_shl",
+      "category": "ntup",
+      "categoryName": "N-Tuples",
+      "description": "Mock description for ntup_shl. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "ntup_shr",
+      "category": "ntup",
+      "categoryName": "N-Tuples",
+      "description": "Mock description for ntup_shr. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "ntup_srt",
+      "category": "ntup",
+      "categoryName": "N-Tuples",
+      "description": "Mock description for ntup_srt. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "ntup_zip",
+      "category": "ntup",
+      "categoryName": "N-Tuples",
+      "description": "Mock description for ntup_zip. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "sadt_chi",
+      "category": "sadt",
+      "categoryName": "Scott ADTs",
+      "description": "Mock description for sadt_chi. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "sadt_ctr",
+      "category": "sadt",
+      "categoryName": "Scott ADTs",
+      "description": "Mock description for sadt_ctr. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "sadt_des",
+      "category": "sadt",
+      "categoryName": "Scott ADTs",
+      "description": "Mock description for sadt_des. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "sadt_eql",
+      "category": "sadt",
+      "categoryName": "Scott ADTs",
+      "description": "Mock description for sadt_eql. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "sadt_fol",
+      "category": "sadt",
+      "categoryName": "Scott ADTs",
+      "description": "Mock description for sadt_fol. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "sadt_idx",
+      "category": "sadt",
+      "categoryName": "Scott ADTs",
+      "description": "Mock description for sadt_idx. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "sadt_len",
+      "category": "sadt",
+      "categoryName": "Scott ADTs",
+      "description": "Mock description for sadt_len. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "sadt_mrg",
+      "category": "sadt",
+      "categoryName": "Scott ADTs",
+      "description": "Mock description for sadt_mrg. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "sadt_rev",
+      "category": "sadt",
+      "categoryName": "Scott ADTs",
+      "description": "Mock description for sadt_rev. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "sadt_ser",
+      "category": "sadt",
+      "categoryName": "Scott ADTs",
+      "description": "Mock description for sadt_ser. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "sbin_add",
+      "category": "sbin",
+      "categoryName": "Scott Binaries",
+      "description": "Mock description for sbin_add. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "sbin_div",
+      "category": "sbin",
+      "categoryName": "Scott Binaries",
+      "description": "Mock description for sbin_div. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "sbin_exp",
+      "category": "sbin",
+      "categoryName": "Scott Binaries",
+      "description": "Mock description for sbin_exp. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "sbin_gcd",
+      "category": "sbin",
+      "categoryName": "Scott Binaries",
+      "description": "Mock description for sbin_gcd. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "sbin_log",
+      "category": "sbin",
+      "categoryName": "Scott Binaries",
+      "description": "Mock description for sbin_log. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "sbin_mod",
+      "category": "sbin",
+      "categoryName": "Scott Binaries",
+      "description": "Mock description for sbin_mod. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "sbin_mul",
+      "category": "sbin",
+      "categoryName": "Scott Binaries",
+      "description": "Mock description for sbin_mul. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "sbin_pri",
+      "category": "sbin",
+      "categoryName": "Scott Binaries",
+      "description": "Mock description for sbin_pri. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "sbin_sqr",
+      "category": "sbin",
+      "categoryName": "Scott Binaries",
+      "description": "Mock description for sbin_sqr. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "sbin_tot",
+      "category": "sbin",
+      "categoryName": "Scott Binaries",
+      "description": "Mock description for sbin_tot. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "slst_dot",
+      "category": "slst",
+      "categoryName": "Scott Lists",
+      "description": "Mock description for slst_dot. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "slst_fol",
+      "category": "slst",
+      "categoryName": "Scott Lists",
+      "description": "Mock description for slst_fol. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "slst_hed",
+      "category": "slst",
+      "categoryName": "Scott Lists",
+      "description": "Mock description for slst_hed. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "slst_map",
+      "category": "slst",
+      "categoryName": "Scott Lists",
+      "description": "Mock description for slst_map. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "slst_nth",
+      "category": "slst",
+      "categoryName": "Scott Lists",
+      "description": "Mock description for slst_nth. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "slst_rev",
+      "category": "slst",
+      "categoryName": "Scott Lists",
+      "description": "Mock description for slst_rev. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "slst_shl",
+      "category": "slst",
+      "categoryName": "Scott Lists",
+      "description": "Mock description for slst_shl. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "slst_shr",
+      "category": "slst",
+      "categoryName": "Scott Lists",
+      "description": "Mock description for slst_shr. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "slst_srt",
+      "category": "slst",
+      "categoryName": "Scott Lists",
+      "description": "Mock description for slst_srt. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "slst_zip",
+      "category": "slst",
+      "categoryName": "Scott Lists",
+      "description": "Mock description for slst_zip. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "snat_add",
+      "category": "snat",
+      "categoryName": "Scott Naturals",
+      "description": "Mock description for snat_add. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "snat_div",
+      "category": "snat",
+      "categoryName": "Scott Naturals",
+      "description": "Mock description for snat_div. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "snat_exp",
+      "category": "snat",
+      "categoryName": "Scott Naturals",
+      "description": "Mock description for snat_exp. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "snat_gcd",
+      "category": "snat",
+      "categoryName": "Scott Naturals",
+      "description": "Mock description for snat_gcd. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "snat_log",
+      "category": "snat",
+      "categoryName": "Scott Naturals",
+      "description": "Mock description for snat_log. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "snat_mod",
+      "category": "snat",
+      "categoryName": "Scott Naturals",
+      "description": "Mock description for snat_mod. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "snat_mul",
+      "category": "snat",
+      "categoryName": "Scott Naturals",
+      "description": "Mock description for snat_mul. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "snat_pri",
+      "category": "snat",
+      "categoryName": "Scott Naturals",
+      "description": "Mock description for snat_pri. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "snat_sqr",
+      "category": "snat",
+      "categoryName": "Scott Naturals",
+      "description": "Mock description for snat_sqr. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "snat_tot",
+      "category": "snat",
+      "categoryName": "Scott Naturals",
+      "description": "Mock description for snat_tot. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "stre_bfs",
+      "category": "stre",
+      "categoryName": "Scott Trees",
+      "description": "Mock description for stre_bfs. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "stre_fft",
+      "category": "stre",
+      "categoryName": "Scott Trees",
+      "description": "Mock description for stre_fft. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "stre_idx",
+      "category": "stre",
+      "categoryName": "Scott Trees",
+      "description": "Mock description for stre_idx. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "stre_inv",
+      "category": "stre",
+      "categoryName": "Scott Trees",
+      "description": "Mock description for stre_inv. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "stre_lst",
+      "category": "stre",
+      "categoryName": "Scott Trees",
+      "description": "Mock description for stre_lst. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "stre_mrg",
+      "category": "stre",
+      "categoryName": "Scott Trees",
+      "description": "Mock description for stre_mrg. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "stre_rev",
+      "category": "stre",
+      "categoryName": "Scott Trees",
+      "description": "Mock description for stre_rev. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "stre_rtl",
+      "category": "stre",
+      "categoryName": "Scott Trees",
+      "description": "Mock description for stre_rtl. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "stre_rtr",
+      "category": "stre",
+      "categoryName": "Scott Trees",
+      "description": "Mock description for stre_rtr. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    },
+    {
+      "id": "stre_scn",
+      "category": "stre",
+      "categoryName": "Scott Trees",
+      "description": "Mock description for stre_scn. This is seed data for local development.",
+      "testCount": 10,
+      "tests": [
+        {
+          "input": "@main(λf.λx.x, λf.λx.x)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        }
+      ]
+    }
+  ],
+  "categories": [
+    {
+      "id": "algo",
+      "name": "Algorithms"
+    },
+    {
+      "id": "cnat",
+      "name": "Church Naturals"
+    },
+    {
+      "id": "cbin",
+      "name": "Church Binaries"
+    },
+    {
+      "id": "clst",
+      "name": "Church Lists"
+    },
+    {
+      "id": "ctre",
+      "name": "Church Trees"
+    },
+    {
+      "id": "cadt",
+      "name": "Church ADTs"
+    },
+    {
+      "id": "snat",
+      "name": "Scott Naturals"
+    },
+    {
+      "id": "sbin",
+      "name": "Scott Binaries"
+    },
+    {
+      "id": "slst",
+      "name": "Scott Lists"
+    },
+    {
+      "id": "stre",
+      "name": "Scott Trees"
+    },
+    {
+      "id": "sadt",
+      "name": "Scott ADTs"
+    },
+    {
+      "id": "ntup",
+      "name": "N-Tuples"
+    }
+  ],
+  "generatedAt": "2026-04-24T20:03:48.072Z"
+}
