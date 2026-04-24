@@ -4,12 +4,17 @@
 
 ## Commands
 
-| Command                    | Purpose                                      |
-| -------------------------- | -------------------------------------------- |
-| `bun dev --filter=client`  | Start dev server (port 3000, Vite HMR)       |
-| `bun test --filter=client` | Run client unit tests (Vitest)               |
-| `bun run build --filter=client` | Production build → `apps/client/dist/`  |
-| `bun run type-check`       | TypeScript check across all packages         |
+| Command                                  | Purpose                                      |
+| ---------------------------------------- | -------------------------------------------- |
+| `bun dev --filter=client`                | Start dev server (port 3000, Vite HMR)       |
+| `bun test --filter=client`               | Run client tests (Vitest + Playwright)       |
+| `bun run build --filter=client`          | Production build → `apps/client/dist/`       |
+| `bun run type-check`                     | TypeScript check across all packages         |
+| `bunx playwright install chromium`       | **One-time local setup** — download Chromium |
+
+> Tests use Vitest's browser mode with Playwright/Chromium. CI installs it
+> automatically (`bunx playwright install chromium --with-deps`). Locally you
+> must run the install command once; it is not bundled with `bun install`.
 
 ## Dev Workflow
 
