@@ -10,6 +10,7 @@ import { ValuePanel } from "@/components/leaderboard/ValuePanel";
 import { ProblemsPanel } from "@/components/leaderboard/ProblemsPanel";
 import { MatrixPanel } from "@/components/leaderboard/MatrixPanel";
 import { TaskModal } from "@/components/leaderboard/TaskModal";
+import { useMusicPlayer } from "@/lib/useMusicPlayer";
 import type { BenchmarkTask } from "@repo/domain/Benchmark";
 import { cn } from "@/lib/utils";
 
@@ -37,6 +38,10 @@ function App() {
   const [selectedTask, setSelectedTask] = useState<BenchmarkTask | null>(null);
   const result = useAtomValue(benchmarkAtom);
 
+  // Hoisted here so the 10s timer starts immediately on page load,
+  // independent of whether benchmark data has finished loading.
+  const { muted, toggle: toggleMusic } = useMusicPlayer();
+
   return AsyncResult.match(result, {
     onInitial: () => <LoadingView />,
     onFailure: (e) => (
@@ -53,7 +58,12 @@ function App() {
           )}
         >
           {/* Vim-style tabline (with ControlBar embedded on the right) — sticky top */}
-          <TabLine active={activeTab} onTabChange={setActiveTab} />
+          <TabLine
+            active={activeTab}
+            onTabChange={setActiveTab}
+            muted={muted}
+            onToggleMusic={toggleMusic}
+          />
 
           {/* Buffer — each panel is pre-computed, hidden via display:none for instant switching */}
           <div className="flex-1 max-w-[820px] w-full mx-auto border-x border-[var(--sol-base2)]">

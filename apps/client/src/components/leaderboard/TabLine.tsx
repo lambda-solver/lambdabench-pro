@@ -15,6 +15,8 @@ const TABS: Array<{ id: TabId; label: string }> = [
 interface TabLineProps {
   active: TabId;
   onTabChange: (tab: TabId) => void;
+  muted: boolean;
+  onToggleMusic: () => void;
 }
 
 /**
@@ -22,7 +24,7 @@ interface TabLineProps {
  *   left spacer (equal width to ControlBar) | centered tabs | ControlBar
  * This keeps the tabs visually centered while controls sit flush right.
  */
-export function TabLine({ active, onTabChange }: TabLineProps) {
+export function TabLine({ active, onTabChange, muted, onToggleMusic }: TabLineProps) {
   return (
     <div
       className={cn(
@@ -55,7 +57,7 @@ export function TabLine({ active, onTabChange }: TabLineProps) {
 
       {/* Right controls */}
       <div className="flex-1 flex justify-end">
-        <ControlBar />
+        <ControlBar muted={muted} onToggleMusic={onToggleMusic} />
       </div>
     </div>
   );

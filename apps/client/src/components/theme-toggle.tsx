@@ -1,15 +1,21 @@
 import { useLayoutEffect, useState } from "react";
-import { useMusicPlayer } from "@/lib/useMusicPlayer";
 import { cn } from "@/lib/utils";
+
+interface ControlBarProps {
+  muted: boolean;
+  onToggleMusic: () => void;
+}
 
 /**
  * Inline control bar rendered inside the sticky TabLine row (right side).
  * Contains: theme toggle + music mute toggle.
  * Styled to match the TabLine bg/border, no floating card.
+ *
+ * Music state is owned by the caller (App) so the 10s timer starts at
+ * page load, not after async data resolves.
  */
-export function ControlBar() {
+export function ControlBar({ muted, onToggleMusic }: ControlBarProps) {
   const [isDark, setIsDark] = useState(false);
-  const { muted, toggle: toggleMusic } = useMusicPlayer();
 
   useLayoutEffect(() => {
     const storedTheme = localStorage.getItem("theme");
@@ -31,7 +37,7 @@ export function ControlBar() {
       {/* Music toggle */}
       <button
         type="button"
-        onClick={toggleMusic}
+        onClick={onToggleMusic}
         title={muted ? "Unmute music" : "Mute music"}
         className={cn(
           "font-mono text-sm leading-[1.8] px-[1ch] cursor-pointer border-none",
@@ -61,6 +67,3 @@ export function ControlBar() {
     </div>
   );
 }
-
-/** @deprecated Use ControlBar instead */
-export const ThemeToggle = ControlBar;
