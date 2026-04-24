@@ -1,0 +1,48 @@
+name: edu_effect-rag-builder
+services:
+  server:
+    build:
+      context: .
+      dockerfile: ./apps/server/Dockerfile
+    environment:
+      PORT: ${SERVER_PORT:-9000}
+      HOST: 0.0.0.0
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      CHROMA_HOST: chroma
+      CHROMA_PORT: 8000
+    expose:
+      - "${SERVER_PORT:-9000}"
+    networks:
+      - app-network
+    depends_on:
+      - chroma
+
+  client:
+    build:
+      context: .
+      dockerfile: ./apps/client/Dockerfile
+      args:
+        SERVER_URL: ${SERVER_URL:-http://localhost:${SERVER_PORT:-9000}}
+        CLIENT_PORT: ${CLIENT_PORT:-3000}
+    ports:
+      - "${CLIENT_PORT:-3000}:${CLIENT_PORT:-3000}"
+    networks:
+      - app-network
+    depends_on:
+      - server
+
+  chroma:
+    image: chromadb/chroma
+    volumes:
+      - data:/data
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  data:
