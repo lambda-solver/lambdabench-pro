@@ -1,23 +1,32 @@
 import { useEffect, useRef, useState } from "react";
 
 const STORAGE_KEY = "music-muted";
-const DELAY_MS = 10_000;
+const DELAY_MS = 3_000;
 
-/** Returns the absolute URL to the music file, respecting VITE_BASE_URL. */
+/**
+ * Returns the URL to the music file.
+ * import.meta.env.BASE_URL is injected by Vite from the `base` config
+ * (e.g. "/lambdabench-pro/" on GitHub Pages, "/" in dev).
+ */
 function musicUrl(): string {
-  const base = (import.meta.env["VITE_BASE_URL"] as string | undefined) ?? "/";
+  const base = import.meta.env.BASE_URL ?? "/";
   const normalised = base.endsWith("/") ? base : `${base}/`;
   return `${normalised}music/theme.mp3`;
 }
 
 /**
  * Lazily loads and plays the theme music once after DELAY_MS.
- * The audio element is created only after the timer fires (not at mount),
- * so the browser never fetches the file until needed.
+ *
+ * The Audio element is created only when the timer fires — the browser
+ * never fetches the file until that point.
+ *
+ * Autoplay policy: if the browser blocks the initial play() (no prior
+ * user gesture), we register a one-shot pointer/key listener that retries
+ * as soon as the user first interacts with the page.
  *
  * Returns:
  *   muted   – current mute state (persisted in localStorage)
- *   toggle  – flip mute state (also pauses/resumes playback)
+ *   toggle  – flip mute state
  */
 export function useMusicPlayer(): { muted: boolean; toggle: () => void } {
   const [muted, setMuted] = useState<boolean>(() => {
@@ -28,28 +37,47 @@ export function useMusicPlayer(): { muted: boolean; toggle: () => void } {
     }
   });
 
-  // Keep a ref so the timeout callback always sees the latest muted value
+  // Ref mirrors state so timeout/event callbacks always see the latest value
   const mutedRef = useRef(muted);
   mutedRef.current = muted;
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  // Track whether we have already started (or decided not to start) playback
   const hasTriggered = useRef(false);
+  // Set to true when play() was blocked by autoplay policy
+  const pendingPlayRef = useRef(false);
 
-  // ── 10 s delayed lazy-load + play ──────────────────────────────────────────
+  /** Attempt to play; if blocked, register a one-shot interaction retry. */
+  function attemptPlay(audio: HTMLAudioElement) {
+    audio.play().then(() => {
+      pendingPlayRef.current = false;
+    }).catch(() => {
+      // Autoplay blocked — retry on first user interaction
+      pendingPlayRef.current = true;
+
+      function onInteraction() {
+        if (pendingPlayRef.current && !mutedRef.current) {
+          audio.play().catch(() => {});
+          pendingPlayRef.current = false;
+        }
+        document.removeEventListener("pointerdown", onInteraction);
+        document.removeEventListener("keydown", onInteraction);
+      }
+
+      document.addEventListener("pointerdown", onInteraction, { once: true });
+      document.addEventListener("keydown", onInteraction, { once: true });
+    });
+  }
+
+  // ── 3 s delayed lazy-load + play ───────────────────────────────────────────
   useEffect(() => {
     const timer = setTimeout(() => {
       hasTriggered.current = true;
-      if (mutedRef.current) return; // user silenced before timer fired
+      if (mutedRef.current) return; // user muted before timer fired
 
-      const audio = new Audio();
-      audio.preload = "none"; // don't start fetching until .src is set + play()
+      const audio = new Audio(musicUrl());
       audio.loop = false;
-      audio.src = musicUrl();
       audioRef.current = audio;
-      audio.play().catch(() => {
-        // Autoplay blocked — silently ignore; user can unmute to trigger later
-      });
+      attemptPlay(audio);
     }, DELAY_MS);
 
     return () => clearTimeout(timer);
@@ -69,24 +97,23 @@ export function useMusicPlayer(): { muted: boolean; toggle: () => void } {
       const audio = audioRef.current;
 
       if (next) {
-        // Muting: pause if playing
+        // Muting: pause if playing, cancel any pending retry
+        pendingPlayRef.current = false;
         audio?.pause();
       } else {
         // Un-muting
         if (!hasTriggered.current) {
-          // Timer hasn't fired yet — do nothing; timer will play when it fires
+          // Timer hasn't fired yet — it will play when it fires
           return next;
         }
-        // Timer already fired: create audio lazily if not yet created
         if (!audio) {
-          const newAudio = new Audio();
-          newAudio.preload = "none";
+          // Timer fired while muted — create and play now
+          const newAudio = new Audio(musicUrl());
           newAudio.loop = false;
-          newAudio.src = musicUrl();
           audioRef.current = newAudio;
-          newAudio.play().catch(() => {});
+          attemptPlay(newAudio);
         } else if (audio.paused && !audio.ended) {
-          audio.play().catch(() => {});
+          attemptPlay(audio);
         }
       }
 
