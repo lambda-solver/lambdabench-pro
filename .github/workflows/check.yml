@@ -1,0 +1,66 @@
+name: Check
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "apps/client/**"
+      - "apps/server/**"
+      - "packages/domain/**"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "apps/client/**"
+      - "apps/server/**"
+      - "packages/domain/**"
+
+jobs:
+  check-client:
+    name: "Client — Lint / Types / Format / Test"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        uses: ./.github/actions/setup
+
+      - name: Lint
+        run: bun lint
+
+      - name: Types
+        run: bun run type-check --filter=client
+
+      - name: Format
+        run: bun format:check
+
+      - name: Install Playwright Browsers
+        run: bunx playwright install chromium --with-deps
+
+      - name: Test
+        run: bun run test --filter=client
+
+  check-server:
+    name: "Server — Lint / Types / Format / Test"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        uses: ./.github/actions/setup
+
+      - name: Lint
+        run: bun lint
+
+      - name: Types
+        run: bun run type-check --filter=server
+
+      - name: Format
+        run: bun format:check
+
+      - name: Test
+        run: bun run test --filter=server
