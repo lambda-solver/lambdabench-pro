@@ -1,0 +1,11 @@
+[submodule "reference/effect-smol"]
+	path = reference/effect-smol
+	url = https://github.com/Effect-TS/effect-smol.git
+
+[submodule "reference/effect-solutions"]
+	path = reference/effect-solutions
+	url = https://github.com/kitlangton/effect-solutions.git
+
+[submodule "reference/hazel"]
+	path = reference/hazel
+	url = https://github.com/HazelChat/hazel.git
