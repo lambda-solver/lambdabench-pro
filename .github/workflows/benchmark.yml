@@ -12,7 +12,7 @@ on:
         default: ""
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
@@ -41,14 +41,11 @@ jobs:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           TOP_MODELS: ${{ github.event.inputs.top_models }}
 
-      - name: Commit results
-        uses: stefanzweifel/git-auto-commit-action@v5
+      - name: Upload results.json
+        uses: actions/upload-artifact@v4
         with:
-          commit_message: "chore: update benchmark results [skip ci]"
-          file_pattern: "apps/client/public/data/results.json"
-          commit_user_name: "github-actions[bot]"
-          commit_user_email: "github-actions[bot]@users.noreply.github.com"
-          push_options: "--force-with-lease"
+          name: results-json
+          path: apps/client/public/data/results.json
 
   deploy:
     name: "Deploy to GitHub Pages"
@@ -62,8 +59,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: main
           submodules: false
+
+      - name: Download results.json
+        if: needs.run-benchmark.result == 'success'
+        uses: actions/download-artifact@v4
+        with:
+          name: results-json
+          path: apps/client/public/data/
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
