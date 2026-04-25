@@ -1,10 +1,6 @@
 [
   {
-    "modelId": "google/gemini-2.5-pro",
-    "pricePerMOutput": 10
-  },
-  {
-    "modelId": "anthropic/claude-opus-4",
-    "pricePerMOutput": 15
+    "modelId": "minimax/minimax-m2.5:free",
+    "pricePerMOutput": 0
   }
 ]

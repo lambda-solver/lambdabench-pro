@@ -5,15 +5,12 @@ import type {
 } from "@repo/domain/Benchmark";
 import { Array as Arr, Order } from "effect";
 import type React from "react";
+import { fmtModel } from "@/lib/fmt";
 import { cn } from "@/lib/utils";
 
 interface MatrixPanelProps {
   data: BenchmarkData;
   onTaskClick: (task: BenchmarkTask) => void;
-}
-
-function fmtModel(m: string): string {
-  return m.split("/").slice(1).join("/");
 }
 
 /**

@@ -1,0 +1,2 @@
+@main = λa.λb.λf.λx. a f (b f x)
+@_ = @main(λf.λx.f(f(f(f(f(f(f(x))))))), λf.λx.f(f(f(f(f(f(f(f(x)))))))))

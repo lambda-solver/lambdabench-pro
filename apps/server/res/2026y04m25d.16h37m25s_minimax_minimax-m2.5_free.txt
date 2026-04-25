@@ -1,0 +1,4 @@
+model: minimax/minimax-m2.5:free
+right: 1/1
+variant: standard
+- cnat_add: NaN pass time=102.406s

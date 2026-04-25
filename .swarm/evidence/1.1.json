@@ -1,6 +1,7 @@
 {
   "taskId": "1.1",
   "required_gates": [
+    "critic",
     "explorer",
     "reviewer",
     "sme",
@@ -23,9 +24,14 @@
       "agent": "sme"
     },
     "explorer": {
-      "sessionId": "ses_23be8c36fffeK4nL9u6kPC6OGW",
-      "timestamp": "2026-04-25T10:07:57.318Z",
+      "sessionId": "ses_23b89fa88ffe49Tn1dTFEIdZxd",
+      "timestamp": "2026-04-25T16:27:04.772Z",
       "agent": "explorer"
+    },
+    "critic": {
+      "sessionId": "ses_23be8c36fffeK4nL9u6kPC6OGW",
+      "timestamp": "2026-04-25T11:42:22.726Z",
+      "agent": "critic"
     }
   }
 }

@@ -1,0 +1,2 @@
+@main = λm.λn.λa.λb. m a (n a b)
+@_ = @main(λf.λx.x, λf.λx.x)

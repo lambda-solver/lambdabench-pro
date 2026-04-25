@@ -56,6 +56,12 @@ export const Ranking = Schema.Struct({
   taskRefs: Schema.Record(Schema.String, Schema.Number),
   /** Price per 1M output tokens in USD, from OpenRouter API */
   pricePerMOutputTokens: Schema.Number,
+  /** True when this ranking was produced by the λ-RLM evaluator */
+  rlm: Schema.optional(Schema.Boolean),
+  /** Recursion depth used by λ-RLM (0 = single-shot leaf call) */
+  rlmDepth: Schema.optional(Schema.Number),
+  /** Total LLM calls made by λ-RLM across all tasks */
+  rlmAttempts: Schema.optional(Schema.Number),
 });
 export type Ranking = Schema.Schema.Type<typeof Ranking>;
 

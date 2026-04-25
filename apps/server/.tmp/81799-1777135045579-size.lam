@@ -1,0 +1,1 @@
+@main = λa.λb.λf.λx. a f (b f x)

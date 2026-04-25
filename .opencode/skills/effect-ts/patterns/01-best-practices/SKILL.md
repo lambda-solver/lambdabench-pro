@@ -1,140 +1,169 @@
 ---
 name: 01-best-practices
-description: Effect-TS 4 best practices — Effect.fn naming, Layer conventions, yield* patterns, and span tracing
+description: Effect-TS 4 best practices — Effect.fn, Effect.fnUntraced, Context.Service, Layer conventions, and FP style
 license: MIT
 compatibility: opencode
 ---
 
 # Effect-TS Best Practices
 
-## Use Effect.fn for all named functions
+## Effect.fn — all exported named functions
+
+Every exported function that returns an Effect must use `Effect.fn`.
+It adds span tracing, stack frames, and the name appears in traces.
 
 ```typescript
-// ✅ Effect.fn with name string — adds spans, stack traces
+export const processItem = Effect.fn("processItem")(function* (id: string) {
+  yield* Effect.log("processing:", id)
+  return yield* doWork(id)
+})
+```
+
+Extra operators go as **additional arguments to `Effect.fn`**, not in `.pipe`:
+
+```typescript
+// ✅ correct — operators receive the function's arguments too
 export const processItem = Effect.fn("processItem")(
-  function* (id: string): Effect.fn.Return<Result, ProcessError> {
-    yield* Effect.log("Processing:", id)
+  function* (id: string) {
     return yield* doWork(id)
   },
-  Effect.withSpan("processItem")  // extra operators as extra args
+  Effect.withSpan("processItem"),
+  Effect.annotateLogs({ component: "worker" }),
 )
 
-// ❌ plain function returning Effect.gen — no tracing
-export const processItem = (id: string) => Effect.gen(function* () { ... })
+// ❌ wrong — .pipe after Effect.fn loses the span context
+export const processItem = Effect.fn("processItem")(function* () { ... })
+  .pipe(Effect.withSpan("processItem"))
 ```
 
-## Layer key naming convention
+## Effect.fnUntraced — internal helpers
 
-Use `"package/path/ServiceName"` to avoid collisions across packages:
+For private/internal functions where tracing adds no value.
 
 ```typescript
+// ✅ simpler — no name string needed
+const buildPayload = Effect.fnUntraced(function* (id: string) {
+  const data = yield* loadData(id)
+  return { id, data }
+})
+```
+
+## Context.Service — the canonical service definition
+
+**Always use `Context.Service`, not `ServiceMap.Service`.**
+The reference codebase (effect-smol) uses only `Context.Service`.
+
+```typescript
+import { Context, Effect, Layer } from "effect"
+
+export class MyService extends Context.Service<MyService, {
+  doThing(input: string): Effect.Effect<Result, MyError>
+}>()(
+  "myapp/MyService",
+) {
+  static readonly layer = Layer.effect(
+    MyService,
+    Effect.gen(function* () {
+      const doThing = Effect.fn("MyService.doThing")(function* (input: string) {
+        return yield* compute(input)
+      })
+      return MyService.of({ doThing })
+    }),
+  )
+}
+```
+
+## Service key naming
+
+Use `"package/path/Name"` convention:
+
+```
 "myapp/db/Database"
-"myapp/cache/RedisCache"
 "@repo/domain/BenchmarkService"
+"effect/cluster/Entity/EntityAddress"
 ```
 
-## Layer.provide vs Layer.provideMerge
+## Services return `.of(...)` — never plain objects
 
 ```typescript
-// Layer.provide — hide the dependency (callers see only outer service)
-static readonly layer = this.layerNoDeps.pipe(Layer.provide(Dep.layer))
-
-// Layer.provideMerge — expose both (useful in tests to access internals)
-static readonly layerTest = this.layerNoDeps.pipe(Layer.provideMerge(TestRef.layer))
+return MyService.of({ doThing })   // ✅ preserves prototype chain
+return { doThing }                 // ❌ breaks Context.Service
 ```
 
-## Services return `of(...)` — never plain objects
+## No let reassignment inside Effect.gen
+
+Extract each branch as a helper Effect; bind once with `const`.
 
 ```typescript
-return Database.of({        // ✅ correct — preserves prototype chain
-  query,
-  findById,
+// ❌ let reassignment obscures which branch ran
+const program = Effect.gen(function* () {
+  let result: string
+  if (condition) result = yield* branchA()
+  else result = yield* branchB()
+  return result
 })
 
-return { query, findById }  // ❌ wrong — breaks ServiceMap.Service extension
+// ✅ const, no mutation
+const resolveResult = (condition: boolean) =>
+  condition ? branchA() : branchB()
+
+const program = Effect.gen(function* () {
+  const result = yield* resolveResult(condition)
+  return result
+})
 ```
 
-## Never import from "effect/unstable/*" in domain schemas
+## No try/catch, no async/await inside Effect.gen
 
-The domain package must be pure `effect` imports only. Platform, HTTP, atoms are app-layer concerns.
+```typescript
+// ❌ escapes the error channel
+Effect.gen(function* () {
+  try { return yield* risky() } catch (e) { return default }
+})
+
+// ✅ use Effect combinators
+risky().pipe(
+  Effect.catchTag("MyError", (_) => Effect.succeed(default)),
+)
+
+// ❌ await mixes runtimes
+Effect.gen(function* () {
+  const data = await fetch(url).then(r => r.json())
+})
+
+// ✅ Effect.tryPromise
+Effect.gen(function* () {
+  const data = yield* Effect.tryPromise({
+    try: () => fetch(url).then(r => r.json()),
+    catch: (e) => new FetchError({ cause: e }),
+  })
+})
+```
+
+## Schema.Record — positional args only
+
+```typescript
+Schema.Record(Schema.String, Schema.Number)          // ✅ Effect 4
+Schema.Record({ key: Schema.String, value: ... })    // ❌ Effect 3 — compile error
+```
+
+## Domain package — no platform imports
 
 ```typescript
 // ✅ domain package
 import { Schema, Effect } from "effect"
 
-// ❌ domain package — platform-specific
+// ❌ domain package — platform-specific, must stay in apps/
 import { HttpClient } from "effect/unstable/http"
 ```
 
-## Schema.Record positional args (Effect 4 beta)
-
-```typescript
-Schema.Record(Schema.String, Schema.Number)       // ✅ Effect 4 beta
-Schema.Record({ key: Schema.String, value: ... }) // ❌ Effect 3 style — compile error
-```
-
-## Effect.all for concurrent fetches
-
-```typescript
-// Run two fetches concurrently, wait for both
-const [models, rankings] = yield* Effect.all(
-  [fetchModels(apiKey), fetchRankings()],
-  { concurrency: 2 }
-)
-```
-
-## Effect.runPromise for Bun scripts
+## Bun script entrypoint pattern
 
 ```typescript
 if (import.meta.main) {
   Effect.runPromise(program).catch((e: unknown) => {
-    process.stderr.write("error: " + (e instanceof Error ? e.message : String(e)) + "\n")
+    process.stderr.write(String(e) + "\n")
     process.exit(1)
   })
 }
-```
-
-## Atom patterns (lambench-pro / Effect Atom v4)
-
-```typescript
-// Define atoms in lib/atoms/, consume in components
-// runtime.atom(Effect) — for single-shot effects (data fetch)
-export const benchmarkAtom = runtime.atom(
-  Effect.gen(function* () {
-    const client = yield* HttpClient.HttpClient
-    const response = yield* client.get(url)
-    const body = yield* response.json
-    return yield* Schema.decode(MySchema)(body)
-  })
-)
-
-// runtime.fn(arg => Effect) — for triggered/parameterized effects
-export const searchAtom = runtime.fn((query: string) =>
-  Effect.gen(function* () {
-    const svc = yield* SearchService
-    return yield* svc.search(query)
-  })
-)
-
-// In React components
-const result = useAtomValue(benchmarkAtom)
-AsyncResult.match(result, {
-  onInitial: () => <Loading />,
-  onFailure: (e) => <Error error={e} />,
-  onSuccess: (data) => <View data={data.value} />,
-})
-```
-
-## Local dev workflow with OpenCode
-
-Run `bun dev --filter=client` in a **separate terminal** and leave it running.
-OpenCode edits files in this terminal; Vite HMR picks up every save and hot-reloads
-the browser automatically (~100 ms). No need to restart the dev server between edits.
-
-```bash
-# Terminal 1 — keep running
-bun dev --filter=client   # → http://localhost:3000
-
-# Terminal 2 — OpenCode session
-# Ask OpenCode to make changes; browser updates live
 ```

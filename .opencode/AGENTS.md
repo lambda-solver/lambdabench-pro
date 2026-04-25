@@ -190,7 +190,7 @@ Effect 3 and from LLM training data. Do NOT guess APIs from memory.
 | Any Effect code | `.opencode/skills/effect-ts/patterns/best-practices.md` |
 | Error handling | `.opencode/skills/effect-ts/patterns/error-handling.md` |
 | Anti-patterns | `.opencode/skills/effect-ts/patterns/anti-patterns.md` |
-| HTTP client | `.opencode/skills/effect-ts/platform/http-client.md` |
+| HTTP client | `.opencode/skills/effect-ts/platform/02-http-client/SKILL.md` |
 | Schema / validation | `.opencode/skills/effect-ts/schema/validation.md` |
 | Services / Layers | `.opencode/skills/effect-ts/core/services-layers.md` |
 | React components | `.opencode/skills/react/patterns/fp-style.md` |

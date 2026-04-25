@@ -1,14 +1,11 @@
 import type { BenchmarkData, Ranking } from "@repo/domain/Benchmark";
 import { Array as Arr, Order } from "effect";
+import { fmtModel } from "@/lib/fmt";
 import { BarChart } from "./BarChart";
 import { TildeLine, VimLine } from "./VimLine";
 
 interface IntelligencePanelProps {
   data: BenchmarkData;
-}
-
-function fmtModel(model: string): string {
-  return model.split("/").slice(1).join("/");
 }
 
 function pad(s: string, n: number): string {

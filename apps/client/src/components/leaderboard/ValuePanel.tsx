@@ -1,13 +1,10 @@
 import type { BenchmarkData } from "@repo/domain/Benchmark";
+import { fmtModel } from "@/lib/fmt";
 import { computeValueEntries } from "@/lib/atoms/benchmark-atom";
 import { TildeLine, VimLine } from "./VimLine";
 
 interface ValuePanelProps {
   data: BenchmarkData;
-}
-
-function fmtModel(m: string): string {
-  return m.split("/").slice(1).join("/");
 }
 
 /**

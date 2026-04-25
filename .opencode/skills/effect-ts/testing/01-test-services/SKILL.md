@@ -1,91 +1,149 @@
 ---
 name: 01-test-services
-description: Effect-TS 4 testing with layers — layerTest, layerNoDeps, mock services, and test dependency injection
+description: Effect-TS 4 testing with layers — mock services, test Refs, Layer.succeed, and test dependency injection
 license: MIT
 compatibility: opencode
 ---
 
 # Testing Services with Layers
 
-## Test layer pattern (layerTest + layerNoDeps)
+## Core pattern: mock at the Layer level
 
-Each service exposes `layerNoDeps` (needs deps from outside) and `layerTest` (self-contained with test doubles):
+Provide a `Layer.succeed` or `Layer.effect` that replaces the real implementation.
+Never reach past the layer boundary in tests.
 
 ```typescript
-class TodoRepo extends ServiceMap.Service<TodoRepo, {
-  create(title: string): Effect.Effect<Todo>
-  readonly list: Effect.Effect<ReadonlyArray<Todo>>
-}>()("app/TodoRepo") {
-  static readonly layerTest = Layer.effect(
-    TodoRepo,
-    Effect.gen(function* () {
-      const store = yield* TodoRepoTestRef  // in-memory store
+import { Context, Effect, Layer, Ref } from "effect"
 
-      const create = Effect.fn("TodoRepo.create")(function* (title: string) {
-        const todos = yield* Ref.get(store)
-        const todo = { id: todos.length + 1, title }
-        yield* Ref.set(store, [...todos, todo])
-        return todo
-      })
-
-      return TodoRepo.of({ create, list: Ref.get(store) })
+// Mock a service with a Ref for state inspection
+const mockDb = Layer.effect(
+  Database,
+  Effect.gen(function* () {
+    const store = yield* Ref.make<Array<Row>>([])
+    return Database.of({
+      query: Effect.fnUntraced(function* (_sql) {
+        return yield* Ref.get(store)
+      }),
+      insert: Effect.fnUntraced(function* (row) {
+        yield* Ref.update(store, (rows) => [...rows, row])
+      }),
     })
-  ).pipe(
-    // provideMerge so tests can access TestRef directly
-    Layer.provideMerge(TodoRepoTestRef.layer)
-  )
-}
+  }),
+)
 ```
 
-## Test Ref service for inspection
+## Test Ref service — expose internal state to tests
 
 ```typescript
-export class TodoRepoTestRef
-  extends ServiceMap.Service<TodoRepoTestRef, Ref.Ref<Array<Todo>>>()("app/TodoRepoTestRef")
-{
+export class TodoRepoTestRef extends Context.Service<
+  TodoRepoTestRef,
+  Ref.Ref<Array<Todo>>
+>()(
+  "app/TodoRepoTestRef",
+) {
   static readonly layer = Layer.effect(TodoRepoTestRef, Ref.make([]))
 }
 
-// In test: inspect raw state
-const todos = yield* Ref.get(yield* TodoRepoTestRef)
-assert.strictEqual(todos.length, 1)
-```
-
-## Higher-level service tests
-
-```typescript
-it.effect("addAndCount adds and returns length", () =>
-  Effect.gen(function* () {
-    const svc = yield* TodoService
-    const count = yield* svc.addAndCount("New task")
-    assert.isTrue(count >= 1)
-  }).pipe(Effect.provide(TodoService.layerTest))  // self-contained
-)
-```
-
-## Layer isolation: provideMerge exposes internals
-
-```typescript
-// layerTest exposes TodoRepo AND TodoRepoTestRef (via provideMerge chain)
-// Tests can yield* TodoRepoTestRef to read the raw store
-static readonly layerTest = this.layerNoDeps.pipe(
-  Layer.provideMerge(TodoRepo.layerTest)   // exposes TodoRepo + TestRef
-)
-```
-
-## React hook testing (lambench-pro vitest-browser pattern)
-
-```typescript
-import { render } from "vitest-browser-react"
-import { RegistryProvider } from "@effect/atom-react"
-
-// Wrap with RegistryProvider for Atom hooks
-function wrapper({ children }: { children: React.ReactNode }) {
-  return <RegistryProvider>{children}</RegistryProvider>
+// layerTest: expose TestRef via provideMerge so tests can inspect
+class TodoRepo extends Context.Service<TodoRepo, {
+  create(title: string): Effect.Effect<Todo>
+  readonly list: Effect.Effect<ReadonlyArray<Todo>>
+}>()(
+  "app/TodoRepo",
+) {
+  static readonly layerTest = Layer.effect(
+    TodoRepo,
+    Effect.gen(function* () {
+      const store = yield* TodoRepoTestRef
+      return TodoRepo.of({
+        create: Effect.fnUntraced(function* (title: string) {
+          const todos = yield* Ref.get(store)
+          const todo = { id: todos.length + 1, title }
+          yield* Ref.set(store, [...todos, todo])
+          return todo
+        }),
+        list: Ref.get(store),
+      })
+    }),
+  ).pipe(Layer.provideMerge(TodoRepoTestRef.layer))
 }
 
-test("renders leaderboard", async () => {
-  const screen = render(<App />, { wrapper })
-  await expect.element(screen.getByText(":intelligence")).toBeInTheDocument()
+// In test: access raw store
+const todos = yield* Ref.get(yield* TodoRepoTestRef)
+```
+
+## Mocking LanguageModel (AI SDK)
+
+The AI SDK uses `Context.Service` exactly like any other service:
+
+```typescript
+import { LanguageModel } from "effect/unstable/ai"
+
+const mockLmLayer = (responses: ReadonlyArray<string>) =>
+  Layer.effect(
+    LanguageModel.LanguageModel,
+    Effect.gen(function* () {
+      const idx = yield* Ref.make(0)
+      return {
+        generateText: Effect.fnUntraced(function* (_options) {
+          const i = yield* Ref.getAndUpdate(idx, (n) => n + 1)
+          return {
+            text: responses[Math.min(i, responses.length - 1)] ?? "",
+            usage: { inputTokens: 0, outputTokens: 0 },
+            toolCalls: [],
+            finishReason: "stop" as const,
+          }
+        }),
+        generateObject: () => Effect.die(new Error("not mocked")),
+        streamText: () => Effect.die(new Error("not mocked")),
+      } as unknown as LanguageModel.Service
+    }),
+  )
+```
+
+## Per-test provide — isolated
+
+```typescript
+test("processes item", async () => {
+  await Effect.runPromise(
+    Effect.gen(function* () {
+      const svc = yield* MyService
+      const result = yield* svc.doThing("input")
+      expect(result).toBe("expected")
+    }).pipe(Effect.provide(MyService.layerTest)),
+  )
+})
+```
+
+## Shared layer across describe block — use `layer()` from @effect/vitest
+
+```typescript
+import { layer } from "@effect/vitest"
+
+layer(TodoRepo.layerTest)("TodoRepo tests", (it) => {
+  it.effect("creates a todo", () =>
+    Effect.gen(function* () {
+      const repo = yield* TodoRepo
+      yield* repo.create("Write tests")
+      const all = yield* repo.list
+      expect(all.length).toBeGreaterThanOrEqual(1)
+    }),
+  )
+})
+```
+
+## Counting calls with Ref
+
+```typescript
+test("calls LLM twice for maxDepth=0", async () => {
+  await Effect.runPromise(
+    Effect.gen(function* () {
+      const callCount = yield* Ref.make(0)
+      const layer = mockLmLayerCounting(callCount)
+      yield* myEffect.pipe(Effect.provide(layer))
+      const total = yield* Ref.get(callCount)
+      expect(total).toBeGreaterThanOrEqual(2)
+    }),
+  )
 })
 ```

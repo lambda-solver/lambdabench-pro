@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "scanned_at": "2026-04-25T00:05:21.016Z",
+  "scanned_at": "2026-04-25T16:01:56.928Z",
   "files": [
     {
       "path": ".github/actions/setup/action.yml",
       "title": "action.yml",
-      "summary": "name: Setup with Bun description: Perform standard setup and install dependencies using bun. inputs: node-version: description: The version of Node.js to install required: true default: 22.x runs: ...",
+      "summary": "[Warning: 100+ docs found, listing first 100] name: Setup with Bun description: Perform standard setup and install dependencies using bun. inputs: node-version: description: The version of Node.js to install required: true default: 22.x runs: ...",
       "lines": 34,
       "mtime": 1777053523676.1985
     },
@@ -49,21 +49,14 @@
       "title": "AGENTS.md — Master Rules & Workflow",
       "summary": "| Section | Location | |---------|----------| | Project Brain | [MEMORY.md](./MEMORY.md) | | Directory Structure | [below](#directory-structure) | | Workflow | [below](#workflow) | | Branch Strateg...",
       "lines": 275,
-      "mtime": 1777075507358.0986
-    },
-    {
-      "path": ".opencode/specs/README.md",
-      "title": "Specifications",
-      "summary": "This directory contains specifications for all major features and enhancements in the Effect library, following a structured spec-driven development approach that ensures systematic planning, imple...",
-      "lines": 26,
-      "mtime": 1777052927243.9656
+      "mtime": 1777119634415.9646
     },
     {
       "path": "AGENTS.md",
       "title": "AGENTS.md",
       "summary": "> Note: This file is the authoritative source for coding agent instructions. If > in doubt, prefer AGENTS.md over README.md. See nested AGENTS.md files in each > workspace for app-specific patterns...",
-      "lines": 111,
-      "mtime": 1777075519316.7493
+      "lines": 152,
+      "mtime": 1777132914993.4521
     },
     {
       "path": "apps/client/AGENTS.md",
@@ -82,9 +75,9 @@
     {
       "path": "apps/server/AGENTS.md",
       "title": "Server AGENTS.md",
-      "summary": "> See root `/AGENTS.md` for monorepo conventions. | Command                     | Purpose                                      | | --------------------------- | ------------------------------------...",
-      "lines": 45,
-      "mtime": 1777073763317.5298
+      "summary": "> See root `/AGENTS.md` for monorepo conventions. | Command                         | Purpose                                                | | ------------------------------- | ------------------...",
+      "lines": 56,
+      "mtime": 1777115834687.2588
     },
     {
       "path": "e2e/README.md",
@@ -143,11 +136,571 @@
       "mtime": 1777067610019.7446
     },
     {
-      "path": "reference/lambench/README.md",
-      "title": "λ-bench",
-      "summary": "A benchmark of **120 pure lambda calculus** programming problems for AI models. **[→ Live results](https://victortaelin.github.io/LamBench/)** λ-bench evaluates how well AI models can implement alg...",
-      "lines": 131,
-      "mtime": 1777056257126.3093
+      "path": "reference/effect-smol/AGENTS.md",
+      "title": "AGENTS.md",
+      "summary": "This is the Effect library repository, focusing on functional programming patterns and effect systems in TypeScript. - The git base branch is `main` - Use `pnpm` as the package manager - Run `pnpm ...",
+      "lines": 119,
+      "mtime": 1777118042212.268
+    },
+    {
+      "path": "reference/effect-smol/ai-docs/README.md",
+      "title": "AI docs",
+      "summary": "`LLMS.md` is generated from `ai-docs/src`. 1. Add or update markdown in `ai-docs/src/**/index.md` for section intro text. 2. Add examples as `.ts` files in the same folder. 3. Run `pnpm ai-docgen` ...",
+      "lines": 45,
+      "mtime": 1777118042212.268
+    },
+    {
+      "path": "reference/effect-smol/packages/ai/anthropic/CHANGELOG.md",
+      "title": "@effect/ai-anthropic",
+      "summary": "- Updated dependencies [[`a971f5c`](https://github.com/Effect-TS/effect-smol/commit/a971f5cbd92dfe4274420bf0966595eb35531060), [`8e110c5`](https://github.com/Effect-TS/effect-smol/commit/8e110c5f02...",
+      "lines": 428,
+      "mtime": 1777118042224.27
+    },
+    {
+      "path": "reference/effect-smol/packages/ai/openai-compat/CHANGELOG.md",
+      "title": "@effect/ai-openai-compat",
+      "summary": "- Updated dependencies [[`a971f5c`](https://github.com/Effect-TS/effect-smol/commit/a971f5cbd92dfe4274420bf0966595eb35531060), [`8e110c5`](https://github.com/Effect-TS/effect-smol/commit/8e110c5f02...",
+      "lines": 437,
+      "mtime": 1777118042232.2712
+    },
+    {
+      "path": "reference/effect-smol/packages/ai/openai/CHANGELOG.md",
+      "title": "@effect/ai-openai",
+      "summary": "- Updated dependencies [[`a971f5c`](https://github.com/Effect-TS/effect-smol/commit/a971f5cbd92dfe4274420bf0966595eb35531060), [`8e110c5`](https://github.com/Effect-TS/effect-smol/commit/8e110c5f02...",
+      "lines": 475,
+      "mtime": 1777118042232.2712
+    },
+    {
+      "path": "reference/effect-smol/packages/ai/openrouter/CHANGELOG.md",
+      "title": "@effect/ai-openrouter",
+      "summary": "- Updated dependencies [[`a971f5c`](https://github.com/Effect-TS/effect-smol/commit/a971f5cbd92dfe4274420bf0966595eb35531060), [`8e110c5`](https://github.com/Effect-TS/effect-smol/commit/8e110c5f02...",
+      "lines": 426,
+      "mtime": 1777118042244.273
+    },
+    {
+      "path": "reference/effect-smol/packages/atom/react/CHANGELOG.md",
+      "title": "@effect/atom-react",
+      "summary": "- Updated dependencies [[`a971f5c`](https://github.com/Effect-TS/effect-smol/commit/a971f5cbd92dfe4274420bf0966595eb35531060), [`8e110c5`](https://github.com/Effect-TS/effect-smol/commit/8e110c5f02...",
+      "lines": 418,
+      "mtime": 1777118042244.273
+    },
+    {
+      "path": "reference/effect-smol/packages/atom/react/README.md",
+      "title": "`@effect/atom-react`",
+      "summary": "React bindings for the Effect Atom modules. - **API Reference**: [View the full documentation](https://effect-ts.github.io/effect/docs/atom-react).",
+      "lines": 8,
+      "mtime": 1777118042244.273
+    },
+    {
+      "path": "reference/effect-smol/packages/atom/solid/CHANGELOG.md",
+      "title": "@effect/atom-solid",
+      "summary": "- Updated dependencies [[`a971f5c`](https://github.com/Effect-TS/effect-smol/commit/a971f5cbd92dfe4274420bf0966595eb35531060), [`8e110c5`](https://github.com/Effect-TS/effect-smol/commit/8e110c5f02...",
+      "lines": 414,
+      "mtime": 1777118042248.2737
+    },
+    {
+      "path": "reference/effect-smol/packages/atom/solid/README.md",
+      "title": "`@effect/atom-solid`",
+      "summary": "SolidJS bindings for the Effect Atom modules. - **API Reference**: [View the full documentation](https://effect-ts.github.io/effect/docs/atom-solid).",
+      "lines": 8,
+      "mtime": 1777118042248.2737
+    },
+    {
+      "path": "reference/effect-smol/packages/atom/vue/CHANGELOG.md",
+      "title": "@effect/atom-vue",
+      "summary": "- Updated dependencies [[`a971f5c`](https://github.com/Effect-TS/effect-smol/commit/a971f5cbd92dfe4274420bf0966595eb35531060), [`8e110c5`](https://github.com/Effect-TS/effect-smol/commit/8e110c5f02...",
+      "lines": 412,
+      "mtime": 1777118042248.2737
+    },
+    {
+      "path": "reference/effect-smol/packages/atom/vue/README.md",
+      "title": "`@effect/atom-vue`",
+      "summary": "Vue bindings for the Effect Atom modules. - **API Reference**: [View the full documentation](https://effect-ts.github.io/effect/docs/atom-vue).",
+      "lines": 8,
+      "mtime": 1777118042248.2737
+    },
+    {
+      "path": "reference/effect-smol/packages/effect/CHANGELOG.md",
+      "title": "effect",
+      "summary": "- [#2085](https://github.com/Effect-TS/effect-smol/pull/2085) [`a971f5c`](https://github.com/Effect-TS/effect-smol/commit/a971f5cbd92dfe4274420bf0966595eb35531060) Thanks @tim-smart! - add Effect.a...",
+      "lines": 1176,
+      "mtime": 1777118042248.2737
+    },
+    {
+      "path": "reference/effect-smol/packages/effect/README.md",
+      "title": "`effect` Core Package",
+      "summary": "The `effect` package is the heart of the Effect framework, providing robust primitives for managing side effects, ensuring type safety, and supporting concurrency in your TypeScript applications. -...",
+      "lines": 54,
+      "mtime": 1777118042252.2742
+    },
+    {
+      "path": "reference/effect-smol/packages/opentelemetry/CHANGELOG.md",
+      "title": "@effect/opentelemetry",
+      "summary": "- Updated dependencies [[`a971f5c`](https://github.com/Effect-TS/effect-smol/commit/a971f5cbd92dfe4274420bf0966595eb35531060), [`8e110c5`](https://github.com/Effect-TS/effect-smol/commit/8e110c5f02...",
+      "lines": 422,
+      "mtime": 1777118042392.2954
+    },
+    {
+      "path": "reference/effect-smol/packages/opentelemetry/README.md",
+      "title": "`@effect/opentelemetry`",
+      "summary": "- **API Reference**: [View the full documentation](https://effect-ts.github.io/effect/docs/opentelemetry).",
+      "lines": 6,
+      "mtime": 1777118042392.2954
+    },
+    {
+      "path": "reference/effect-smol/packages/platform-browser/CHANGELOG.md",
+      "title": "@effect/platform-browser",
+      "summary": "- [#2086](https://github.com/Effect-TS/effect-smol/pull/2086) [`979b56b`](https://github.com/Effect-TS/effect-smol/commit/979b56b5c45facc488cc920a83339b87fc51334d) Thanks @tim-smart! - fix idb entr...",
+      "lines": 444,
+      "mtime": 1777118042396.2961
+    },
+    {
+      "path": "reference/effect-smol/packages/platform-browser/README.md",
+      "title": "`@effect/platform-browser`",
+      "summary": "",
+      "lines": 2,
+      "mtime": 1777118042396.2961
+    },
+    {
+      "path": "reference/effect-smol/packages/platform-bun/CHANGELOG.md",
+      "title": "@effect/platform-bun",
+      "summary": "- Updated dependencies [[`a971f5c`](https://github.com/Effect-TS/effect-smol/commit/a971f5cbd92dfe4274420bf0966595eb35531060), [`8e110c5`](https://github.com/Effect-TS/effect-smol/commit/8e110c5f02...",
+      "lines": 478,
+      "mtime": 1777118042400.2966
+    },
+    {
+      "path": "reference/effect-smol/packages/platform-bun/README.md",
+      "title": "`@effect/platform-bun`",
+      "summary": "Provides Bun-specific implementations for the abstractions defined in [`@effect/platform`](https://github.com/Effect-TS/effect/tree/main/packages/platform), allowing you to write platform-independe...",
+      "lines": 8,
+      "mtime": 1777118042400.2966
+    },
+    {
+      "path": "reference/effect-smol/packages/platform-node-shared/CHANGELOG.md",
+      "title": "@effect/platform-node-shared",
+      "summary": "- Updated dependencies [[`a971f5c`](https://github.com/Effect-TS/effect-smol/commit/a971f5cbd92dfe4274420bf0966595eb35531060), [`8e110c5`](https://github.com/Effect-TS/effect-smol/commit/8e110c5f02...",
+      "lines": 428,
+      "mtime": 1777118042404.2974
+    },
+    {
+      "path": "reference/effect-smol/packages/platform-node-shared/README.md",
+      "title": "`@effect/platform-node`",
+      "summary": "Provides Node.js-specific implementations for the abstractions defined in [`@effect/platform`](https://github.com/Effect-TS/effect/tree/main/packages/platform), allowing you to write platform-indep...",
+      "lines": 8,
+      "mtime": 1777118042404.2974
+    },
+    {
+      "path": "reference/effect-smol/packages/platform-node/CHANGELOG.md",
+      "title": "@effect/platform-node",
+      "summary": "- Updated dependencies [[`a971f5c`](https://github.com/Effect-TS/effect-smol/commit/a971f5cbd92dfe4274420bf0966595eb35531060), [`8e110c5`](https://github.com/Effect-TS/effect-smol/commit/8e110c5f02...",
+      "lines": 482,
+      "mtime": 1777118042404.2974
+    },
+    {
+      "path": "reference/effect-smol/packages/platform-node/README.md",
+      "title": "`@effect/platform-node`",
+      "summary": "Provides Node.js-specific implementations for the abstractions defined in [`@effect/platform`](https://github.com/Effect-TS/effect/tree/main/packages/platform), allowing you to write platform-indep...",
+      "lines": 8,
+      "mtime": 1777118042404.2974
+    },
+    {
+      "path": "reference/effect-smol/packages/sql/clickhouse/CHANGELOG.md",
+      "title": "@effect/sql-clickhouse",
+      "summary": "- Updated dependencies [[`a971f5c`](https://github.com/Effect-TS/effect-smol/commit/a971f5cbd92dfe4274420bf0966595eb35531060), [`8e110c5`](https://github.com/Effect-TS/effect-smol/commit/8e110c5f02...",
+      "lines": 474,
+      "mtime": 1777118042412.2986
+    },
+    {
+      "path": "reference/effect-smol/packages/sql/clickhouse/README.md",
+      "title": "`@effect/sql-clickhouse`",
+      "summary": "An `@effect/sql` implementation for [ClickHouse](https://clickhouse.com/). - **API Reference**: [View the full documentation](https://effect-ts.github.io/effect/docs/sql-clickhouse).",
+      "lines": 8,
+      "mtime": 1777118042416.299
+    },
+    {
+      "path": "reference/effect-smol/packages/sql/d1/CHANGELOG.md",
+      "title": "@effect/sql-d1",
+      "summary": "- Updated dependencies [[`a971f5c`](https://github.com/Effect-TS/effect-smol/commit/a971f5cbd92dfe4274420bf0966595eb35531060), [`8e110c5`](https://github.com/Effect-TS/effect-smol/commit/8e110c5f02...",
+      "lines": 416,
+      "mtime": 1777118042416.299
+    },
+    {
+      "path": "reference/effect-smol/packages/sql/d1/README.md",
+      "title": "`@effect/sql-d1`",
+      "summary": "An `@effect/sql` implementation for [Cloudflare D1](https://developers.cloudflare.com/d1/). - **API Reference**: [View the full documentation](https://effect-ts.github.io/effect/docs/sql-d1).",
+      "lines": 8,
+      "mtime": 1777118042416.299
+    },
+    {
+      "path": "reference/effect-smol/packages/sql/libsql/CHANGELOG.md",
+      "title": "@effect/sql-libsql",
+      "summary": "- Updated dependencies [[`a971f5c`](https://github.com/Effect-TS/effect-smol/commit/a971f5cbd92dfe4274420bf0966595eb35531060), [`8e110c5`](https://github.com/Effect-TS/effect-smol/commit/8e110c5f02...",
+      "lines": 416,
+      "mtime": 1777118042416.299
+    },
+    {
+      "path": "reference/effect-smol/packages/sql/libsql/README.md",
+      "title": "`@effect/sql-libsql`",
+      "summary": "An `@effect/sql` implementation using the `@libsql/client` library. - **API Reference**: [View the full documentation](https://effect-ts.github.io/effect/docs/sql-libsql).",
+      "lines": 8,
+      "mtime": 1777118042416.299
+    },
+    {
+      "path": "reference/effect-smol/packages/sql/mssql/CHANGELOG.md",
+      "title": "@effect/sql-mssql",
+      "summary": "- Updated dependencies [[`a971f5c`](https://github.com/Effect-TS/effect-smol/commit/a971f5cbd92dfe4274420bf0966595eb35531060), [`8e110c5`](https://github.com/Effect-TS/effect-smol/commit/8e110c5f02...",
+      "lines": 416,
+      "mtime": 1777118042420.2998
+    },
+    {
+      "path": "reference/effect-smol/packages/sql/mssql/README.md",
+      "title": "`@effect/sql-mssql`",
+      "summary": "An `@effect/sql` implementation using the mssql `tedious` library. - **API Reference**: [View the full documentation](https://effect-ts.github.io/effect/docs/sql-mssql).",
+      "lines": 8,
+      "mtime": 1777118042420.2998
+    },
+    {
+      "path": "reference/effect-smol/packages/sql/mysql2/CHANGELOG.md",
+      "title": "@effect/sql-mysql2",
+      "summary": "- Updated dependencies [[`a971f5c`](https://github.com/Effect-TS/effect-smol/commit/a971f5cbd92dfe4274420bf0966595eb35531060), [`8e110c5`](https://github.com/Effect-TS/effect-smol/commit/8e110c5f02...",
+      "lines": 418,
+      "mtime": 1777118042424.3003
+    },
+    {
+      "path": "reference/effect-smol/packages/sql/mysql2/README.md",
+      "title": "`@effect/sql-mysql2`",
+      "summary": "An `@effect/sql` implementation using the `mysql2` library. - **API Reference**: [View the full documentation](https://effect-ts.github.io/effect/docs/sql-mysql2).",
+      "lines": 8,
+      "mtime": 1777118042424.3003
+    },
+    {
+      "path": "reference/effect-smol/packages/sql/pg/CHANGELOG.md",
+      "title": "@effect/sql-pg",
+      "summary": "- Updated dependencies [[`a971f5c`](https://github.com/Effect-TS/effect-smol/commit/a971f5cbd92dfe4274420bf0966595eb35531060), [`8e110c5`](https://github.com/Effect-TS/effect-smol/commit/8e110c5f02...",
+      "lines": 3247,
+      "mtime": 1777118042424.3003
+    },
+    {
+      "path": "reference/effect-smol/packages/sql/pg/README.md",
+      "title": "`@effect/sql-pg`",
+      "summary": "An `@effect/sql` implementation using the `pg` library. - **API Reference**: [View the full documentation](https://effect-ts.github.io/effect/docs/sql-pg).",
+      "lines": 8,
+      "mtime": 1777118042424.3003
+    },
+    {
+      "path": "reference/effect-smol/packages/sql/pglite/CHANGELOG.md",
+      "title": "@effect/sql-pglite",
+      "summary": "- [#2073](https://github.com/Effect-TS/effect-smol/pull/2073) [`5045e62`](https://github.com/Effect-TS/effect-smol/commit/5045e625b40b9c50f8829868224ced4ac2045bcb) Thanks @blntrsz! - Add `@effect/s...",
+      "lines": 13,
+      "mtime": 1777118042428.301
+    },
+    {
+      "path": "reference/effect-smol/packages/sql/pglite/README.md",
+      "title": "`@effect/sql-pglite`",
+      "summary": "An `@effect/sql` implementation using the `@electric-sql/pglite` library. - **API Reference**: [View the full documentation](https://effect-ts.github.io/effect/docs/sql-pglite).",
+      "lines": 8,
+      "mtime": 1777118042428.301
+    },
+    {
+      "path": "reference/effect-smol/packages/sql/sqlite-bun/CHANGELOG.md",
+      "title": "@effect/sql-sqlite-bun",
+      "summary": "- Updated dependencies [[`a971f5c`](https://github.com/Effect-TS/effect-smol/commit/a971f5cbd92dfe4274420bf0966595eb35531060), [`8e110c5`](https://github.com/Effect-TS/effect-smol/commit/8e110c5f02...",
+      "lines": 416,
+      "mtime": 1777118042428.301
+    },
+    {
+      "path": "reference/effect-smol/packages/sql/sqlite-bun/README.md",
+      "title": "`@effect/sql-sqlite-bun`",
+      "summary": "An `@effect/sql` implementation using the `bun:sqlite` library. - **API Reference**: [View the full documentation](https://effect-ts.github.io/effect/docs/sql-sqlite-bun).",
+      "lines": 8,
+      "mtime": 1777118042428.301
+    },
+    {
+      "path": "reference/effect-smol/packages/sql/sqlite-do/CHANGELOG.md",
+      "title": "@effect/sql-sqlite-do",
+      "summary": "- Updated dependencies [[`a971f5c`](https://github.com/Effect-TS/effect-smol/commit/a971f5cbd92dfe4274420bf0966595eb35531060), [`8e110c5`](https://github.com/Effect-TS/effect-smol/commit/8e110c5f02...",
+      "lines": 416,
+      "mtime": 1777118042432.3015
+    },
+    {
+      "path": "reference/effect-smol/packages/sql/sqlite-do/README.md",
+      "title": "`@effect/sql-sqlite-do`",
+      "summary": "An `@effect/sql` implementation for Cloudflare Durable Objects sqlite storage. - **API Reference**: [View the full documentation](https://effect-ts.github.io/effect/docs/sql-sqlite-do).",
+      "lines": 8,
+      "mtime": 1777118042432.3015
+    },
+    {
+      "path": "reference/effect-smol/packages/sql/sqlite-node/CHANGELOG.md",
+      "title": "@effect/sql-sqlite-node",
+      "summary": "- Updated dependencies [[`a971f5c`](https://github.com/Effect-TS/effect-smol/commit/a971f5cbd92dfe4274420bf0966595eb35531060), [`8e110c5`](https://github.com/Effect-TS/effect-smol/commit/8e110c5f02...",
+      "lines": 3230,
+      "mtime": 1777118042432.3015
+    },
+    {
+      "path": "reference/effect-smol/packages/sql/sqlite-node/README.md",
+      "title": "`@effect/sql-sqlite-node`",
+      "summary": "An `@effect/sql` implementation using the `better-sqlite3` library. - **API Reference**: [View the full documentation](https://effect-ts.github.io/effect/docs/sql-sqlite-node).",
+      "lines": 8,
+      "mtime": 1777118042432.3015
+    },
+    {
+      "path": "reference/effect-smol/packages/sql/sqlite-react-native/CHANGELOG.md",
+      "title": "@effect/sql-sqlite-react-native",
+      "summary": "- Updated dependencies [[`a971f5c`](https://github.com/Effect-TS/effect-smol/commit/a971f5cbd92dfe4274420bf0966595eb35531060), [`8e110c5`](https://github.com/Effect-TS/effect-smol/commit/8e110c5f02...",
+      "lines": 416,
+      "mtime": 1777118042436.3022
+    },
+    {
+      "path": "reference/effect-smol/packages/sql/sqlite-react-native/README.md",
+      "title": "`@effect/sql-sqlite-react-native`",
+      "summary": "An `@effect/sql` implementation using the `@op-engineering/op-sqlite` library. - **API Reference**: [View the full documentation](https://effect-ts.github.io/effect/docs/sql-sqlite-react-native).",
+      "lines": 8,
+      "mtime": 1777118042436.3022
+    },
+    {
+      "path": "reference/effect-smol/packages/sql/sqlite-wasm/CHANGELOG.md",
+      "title": "@effect/sql-sqlite-wasm",
+      "summary": "- Updated dependencies [[`a971f5c`](https://github.com/Effect-TS/effect-smol/commit/a971f5cbd92dfe4274420bf0966595eb35531060), [`8e110c5`](https://github.com/Effect-TS/effect-smol/commit/8e110c5f02...",
+      "lines": 416,
+      "mtime": 1777118042436.3022
+    },
+    {
+      "path": "reference/effect-smol/packages/sql/sqlite-wasm/README.md",
+      "title": "`@effect/sql-sqlite-wasm`",
+      "summary": "An `@effect/sql` implementation using the `@sqlite.org/sqlite-wasm` library. - **API Reference**: [View the full documentation](https://effect-ts.github.io/effect/docs/sql-sqlite-wasm).",
+      "lines": 8,
+      "mtime": 1777118042436.3022
+    },
+    {
+      "path": "reference/effect-smol/packages/tools/openapi-generator/CHANGELOG.md",
+      "title": "@effect/openapi-generator",
+      "summary": "- Updated dependencies [[`a971f5c`](https://github.com/Effect-TS/effect-smol/commit/a971f5cbd92dfe4274420bf0966595eb35531060), [`8e110c5`](https://github.com/Effect-TS/effect-smol/commit/8e110c5f02...",
+      "lines": 478,
+      "mtime": 1777118042448.304
+    },
+    {
+      "path": "reference/effect-smol/packages/vitest/CHANGELOG.md",
+      "title": "@effect/vitest",
+      "summary": "- Updated dependencies [[`a971f5c`](https://github.com/Effect-TS/effect-smol/commit/a971f5cbd92dfe4274420bf0966595eb35531060), [`8e110c5`](https://github.com/Effect-TS/effect-smol/commit/8e110c5f02...",
+      "lines": 418,
+      "mtime": 1777118042460.306
+    },
+    {
+      "path": "reference/effect-smol/packages/vitest/README.md",
+      "title": "Introduction",
+      "summary": "Welcome to your guide on testing Effect-based applications using `vitest` and the `@effect/vitest` package. This package simplifies running tests for Effect-based code with Vitest. In this guide, w...",
+      "lines": 321,
+      "mtime": 1777118042460.306
+    },
+    {
+      "path": "reference/effect-smol/README.md",
+      "title": "README.md",
+      "summary": "<!-- shields.io badge used because pkg.pr.new/badge returns HTTP 404 status despite valid SVG content, causing GitHub's image proxy to fail --> [![pkg.pr.new](https://img.shields.io/badge/pkg.pr.ne...",
+      "lines": 4,
+      "mtime": 1777118042212.268
+    },
+    {
+      "path": "reference/effect-solutions/.changeset/README.md",
+      "title": "Changesets",
+      "summary": "Hello and welcome! This folder has been automatically generated by `@changesets/cli`, a build tool that works with multi-package repos, or single-package repos to help you version and publish your ...",
+      "lines": 9,
+      "mtime": 1777127342733.7483
+    },
+    {
+      "path": "reference/effect-solutions/AGENTS.md",
+      "title": "Effect Solutions",
+      "summary": "Effect best practices and patterns for humans and AI agents — https://www.effect.solutions > **Living Document**: This is an opinionated collection exploiting Cunningham's Law (\"the best way to get...",
+      "lines": 221,
+      "mtime": 1777127342733.7483
+    },
+    {
+      "path": "reference/effect-solutions/CLAUDE.md",
+      "title": "Effect Solutions",
+      "summary": "Effect best practices and patterns for humans and AI agents — https://www.effect.solutions > **Living Document**: This is an opinionated collection exploiting Cunningham's Law (\"the best way to get...",
+      "lines": 221,
+      "mtime": 1777127342733.7483
+    },
+    {
+      "path": "reference/effect-solutions/CONTRIBUTING.md",
+      "title": "Contributing",
+      "summary": "Open a PR directly—we'll review fast. Before spending significant time on new topics or major rewrites, **open an issue first** to discuss: - Missing/wrong information - New topics to cover - Archi...",
+      "lines": 196,
+      "mtime": 1777127342737.7488
+    },
+    {
+      "path": "reference/effect-solutions/packages/cli/CHANGELOG.md",
+      "title": "effect-solutions",
+      "summary": "- [`ec9e8dd`](https://github.com/kitlangton/effect-solutions/commit/ec9e8dd51597c979d1a78df3be4c72bdec677447) Thanks [@kitlangton](https://github.com/kitlangton)! - Fix CLI argv parsing for compile...",
+      "lines": 159,
+      "mtime": 1777127342737.7488
+    },
+    {
+      "path": "reference/effect-solutions/packages/cli/scripts/README.md",
+      "title": "CLI Scripts",
+      "summary": "Auto-generates `src/docs-manifest.ts` by scanning `packages/website/docs/*.md` files. **Run manually:** ```bash bun run generate:manifest ``` **Auto-runs:** - Before publishing (`prepublishOnly` hook)",
+      "lines": 17,
+      "mtime": 1777127342737.7488
+    },
+    {
+      "path": "reference/effect-solutions/packages/website/CHANGELOG.md",
+      "title": "@effect-best-practices/website",
+      "summary": "- [#19](https://github.com/kitlangton/effect-solutions/pull/19) [`b28d951`](https://github.com/kitlangton/effect-solutions/commit/b28d951a1c3ada7a29ee48e2c9f720b52a57211d) Thanks [@f15u](https://gi...",
+      "lines": 201,
+      "mtime": 1777127342737.7488
+    },
+    {
+      "path": "reference/effect-solutions/README.md",
+      "title": "Effect Solutions",
+      "summary": "**Effect best practices and patterns** — https://www.effect.solutions > **Living Document**: Opinionated collection exploiting Cunningham's Law. Disagree? [Open an issue](https://github.com/kitlang...",
+      "lines": 82,
+      "mtime": 1777127342737.7488
+    },
+    {
+      "path": "reference/hazel/.context/effect-atom/packages/atom-livestore/CHANGELOG.md",
+      "title": "@effect-rx/rx-livestore",
+      "summary": "- [`7b9289d`](https://github.com/tim-smart/effect-atom/commit/7b9289d0bfd904d1434a38df0808e69c876767b4) Thanks [@tim-smart](https://github.com/tim-smart)! - update effect - Updated dependencies [[`...",
+      "lines": 443,
+      "mtime": 1777128013484.7314
+    },
+    {
+      "path": "reference/hazel/.context/effect-atom/packages/atom-livestore/README.md",
+      "title": "README.md",
+      "summary": "WIP. Docs: https://effect-ts.github.io/rx",
+      "lines": 4,
+      "mtime": 1777128013484.7314
+    },
+    {
+      "path": "reference/hazel/.context/effect-atom/packages/atom-react/CHANGELOG.md",
+      "title": "@effect-rx/rx-react",
+      "summary": "- [`7b9289d`](https://github.com/tim-smart/effect-atom/commit/7b9289d0bfd904d1434a38df0808e69c876767b4) Thanks [@tim-smart](https://github.com/tim-smart)! - update effect - Updated dependencies [[`...",
+      "lines": 2033,
+      "mtime": 1777128013484.7314
+    },
+    {
+      "path": "reference/hazel/.context/effect-atom/packages/atom-react/README.md",
+      "title": "README.md",
+      "summary": "WIP. Docs: https://effect-ts.github.io/rx",
+      "lines": 4,
+      "mtime": 1777128013484.7314
+    },
+    {
+      "path": "reference/hazel/.context/effect-atom/packages/atom-vue/CHANGELOG.md",
+      "title": "@effect-rx/rx-vue",
+      "summary": "- [`7b9289d`](https://github.com/tim-smart/effect-atom/commit/7b9289d0bfd904d1434a38df0808e69c876767b4) Thanks [@tim-smart](https://github.com/tim-smart)! - update effect - Updated dependencies [[`...",
+      "lines": 1168,
+      "mtime": 1777128013488.732
+    },
+    {
+      "path": "reference/hazel/.context/effect-atom/packages/atom-vue/README.md",
+      "title": "README.md",
+      "summary": "WIP. Docs: https://effect-ts.github.io/rx",
+      "lines": 4,
+      "mtime": 1777128013488.732
+    },
+    {
+      "path": "reference/hazel/.context/effect-atom/packages/atom/CHANGELOG.md",
+      "title": "@effect-rx/rx",
+      "summary": "- [`7b9289d`](https://github.com/tim-smart/effect-atom/commit/7b9289d0bfd904d1434a38df0808e69c876767b4) Thanks [@tim-smart](https://github.com/tim-smart)! - update effect - [`02b8cec`](https://gith...",
+      "lines": 1447,
+      "mtime": 1777128013488.732
+    },
+    {
+      "path": "reference/hazel/.context/effect-atom/packages/atom/README.md",
+      "title": "README.md",
+      "summary": "WIP. Docs: https://effect-ts.github.io/rx",
+      "lines": 4,
+      "mtime": 1777128013488.732
+    },
+    {
+      "path": "reference/hazel/.context/effect-atom/README.md",
+      "title": "@effect-atom/atom",
+      "summary": "A reactive state management library for Effect. If you are using React: ```bash pnpm add @effect-atom/atom-react ``` Let's create a simple Counter component, which will increment a number when you ...",
+      "lines": 589,
+      "mtime": 1777128013480.7312
+    },
+    {
+      "path": "reference/hazel/.context/effect-atom/sample/vue/README.md",
+      "title": "Vue 3 + TypeScript + Vite",
+      "summary": "This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc...",
+      "lines": 6,
+      "mtime": 1777128013492.7322
+    },
+    {
+      "path": "reference/hazel/.context/effect/.patterns/README.md",
+      "title": "Effect Library Development Patterns",
+      "summary": "This directory provides reusable solutions and best practices for Effect TypeScript development, ensuring consistency and quality across the Effect library codebase. - **[effect-library-development...",
+      "lines": 125,
+      "mtime": 1777128013504.7332
+    },
+    {
+      "path": "reference/hazel/.context/effect/.specs/README.md",
+      "title": "Specifications",
+      "summary": "This directory contains specifications for all major features and enhancements in the Effect library, following a structured spec-driven development approach that ensures systematic planning, imple...",
+      "lines": 23,
+      "mtime": 1777128013504.7332
+    },
+    {
+      "path": "reference/hazel/.context/effect/ai-docs/README.md",
+      "title": "AI docs",
+      "summary": "`LLMS.md` is generated from `ai-docs/src`. 1. Add or update markdown in `ai-docs/src/**/index.md` for section intro text. 2. Add examples as `.ts` files in the same folder. 3. Run `pnpm ai-docgen` ...",
+      "lines": 45,
+      "mtime": 1777128013508.7334
+    },
+    {
+      "path": "reference/hazel/.context/effect/packages/ai/anthropic/CHANGELOG.md",
+      "title": "@effect/ai-anthropic",
+      "summary": "- Updated dependencies [[`bf8fff8`](https://github.com/Effect-TS/effect-smol/commit/bf8fff8a5f54b6df74cb7bbb42346fe9ba52435a), [`1af3ef3`](https://github.com/Effect-TS/effect-smol/commit/1af3ef3e3c...",
+      "lines": 247,
+      "mtime": 1777128013520.7346
+    },
+    {
+      "path": "reference/hazel/.context/effect/packages/ai/openai-compat/CHANGELOG.md",
+      "title": "@effect/ai-openai-compat",
+      "summary": "- Updated dependencies [[`bf8fff8`](https://github.com/Effect-TS/effect-smol/commit/bf8fff8a5f54b6df74cb7bbb42346fe9ba52435a), [`1af3ef3`](https://github.com/Effect-TS/effect-smol/commit/1af3ef3e3c...",
+      "lines": 249,
+      "mtime": 1777128013520.7346
+    },
+    {
+      "path": "reference/hazel/.context/effect/packages/ai/openai/CHANGELOG.md",
+      "title": "@effect/ai-openai",
+      "summary": "- Updated dependencies [[`bf8fff8`](https://github.com/Effect-TS/effect-smol/commit/bf8fff8a5f54b6df74cb7bbb42346fe9ba52435a), [`1af3ef3`](https://github.com/Effect-TS/effect-smol/commit/1af3ef3e3c...",
+      "lines": 251,
+      "mtime": 1777128013524.7349
+    },
+    {
+      "path": "reference/hazel/.context/effect/packages/ai/openrouter/CHANGELOG.md",
+      "title": "@effect/ai-openrouter",
+      "summary": "- Updated dependencies [[`bf8fff8`](https://github.com/Effect-TS/effect-smol/commit/bf8fff8a5f54b6df74cb7bbb42346fe9ba52435a), [`1af3ef3`](https://github.com/Effect-TS/effect-smol/commit/1af3ef3e3c...",
+      "lines": 247,
+      "mtime": 1777128013528.735
+    },
+    {
+      "path": "reference/hazel/.context/effect/packages/atom/react/CHANGELOG.md",
+      "title": "@effect/atom-react",
+      "summary": "- Updated dependencies [[`bf8fff8`](https://github.com/Effect-TS/effect-smol/commit/bf8fff8a5f54b6df74cb7bbb42346fe9ba52435a), [`1af3ef3`](https://github.com/Effect-TS/effect-smol/commit/1af3ef3e3c...",
+      "lines": 241,
+      "mtime": 1777128013532.7356
+    },
+    {
+      "path": "reference/hazel/.context/effect/packages/atom/react/README.md",
+      "title": "`@effect/atom-react`",
+      "summary": "React bindings for the Effect Atom modules. - **API Reference**: [View the full documentation](https://effect-ts.github.io/effect/docs/atom-react).",
+      "lines": 8,
+      "mtime": 1777128013532.7356
+    },
+    {
+      "path": "reference/hazel/.context/effect/packages/atom/solid/CHANGELOG.md",
+      "title": "@effect/atom-solid",
+      "summary": "- Updated dependencies [[`bf8fff8`](https://github.com/Effect-TS/effect-smol/commit/bf8fff8a5f54b6df74cb7bbb42346fe9ba52435a), [`1af3ef3`](https://github.com/Effect-TS/effect-smol/commit/1af3ef3e3c...",
+      "lines": 237,
+      "mtime": 1777128013532.7356
+    },
+    {
+      "path": "reference/hazel/.context/effect/packages/atom/solid/README.md",
+      "title": "`@effect/atom-solid`",
+      "summary": "SolidJS bindings for the Effect Atom modules. - **API Reference**: [View the full documentation](https://effect-ts.github.io/effect/docs/atom-solid).",
+      "lines": 8,
+      "mtime": 1777128013532.7356
     }
   ]
 }

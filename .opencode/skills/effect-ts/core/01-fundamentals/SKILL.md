@@ -11,7 +11,8 @@ compatibility: opencode
 
 ## Core model
 
-`Effect<Success, Error, Requirements>` — lazy, nothing runs until `run*` or `Layer.launch`.
+`Effect<Success, Error, Requirements>` — lazy description of a program.
+Nothing runs until you call a `run*` function or `Layer.launch`.
 
 ## Effect.gen — primary style
 
@@ -19,67 +20,84 @@ compatibility: opencode
 import { Effect } from "effect"
 
 const program = Effect.gen(function* () {
-  yield* Effect.log("Starting...")
+  yield* Effect.log("starting")
   const result = yield* someEffect
   return result
 })
 ```
 
-## Effect.fn — preferred for named functions
+## Effect.fn — all named exported functions
 
-Adds automatic stack traces + tracing spans. **Do not** return `Effect.gen` from plain functions.
+Adds automatic span tracing + stack frames. Use for every exported function
+that returns an Effect.
 
 ```typescript
-import { Effect, Schema } from "effect"
+import { Effect } from "effect"
 
-// ✅ correct
-export const processFile = Effect.fn("processFile")(
-  function* (path: string): Effect.fn.Return<string, FileError> {
-    yield* Effect.log("Processing:", path)
+// ✅ correct — traced, named span
+export const processFile = Effect.fn("processFile")(function* (path: string) {
+  yield* Effect.log("processing:", path)
+  return yield* readFile(path)
+})
+
+// Extra operators as additional arguments — NOT .pipe after the call
+export const processFileSafe = Effect.fn("processFileSafe")(
+  function* (path: string) {
     return yield* readFile(path)
   },
-  // extra operators go as additional args — NOT .pipe
   Effect.withSpan("processFile"),
-  Effect.annotateLogs({ component: "file-processor" })
+  Effect.annotateLogs({ component: "file-processor" }),
 )
 
-// ❌ avoid
+// ❌ wrong — no tracing, no span
 export const bad = (path: string) => Effect.gen(function* () { ... })
+```
+
+## Effect.fnUntraced — internal / private helpers
+
+Use when the function is not exported and tracing is not needed.
+Simpler syntax — no name string required.
+
+```typescript
+import { Effect } from "effect"
+
+// ✅ for private / internal helpers
+const buildPayload = Effect.fnUntraced(function* (id: string) {
+  const data = yield* loadData(id)
+  return { id, data }
+})
 ```
 
 ## Creating Effects
 
 ```typescript
-Effect.succeed(value)                        // already-computed value
-Effect.sync(() => Date.now())                // sync side-effect, won't throw
+Effect.succeed(value)               // constant value
+Effect.fail(new MyError())          // typed error
+Effect.sync(() => Date.now())       // sync side-effect, guaranteed not to throw
 Effect.try({
   try: () => JSON.parse(s),
-  catch: (e) => new ParseError({ cause: e })
+  catch: (e) => new ParseError({ cause: e }),
 })
 Effect.tryPromise({
   try: () => fetch(url).then(r => r.json()),
-  catch: (e) => new FetchError({ url, cause: e })
+  catch: (e) => new FetchError({ url, cause: e }),
 })
-Effect.fromNullishOr(map.get("key")).pipe(
-  Effect.mapError(() => new MissingKey())
-)
-Effect.callback<number>((resume) => {        // callback-based APIs
+Effect.callback<number>((resume) => {  // callback-based APIs
   const id = setTimeout(() => resume(Effect.succeed(42)), 100)
-  return Effect.sync(() => clearTimeout(id)) // finalizer called on interruption
+  return Effect.sync(() => clearTimeout(id))  // finalizer on interruption
 })
 ```
 
-## Running effects
+## Running Effects
 
 ```typescript
-import { NodeRuntime } from "@effect/platform-node"
 import { BunRuntime } from "@effect/platform-bun"
+import { NodeRuntime } from "@effect/platform-node"
 
-NodeRuntime.runMain(program)          // Node entrypoint — handles SIGINT/SIGTERM
-BunRuntime.runMain(program)           // Bun entrypoint
-await Effect.runPromise(program)      // tests / ad-hoc
-Effect.runSync(program)               // sync-only (no async effects)
-Effect.runPromise(program.pipe(Effect.provide(MyLayer)))
+BunRuntime.runMain(program)           // Bun entrypoint — handles signals
+NodeRuntime.runMain(program)          // Node entrypoint
+await Effect.runPromise(program)      // tests / scripts
+Effect.runSync(program)               // sync-only programs
 ```
 
 ## Pipe for composition
@@ -88,27 +106,31 @@ Effect.runPromise(program.pipe(Effect.provide(MyLayer)))
 program.pipe(
   Effect.map(x => x * 2),
   Effect.flatMap(n => Effect.succeed(n + 1)),
-  Effect.catchTag("ParseError", () => Effect.succeed(0))
+  Effect.catchTag("ParseError", () => Effect.succeed(0)),
+  Effect.withSpan("myOp"),
 )
+```
+
+## Always `return` before `yield* error`
+
+TypeScript must see the `return` to know execution stops at that point:
+
+```typescript
+export const load = Effect.fn("load")(function* (id: string) {
+  if (!id) return yield* new NotFoundError()  // return = TS knows it stops here
+  return yield* fetchById(id)
+})
 ```
 
 ## Type annotations
 
 ```typescript
-// Return type in Effect.fn generator
+// Inside Effect.fn generator — use Effect.fn.Return
 function* (id: string): Effect.fn.Return<User, UserError>
 
-// Full type
+// Standalone effect
 const eff: Effect.Effect<string, ParseError, never> = ...
 
-// Service type shorthand
-type DbService = Database["Service"]
-```
-
-## Always return on yield* error
-
-TypeScript needs a `return` before `yield* error` so it understands execution stops:
-
-```typescript
-return yield* new MyError({ message: "..." })
+// Service type access
+type DbShape = Database["Service"]
 ```

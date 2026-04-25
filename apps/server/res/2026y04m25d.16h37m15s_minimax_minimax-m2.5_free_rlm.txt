@@ -1,0 +1,6 @@
+model: minimax/minimax-m2.5:free/rlm
+right: 1/1
+variant: rlm
+rlm_depth: 1
+rlm_attempts: 1
+- cnat_add: NaN pass time=92.779s

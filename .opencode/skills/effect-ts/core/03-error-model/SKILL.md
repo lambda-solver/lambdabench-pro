@@ -7,95 +7,139 @@ compatibility: opencode
 
 # Error Model
 
-## Defining errors — Schema.TaggedErrorClass
+## Defining errors
+
+### Schema.TaggedErrorClass — primary pattern
 
 ```typescript
 import { Schema } from "effect"
 
-// Tagged error with fields
-export class ParseError extends Schema.TaggedErrorClass<ParseError>()("ParseError", {
-  input: Schema.String,
-  message: Schema.String,
-}) {}
+// With fields
+export class ParseError extends Schema.TaggedErrorClass<ParseError>()(
+  "ParseError",
+  {
+    input: Schema.String,
+    message: Schema.String,
+  },
+) {}
 
-// Error with cause (wraps unknown thrown values)
-export class DatabaseError extends Schema.TaggedErrorClass<DatabaseError>()("DatabaseError", {
-  cause: Schema.Defect,  // Schema.Defect = unknown
-}) {}
+// With unknown cause (from catch blocks)
+export class FetchError extends Schema.TaggedErrorClass<FetchError>()(
+  "FetchError",
+  {
+    url: Schema.String,
+    cause: Schema.Defect,   // Schema.Defect = unknown
+  },
+) {}
 
-// Plain error (no extra fields)
-export class NotFoundError extends Schema.TaggedErrorClass<NotFoundError>()("NotFoundError", {}) {}
+// No fields
+export class NotFoundError extends Schema.TaggedErrorClass<NotFoundError>()(
+  "NotFoundError",
+  {},
+) {}
+```
 
-// Error with a tagged reason union (for categorized sub-errors)
-export class AiError extends Schema.TaggedErrorClass<AiError>()("AiError", {
-  reason: Schema.Union([RateLimitError, QuotaExceededError, SafetyBlockedError])
-}) {}
+### Plain class — for simple non-serializable errors
+
+Use when serialization / Schema isn't needed (e.g. internal service boundary).
+
+```typescript
+export class LlmError {
+  readonly _tag = "LlmError"
+  constructor(readonly message: string) {}
+}
+```
+
+### Reason errors — nested tagged union
+
+```typescript
+export class RateLimitError extends Schema.TaggedErrorClass<RateLimitError>()(
+  "RateLimitError", { retryAfter: Schema.Number },
+) {}
+
+export class AiError extends Schema.TaggedErrorClass<AiError>()(
+  "AiError",
+  { reason: Schema.Union([RateLimitError, QuotaExceededError]) },
+) {}
 ```
 
 ## Catching errors
 
 ```typescript
-// Catch one tag
+// Single tag
 program.pipe(
-  Effect.catchTag("ParseError", (e) => Effect.succeed(`fallback: ${e.message}`))
+  Effect.catchTag("ParseError", (e) => Effect.succeed(`fallback: ${e.message}`)),
 )
 
-// Catch multiple tags at once
+// Multiple tags — same handler
 program.pipe(
-  Effect.catchTag(["ParseError", "NetworkError"], (_) => Effect.succeed(defaultValue))
+  Effect.catchTag(["ParseError", "NetworkError"], (_) => Effect.succeed(0)),
 )
 
-// Catch multiple with different handlers
+// Multiple tags — individual handlers
 program.pipe(
   Effect.catchTags({
-    ParseError: (e) => Effect.succeed(`parse failed: ${e.message}`),
-    NetworkError: (e) => Effect.succeed(`network ${e.statusCode}`),
-  })
+    ParseError:   (e) => Effect.succeed(`parse: ${e.message}`),
+    NetworkError: (e) => Effect.succeed(`net: ${e.statusCode}`),
+  }),
 )
 
-// Catch all typed errors
+// All typed errors — Effect.catch (NOT catchAll — that doesn't exist)
 program.pipe(
-  Effect.catch((e) => Effect.succeed(defaultValue))
+  Effect.catch((_e) => Effect.succeed(defaultValue)),
 )
 ```
 
-## Reason errors (nested tagged union)
+## Catching reason errors
 
 ```typescript
-// Catch one specific reason
+// One specific reason
 program.pipe(
-  Effect.catchReason(
-    "AiError",         // parent _tag
-    "RateLimitError",  // reason _tag
-    (reason) => Effect.succeed(`retry after ${reason.retryAfter}s`),
-    (other)  => Effect.succeed(`other: ${other._tag}`)  // optional catch-all
-  )
+  Effect.catchReason("AiError", "RateLimitError",
+    (r) => Effect.succeed(`retry after ${r.retryAfter}s`),
+  ),
 )
 
-// Catch multiple reasons
-program.pipe(
-  Effect.catchReasons("AiError", {
-    RateLimitError:    (r) => Effect.succeed(`retry ${r.retryAfter}s`),
-    QuotaExceededError:(r) => Effect.succeed(`quota exceeded ${r.limit}`),
-  })
-)
-
-// Move reasons into error channel for catchTags
+// Unwrap into error channel for catchTags
 program.pipe(
   Effect.unwrapReason("AiError"),
   Effect.catchTags({
-    RateLimitError:     (r) => ...,
-    QuotaExceededError: (r) => ...,
-    SafetyBlockedError: (r) => ...,
-  })
+    RateLimitError:    (r) => ...,
+    QuotaExceededError:(r) => ...,
+  }),
 )
 ```
 
-## Error in Effect.fn — always return
+## Catching defects (unexpected errors)
 
 ```typescript
+import { Cause } from "effect"
+
+program.pipe(
+  Effect.catchCause((cause) =>
+    Cause.isFailure(cause)
+      ? Effect.succeed("recovered from typed error")
+      : Effect.failCause(cause),   // re-raise defects
+  ),
+)
+```
+
+## Wrapping at service boundaries
+
+```typescript
+const findById = Effect.fn("Repo.findById")(function* (id: string) {
+  return yield* sql`SELECT * FROM users WHERE id = ${id}`.pipe(
+    Effect.mapError((reason) => new UserRepoError({ reason })),
+  )
+})
+```
+
+## Return before yield* error
+
+```typescript
+// ✅ return ensures TS knows execution stops
 export const load = Effect.fn("load")(function* (id: string) {
-  if (!id) return yield* new NotFoundError()  // return ensures TS knows it stops here
+  if (!id) return yield* new NotFoundError()
   return yield* fetchById(id)
 })
 ```

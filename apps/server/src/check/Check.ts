@@ -9,6 +9,9 @@
  */
 
 import { Array as Arr, Effect, FileSystem, Path } from "effect";
+import { LanguageModel } from "effect/unstable/ai";
+import { extractLamCode } from "../rlm/LamCodeExtractor";
+import { buildSolvePrompt } from "../llm/LlmPrompts";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -316,6 +319,50 @@ export const runAllReferenceTasks = Effect.gen(function* () {
     { concurrency: 8 },
   );
 });
+
+// ─── LLM-based task runner ────────────────────────────────────────────────────
+
+export type TimedCheckResult = CheckResult & {
+  readonly elapsedMs: number;
+};
+
+/** Run a single task via a single LLM call (standard, non-RLM eval). */
+export const runTaskWithLlm = Effect.fn("runTaskWithLlm")(function* (
+  task: Task,
+  refBits?: number,
+) {
+  const start = Date.now();
+
+  const rawResponse = yield* LanguageModel.generateText({
+    prompt: buildSolvePrompt(task),
+  }).pipe(
+    Effect.map((r) => r.text),
+    Effect.catch((_e) =>
+      Effect.succeed(`@main = λf.λx.x  // LLM error: ${String(_e)}`),
+    ),
+  );
+
+  const submission = extractLamCode(rawResponse);
+  const checkResult = yield* runTask(task, submission, refBits);
+  const elapsedMs = Date.now() - start;
+
+  return { ...checkResult, elapsedMs } satisfies TimedCheckResult;
+});
+
+/** Run all tasks using standard single-shot LLM eval (model provided by Layer). */
+export const runAllTasksForModel = Effect.fn("runAllTasksForModel")(
+  function* (
+    tasks: ReadonlyArray<Task>,
+    refBitsMap: ReadonlyMap<string, number>,
+    concurrency = 4,
+  ) {
+    return yield* Effect.forEach(
+      tasks,
+      (task) => runTaskWithLlm(task, refBitsMap.get(task.id)),
+      { concurrency },
+    );
+  },
+);
 
 export const showResult = (r: CheckResult): string => {
   const status = r.pass ? "✓" : "✗";

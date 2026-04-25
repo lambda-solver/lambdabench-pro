@@ -87,4 +87,58 @@ describe("computeValueEntries", () => {
     ]);
     expect(computeValueEntries(data)[0]?.passRate).toBeCloseTo(72.5, 5);
   });
+
+  test("model with /rlm suffix is included with correct model string", () => {
+    const data = makeData([
+      makeRanking({
+        model: "openrouter/minimax/minimax-m2.5:free/rlm",
+        pct: "60.0",
+        pricePerMOutputTokens: 0,
+        rlm: true,
+      }),
+    ]);
+    const entries = computeValueEntries(data);
+    expect(entries[0]?.model).toBe("openrouter/minimax/minimax-m2.5:free/rlm");
+  });
+
+  test("base and rlm variants appear as two separate entries", () => {
+    const data = makeData([
+      makeRanking({
+        model: "openrouter/minimax/minimax-m2.5:free",
+        pct: "50.0",
+        pricePerMOutputTokens: 0,
+      }),
+      makeRanking({
+        model: "openrouter/minimax/minimax-m2.5:free/rlm",
+        pct: "65.0",
+        pricePerMOutputTokens: 0,
+        rlm: true,
+      }),
+    ]);
+    const entries = computeValueEntries(data);
+    expect(entries).toHaveLength(2);
+    const models = entries.map((e) => e.model);
+    expect(models).toContain("openrouter/minimax/minimax-m2.5:free");
+    expect(models).toContain("openrouter/minimax/minimax-m2.5:free/rlm");
+  });
+
+  test("sort order is stable when rlm and base model have identical passPerDollar", () => {
+    const data = makeData([
+      makeRanking({
+        model: "openrouter/m/base",
+        pct: "50.0",
+        pricePerMOutputTokens: 0,
+      }),
+      makeRanking({
+        model: "openrouter/m/base/rlm",
+        pct: "50.0",
+        pricePerMOutputTokens: 0,
+        rlm: true,
+      }),
+    ]);
+    const entries = computeValueEntries(data);
+    expect(entries).toHaveLength(2);
+    // Both have passPerDollar=0; both should be present regardless of order
+    expect(entries.map((e) => e.passPerDollar)).toEqual([0, 0]);
+  });
 });

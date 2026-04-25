@@ -4,11 +4,22 @@
 
 ## Commands
 
-| Command                     | Purpose                                      |
-| --------------------------- | -------------------------------------------- |
-| `bun dev --filter=server`   | Start server with watch mode                 |
-| `bun run build --filter=server` | Compile to `dist/`                       |
-| `bun run type-check`        | TypeScript check                             |
+| Command                         | Purpose                                                |
+| ------------------------------- | ------------------------------------------------------ |
+| `bun dev --filter=server`       | Start server with watch mode                           |
+| `bun run build --filter=server` | Compile to `dist/`                                     |
+| `bun run type-check`            | TypeScript check                                       |
+| `bun src/index.ts eval`         | Fetch top models → `top-models.json`                   |
+| `bun src/index.ts run`          | Run standard + λ-RLM eval for all models → `res/*.txt` |
+| `bun src/index.ts build`        | Aggregate `res/*.txt` → `results.json`                 |
+
+## Env vars (run command)
+
+| Variable            | Default                      | Purpose                          |
+| ------------------- | ---------------------------- | -------------------------------- |
+| `OPENROUTER_API_KEY`| —                            | Required for all LLM calls       |
+| `LLM_MODEL`         | `minimax/minimax-m2.5:free`  | Model to evaluate                |
+| `RLM_MAX_DEPTH`     | `3`                          | λ-RLM self-correction iterations |
 
 ## Stack
 

@@ -1,6 +1,6 @@
 ---
 name: 05-concurrency
-description: Effect-TS 4 concurrency — Effect.all, Effect.race, fibers, and structured concurrency patterns
+description: Effect-TS 4 concurrency — Effect.all, Effect.forEach, fibers, Ref, and structured concurrency patterns
 license: MIT
 compatibility: opencode
 ---
@@ -15,80 +15,114 @@ import { Effect } from "effect"
 // Sequential (default)
 const [a, b] = yield* Effect.all([effectA, effectB])
 
-// Concurrent
+// Concurrent — bounded
 const [a, b] = yield* Effect.all([effectA, effectB], { concurrency: 2 })
 
-// All concurrent, unbounded
+// Concurrent — unbounded
 const results = yield* Effect.all(effects, { concurrency: "unbounded" })
+
+// Discard results — only side effects matter
+yield* Effect.all(effects, { concurrency: 4, discard: true })
 ```
 
-## Forking fibers
+## Effect.forEach — map an array effectfully
 
 ```typescript
-// Fork and forget (fire-and-forget)
+// Concurrent processing of a list
+const results = yield* Effect.forEach(
+  items,
+  (item) => processItem(item),
+  { concurrency: 8 },
+)
+```
+
+## Ref — shared mutable state inside Effect
+
+```typescript
+import { Effect, Ref } from "effect"
+
+const counter = yield* Ref.make(0)
+yield* Ref.update(counter, (n) => n + 1)
+const value = yield* Ref.get(counter)
+const old = yield* Ref.getAndUpdate(counter, (n) => n + 1)
+```
+
+## Fibers — structured fork/join
+
+```typescript
+// Fork and forget
 yield* Effect.fork(backgroundTask)
 
 // Fork and join later
 const fiber = yield* Effect.fork(longTask)
 const result = yield* Fiber.join(fiber)
 
-// Fork scoped (fiber interrupted when scope closes)
-yield* Effect.forkScoped(Effect.gen(function* () {
-  while (true) {
-    yield* Effect.sleep("5 seconds")
-    yield* Effect.log("tick")
-  }
-}))
+// Fork scoped — interrupted when scope closes
+yield* Effect.forkScoped(
+  Effect.gen(function* () {
+    while (true) {
+      yield* Effect.sleep("5 seconds")
+      yield* Effect.log("tick")
+    }
+  }),
+)
 ```
 
-## Streaming with concurrency
+## Effect.race — first one wins
 
 ```typescript
-import { Stream } from "effect"
+// Returns whichever Effect finishes first; interrupts the other
+const result = yield* Effect.race(fastPath, slowPath)
 
-// mapEffect with concurrency
-stream.pipe(
-  Stream.mapEffect(enrichItem, { concurrency: 4 })
-)
-
-// flatMap with concurrency
-Stream.make("US", "CA").pipe(
-  Stream.flatMap(fetchByCountry, { concurrency: 2 })
-)
+// With timeout
+const result = yield* Effect.timeout(program, "30 seconds")
 ```
 
-## PubSub for event broadcasting
+## Semaphore — bounded concurrency gate
+
+```typescript
+import { Effect } from "effect"
+
+const sem = yield* Effect.makeSemaphore(3)   // max 3 concurrent
+yield* sem.withPermits(1)(expensiveTask)
+```
+
+## PubSub — broadcast events
 
 ```typescript
 import { PubSub, Stream } from "effect"
 
-const pubsub = yield* PubSub.bounded<Event>({
-  capacity: 256,
-  replay: 50,   // late subscribers get last 50 events
-})
+const pubsub = yield* PubSub.bounded<Event>({ capacity: 256 })
 yield* Effect.addFinalizer(() => PubSub.shutdown(pubsub))
 
-// Publish
 yield* PubSub.publish(pubsub, event)
-yield* PubSub.publishAll(pubsub, events)
-
-// Subscribe as stream
 const stream = Stream.fromPubSub(pubsub)
 ```
 
-## Scheduling / polling
+## Scheduling — retry and polling
 
 ```typescript
-import { Schedule, Stream } from "effect"
+import { Schedule } from "effect"
 
-// Retry with exponential backoff
+// Retry with exponential backoff, max 3 times
 program.pipe(
-  Effect.retry(Schedule.exponential(100).pipe(Schedule.upTo(3)))
+  Effect.retry(Schedule.exponential("100 millis").pipe(Schedule.upTo(3))),
 )
 
-// Poll on a schedule
-const samples = Stream.fromEffectSchedule(
-  Effect.succeed(Date.now()),
-  Schedule.spaced("30 seconds")
+// Repeat on a fixed interval
+program.pipe(
+  Effect.repeat(Schedule.spaced("30 seconds")),
 )
+```
+
+## Tail recursion — use Effect.suspend
+
+`Effect.iterate` does NOT exist in Effect 4. Use `Effect.suspend` for
+recursive effectful loops to avoid stack overflow.
+
+```typescript
+const loop = (n: number): Effect.Effect<number> =>
+  n <= 0
+    ? Effect.succeed(0)
+    : Effect.suspend(() => loop(n - 1).pipe(Effect.map((x) => x + 1)))
 ```

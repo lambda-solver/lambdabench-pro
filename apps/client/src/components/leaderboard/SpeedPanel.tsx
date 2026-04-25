@@ -1,14 +1,11 @@
 import type { BenchmarkData } from "@repo/domain/Benchmark";
 import { Array as Arr, Order } from "effect";
+import { fmtModel } from "@/lib/fmt";
 import { BarChart } from "./BarChart";
 import { TildeLine, VimLine } from "./VimLine";
 
 interface SpeedPanelProps {
   data: BenchmarkData;
-}
-
-function fmtModel(m: string): string {
-  return m.split("/").slice(1).join("/");
 }
 
 function pad(s: string, n: number): string {

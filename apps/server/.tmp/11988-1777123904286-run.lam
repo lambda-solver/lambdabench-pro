@@ -1,0 +1,2 @@
+bad
+@_ = @main(λf.λx.x, λf.λx.x)

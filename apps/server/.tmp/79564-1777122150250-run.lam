@@ -1,0 +1,2 @@
+INVALID_NOT_LAM
+@_ = @main(λf.λx.x, λf.λx.x)
