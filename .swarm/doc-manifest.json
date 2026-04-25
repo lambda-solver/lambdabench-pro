@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "scanned_at": "2026-04-25T22:28:40.730Z",
+  "scanned_at": "2026-04-25T23:07:01.800Z",
   "files": [
     {
       "path": ".github/actions/setup/action.yml",
@@ -25,10 +25,10 @@
     },
     {
       "path": ".github/workflows/benchmark.yml",
-      "title": "Every Monday at 04:00 UTC",
-      "summary": "name: Benchmark on: push: branches: - main schedule: - cron: \"0 4 * * 1\" workflow_dispatch: inputs: top_models: description: \"Comma-separated model IDs to benchmark (leave blank to auto-fetch top 2...",
-      "lines": 92,
-      "mtime": 1777156118738.9436
+      "title": "benchmark.yml",
+      "summary": "name: Benchmark on: push: branches: - main workflow_dispatch: inputs: top_models: description: \"Comma-separated model IDs to benchmark (leave blank to use bench.config.json)\" required: false defaul...",
+      "lines": 89,
+      "mtime": 1777158419541.1162
     },
     {
       "path": ".github/workflows/check.yml",
