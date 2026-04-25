@@ -159,7 +159,7 @@ export const runModelEval = Effect.fn("runModelEval")(function* (
         }),
       ),
     ],
-    { concurrency: 2 },
+    { concurrency },
   );
 
   yield* Effect.log(
