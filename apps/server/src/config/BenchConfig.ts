@@ -21,6 +21,8 @@ export const BenchConfig = Schema.Struct({
   rlmMaxDepth: Schema.optional(Schema.Number),
   /** Task ID filter — absent or empty array means run all tasks */
   tasks: Schema.optional(Schema.Array(Schema.String)),
+  /** Max concurrent LLM calls per eval variant (default 2) */
+  concurrency: Schema.optional(Schema.Number),
 });
 export type BenchConfig = Schema.Schema.Type<typeof BenchConfig>;
 
@@ -29,6 +31,7 @@ export type ResolvedBenchConfig = {
   readonly models: ReadonlyArray<string>;
   readonly rlmMaxDepth: number;
   readonly tasks: ReadonlyArray<string>;
+  readonly concurrency: number;
 };
 
 // ─── Loader ──────────────────────────────────────────────────────────────────
@@ -44,5 +47,6 @@ export const loadBenchConfig = Effect.fn("loadBenchConfig")(function* () {
     models: cfg.models,
     rlmMaxDepth: cfg.rlmMaxDepth ?? 3,
     tasks: cfg.tasks ?? [],
+    concurrency: cfg.concurrency ?? 1,
   } satisfies ResolvedBenchConfig;
 });

@@ -58,7 +58,7 @@ const buildCommand = Effect.gen(function* () {
 const runCommand = Effect.gen(function* () {
   const config = yield* loadBenchConfig();
 
-  yield* Effect.log(`[lambench] Config: ${config.models.length} model(s), rlmMaxDepth=${config.rlmMaxDepth}, tasks=${config.tasks.length === 0 ? "all" : config.tasks.join(",")}`);
+  yield* Effect.log(`[lambench] Config: ${config.models.length} model(s), rlmMaxDepth=${config.rlmMaxDepth}, concurrency=${config.concurrency}, tasks=${config.tasks.length === 0 ? "all" : config.tasks.join(",")}`);
 
   // Build TopModel list from config.models (price unknown at this point — 0)
   const topModels: ReadonlyArray<TopModel> = config.models.map((modelId) => ({
@@ -77,7 +77,7 @@ const runCommand = Effect.gen(function* () {
   // Evaluate each model sequentially (rate-limit friendly)
   yield* Effect.forEach(
     topModels,
-    (model) => runModelEval(model, tasks, refBitsMap, config.rlmMaxDepth),
+    (model) => runModelEval(model, tasks, refBitsMap, config.rlmMaxDepth, config.concurrency),
     { concurrency: 1 },
   );
 });

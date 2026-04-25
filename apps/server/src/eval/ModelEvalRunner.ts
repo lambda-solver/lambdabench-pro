@@ -101,6 +101,7 @@ export const runModelEval = Effect.fn("runModelEval")(function* (
   tasks: ReadonlyArray<Task>,
   refBitsMap: ReadonlyMap<string, number>,
   rlmMaxDepth = 3,
+  concurrency = 1,
 ) {
   yield* Effect.log(
     `[ModelEvalRunner] Starting eval for ${model.modelId} (${tasks.length} tasks)`,
@@ -134,7 +135,7 @@ export const runModelEval = Effect.fn("runModelEval")(function* (
       guarded(
         "standard",
         Effect.gen(function* () {
-          const results = yield* runAllTasksForModel(tasks, refBitsMap).pipe(
+          const results = yield* runAllTasksForModel(tasks, refBitsMap, concurrency).pipe(
             Effect.provide(llmLayer),
           );
           yield* writeResultFile(model.modelId, results, "standard");
@@ -147,7 +148,7 @@ export const runModelEval = Effect.fn("runModelEval")(function* (
         "rlm",
         Effect.gen(function* () {
           const { results, totalAttempts, maxDepthUsed } =
-            yield* runRlmForAllTasks(tasks, refBitsMap, rlmMaxDepth).pipe(
+            yield* runRlmForAllTasks(tasks, refBitsMap, rlmMaxDepth, concurrency).pipe(
               Effect.provide(llmLayer),
             );
           yield* writeResultFile(`${model.modelId}/rlm`, results, "rlm", {
