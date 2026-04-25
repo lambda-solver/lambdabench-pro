@@ -4,5 +4,5 @@
   ],
   "rlmMaxDepth": 3,
   "concurrency": 1,
-  "tasks": []
+  "tasks": ["cnat_add", "cnat_mul", "clst_map", "clst_rev", "snat_add", "sbin_add"]
 }

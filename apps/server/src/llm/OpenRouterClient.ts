@@ -48,5 +48,5 @@ const OpenRouterClientLayer = OpenRouterClient.layerConfig({
 export const makeOpenRouterLayer = (model: string) =>
   OpenRouterLanguageModel.layer({
     model,
-    config: { max_tokens: 500 },
+    config: { max_tokens: 4096 },
   }).pipe(Layer.provide(OpenRouterClientLayer))
