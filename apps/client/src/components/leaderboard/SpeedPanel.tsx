@@ -1,24 +1,13 @@
 import type { BenchmarkData } from "@repo/domain/Benchmark";
 import { Array as Arr, Order } from "effect";
 import { fmtModel } from "@/lib/fmt";
-import { BarChart } from "./BarChart";
+import { BenchmarkRow } from "./BenchmarkRow";
 import { TildeLine, VimLine } from "./VimLine";
 
 interface SpeedPanelProps {
   data: BenchmarkData;
 }
 
-function pad(s: string, n: number): string {
-  return s.padEnd(n, " ");
-}
-
-function rpad(s: string, n: number): string {
-  return s.padStart(n, " ");
-}
-
-/**
- * Speed panel: models ranked by tasks solved per minute (60 / avgTime).
- */
 export function SpeedPanel({ data }: SpeedPanelProps) {
   const entries = data.rankings
     .filter((r) => r.avgTime > 0)
@@ -30,6 +19,8 @@ export function SpeedPanel({ data }: SpeedPanelProps) {
   const sorted = Arr.sort(entries, byTPMDesc);
   const maxTPM = sorted.length > 0 ? (sorted[0]?.tpm ?? 1) : 1;
   const maxName = Math.max(...sorted.map((e) => fmtModel(e.model).length), 10);
+  const statWidth = Math.max(...sorted.map((e) => `${e.tpm.toFixed(2)}/min`.length), 8);
+  const labelWidth = Math.max(...sorted.map((e) => `(${e.avgTime.toFixed(0)}s avg)`.length), 8);
 
   let n = 1;
 
@@ -39,37 +30,28 @@ export function SpeedPanel({ data }: SpeedPanelProps) {
       <VimLine n={n++}>
         <span className="font-bold text-[var(--sol-yellow)]">LamBench</span>
         {"  "}
-        <span className="text-[var(--sol-base1)]">
-          -- Lambda Calculus Benchmark for AI
-        </span>
+        <span className="text-[var(--sol-base1)]">-- Lambda Calculus Benchmark for AI</span>
       </VimLine>
       <VimLine n={n++} />
       <VimLine n={n++}>
         <span className="font-bold text-[var(--sol-orange)]">Speed</span>
         {"  "}
-        <span className="text-[var(--sol-base1)]">
-          -- tasks solved per minute (higher = faster)
-        </span>
+        <span className="text-[var(--sol-base1)]">-- tasks solved per minute (higher = faster)</span>
       </VimLine>
       <VimLine n={n++} />
 
       {sorted.map((e) => {
-        const name = fmtModel(e.model);
         const pct = (e.tpm / maxTPM) * 100;
         return (
           <VimLine key={e.model} n={n++}>
-            <span className="text-[var(--sol-blue)]">
-              {pad(name, maxName + 1)}
-            </span>
-            <BarChart pct={pct} />
-            {"  "}
-            <span className="text-[var(--sol-magenta)]">
-              {rpad(`${e.tpm.toFixed(2)}/min`, 10)}
-            </span>
-            {"  "}
-            <span className="text-[var(--sol-base1)]">
-              ({e.avgTime.toFixed(0)}s avg)
-            </span>
+            <BenchmarkRow
+              name={fmtModel(e.model).padEnd(maxName + 1, " ")}
+              pct={pct}
+              stat={`${e.tpm.toFixed(2)}/min`}
+              label={`(${e.avgTime.toFixed(0)}s avg)`}
+              statWidth={statWidth}
+              labelWidth={labelWidth}
+            />
           </VimLine>
         );
       })}

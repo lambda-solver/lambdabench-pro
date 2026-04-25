@@ -35,7 +35,7 @@ export function VimLine({
       >
         {n == null ? "" : String(n)}
       </span>
-      <span className="flex-1 pl-[2ch] pr-[1ch] whitespace-pre-wrap break-words">
+      <span className="flex-1 flex min-w-0 pl-[2ch] pr-[1ch] whitespace-pre">
         {children}
       </span>
     </div>

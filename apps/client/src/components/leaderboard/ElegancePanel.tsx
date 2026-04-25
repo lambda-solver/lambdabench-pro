@@ -1,7 +1,7 @@
 import type { BenchmarkData } from "@repo/domain/Benchmark";
 import { Array as Arr, Order } from "effect";
 import { fmtModel } from "@/lib/fmt";
-import { BarChart } from "./BarChart";
+import { BenchmarkRow } from "./BenchmarkRow";
 import { TildeLine, VimLine } from "./VimLine";
 
 interface ElegancePanelProps {
@@ -10,28 +10,16 @@ interface ElegancePanelProps {
 
 interface EleganceEntry {
   model: string;
-  shorter: number; // mean % shorter than reference (+ = shorter, - = longer)
+  shorter: number;
   passing: number;
   delta: number;
-}
-
-function pad(s: string, n: number): string {
-  return s.padEnd(n, " ");
-}
-
-function rpad(s: string, n: number): string {
-  return s.padStart(n, " ");
 }
 
 function fmtShorter(v: number): string {
   return v >= 0 ? `+${v.toFixed(1)}%` : `\u2212${Math.abs(v).toFixed(1)}%`;
 }
 
-function computeElegance(data: BenchmarkData): {
-  entries: EleganceEntry[];
-  mean: number;
-} {
-  // Collect reference bits per task from all rankings
+function computeElegance(data: BenchmarkData): { entries: EleganceEntry[]; mean: number } {
   const refs: Record<string, number> = {};
   for (const r of data.rankings) {
     for (const [tid, bits] of Object.entries(r.taskRefs)) {
@@ -45,33 +33,19 @@ function computeElegance(data: BenchmarkData): {
     for (const t of data.tasks) {
       const ref = refs[t.id];
       const bits = r.taskBits[t.id];
-      if (
-        r.tasks[t.id] &&
-        ref !== undefined &&
-        bits !== undefined &&
-        bits > 0
-      ) {
+      if (r.tasks[t.id] && ref !== undefined && bits !== undefined && bits > 0) {
         sum += 1 - bits / ref;
         passing++;
       }
     }
-    return {
-      model: r.model,
-      shorter: passing ? (sum / passing) * 100 : 0,
-      passing,
-      delta: 0,
-    };
+    return { model: r.model, shorter: passing ? (sum / passing) * 100 : 0, passing, delta: 0 };
   });
 
   const scored = entries.filter((e) => e.passing > 0);
-  const mean = scored.length
-    ? scored.reduce((s, e) => s + e.shorter, 0) / scored.length
-    : 0;
-
+  const mean = scored.length ? scored.reduce((s, e) => s + e.shorter, 0) / scored.length : 0;
   for (const e of entries) {
     e.delta = e.passing > 0 ? e.shorter - mean : 0;
   }
-
   return { entries, mean };
 }
 
@@ -82,15 +56,12 @@ const byEleganceDesc = Order.make<EleganceEntry>((a, b) => {
   return b.shorter > a.shorter ? 1 : b.shorter < a.shorter ? -1 : 0;
 });
 
-/**
- * Elegance panel: models ranked by how much shorter their solutions are vs reference.
- * Bar chart axis: –40% (empty) to +30% (full).
- */
 export function ElegancePanel({ data }: ElegancePanelProps) {
   const { entries, mean } = computeElegance(data);
-
   const sorted = Arr.sort(entries, byEleganceDesc);
   const maxName = Math.max(...sorted.map((e) => fmtModel(e.model).length), 10);
+  const statWidth = Math.max(...sorted.map((e) => (e.passing ? fmtShorter(e.shorter).length : 1)), 4);
+  const labelWidth = Math.max(...sorted.map((e) => `(${e.passing}/${data.tasks.length})`.length), 6);
   const barLo = -40;
   const barHi = 30;
 
@@ -102,9 +73,7 @@ export function ElegancePanel({ data }: ElegancePanelProps) {
       <VimLine n={n++}>
         <span className="font-bold text-[var(--sol-yellow)]">LamBench</span>
         {"  "}
-        <span className="text-[var(--sol-base1)]">
-          -- Lambda Calculus Benchmark for AI
-        </span>
+        <span className="text-[var(--sol-base1)]">-- Lambda Calculus Benchmark for AI</span>
       </VimLine>
       <VimLine n={n++} />
       <VimLine n={n++}>
@@ -117,28 +86,19 @@ export function ElegancePanel({ data }: ElegancePanelProps) {
       <VimLine n={n++} />
 
       {sorted.map((e) => {
-        const name = fmtModel(e.model);
-        const valStr = e.passing
-          ? rpad(fmtShorter(e.shorter), 7)
-          : rpad("—", 7);
         const barPct = e.passing
-          ? Math.max(
-              0,
-              Math.min(100, ((e.shorter - barLo) * 100) / (barHi - barLo)),
-            )
+          ? Math.max(0, Math.min(100, ((e.shorter - barLo) * 100) / (barHi - barLo)))
           : 0;
         return (
           <VimLine key={e.model} n={n++}>
-            <span className="text-[var(--sol-blue)]">
-              {pad(name, maxName + 1)}
-            </span>
-            <BarChart pct={barPct} />
-            {"  "}
-            <span className="text-[var(--sol-magenta)]">{valStr}</span>
-            {"  "}
-            <span className="text-[var(--sol-base1)]">
-              ({rpad(String(e.passing), 3)}/{data.tasks.length})
-            </span>
+            <BenchmarkRow
+              name={fmtModel(e.model).padEnd(maxName + 1, " ")}
+              pct={barPct}
+              stat={e.passing ? fmtShorter(e.shorter) : "—"}
+              label={`(${e.passing}/${data.tasks.length})`}
+              statWidth={statWidth}
+              labelWidth={labelWidth}
+            />
           </VimLine>
         );
       })}
@@ -147,11 +107,8 @@ export function ElegancePanel({ data }: ElegancePanelProps) {
       <VimLine n={n++}>
         <span className="text-[var(--sol-base1)]">{"-- mean: "}</span>
         <span className="text-[var(--sol-magenta)]">{fmtShorter(mean)}</span>
-        <span className="text-[var(--sol-base1)]">
-          {"  shorter than reference"}
-        </span>
+        <span className="text-[var(--sol-base1)]">{"  shorter than reference"}</span>
       </VimLine>
-
       {Array.from({ length: 8 }).map((_, i) => (
         <TildeLine key={`tilde-${i}`} />
       ))}

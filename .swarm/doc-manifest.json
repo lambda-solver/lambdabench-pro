@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "scanned_at": "2026-04-25T16:01:56.928Z",
+  "scanned_at": "2026-04-25T22:28:40.730Z",
   "files": [
     {
       "path": ".github/actions/setup/action.yml",
@@ -27,22 +27,15 @@
       "path": ".github/workflows/benchmark.yml",
       "title": "Every Monday at 04:00 UTC",
       "summary": "name: Benchmark on: push: branches: - main schedule: - cron: \"0 4 * * 1\" workflow_dispatch: inputs: top_models: description: \"Comma-separated model IDs to benchmark (leave blank to auto-fetch top 2...",
-      "lines": 111,
-      "mtime": 1777074322920.6804
+      "lines": 92,
+      "mtime": 1777156118738.9436
     },
     {
-      "path": ".github/workflows/check-client.yml",
-      "title": "check-client.yml",
-      "summary": "name: Check - Client on: workflow_dispatch: push: branches: - main paths: - \"apps/client/**\" - \"packages/domain/**\" pull_request: branches: - main paths: - \"apps/client/**\" - \"packages/domain/**\" j...",
-      "lines": 77,
-      "mtime": 1777064222153.649
-    },
-    {
-      "path": ".github/workflows/check-server.yml",
-      "title": "check-server.yml",
-      "summary": "name: Check - Server on: workflow_dispatch: push: branches: - main paths: - \"apps/server/**\" - \"packages/domain/**\" pull_request: branches: - main paths: - \"apps/server/**\" - \"packages/domain/**\" j...",
-      "lines": 74,
-      "mtime": 1777074338045.6716
+      "path": ".github/workflows/check.yml",
+      "title": "check.yml",
+      "summary": "name: Check on: workflow_dispatch: push: branches: - main paths: - \"apps/client/**\" - \"apps/server/**\" - \"packages/domain/**\" pull_request: branches: - main paths: - \"apps/client/**\" - \"apps/server...",
+      "lines": 67,
+      "mtime": 1777155245151.8962
     },
     {
       "path": ".opencode/AGENTS.md",
@@ -700,6 +693,13 @@
       "title": "`@effect/atom-solid`",
       "summary": "SolidJS bindings for the Effect Atom modules. - **API Reference**: [View the full documentation](https://effect-ts.github.io/effect/docs/atom-solid).",
       "lines": 8,
+      "mtime": 1777128013532.7356
+    },
+    {
+      "path": "reference/hazel/.context/effect/packages/atom/vue/CHANGELOG.md",
+      "title": "@effect/atom-vue",
+      "summary": "- Updated dependencies [[`bf8fff8`](https://github.com/Effect-TS/effect-smol/commit/bf8fff8a5f54b6df74cb7bbb42346fe9ba52435a), [`1af3ef3`](https://github.com/Effect-TS/effect-smol/commit/1af3ef3e3c...",
+      "lines": 237,
       "mtime": 1777128013532.7356
     }
   ]

@@ -1,34 +1,21 @@
 import type { BenchmarkData, Ranking } from "@repo/domain/Benchmark";
 import { Array as Arr, Order } from "effect";
 import { fmtModel } from "@/lib/fmt";
-import { BarChart } from "./BarChart";
+import { BenchmarkRow } from "./BenchmarkRow";
 import { TildeLine, VimLine } from "./VimLine";
 
 interface IntelligencePanelProps {
   data: BenchmarkData;
 }
 
-function pad(s: string, n: number): string {
-  return s.padEnd(n, " ");
-}
-
-function rpad(s: string, n: number): string {
-  return s.padStart(n, " ");
-}
-
-/**
- * Intelligence panel: models ranked by problems solved (pass rate).
- */
 export function IntelligencePanel({ data }: IntelligencePanelProps) {
   const byRightDesc = Order.make<Ranking>((a, b) =>
     b.right > a.right ? 1 : b.right < a.right ? -1 : 0,
   );
   const sorted = Arr.sort(data.rankings, byRightDesc);
-
-  const maxNameLen = Math.max(
-    ...sorted.map((r) => fmtModel(r.model).length),
-    10,
-  );
+  const maxNameLen = Math.max(...sorted.map((r) => fmtModel(r.model).length), 10);
+  const statWidth = Math.max(...sorted.map((r) => `${r.right}/${r.total}`.length), 5);
+  const labelWidth = Math.max(...sorted.map((r) => `${parseFloat(r.pct).toFixed(1)}%`.length), 6);
 
   let n = 1;
 
@@ -38,9 +25,7 @@ export function IntelligencePanel({ data }: IntelligencePanelProps) {
       <VimLine n={n++}>
         <span className="font-bold text-[var(--sol-yellow)]">LamBench</span>
         {"  "}
-        <span className="text-[var(--sol-base1)]">
-          -- Lambda Calculus Benchmark for AI
-        </span>
+        <span className="text-[var(--sol-base1)]">-- Lambda Calculus Benchmark for AI</span>
       </VimLine>
       <VimLine n={n++} />
       <VimLine n={n++}>
@@ -51,21 +36,17 @@ export function IntelligencePanel({ data }: IntelligencePanelProps) {
       <VimLine n={n++} />
 
       {sorted.map((r) => {
-        const name = fmtModel(r.model);
         const pct = parseFloat(r.pct);
-        const score = `${r.right}/${r.total}`;
-        const pctStr = rpad(`${pct.toFixed(1)}%`, 6);
-
         return (
           <VimLine key={r.model} n={n++}>
-            <span className="text-[var(--sol-blue)]">
-              {pad(name, maxNameLen + 1)}
-            </span>
-            <BarChart pct={pct} />
-            {"  "}
-            <span className="text-[var(--sol-magenta)]">{rpad(score, 7)}</span>
-            {"  "}
-            <span className="text-[var(--sol-base1)]">{pctStr}</span>
+            <BenchmarkRow
+              name={fmtModel(r.model).padEnd(maxNameLen + 1, " ")}
+              pct={pct}
+              stat={`${r.right}/${r.total}`}
+              label={`${pct.toFixed(1)}%`}
+              statWidth={statWidth}
+              labelWidth={labelWidth}
+            />
           </VimLine>
         );
       })}
