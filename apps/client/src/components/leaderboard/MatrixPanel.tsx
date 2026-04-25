@@ -1,7 +1,11 @@
-import { cn } from "@/lib/utils";
-import type { BenchmarkData, BenchmarkTask, Ranking } from "@repo/domain/Benchmark";
+import type {
+  BenchmarkData,
+  BenchmarkTask,
+  Ranking,
+} from "@repo/domain/Benchmark";
 import { Array as Arr, Order } from "effect";
 import type React from "react";
+import { cn } from "@/lib/utils";
 
 interface MatrixPanelProps {
   data: BenchmarkData;
@@ -25,9 +29,7 @@ export function MatrixPanel({ data, onTaskClick }: MatrixPanelProps) {
   return (
     <div className="overflow-x-auto py-2">
       <table
-        className={cn(
-          "border-collapse font-mono text-xs mx-auto",
-        )}
+        className={cn("border-collapse font-mono text-xs mx-auto")}
         style={{ borderColor: "var(--sol-base2)" }}
       >
         <thead>
@@ -44,7 +46,7 @@ export function MatrixPanel({ data, onTaskClick }: MatrixPanelProps) {
             >
               problem
             </th>
-            {sorted.map(r => (
+            {sorted.map((r) => (
               <th
                 key={r.model}
                 className="sticky top-0"
@@ -75,21 +77,28 @@ export function MatrixPanel({ data, onTaskClick }: MatrixPanelProps) {
           </tr>
         </thead>
         <tbody>
-          {data.tasks.map(task => (
+          {data.tasks.map((task) => (
             <tr
               key={task.id}
               className="cursor-pointer"
-              style={{ "--hover-bg": "var(--sol-base2)" } as React.CSSProperties}
+              style={
+                { "--hover-bg": "var(--sol-base2)" } as React.CSSProperties
+              }
               onClick={() => onTaskClick(task)}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLTableRowElement).querySelectorAll("td").forEach(
-                  td => (td.style.background = "var(--sol-base2)"),
-                );
+              onMouseEnter={(e) => {
+                for (const td of (
+                  e.currentTarget as HTMLTableRowElement
+                ).querySelectorAll("td")) {
+                  (td as HTMLTableCellElement).style.background =
+                    "var(--sol-base2)";
+                }
               }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLTableRowElement).querySelectorAll("td").forEach(
-                  td => (td.style.background = ""),
-                );
+              onMouseLeave={(e) => {
+                for (const td of (
+                  e.currentTarget as HTMLTableRowElement
+                ).querySelectorAll("td")) {
+                  (td as HTMLTableCellElement).style.background = "";
+                }
               }}
             >
               <td
@@ -102,7 +111,7 @@ export function MatrixPanel({ data, onTaskClick }: MatrixPanelProps) {
               >
                 {task.id}
               </td>
-              {sorted.map(r => {
+              {sorted.map((r) => {
                 const passed = r.tasks[task.id];
                 return (
                   <td

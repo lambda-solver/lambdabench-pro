@@ -13,12 +13,12 @@
  *   TOP_MODELS          (optional fallback, comma-separated, e.g. "google/gemini-2.5-pro,anthropic/claude-opus-4")
  */
 
-import { Effect, Layer, Schema, pipe } from "effect";
+import { Effect, Layer, pipe, Schema } from "effect";
 import {
+  FetchHttpClient,
   HttpClient,
   HttpClientRequest,
 } from "effect/unstable/http";
-import { FetchHttpClient } from "effect/unstable/http";
 import { writeFileSync } from "fs";
 
 // ─── Schemas ──────────────────────────────────────────────────────────────────
@@ -75,7 +75,9 @@ const fetchModels = (apiKey: string) =>
     );
     const response = yield* client.execute(request);
     const body = yield* response.json;
-    const decoded = yield* Schema.decodeUnknownEffect(OpenRouterModelsResponse)(body);
+    const decoded = yield* Schema.decodeUnknownEffect(OpenRouterModelsResponse)(
+      body,
+    );
     return decoded.data;
   });
 
@@ -160,7 +162,9 @@ const resolveTopModels = (
 ): Effect.Effect<ReadonlyArray<TopModel>, Error, HttpClient.HttpClient> => {
   if (devMode) {
     return Effect.andThen(
-      Effect.log("[dev] DEV_MODE=true — using mock top-models, skipping live fetch"),
+      Effect.log(
+        "[dev] DEV_MODE=true — using mock top-models, skipping live fetch",
+      ),
       Effect.succeed(DEV_MOCK_MODELS),
     );
   }
@@ -169,7 +173,7 @@ const resolveTopModels = (
       return Effect.fail(
         new Error(
           "OPENROUTER_API_KEY not set and no TOP_MODELS fallback provided.\n" +
-          "  Tip: set DEV_MODE=true in .env to use mock data without credentials.",
+            "  Tip: set DEV_MODE=true in .env to use mock data without credentials.",
         ),
       );
     }
@@ -202,9 +206,7 @@ const program = Effect.gen(function* () {
   }
 });
 
-const runnable = program.pipe(
-  Effect.provide(FetchHttpClient.layer),
-);
+const runnable = program.pipe(Effect.provide(FetchHttpClient.layer));
 
 if (import.meta.main) {
   Effect.runPromise(runnable).catch((e) => {
@@ -213,4 +215,10 @@ if (import.meta.main) {
   });
 }
 
-export { getTopModels, fetchModels, fetchRankings, topModelsFromEnv, parseRankingsHtml };
+export {
+  fetchModels,
+  fetchRankings,
+  getTopModels,
+  parseRankingsHtml,
+  topModelsFromEnv,
+};

@@ -83,11 +83,41 @@ export const load = Effect.fn("load")(function* (id: string) {
 })
 ```
 
-## catchAll for unknown fallbacks
+## `Effect.catch` — catch all typed errors
+
+`Effect.catchAll` does **not exist**. Use `Effect.catch` instead.
+It only catches recoverable (typed) errors — defects still propagate.
+
+```typescript
+// ❌ Effect 3 — compile error in Effect 4
+program.pipe(Effect.catchAll((e) => Effect.succeed("fallback")))
+
+// ✅ Effect 4
+program.pipe(Effect.catch((e) => Effect.succeed("fallback")))
+
+// ✅ Effect 4 — two-argument form
+Effect.catch(program, (e) => Effect.succeed("fallback"))
+```
+
+To also catch defects (all causes), use `Effect.catchCause`:
+
+```typescript
+import { Cause } from "effect"
+
+program.pipe(
+  Effect.catchCause((cause) =>
+    Cause.isFailure(cause)
+      ? Effect.succeed("recovered")
+      : Effect.failCause(cause)  // re-raise defects
+  )
+)
+```
+
+## `Effect.catch` for unknown fallbacks
 
 ```typescript
 program.pipe(
   Effect.catchTag("ReservedPort", (_) => Effect.succeed(3000)),
-  Effect.catch((_) => Effect.succeed(3000))  // catch all remaining errors
+  Effect.catch((_) => Effect.succeed(3000))  // catch all remaining typed errors
 )
 ```

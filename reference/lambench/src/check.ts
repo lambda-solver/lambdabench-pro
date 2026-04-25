@@ -2,8 +2,8 @@ import { spawnSync } from "child_process";
 import {
   existsSync,
   mkdirSync,
-  readFileSync,
   readdirSync,
+  readFileSync,
   statSync,
   writeFileSync,
 } from "fs";
@@ -17,16 +17,16 @@ export type Test = {
 };
 
 export type Task = {
-  id:     string;
-  desc:   string;
-  tests:  Test[];
+  id: string;
+  desc: string;
+  tests: Test[];
 };
 
 export type Result = {
-  id:     string;
-  pass:   boolean;
-  bits:   number;
-  score:  number;
+  id: string;
+  pass: boolean;
+  bits: number;
+  score: number;
   errors: string[];
 };
 
@@ -39,7 +39,7 @@ export type Result = {
 //              expression using @main
 //              = expected_output
 export function parse_task(path: string): Task {
-  var id   = basename(path, ".tsk");
+  var id = basename(path, ".tsk");
   var text = readFileSync(path, "utf-8");
   var secs = text.split(/\n---\n/);
   if (secs.length !== 2) throw `${id}: expected 2 sections, got ${secs.length}`;
@@ -47,7 +47,10 @@ export function parse_task(path: string): Task {
   var desc = secs[0].trim();
 
   // Section 2: test pairs (expr line + "= expected" line)
-  var lines = secs[1].trim().split("\n").filter(l => l.trim() !== "");
+  var lines = secs[1]
+    .trim()
+    .split("\n")
+    .filter((l) => l.trim() !== "");
   var tests: Test[] = [];
   for (var i = 0; i < lines.length; i += 2) {
     var expr = lines[i].trim();
@@ -63,8 +66,10 @@ export function parse_task(path: string): Task {
 
 // Load all tasks from tsk/ directory
 export function load_tasks(dir: string): Task[] {
-  var files = readdirSync(dir).filter(f => f.endsWith(".tsk")).sort();
-  return files.map(f => parse_task(join(dir, f)));
+  var files = readdirSync(dir)
+    .filter((f) => f.endsWith(".tsk"))
+    .sort();
+  return files.map((f) => parse_task(join(dir, f)));
 }
 
 // ── Lam runtime ─────────────────────────────────────────────────────
@@ -148,13 +153,16 @@ function run_lam(args: string[], timeout = LAM_TIMEOUT_MS): string {
 
 function clean_lam_error(msg: string): string {
   var msg = msg.replace(/\x1b\[[0-9;?]*[ -/]*[@-~]/g, "");
-  var lines = msg.split("\n").map(line => line.trim()).filter(Boolean);
+  var lines = msg
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
   var hit =
-    lines.find(line =>
-      /^(RangeError|SyntaxError|TypeError|Error):/.test(line)
+    lines.find((line) =>
+      /^(RangeError|SyntaxError|TypeError|Error):/.test(line),
     ) ??
-    lines.find(line => /^Expected /.test(line)) ??
-    lines.find(line => /^error:/.test(line)) ??
+    lines.find((line) => /^Expected /.test(line)) ??
+    lines.find((line) => /^error:/.test(line)) ??
     lines[0] ??
     "lam failed";
 
@@ -205,8 +213,8 @@ export function run_task(
   for (var t of task.tests) {
     try {
       var timeout = remaining_timeout(options.deadline_ms);
-      var src  = submission + "\n@_ = " + t.expr;
-      var got  = lam_run(src, timeout);
+      var src = submission + "\n@_ = " + t.expr;
+      var got = lam_run(src, timeout);
       var want = normalize(t.want, remaining_timeout(options.deadline_ms));
       if (got !== want) {
         errors.push(`${t.expr}\nwant: ${want}\n got: ${got}`);
@@ -217,20 +225,20 @@ export function run_task(
     }
   }
 
-  var pass  = errors.length === 0;
-  var bits  = 0;
+  var pass = errors.length === 0;
+  var bits = 0;
   var score = 0;
 
   if (pass) {
     try {
-      bits  = bin_size(submission, remaining_timeout(options.deadline_ms));
+      bits = bin_size(submission, remaining_timeout(options.deadline_ms));
       score = task_score(bits, ref_bits ?? bits);
     } catch (e: any) {
       pass = false;
       errors.push(
-        is_timeout_error(e) ?
-          "task timed out" :
-          "failed to compute binary size"
+        is_timeout_error(e)
+          ? "task timed out"
+          : "failed to compute binary size",
       );
     }
   }
@@ -241,7 +249,7 @@ export function run_task(
 export function show_result(r: Result): string {
   var status = r.pass ? "✓" : "✗";
   var detail = r.pass ? `${r.bits} bits, score: ${r.score.toFixed(3)}` : "FAIL";
-  var lines  = [`${status} ${r.id}: ${detail}`];
+  var lines = [`${status} ${r.id}: ${detail}`];
   for (var e of r.errors) {
     lines.push("  " + e.split("\n").join("\n  "));
   }
@@ -260,7 +268,7 @@ function run_file(path: string): Result {
 
 function run_dir(path: string): Result[] {
   var tsk_dir = join(import.meta.dir, "..", "tsk");
-  var tasks   = load_tasks(tsk_dir);
+  var tasks = load_tasks(tsk_dir);
   var results: Result[] = [];
 
   for (var task of tasks) {
@@ -304,7 +312,7 @@ async function main() {
 
   var results = run_dir(submission);
   var avg = results.reduce((s, r) => s + r.score, 0) / results.length;
-  var passed = results.filter(r => r.pass).length;
+  var passed = results.filter((r) => r.pass).length;
   console.log(`\n${passed}/${results.length} passed`);
   console.log(`score: ${(avg * 100).toFixed(1)}`);
 }

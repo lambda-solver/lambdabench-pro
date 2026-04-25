@@ -1,6 +1,6 @@
-import { cn } from "@/lib/utils";
 import type { BenchmarkData, BenchmarkTask } from "@repo/domain/Benchmark";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 import { TildeLine, VimLine } from "./VimLine";
 
 interface ProblemsPanelProps {
@@ -23,16 +23,17 @@ function pad(s: string, n: number): string {
 export function ProblemsPanel({ data, onTaskClick }: ProblemsPanelProps) {
   const [activeFilter, setActiveFilter] = useState("all");
 
-  const filteredTasks = activeFilter === "all"
-    ? data.tasks
-    : data.tasks.filter(t => t.category === activeFilter);
+  const filteredTasks =
+    activeFilter === "all"
+      ? data.tasks
+      : data.tasks.filter((t) => t.category === activeFilter);
 
   return (
     <div className="text-[var(--sol-base00)]">
       {/* Filter row */}
       <VimLine n="">
         <span className="text-[var(--sol-base1)]">" filter: </span>
-        {[{ id: "all", name: "all" }, ...data.categories].map(cat => (
+        {[{ id: "all", name: "all" }, ...data.categories].map((cat) => (
           <button
             key={cat.id}
             type="button"
@@ -52,34 +53,47 @@ export function ProblemsPanel({ data, onTaskClick }: ProblemsPanelProps) {
 
       {/* Task list */}
       {filteredTasks.map((task, i) => {
-        const dots = data.rankings.map(r =>
-          r.tasks[task.id]
-            ? <span key={r.model} className="text-[var(--sol-green)]">●</span>
-            : <span key={r.model} className="text-[var(--sol-red)]">●</span>,
+        const dots = data.rankings.map((r) =>
+          r.tasks[task.id] ? (
+            <span key={r.model} className="text-[var(--sol-green)]">
+              ●
+            </span>
+          ) : (
+            <span key={r.model} className="text-[var(--sol-red)]">
+              ●
+            </span>
+          ),
         );
 
         const desc = task.description.split("\n")[0] ?? "";
         const truncated = desc.length > 60 ? desc.slice(0, 57) + "..." : desc;
 
         return (
-          <div
+          <button
             key={task.id}
-            className="cursor-pointer group"
+            type="button"
+            className="w-full text-left cursor-pointer group"
             onClick={() => onTaskClick(task)}
           >
             <VimLine
               n={rpad(String(i + 1), 3)}
               className="group-hover:bg-[var(--sol-base2)]"
             >
-              <span className="text-[var(--sol-green)]">{pad(task.id, 10)}</span>
-              {"  "}{dots}{"  "}
+              <span className="text-[var(--sol-green)]">
+                {pad(task.id, 10)}
+              </span>
+              {"  "}
+              {dots}
+              {"  "}
               <span className="text-[var(--sol-base1)]">{truncated}</span>
             </VimLine>
-          </div>
+          </button>
         );
       })}
 
-      {Array.from({ length: 5 }).map((_, i) => <TildeLine key={i} />)}
+      {Array.from({ length: 5 }).map((_, i) => (
+        <TildeLine key={`tilde-${i}`} />
+      ))}
     </div>
   );
 }

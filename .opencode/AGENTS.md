@@ -179,6 +179,28 @@ main
 - `refactor/<name>` — Code refactoring
 - `docs/<name>` — Documentation updates
 
+## Skills — Mandatory Pre-Read
+
+**Before writing any Effect or React code, read the relevant skill files using
+the `Read` tool.** They contain confirmed Effect 4 API patterns that differ from
+Effect 3 and from LLM training data. Do NOT guess APIs from memory.
+
+| Task | File to read first |
+| ---- | ------------------ |
+| Any Effect code | `.opencode/skills/effect-ts/patterns/best-practices.md` |
+| Error handling | `.opencode/skills/effect-ts/patterns/error-handling.md` |
+| Anti-patterns | `.opencode/skills/effect-ts/patterns/anti-patterns.md` |
+| HTTP client | `.opencode/skills/effect-ts/platform/http-client.md` |
+| Schema / validation | `.opencode/skills/effect-ts/schema/validation.md` |
+| Services / Layers | `.opencode/skills/effect-ts/core/services-layers.md` |
+| React components | `.opencode/skills/react/patterns/fp-style.md` |
+
+Key Effect 4 APIs (do not guess — read the skill files):
+- `Effect.catch` — catches all typed errors (no `catchAll`)
+- `Effect.fn("name")(function* () {...})` — mandatory for all named functions
+- `process.env["KEY"]` — index signature access required
+- `Schema.decodeUnknownEffect(schema)(input)` — for decoding unknown values
+
 ## Code Style
 
 ### Core Principles
@@ -191,24 +213,24 @@ main
 ### Effect-TS Patterns
 
 ```ts
-// Prefer Effect.fnUntraced over Effect.gen
-const fn = Effect.fnUntraced(function*(param: string) {
-  // ...
+// Effect.fn with name string — mandatory for all named Effect functions
+export const processItem = Effect.fn("processItem")(function* (id: string) {
+  yield* Effect.log("Processing:", id)
+  return yield* doWork(id)
 })
 
-// Class syntax for services
-class MyService extends ServiceMap.Service<MyService, {
-  readonly doSomething: (input: string) => number
-}>()("MyService") {}
+// Catch all typed errors (Effect 4 — NOT Effect.catchAll)
+program.pipe(Effect.catch((e) => Effect.succeed("fallback")))
 ```
 
 ### Validation Steps
 
 ```bash
-pnpm lint-fix          # Auto-format
-pnpm test <file>       # Run tests
-pnpm check:tsgo        # Type check
-pnpm docgen            # Check JSDoc compiles
+bun lint               # Biome lint check (all packages)
+bun format             # Biome format (all packages)
+bun biome check src/ --write   # Auto-fix lint + format in current package
+bun type-check         # TypeScript check (all packages)
+bun test path/to/file.test.ts  # Run a specific test file
 ```
 
 ## Definition of Done

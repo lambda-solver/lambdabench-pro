@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 interface VimLineProps {
   /** Line number — pass null or undefined for tilde (~) lines */
@@ -13,7 +13,12 @@ interface VimLineProps {
  * A single line in the Vim-style buffer.
  * Renders a line-number column (ln) and a content column (lc).
  */
-export function VimLine({ n, children, className, tilde = false }: VimLineProps) {
+export function VimLine({
+  n,
+  children,
+  className,
+  tilde = false,
+}: VimLineProps) {
   return (
     <div
       className={cn(

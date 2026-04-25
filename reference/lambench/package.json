@@ -12,6 +12,8 @@
     "@ai-sdk/google": "^3.0.64",
     "@ai-sdk/openai-compatible": "^2.0.41",
     "@ai-sdk/xai": "^3.0.83",
+    "@effect/platform-bun": "4.0.0-beta.41",
+    "@effect/platform-node-shared": "4.0.0-beta.41",
     "ai": "^6.0.168",
     "effect": "4.0.0-beta.41"
   }

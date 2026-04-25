@@ -7,22 +7,22 @@
 
 @theme inline {
   /* ── Solarized palette ────────────────────────────────────── */
-  --color-sol-base03:  var(--sol-base03);
-  --color-sol-base02:  var(--sol-base02);
-  --color-sol-base01:  var(--sol-base01);
-  --color-sol-base00:  var(--sol-base00);
-  --color-sol-base0:   var(--sol-base0);
-  --color-sol-base1:   var(--sol-base1);
-  --color-sol-base2:   var(--sol-base2);
-  --color-sol-base3:   var(--sol-base3);
-  --color-sol-yellow:  var(--sol-yellow);
-  --color-sol-orange:  var(--sol-orange);
-  --color-sol-red:     var(--sol-red);
+  --color-sol-base03: var(--sol-base03);
+  --color-sol-base02: var(--sol-base02);
+  --color-sol-base01: var(--sol-base01);
+  --color-sol-base00: var(--sol-base00);
+  --color-sol-base0: var(--sol-base0);
+  --color-sol-base1: var(--sol-base1);
+  --color-sol-base2: var(--sol-base2);
+  --color-sol-base3: var(--sol-base3);
+  --color-sol-yellow: var(--sol-yellow);
+  --color-sol-orange: var(--sol-orange);
+  --color-sol-red: var(--sol-red);
   --color-sol-magenta: var(--sol-magenta);
-  --color-sol-violet:  var(--sol-violet);
-  --color-sol-blue:    var(--sol-blue);
-  --color-sol-cyan:    var(--sol-cyan);
-  --color-sol-green:   var(--sol-green);
+  --color-sol-violet: var(--sol-violet);
+  --color-sol-blue: var(--sol-blue);
+  --color-sol-cyan: var(--sol-cyan);
+  --color-sol-green: var(--sol-green);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -68,22 +68,22 @@
 
 :root {
   /* ── Solarized light ──────────────────────────────────────── */
-  --sol-base03:  #002b36;
-  --sol-base02:  #073642;
-  --sol-base01:  #586e75;
-  --sol-base00:  #657b83;
-  --sol-base0:   #839496;
-  --sol-base1:   #93a1a1;
-  --sol-base2:   #eee8d5;
-  --sol-base3:   #fdf6e3;
-  --sol-yellow:  #b58900;
-  --sol-orange:  #cb4b16;
-  --sol-red:     #dc322f;
+  --sol-base03: #002b36;
+  --sol-base02: #073642;
+  --sol-base01: #586e75;
+  --sol-base00: #657b83;
+  --sol-base0: #839496;
+  --sol-base1: #93a1a1;
+  --sol-base2: #eee8d5;
+  --sol-base3: #fdf6e3;
+  --sol-yellow: #b58900;
+  --sol-orange: #cb4b16;
+  --sol-red: #dc322f;
   --sol-magenta: #d33682;
-  --sol-violet:  #6c71c4;
-  --sol-blue:    #268bd2;
-  --sol-cyan:    #2aa198;
-  --sol-green:   #859900;
+  --sol-violet: #6c71c4;
+  --sol-blue: #268bd2;
+  --sol-cyan: #2aa198;
+  --sol-green: #859900;
 
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -121,14 +121,14 @@
 
 .dark {
   /* ── Solarized dark ───────────────────────────────────────── */
-  --sol-base03:  #fdf6e3;
-  --sol-base02:  #eee8d5;
-  --sol-base01:  #93a1a1;
-  --sol-base00:  #839496;
-  --sol-base0:   #657b83;
-  --sol-base1:   #586e75;
-  --sol-base2:   #073642;
-  --sol-base3:   #002b36;
+  --sol-base03: #fdf6e3;
+  --sol-base02: #eee8d5;
+  --sol-base01: #93a1a1;
+  --sol-base00: #839496;
+  --sol-base0: #657b83;
+  --sol-base1: #586e75;
+  --sol-base2: #073642;
+  --sol-base3: #002b36;
 
   --background: oklch(0.148 0.004 228.8);
   --foreground: oklch(0.987 0.002 197.1);

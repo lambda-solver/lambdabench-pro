@@ -1,17 +1,17 @@
-import { AsyncResult } from "effect/unstable/reactivity";
 import { useAtomValue } from "@effect/atom-react";
-import { useState } from "react";
-import { benchmarkAtom } from "@/lib/atoms/benchmark-atom";
-import { TabLine, type TabId } from "@/components/leaderboard/TabLine";
-import { IntelligencePanel } from "@/components/leaderboard/IntelligencePanel";
-import { SpeedPanel } from "@/components/leaderboard/SpeedPanel";
-import { ElegancePanel } from "@/components/leaderboard/ElegancePanel";
-import { ValuePanel } from "@/components/leaderboard/ValuePanel";
-import { ProblemsPanel } from "@/components/leaderboard/ProblemsPanel";
-import { MatrixPanel } from "@/components/leaderboard/MatrixPanel";
-import { TaskModal } from "@/components/leaderboard/TaskModal";
-import { useMusicPlayer } from "@/lib/useMusicPlayer";
 import type { BenchmarkTask } from "@repo/domain/Benchmark";
+import { AsyncResult } from "effect/unstable/reactivity";
+import { useState } from "react";
+import { ElegancePanel } from "@/components/leaderboard/ElegancePanel";
+import { IntelligencePanel } from "@/components/leaderboard/IntelligencePanel";
+import { MatrixPanel } from "@/components/leaderboard/MatrixPanel";
+import { ProblemsPanel } from "@/components/leaderboard/ProblemsPanel";
+import { SpeedPanel } from "@/components/leaderboard/SpeedPanel";
+import { type TabId, TabLine } from "@/components/leaderboard/TabLine";
+import { TaskModal } from "@/components/leaderboard/TaskModal";
+import { ValuePanel } from "@/components/leaderboard/ValuePanel";
+import { benchmarkAtom } from "@/lib/atoms/benchmark-atom";
+import { useMusicPlayer } from "@/lib/useMusicPlayer";
 import { cn } from "@/lib/utils";
 
 function LoadingView() {
@@ -67,19 +67,27 @@ function App() {
 
           {/* Buffer — each panel is pre-computed, hidden via display:none for instant switching */}
           <div className="flex-1 max-w-[820px] w-full mx-auto border-x border-[var(--sol-base2)]">
-            <div style={{ display: activeTab === "intelligence" ? "block" : "none" }}>
+            <div
+              style={{
+                display: activeTab === "intelligence" ? "block" : "none",
+              }}
+            >
               <IntelligencePanel data={data} />
             </div>
             <div style={{ display: activeTab === "speed" ? "block" : "none" }}>
               <SpeedPanel data={data} />
             </div>
-            <div style={{ display: activeTab === "elegance" ? "block" : "none" }}>
+            <div
+              style={{ display: activeTab === "elegance" ? "block" : "none" }}
+            >
               <ElegancePanel data={data} />
             </div>
             <div style={{ display: activeTab === "value" ? "block" : "none" }}>
               <ValuePanel data={data} />
             </div>
-            <div style={{ display: activeTab === "problems" ? "block" : "none" }}>
+            <div
+              style={{ display: activeTab === "problems" ? "block" : "none" }}
+            >
               <ProblemsPanel data={data} onTaskClick={setSelectedTask} />
             </div>
             <div style={{ display: activeTab === "matrix" ? "block" : "none" }}>
@@ -107,7 +115,9 @@ function App() {
             </span>
             <span>
               {data.rankings.length} models · {data.tasks.length} tasks ·{" "}
-              {data.generatedAt ? new Date(data.generatedAt).toLocaleDateString() : ""}
+              {data.generatedAt
+                ? new Date(data.generatedAt).toLocaleDateString()
+                : ""}
             </span>
           </div>
 

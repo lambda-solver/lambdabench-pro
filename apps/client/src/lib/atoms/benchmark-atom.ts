@@ -20,9 +20,11 @@ const byPassPerDollarDesc = Order.make<ValueEntry>((a, b) => {
   return 0;
 });
 
-export const computeValueEntries = (data: BenchmarkData): ReadonlyArray<ValueEntry> =>
+export const computeValueEntries = (
+  data: BenchmarkData,
+): ReadonlyArray<ValueEntry> =>
   Arr.sort(
-    data.rankings.map(r => ({
+    data.rankings.map((r) => ({
       model: r.model,
       passRate: parseFloat(r.pct),
       pricePerMOutput: r.pricePerMOutputTokens,

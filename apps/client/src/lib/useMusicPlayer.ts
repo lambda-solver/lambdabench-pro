@@ -32,8 +32,14 @@ function attemptPlay(audio: HTMLAudioElement): void {
         if (!audio.paused || audio.ended) return;
         audio.play().catch(() => {});
       };
-      document.addEventListener("pointerdown", retry, { capture: true, once: true });
-      document.addEventListener("keydown", retry, { capture: true, once: true });
+      document.addEventListener("pointerdown", retry, {
+        capture: true,
+        once: true,
+      });
+      document.addEventListener("keydown", retry, {
+        capture: true,
+        once: true,
+      });
     }
   });
 }

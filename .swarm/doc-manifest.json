@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "scanned_at": "2026-04-24T23:12:56.999Z",
+  "scanned_at": "2026-04-25T00:05:21.016Z",
   "files": [
     {
       "path": ".github/actions/setup/action.yml",
@@ -27,8 +27,8 @@
       "path": ".github/workflows/benchmark.yml",
       "title": "Every Monday at 04:00 UTC",
       "summary": "name: Benchmark on: push: branches: - main schedule: - cron: \"0 4 * * 1\" workflow_dispatch: inputs: top_models: description: \"Comma-separated model IDs to benchmark (leave blank to auto-fetch top 2...",
-      "lines": 109,
-      "mtime": 1777068848878.2917
+      "lines": 111,
+      "mtime": 1777074322920.6804
     },
     {
       "path": ".github/workflows/check-client.yml",
@@ -42,14 +42,14 @@
       "title": "check-server.yml",
       "summary": "name: Check - Server on: workflow_dispatch: push: branches: - main paths: - \"apps/server/**\" - \"packages/domain/**\" pull_request: branches: - main paths: - \"apps/server/**\" - \"packages/domain/**\" j...",
       "lines": 74,
-      "mtime": 1777053523676.1985
+      "mtime": 1777074338045.6716
     },
     {
       "path": ".opencode/AGENTS.md",
       "title": "AGENTS.md — Master Rules & Workflow",
       "summary": "| Section | Location | |---------|----------| | Project Brain | [MEMORY.md](./MEMORY.md) | | Directory Structure | [below](#directory-structure) | | Workflow | [below](#workflow) | | Branch Strateg...",
-      "lines": 253,
-      "mtime": 1777072366270.598
+      "lines": 275,
+      "mtime": 1777075507358.0986
     },
     {
       "path": ".opencode/specs/README.md",
@@ -62,8 +62,8 @@
       "path": "AGENTS.md",
       "title": "AGENTS.md",
       "summary": "> Note: This file is the authoritative source for coding agent instructions. If > in doubt, prefer AGENTS.md over README.md. See nested AGENTS.md files in each > workspace for app-specific patterns...",
-      "lines": 84,
-      "mtime": 1777072375503.398
+      "lines": 111,
+      "mtime": 1777075519316.7493
     },
     {
       "path": "apps/client/AGENTS.md",
@@ -78,6 +78,13 @@
       "summary": "Demo UI for the edu_effect-rag-builder experiment. Built with Vite + React and designed to showcase RAG and chat/agent flows. - **React 19** - UI framework - **Vite 8** - Build tool and dev server ...",
       "lines": 84,
       "mtime": 1777053523676.1985
+    },
+    {
+      "path": "apps/server/AGENTS.md",
+      "title": "Server AGENTS.md",
+      "summary": "> See root `/AGENTS.md` for monorepo conventions. | Command                     | Purpose                                      | | --------------------------- | ------------------------------------...",
+      "lines": 45,
+      "mtime": 1777073763317.5298
     },
     {
       "path": "e2e/README.md",

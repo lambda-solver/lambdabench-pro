@@ -33,9 +33,17 @@ function makeData(rankings: Ranking[]): BenchmarkData {
 describe("computeValueEntries", () => {
   test("sorts by passPerDollar descending", () => {
     const data = makeData([
-      makeRanking({ model: "org/cheap", pct: "50.0", pricePerMOutputTokens: 1 }),  // 50/$ 
-      makeRanking({ model: "org/pricey", pct: "80.0", pricePerMOutputTokens: 10 }), // 8/$
-      makeRanking({ model: "org/mid", pct: "60.0", pricePerMOutputTokens: 2 }),     // 30/$
+      makeRanking({
+        model: "org/cheap",
+        pct: "50.0",
+        pricePerMOutputTokens: 1,
+      }), // 50/$
+      makeRanking({
+        model: "org/pricey",
+        pct: "80.0",
+        pricePerMOutputTokens: 10,
+      }), // 8/$
+      makeRanking({ model: "org/mid", pct: "60.0", pricePerMOutputTokens: 2 }), // 30/$
     ]);
     const entries = computeValueEntries(data);
     expect(entries[0]?.model).toBe("org/cheap");
@@ -45,7 +53,11 @@ describe("computeValueEntries", () => {
 
   test("sets passPerDollar to 0 when price is 0", () => {
     const data = makeData([
-      makeRanking({ model: "org/free", pct: "100.0", pricePerMOutputTokens: 0 }),
+      makeRanking({
+        model: "org/free",
+        pct: "100.0",
+        pricePerMOutputTokens: 0,
+      }),
     ]);
     const entries = computeValueEntries(data);
     expect(entries[0]?.passPerDollar).toBe(0);
@@ -65,9 +77,7 @@ describe("computeValueEntries", () => {
   });
 
   test("maps model names through", () => {
-    const data = makeData([
-      makeRanking({ model: "openai/gpt-4o" }),
-    ]);
+    const data = makeData([makeRanking({ model: "openai/gpt-4o" })]);
     expect(computeValueEntries(data)[0]?.model).toBe("openai/gpt-4o");
   });
 

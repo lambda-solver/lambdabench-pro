@@ -38,9 +38,7 @@ function runWith<A>(
   effect: Effect.Effect<A, unknown, HttpClient.HttpClient>,
   handler: (url: string) => Response,
 ): Promise<A> {
-  return Effect.runPromise(
-    effect.pipe(Effect.provide(mockHttpLayer(handler))),
-  );
+  return Effect.runPromise(effect.pipe(Effect.provide(mockHttpLayer(handler))));
 }
 
 // ─── Sample fixtures ──────────────────────────────────────────────────────────
@@ -85,7 +83,9 @@ describe("parseRankingsHtml", () => {
   });
 
   test("returns empty array for HTML with no model hrefs", () => {
-    expect(parseRankingsHtml("<html><body>no models here</body></html>")).toEqual([]);
+    expect(
+      parseRankingsHtml("<html><body>no models here</body></html>"),
+    ).toEqual([]);
   });
 
   test("handles model IDs with dots (e.g. gemini-2.5-pro)", () => {
@@ -107,7 +107,9 @@ describe("parseRankingsHtml", () => {
 
 describe("topModelsFromEnv", () => {
   test("parses comma-separated model IDs", () => {
-    const result = topModelsFromEnv("google/gemini-2.5-pro,anthropic/claude-opus-4");
+    const result = topModelsFromEnv(
+      "google/gemini-2.5-pro,anthropic/claude-opus-4",
+    );
     expect(result).toHaveLength(2);
     expect(result[0]?.modelId).toBe("google/gemini-2.5-pro");
     expect(result[1]?.modelId).toBe("anthropic/claude-opus-4");
@@ -119,7 +121,9 @@ describe("topModelsFromEnv", () => {
   });
 
   test("trims whitespace around model IDs", () => {
-    const result = topModelsFromEnv("  google/gemini-2.5-pro , openai/gpt-4o  ");
+    const result = topModelsFromEnv(
+      "  google/gemini-2.5-pro , openai/gpt-4o  ",
+    );
     expect(result[0]?.modelId).toBe("google/gemini-2.5-pro");
     expect(result[1]?.modelId).toBe("openai/gpt-4o");
   });
@@ -148,13 +152,10 @@ describe("fetchRankings", () => {
 
   test("hits the /rankings?view=coding URL", async () => {
     let capturedUrl = "";
-    await runWith(
-      fetchRankings(),
-      (url) => {
-        capturedUrl = url;
-        return new Response(RANKINGS_HTML, { status: 200 });
-      },
-    );
+    await runWith(fetchRankings(), (url) => {
+      capturedUrl = url;
+      return new Response(RANKINGS_HTML, { status: 200 });
+    });
     expect(capturedUrl).toContain("openrouter.ai/rankings");
     expect(capturedUrl).toContain("view=coding");
   });
@@ -179,17 +180,14 @@ describe("fetchModels", () => {
 
   test("sends Authorization header with API key", async () => {
     let capturedAuth = "";
-    await runWith(
-      fetchModels("sk-test-key"),
-      (url) => {
-        // Can't inspect headers from URL, but verify URL is correct
-        capturedAuth = url;
-        return new Response(JSON.stringify(MODELS_RESPONSE), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
-      },
-    );
+    await runWith(fetchModels("sk-test-key"), (url) => {
+      // Can't inspect headers from URL, but verify URL is correct
+      capturedAuth = url;
+      return new Response(JSON.stringify(MODELS_RESPONSE), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
     expect(capturedAuth).toContain("openrouter.ai/api/v1/models");
   });
 });
@@ -234,19 +232,16 @@ describe("getTopModels", () => {
   });
 
   test("falls back to model list order when rankings page returns no matches", async () => {
-    const top = await runWith(
-      getTopModels("test-key", 2),
-      (url) => {
-        if (url.includes("/rankings")) {
-          // Rankings page has no model hrefs
-          return new Response("<html>empty</html>", { status: 200 });
-        }
-        return new Response(JSON.stringify(MODELS_RESPONSE), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
-      },
-    );
+    const top = await runWith(getTopModels("test-key", 2), (url) => {
+      if (url.includes("/rankings")) {
+        // Rankings page has no model hrefs
+        return new Response("<html>empty</html>", { status: 200 });
+      }
+      return new Response(JSON.stringify(MODELS_RESPONSE), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
     // Falls back to first 2 from /api/v1/models
     expect(top).toHaveLength(2);
   });
@@ -256,18 +251,15 @@ describe("getTopModels", () => {
       <a href="/models/unknown/model-xyz">unknown</a>
       <a href="/models/google/gemini-2.5-pro">known</a>
     `;
-    const top = await runWith(
-      getTopModels("test-key", 1),
-      (url) => {
-        if (url.includes("/rankings")) {
-          return new Response(htmlWithUnknown, { status: 200 });
-        }
-        return new Response(JSON.stringify(MODELS_RESPONSE), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
-      },
-    );
+    const top = await runWith(getTopModels("test-key", 1), (url) => {
+      if (url.includes("/rankings")) {
+        return new Response(htmlWithUnknown, { status: 200 });
+      }
+      return new Response(JSON.stringify(MODELS_RESPONSE), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
     // unknown/model-xyz not in models list, so first real match is gemini
     expect(top[0]?.modelId).toBe("google/gemini-2.5-pro");
   });

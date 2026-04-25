@@ -3,7 +3,9 @@ import { describe, expect, test } from "vitest";
 import { render } from "vitest-browser-react";
 import { ValuePanel } from "./ValuePanel";
 
-function makeData(overrides: Partial<BenchmarkData["rankings"][number]>[]): BenchmarkData {
+function makeData(
+  overrides: Partial<BenchmarkData["rankings"][number]>[],
+): BenchmarkData {
   return {
     generatedAt: "2026-01-01T00:00:00Z",
     tasks: [],
@@ -42,13 +44,17 @@ describe("ValuePanel", () => {
   });
 
   test("shows pass rate percentage", async () => {
-    const data = makeData([{ model: "org/x", pct: "62.5", pricePerMOutputTokens: 2 }]);
+    const data = makeData([
+      { model: "org/x", pct: "62.5", pricePerMOutputTokens: 2 },
+    ]);
     const { getByText } = await render(<ValuePanel data={data} />);
     await expect.element(getByText(/62\.5%/)).toBeVisible();
   });
 
   test("shows N/A for models with price = 0", async () => {
-    const data = makeData([{ model: "org/free", pct: "50.0", pricePerMOutputTokens: 0 }]);
+    const data = makeData([
+      { model: "org/free", pct: "50.0", pricePerMOutputTokens: 0 },
+    ]);
     const { getByText } = await render(<ValuePanel data={data} />);
     await expect.element(getByText(/N\/A/)).toBeVisible();
   });
@@ -56,11 +62,11 @@ describe("ValuePanel", () => {
   test("higher pass/dollar model renders first", async () => {
     const data = makeData([
       { model: "org/pricey", pct: "80.0", pricePerMOutputTokens: 20 }, // 4/dollar
-      { model: "org/cheap",  pct: "50.0", pricePerMOutputTokens: 1  }, // 50/dollar
+      { model: "org/cheap", pct: "50.0", pricePerMOutputTokens: 1 }, // 50/dollar
     ]);
     const { container } = await render(<ValuePanel data={data} />);
     const text = container.textContent ?? "";
-    const posCheap  = text.indexOf("cheap");
+    const posCheap = text.indexOf("cheap");
     const posPricey = text.indexOf("pricey");
     expect(posCheap).toBeLessThan(posPricey);
   });

@@ -31,7 +31,9 @@ describe("VimLine", () => {
 
   test("applies extra className", async () => {
     const { container } = await render(
-      <VimLine n={1} className="custom-cls">text</VimLine>,
+      <VimLine n={1} className="custom-cls">
+        text
+      </VimLine>,
     );
     expect(container.querySelector(".custom-cls")).toBeTruthy();
   });

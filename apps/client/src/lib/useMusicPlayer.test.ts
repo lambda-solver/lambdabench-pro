@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { renderHook, cleanup } from "vitest-browser-react";
-import { useMusicPlayer, DELAY_MS, musicUrl } from "./useMusicPlayer";
+import { cleanup, renderHook } from "vitest-browser-react";
+import { DELAY_MS, musicUrl, useMusicPlayer } from "./useMusicPlayer";
 
 // ── Audio mock ────────────────────────────────────────────────────────────────
 

@@ -13,8 +13,9 @@
 | `bun dev --filter=client`                      | Start client only                         |
 | `bun dev --filter=server`                      | Start server only                         |
 | `bun run build`                                | Build all apps                            |
-| `bun lint`                                     | Lint with Biome                           |
-| `bun format`                                   | Format with Biome                         |
+| `bun lint`                                     | Biome lint check (all packages)           |
+| `bun format`                                   | Biome format (all packages)               |
+| `bun biome check src/ --write`                 | Auto-fix lint + format in current package |
 | `bun test`                                     | Run all tests (Vitest)                    |
 | `bun test --filter=server -- src/file.test.ts` | Run single test file                      |
 
@@ -41,6 +42,26 @@ wait for an explicit "commit", "push", or "save this" instruction.
   composition for DI
 - **Error handling**: Use Effect error channel; avoid try/catch
 
+## Skills — Mandatory Pre-Read
+
+**Before writing any Effect or React code, read the relevant skill files.**
+They contain confirmed Effect 4 API patterns that differ from Effect 3 and from
+LLM training data. Skipping this causes type errors and regressions.
+
+| Task | Read these skills first |
+| ---- | ----------------------- |
+| Any Effect code | `.opencode/skills/effect-ts/patterns/best-practices.md` |
+| Error handling | `.opencode/skills/effect-ts/patterns/error-handling.md` |
+| Anti-patterns | `.opencode/skills/effect-ts/patterns/anti-patterns.md` |
+| HTTP client | `.opencode/skills/effect-ts/platform/http-client.md` |
+| Schema / validation | `.opencode/skills/effect-ts/schema/validation.md` |
+| Services / Layers | `.opencode/skills/effect-ts/core/services-layers.md` |
+| React components | `.opencode/skills/react/patterns/fp-style.md` |
+
+Use the `Read` tool to load each file before starting implementation.
+Do **not** guess Effect 4 APIs from memory — always verify against the skill files
+or the installed type declarations in `node_modules`.
+
 ## Effect Essentials
 
 ```typescript
@@ -52,6 +73,12 @@ Effect.gen(function* () {
   return result;
 });
 ```
+
+Key Effect 4 APIs (do not guess — read the skill files):
+- `Effect.catch` — catches all typed errors (no `catchAll`)
+- `Effect.fn("name")(function* () {...})` — mandatory for all named functions
+- `process.env["KEY"]` — index signature access required
+- `Schema.decodeUnknownEffect(schema)(input)` — for decoding unknown values
 
 ## Structure
 

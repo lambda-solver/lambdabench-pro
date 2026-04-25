@@ -53,7 +53,7 @@ describe("BarChart color thresholds", () => {
     const { container } = await render(<BarChart pct={50} width={20} />);
     const spans = container.querySelectorAll("span span");
     const filled = spans[0]?.textContent ?? "";
-    const empty  = spans[1]?.textContent ?? "";
+    const empty = spans[1]?.textContent ?? "";
     expect(filled.length + empty.length).toBe(20);
   });
 });

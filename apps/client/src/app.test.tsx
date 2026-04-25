@@ -59,7 +59,14 @@ describe("App (leaderboard)", () => {
 
   test("shows all 6 tabs", async () => {
     const { getByText } = await render(<App />);
-    for (const tab of ["intelligence", "speed", "elegance", "value", "problems", "matrix"]) {
+    for (const tab of [
+      "intelligence",
+      "speed",
+      "elegance",
+      "value",
+      "problems",
+      "matrix",
+    ]) {
       await expect.element(getByText(tab)).toBeVisible();
     }
   });

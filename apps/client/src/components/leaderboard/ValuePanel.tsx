@@ -25,13 +25,17 @@ export function ValuePanel({ data }: ValuePanelProps) {
       <VimLine n={n++}>
         <span className="font-bold text-[var(--sol-yellow)]">LamBench</span>
         {"  "}
-        <span className="text-[var(--sol-base1)]">-- Lambda Calculus Benchmark for AI</span>
+        <span className="text-[var(--sol-base1)]">
+          -- Lambda Calculus Benchmark for AI
+        </span>
       </VimLine>
       <VimLine n={n++} />
       <VimLine n={n++}>
         <span className="font-bold text-[var(--sol-orange)]">Value</span>
         {"  "}
-        <span className="text-[var(--sol-base1)]">-- intelligence per dollar (higher = better value)</span>
+        <span className="text-[var(--sol-base1)]">
+          -- intelligence per dollar (higher = better value)
+        </span>
       </VimLine>
       <VimLine n={n++} />
 
@@ -42,24 +46,27 @@ export function ValuePanel({ data }: ValuePanelProps) {
         </span>
       </VimLine>
       <VimLine n={n++}>
-        <span className="text-[var(--sol-base1)]">
-          {"  " + "─".repeat(68)}
-        </span>
+        <span className="text-[var(--sol-base1)]">{"  " + "─".repeat(68)}</span>
       </VimLine>
 
       {entries.map((e) => {
-        const name       = fmtModel(e.model).padEnd(30, " ");
-        const passRate   = `${e.passRate.toFixed(1)}%`.padStart(6, " ");
-        const price      = e.pricePerMOutput > 0
-          ? `$${e.pricePerMOutput.toFixed(2)}`.padStart(12, " ")
-          : "      N/A   ";
-        const ppd        = e.pricePerMOutput > 0
-          ? e.passPerDollar.toFixed(3).padStart(8, " ")
-          : "       —";
+        const name = fmtModel(e.model).padEnd(30, " ");
+        const passRate = `${e.passRate.toFixed(1)}%`.padStart(6, " ");
+        const price =
+          e.pricePerMOutput > 0
+            ? `$${e.pricePerMOutput.toFixed(2)}`.padStart(12, " ")
+            : "      N/A   ";
+        const ppd =
+          e.pricePerMOutput > 0
+            ? e.passPerDollar.toFixed(3).padStart(8, " ")
+            : "       —";
 
         return (
           <VimLine key={e.model} n={n++}>
-            <span className="text-[var(--sol-blue)]">{"  "}{name}</span>
+            <span className="text-[var(--sol-blue)]">
+              {"  "}
+              {name}
+            </span>
             <span className="text-[var(--sol-magenta)]">{passRate}</span>
             {"   "}
             <span className="text-[var(--sol-cyan)]">{price}</span>
@@ -72,10 +79,12 @@ export function ValuePanel({ data }: ValuePanelProps) {
       <VimLine n={n++} />
       <VimLine n={n++}>
         <span className="text-[var(--sol-base1)]">
-          {"  \" pass/dollar = pass_rate% / price_per_1M_output_tokens"}
+          {'  " pass/dollar = pass_rate% / price_per_1M_output_tokens'}
         </span>
       </VimLine>
-      {Array.from({ length: 8 }).map((_, i) => <TildeLine key={i} />)}
+      {Array.from({ length: 8 }).map((_, i) => (
+        <TildeLine key={`tilde-${i}`} />
+      ))}
     </div>
   );
 }

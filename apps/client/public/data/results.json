@@ -688,16 +688,20 @@
       "id": "algo_bfi",
       "category": "algo",
       "categoryName": "Algorithms",
-      "description": "Mock description for algo_bfi. This is seed data for local development.",
+      "description": "Brainfuck interpreter. Given a program (Scott list of\ninstructions) and an input stream (Scott list of Scott\nnats), return the output stream (Scott list of Scott nats).\n\nThe tape is infinite in both directions. All cells start\nat zero. Cells hold natural numbers; Dec on zero stays\nat zero. The loop executes its body while the current\ncell is nonzero.\n\nInstruction encoding (7-variant Scott):\n  Right = λr.λl.λi.λd.λo.λn.λp.r\n  Left  = λr.λl.λi.λd.λo.λn.λp.l\n  Inc   = λr.λl.λi.λd.λo.λn.λp.i\n  Dec   = λr.λl.λi.λd.λo.λn.λp.d\n  Out   = λr.λl.λi.λd.λo.λn.λp.o\n  In    = λr.λl.λi.λd.λo.λn.λp.n\n  Loop(body) = λr.λl.λi.λd.λo.λn.λp.p(body)\nwhere body is itself a Scott list of instructions.\n\nScott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).\nScott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).\n\n@main takes (program, input) and returns the output list.",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λc.λn.n, λc.λn.n)",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λc.λn.c(λr.λl.λi.λd.λo.λn.λp.i, λc.λn.c(λr.λl.λi.λd.λo.λn.λp.o, λc.λn.n)), λc.λn.n)",
+          "expected": "λa.λb.a(λc.λd.c(λe.λf.f), λc.λd.d)"
+        },
+        {
+          "input": "@main(λc.λn.c(λr.λl.λi.λd.λo.λn.λp.i, λc.λn.c(λr.λl.λi.λd.λo.λn.λp.i, λc.λn.c(λr.λl.λi.λd.λo.λn.λp.i, λc.λn.c(λr.λl.λi.λd.λo.λn.λp.o, λc.λn.n)))), λc.λn.n)",
+          "expected": "λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.j))), λc.λd.d)"
         }
       ]
     },
@@ -705,16 +709,20 @@
       "id": "algo_bre",
       "category": "algo",
       "categoryName": "Algorithms",
-      "description": "Mock description for algo_bre. This is seed data for local development.",
+      "description": "Bresenham's line rasterization. Given two points as\nScott pairs, return a Scott list of all pixel\ncoordinates on the rasterized line from start to end.\n\nThis version only handles cases where the end point\nis greater than or equal to the start point in both\ncoordinates (x1 >= x0 and y1 >= y0).\n\nScott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).\nScott pair: P(x,y) = λp.p(x, y).\nScott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).\n\n@main(P1, P2) returns the list of points on the line.",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λp.p(λs.λz.z, λs.λz.z), λp.p(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))), λs.λz.z))",
+          "expected": "λa.λb.a(λc.c(λd.λe.e, λd.λe.e), λc.λd.c(λe.e(λf.λg.f(λh.λi.i), λf.λg.g), λe.λf.e(λg.g(λh.λi.h(λj.λk.j(λl.λm.m)), λh.λi.i), λg.λh.g(λi.i(λj.λk.j(λl.λm.l(λn.λo.n(λp.λq.q))), λj.λk.k), λi.λj.j))))"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λp.p(λs.λz.z, λs.λz.z), λp.p(λs.λz.z, λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z)))))",
+          "expected": "λa.λb.a(λc.c(λd.λe.e, λd.λe.e), λc.λd.c(λe.e(λf.λg.g, λf.λg.f(λh.λi.i)), λe.λf.e(λg.g(λh.λi.i, λh.λi.h(λj.λk.j(λl.λm.m))), λg.λh.g(λi.i(λj.λk.k, λj.λk.j(λl.λm.l(λn.λo.n(λp.λq.q)))), λi.λj.j))))"
+        },
+        {
+          "input": "@main(λp.p(λs.λz.z, λs.λz.z), λp.p(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))), λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z)))))",
+          "expected": "λa.λb.a(λc.c(λd.λe.e, λd.λe.e), λc.λd.c(λe.e(λf.λg.f(λh.λi.i), λf.λg.f(λh.λi.i)), λe.λf.e(λg.g(λh.λi.h(λj.λk.j(λl.λm.m)), λh.λi.h(λj.λk.j(λl.λm.m))), λg.λh.g(λi.i(λj.λk.j(λl.λm.l(λn.λo.n(λp.λq.q))), λj.λk.j(λl.λm.l(λn.λo.n(λp.λq.q)))), λi.λj.j))))"
         }
       ]
     },
@@ -722,16 +730,20 @@
       "id": "algo_dpl",
       "category": "algo",
       "categoryName": "Algorithms",
-      "description": "Mock description for algo_dpl. This is seed data for local development.",
-      "testCount": 10,
+      "description": "Determine whether a small CNF formula is satisfiable.\nReturn True (λa.λb.a) if SAT, False (λa.λb.b) if UNSAT.\n\nInput: a Scott list of clauses. Each clause is a Scott\nlist of literals. A literal is either:\n  Pos(n) = λp.λn.p(n)  — variable n is positive\n  Neg(n) = λp.λn.n(n)  — variable n is negated\nwhere n is a Scott nat giving the variable index.\n\nAn empty formula (no clauses) is satisfiable. A formula\nwith an empty clause is unsatisfiable.\n\nScott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).\nScott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).\nChurch bool: True = λa.λb.a, False = λa.λb.b.",
+      "testCount": 11,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λc.λn.n)",
+          "expected": "λa.λb.a"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λc.λn.c(λc.λn.c(λp.λn.p(λs.λz.z), λc.λn.n), λc.λn.n))",
+          "expected": "λa.λb.a"
+        },
+        {
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.n))",
+          "expected": "λa.λb.b"
         }
       ]
     },
@@ -739,33 +751,28 @@
       "id": "algo_evl",
       "category": "algo",
       "categoryName": "Algorithms",
-      "description": "Mock description for algo_evl. This is seed data for local development.",
-      "testCount": 10,
-      "tests": [
-        {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
-        },
-        {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
-        }
-      ]
+      "description": "Lambda calculus evaluator. Given a Scott-encoded lambda\nterm using de Bruijn indices, return its beta-normal form\n(also Scott-encoded).\n\nTerm encoding (3-variant Scott):\n  Lam(body)    = λlam.λapp.λvar.lam(body)\n  App(fun,arg) = λlam.λapp.λvar.app(fun, arg)\n  Var(idx)     = λlam.λapp.λvar.var(idx)\nwhere idx is a Scott nat (de Bruijn index).\n\nScott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).\n\nDe Bruijn convention: Var(0) inside one Lam refers to\nthat binder; higher indices reach outer binders or are\nfree. Beta-reduction must handle shifting and\nsubstitution of de Bruijn indices correctly.\n\n@main takes one Term and returns its beta-normal form.",
+      "testCount": 0,
+      "tests": []
     },
     {
       "id": "algo_hul",
       "category": "algo",
       "categoryName": "Algorithms",
-      "description": "Mock description for algo_hul. This is seed data for local development.",
+      "description": "Convex hull of 2D integer points.\n\nInput: a Scott list of points. Each point is a Scott\npair λp.p(x, y) where x, y are Scott nats.\n\nOutput: a Scott list of points on the convex hull in\ncounter-clockwise order, starting from the\nlexicographically smallest point (smallest x first,\nthen smallest y). Collinear boundary points are\nexcluded — only true vertices of the hull.\n\nDegenerate cases: for 1 point return it; for 2 points\nreturn both in lex order; for all-collinear input\nreturn the two endpoints.\n\nScott nat: Z = λs.λz.z, S(n) = λs.λz.s(n)\nScott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t)\nScott pair: P(x,y) = λp.p(x, y)",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λc.λn.c(λp.p(λs.λz.z, λs.λz.z), λc.λn.n))",
+          "expected": "λa.λb.a(λc.c(λd.λe.e, λd.λe.e), λc.λd.d)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λc.λn.c(λp.p(λs.λz.s(λs.λz.s(λs.λz.z)), λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z)))), λc.λn.c(λp.p(λs.λz.z, λs.λz.s(λs.λz.z)), λc.λn.n)))",
+          "expected": "λa.λb.a(λc.c(λd.λe.e, λd.λe.d(λf.λg.g)), λc.λd.c(λe.e(λf.λg.f(λh.λi.h(λj.λk.k)), λf.λg.f(λh.λi.h(λj.λk.j(λl.λm.m)))), λe.λf.f))"
+        },
+        {
+          "input": "@main(λc.λn.c(λp.p(λs.λz.z, λs.λz.z), λc.λn.c(λp.p(λs.λz.s(λs.λz.z), λs.λz.s(λs.λz.z)), λc.λn.c(λp.p(λs.λz.s(λs.λz.s(λs.λz.z)), λs.λz.s(λs.λz.s(λs.λz.z))), λc.λn.n))))",
+          "expected": "λa.λb.a(λc.c(λd.λe.e, λd.λe.e), λc.λd.c(λe.e(λf.λg.f(λh.λi.h(λj.λk.k)), λf.λg.f(λh.λi.h(λj.λk.k))), λe.λf.f))"
         }
       ]
     },
@@ -773,16 +780,20 @@
       "id": "algo_maz",
       "category": "algo",
       "categoryName": "Algorithms",
-      "description": "Mock description for algo_maz. This is seed data for local development.",
+      "description": "Shortest path in a 2D grid. The input is a grid\nencoded as a Scott list of rows, where each row is\na Scott list of Church booleans: True means open,\nFalse means wall. Find the shortest path from the\ntop-left corner (0,0) to the bottom-right corner\n(H-1,W-1), moving up/down/left/right through open\ncells only. Return the path length as a Scott nat\n(number of steps). If no path exists, return Z (0).\nStart and end cells are guaranteed open.\n\nScott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).\nScott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).\nChurch bool: True = λa.λb.a, False = λa.λb.b.",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λc.λn.c(λc.λn.c(λa.λb.a, λc.λn.n), λc.λn.n))",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λc.λn.c(λc.λn.c(λa.λb.a, λc.λn.c(λa.λb.a, λc.λn.n)), λc.λn.c(λc.λn.c(λa.λb.a, λc.λn.c(λa.λb.a, λc.λn.n)), λc.λn.n)))",
+          "expected": "λa.λb.a(λc.λd.c(λe.λf.f))"
+        },
+        {
+          "input": "@main(λc.λn.c(λc.λn.c(λa.λb.a, λc.λn.c(λa.λb.a, λc.λn.c(λa.λb.a, λc.λn.n))), λc.λn.c(λc.λn.c(λa.λb.a, λc.λn.c(λa.λb.a, λc.λn.c(λa.λb.a, λc.λn.n))), λc.λn.c(λc.λn.c(λa.λb.a, λc.λn.c(λa.λb.a, λc.λn.c(λa.λb.a, λc.λn.n))), λc.λn.n))))",
+          "expected": "λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.j))))"
         }
       ]
     },
@@ -790,16 +801,20 @@
       "id": "algo_mst",
       "category": "algo",
       "categoryName": "Algorithms",
-      "description": "Mock description for algo_mst. This is seed data for local development.",
+      "description": "Given a connected undirected weighted graph, compute the\ntotal weight of a minimum spanning tree. Return the sum\nof edge weights in the MST as a Scott nat.\n\nInput: a Scott nat N (node count) and a Scott list of\nedges. Each edge is a triple λe.e(U, V, W) where U and\nV are Scott nat node indices and W is the Scott nat\nweight.\n\nScott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).\nScott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).\nScott triple: T(a,b,c) = λt.t(a, b, c).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λs.λz.s(λs.λz.s(λs.λz.z)), λc.λn.c(λe.e(λs.λz.z, λs.λz.s(λs.λz.z), λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z)))), λc.λn.n))",
+          "expected": "λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.h)))"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λs.λz.s(λs.λz.s(λs.λz.z)), λc.λn.c(λe.e(λs.λz.z, λs.λz.s(λs.λz.z), λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z)))))))), λc.λn.n))",
+          "expected": "λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.p)))))))"
+        },
+        {
+          "input": "@main(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))), λc.λn.c(λe.e(λs.λz.z, λs.λz.s(λs.λz.z), λs.λz.s(λs.λz.s(λs.λz.z))), λc.λn.c(λe.e(λs.λz.s(λs.λz.z), λs.λz.s(λs.λz.s(λs.λz.z)), λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z)))), λc.λn.c(λe.e(λs.λz.z, λs.λz.s(λs.λz.s(λs.λz.z)), λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))), λc.λn.n))))",
+          "expected": "λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.l)))))"
         }
       ]
     },
@@ -807,16 +822,20 @@
       "id": "algo_stl",
       "category": "algo",
       "categoryName": "Algorithms",
-      "description": "Mock description for algo_stl. This is seed data for local development.",
+      "description": "Type-check a simply-typed lambda calculus term. Given a\nScott-encoded STLC term with type annotations, return a\nChurch boolean: True if the term is well-typed in the\nempty context, False otherwise.\n\nTypes use de Bruijn indices for base types:\n  Base(n)  = λbase.λarr.base(n)\n  Arr(a,b) = λbase.λarr.arr(a, b)\n\nTerms use de Bruijn indices for variables:\n  Lam(ty, body) = λlam.λapp.λvar.lam(ty, body)\n  App(fun, arg) = λlam.λapp.λvar.app(fun, arg)\n  Var(idx)      = λlam.λapp.λvar.var(idx)\n\nwhere n and idx are Scott nats:\n  Z = λs.λz.z, S(n) = λs.λz.s(n).\n\nChurch booleans: True = λa.λb.a, False = λa.λb.b.\n\nTwo types are equal iff they have identical structure.\nIn App(f, x), f must have type Arr(A, B) and x must\nhave type A; the result has type B.",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λlam.λapp.λvar.lam(λbase.λarr.base(λs.λz.z), λlam.λapp.λvar.var(λs.λz.z)))",
+          "expected": "λa.λb.a"
+        },
+        {
+          "input": "@main(λlam.λapp.λvar.var(λs.λz.z))",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λlam.λapp.λvar.lam(λbase.λarr.base(λs.λz.z), λlam.λapp.λvar.lam(λbase.λarr.base(λs.λz.s(λs.λz.z)), λlam.λapp.λvar.var(λs.λz.s(λs.λz.z)))))",
+          "expected": "λa.λb.a"
         }
       ]
     },
@@ -824,16 +843,20 @@
       "id": "algo_sud",
       "category": "algo",
       "categoryName": "Algorithms",
-      "description": "Mock description for algo_sud. This is seed data for local development.",
+      "description": "Solve a 4×4 Sudoku puzzle.\n\nInput: a Scott list of 4 rows, each row a Scott\nlist of 4 Scott nats. Empty cells are Z (zero),\nfilled cells use S(Z) through S(S(S(S(Z)))) for\ndigits 1 through 4.\n\nOutput: the completed grid in the same format with\nevery cell filled (1-4), satisfying:\n- Each row contains 1, 2, 3, 4 exactly once\n- Each column contains 1, 2, 3, 4 exactly once\n- Each 2×2 box contains 1, 2, 3, 4 exactly once\n\nThe puzzle always has a unique solution.\n\nScott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).\nScott list: Nil = λc.λn.n,\n  Cons(h, t) = λc.λn.c(h, t).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.h), λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.l)), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.p))), λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)))), λk.λl.l)))), λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.n))), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.r)))), λi.λj.i(λk.λl.k(λm.λn.n), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.r)), λm.λn.n)))), λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.n)), λi.λj.i(λk.λl.k(λm.λn.n), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.s(λu.λv.v)))), λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.s(λu.λv.v))), λo.λp.p)))), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)))), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t))), λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)), λo.λp.o(λq.λr.q(λs.λt.t), λq.λr.r)))), λi.λj.j)))))",
+          "expected": "λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.h), λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.l)), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.p))), λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)))), λk.λl.l)))), λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.n))), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.r)))), λi.λj.i(λk.λl.k(λm.λn.n), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.r)), λm.λn.n)))), λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.n)), λi.λj.i(λk.λl.k(λm.λn.n), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.s(λu.λv.v)))), λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.s(λu.λv.v))), λo.λp.p)))), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)))), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t))), λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)), λo.λp.o(λq.λr.q(λs.λt.t), λq.λr.r)))), λi.λj.j))))"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.h), λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.l)), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.p))), λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)))), λk.λl.l)))), λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.n))), λg.λh.g(λi.λj.j, λi.λj.i(λk.λl.k(λm.λn.n), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.r)), λm.λn.n)))), λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.n)), λi.λj.i(λk.λl.k(λm.λn.n), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.s(λu.λv.v)))), λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.s(λu.λv.v))), λo.λp.p)))), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)))), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t))), λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)), λo.λp.o(λq.λr.q(λs.λt.t), λq.λr.r)))), λi.λj.j)))))",
+          "expected": "λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.h), λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.l)), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.p))), λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)))), λk.λl.l)))), λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.n))), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.r)))), λi.λj.i(λk.λl.k(λm.λn.n), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.r)), λm.λn.n)))), λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.n)), λi.λj.i(λk.λl.k(λm.λn.n), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.s(λu.λv.v)))), λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.s(λu.λv.v))), λo.λp.p)))), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)))), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t))), λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)), λo.λp.o(λq.λr.q(λs.λt.t), λq.λr.r)))), λi.λj.j))))"
+        },
+        {
+          "input": "@main(λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.h), λe.λf.e(λg.λh.h, λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.n)), λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)))), λk.λl.l)))), λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.l)), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.r)))), λi.λj.i(λk.λl.k(λm.λn.n), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t))), λm.λn.n)))), λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.p))), λi.λj.i(λk.λl.k(λm.λn.n), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.s(λu.λv.v)))), λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)), λo.λp.p)))), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)))), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.r)), λm.λn.m(λo.λp.p, λo.λp.o(λq.λr.q(λs.λt.t), λq.λr.r)))), λi.λj.j)))))",
+          "expected": "λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.h), λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.n))), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.n)), λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)))), λk.λl.l)))), λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.l)), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.r)))), λi.λj.i(λk.λl.k(λm.λn.n), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t))), λm.λn.n)))), λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.p))), λi.λj.i(λk.λl.k(λm.λn.n), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.s(λu.λv.v)))), λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)), λo.λp.p)))), λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.t)))), λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.r)), λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.s(λu.λv.v))), λo.λp.o(λq.λr.q(λs.λt.t), λq.λr.r)))), λi.λj.j))))"
         }
       ]
     },
@@ -841,16 +864,20 @@
       "id": "algo_tsp",
       "category": "algo",
       "categoryName": "Algorithms",
-      "description": "Mock description for algo_tsp. This is seed data for local development.",
+      "description": "Exact Traveling Salesman Problem (TSP). Given N cities and\na distance matrix D (Scott list of Scott lists of Scott\nnats), find the minimum total distance of a Hamiltonian\ncycle that visits every city exactly once and returns to\nthe start.\n\n@main takes two arguments: a Scott nat N (number of\ncities) and the N×N distance matrix D, where D[i][j] is\nthe distance from city i to city j. Distances may be\nasymmetric. Return the minimum tour cost as a Scott nat.\n\nScott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).\nScott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λs.λz.s(λs.λz.s(λs.λz.z)), λc.λn.c(λc.λn.c(λs.λz.z, λc.λn.c(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))), λc.λn.n)), λc.λn.c(λc.λn.c(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))), λc.λn.c(λs.λz.z, λc.λn.n)), λc.λn.n)))",
+          "expected": "λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.n))))))"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λs.λz.s(λs.λz.s(λs.λz.z)), λc.λn.c(λc.λn.c(λs.λz.z, λc.λn.c(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))), λc.λn.n)), λc.λn.c(λc.λn.c(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))))), λc.λn.c(λs.λz.z, λc.λn.n)), λc.λn.n)))",
+          "expected": "λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.s(λu.λv.u(λw.λx.w(λy.λz.z))))))))))))"
+        },
+        {
+          "input": "@main(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))), λc.λn.c(λc.λn.c(λs.λz.z, λc.λn.c(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))), λc.λn.c(λs.λz.s(λs.λz.z), λc.λn.n))), λc.λn.c(λc.λn.c(λs.λz.s(λs.λz.z), λc.λn.c(λs.λz.z, λc.λn.c(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))), λc.λn.n))), λc.λn.c(λc.λn.c(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z)))), λc.λn.c(λs.λz.s(λs.λz.s(λs.λz.z)), λc.λn.c(λs.λz.z, λc.λn.n))), λc.λn.n))))",
+          "expected": "λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.j))))"
         }
       ]
     },
@@ -858,16 +885,20 @@
       "id": "cadt_chi",
       "category": "cadt",
       "categoryName": "Church ADTs",
-      "description": "Mock description for cadt_chi. This is seed data for local development.",
+      "description": "Given a type descriptor and a Church-encoded value,\nreturn its recursive children as a Scott list\nof Church values.\nConstructors with no recursive fields return [].\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Church value folds recursive fields by applying\nthem to all case-handlers:\n  Nat Z:       λz.λs.z\n  Nat S(S(Z)): λz.λs.s(s(z))\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0)",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v1)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v0)",
+          "expected": "λa.λb.b"
         }
       ]
     },
@@ -875,16 +906,20 @@
       "id": "cadt_ctr",
       "category": "cadt",
       "categoryName": "Church ADTs",
-      "description": "Mock description for cadt_ctr. This is seed data for local development.",
+      "description": "Build the Nth constructor function for a\nChurch-encoded algebraic data type.\nUnlike Scott, recursive fields are folded by\napplying them to all case-handlers.\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Church value folds recursive fields by applying\nthem to all case-handlers:\n  Nat Z:       λz.λs.z\n  Nat S(S(Z)): λz.λs.s(s(z))\n\nIndex is a Scott nat:\n  Z = λs.λz.z, S(n) = λs.λz.s(n)",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λs.λz.z)",
+          "expected": "λa.λb.a"
+        },
+        {
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λs.λz.s(λs.λz.z))",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λs.λz.z)",
+          "expected": "λa.λb.a"
         }
       ]
     },
@@ -892,16 +927,20 @@
       "id": "cadt_des",
       "category": "cadt",
       "categoryName": "Church ADTs",
-      "description": "Mock description for cadt_des. This is seed data for local development.",
+      "description": "Deserialize a Scott list of Church booleans\ninto a Church-encoded value.\n\nEncoding: for N constructors, each index uses\nceil(log2(N)) bits (MSB first), then children.\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Church value folds recursive fields by applying\nthem to all case-handlers:\n  Nat Z:       λz.λs.z\n  Nat S(S(Z)): λz.λs.s(s(z))\n\nChurch booleans: True = λa.λb.a, False = λa.λb.b.\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λc.λn.c(λa.λb.b, λc.λn.n))",
+          "expected": "λa.λb.a"
+        },
+        {
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λc.λn.c(λa.λb.a, λc.λn.n))",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λc.λn.c(λa.λb.b, λc.λn.n))",
+          "expected": "λa.λb.a"
         }
       ]
     },
@@ -909,16 +948,20 @@
       "id": "cadt_eql",
       "category": "cadt",
       "categoryName": "Church ADTs",
-      "description": "Mock description for cadt_eql. This is seed data for local development.",
+      "description": "Test two Church-encoded values for structural equality.\nReturn True if equal, False otherwise.\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Church value folds recursive fields by applying\nthem to all case-handlers:\n  Nat Z:       λz.λs.z\n  Nat S(S(Z)): λz.λs.s(s(z))\n\nChurch booleans: True = λa.λb.a, False = λa.λb.b.",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0, λv0.λv1.v0)",
+          "expected": "λa.λb.a"
+        },
+        {
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0, λv0.λv1.v1)",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v0, λv0.λv1.v0)",
+          "expected": "λa.λb.a"
         }
       ]
     },
@@ -926,16 +969,20 @@
       "id": "cadt_fol",
       "category": "cadt",
       "categoryName": "Church ADTs",
-      "description": "Mock description for cadt_fol. This is seed data for local development.",
+      "description": "Convert a Church-encoded value to Scott encoding\n(unfold).\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Church value folds recursive fields by applying\nthem to all case-handlers:\n  Nat Z:       λz.λs.z\n  Nat S(S(Z)): λz.λs.s(s(z))\n\nA Scott value selects the ith of N case-handlers,\napplied to its fields:\n  Nat Z:    λz.λs.z\n  Nat S(n): λn.λz.λs.s(n)",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0)",
+          "expected": "λa.λb.a"
+        },
+        {
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v1)",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v0)",
+          "expected": "λa.λb.a"
         }
       ]
     },
@@ -943,16 +990,20 @@
       "id": "cadt_idx",
       "category": "cadt",
       "categoryName": "Church ADTs",
-      "description": "Mock description for cadt_idx. This is seed data for local development.",
+      "description": "Given a type descriptor and a Church-encoded value,\nreturn the outermost constructor index as a Scott nat.\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Church value folds recursive fields by applying\nthem to all case-handlers:\n  Nat Z:       λz.λs.z\n  Nat S(S(Z)): λz.λs.s(s(z))\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0)",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v1)",
+          "expected": "λa.λb.a(λc.λd.d)"
+        },
+        {
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v0)",
+          "expected": "λa.λb.b"
         }
       ]
     },
@@ -960,16 +1011,20 @@
       "id": "cadt_len",
       "category": "cadt",
       "categoryName": "Church ADTs",
-      "description": "Mock description for cadt_len. This is seed data for local development.",
+      "description": "Count all constructors in a Church-encoded value,\nrecursively. Each constructor counts as 1.\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Church value folds recursive fields by applying\nthem to all case-handlers:\n  Nat Z:       λz.λs.z\n  Nat S(S(Z)): λz.λs.s(s(z))\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0)",
+          "expected": "λa.λb.a(λc.λd.d)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v0)",
+          "expected": "λa.λb.a(λc.λd.d)"
+        },
+        {
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v1((λv0.λv1.v1((λv0.λv1.v1((λv0.λv1.v0)(v0, v1)))(v0, v1)))(v0, v1)))",
+          "expected": "λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.j))))"
         }
       ]
     },
@@ -977,16 +1032,20 @@
       "id": "cadt_mrg",
       "category": "cadt",
       "categoryName": "Church ADTs",
-      "description": "Mock description for cadt_mrg. This is seed data for local development.",
+      "description": "Merge two Church-encoded values with function F.\nIf both have the same constructor and it has\nrecursive fields, recurse on corresponding children.\nOtherwise return F(V1, V2).\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Church value folds recursive fields by applying\nthem to all case-handlers:\n  Nat Z:       λz.λs.z\n  Nat S(S(Z)): λz.λs.s(s(z))",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λa.λb.λp.p(a, b), λv0.λv1.v0, λv0.λv1.v0)",
+          "expected": "λa.a(λb.λc.b, λb.λc.b)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λa.λb.λp.p(a, b), λv0.λv1.v0, λv0.λv1.v1)",
+          "expected": "λa.a(λb.λc.b, λb.λc.c)"
+        },
+        {
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λa.λb.λp.p(a, b), λv0.λv1.v0, λv0.λv1.v0)",
+          "expected": "λa.a(λb.λc.b, λb.λc.b)"
         }
       ]
     },
@@ -994,16 +1053,20 @@
       "id": "cadt_rev",
       "category": "cadt",
       "categoryName": "Church ADTs",
-      "description": "Mock description for cadt_rev. This is seed data for local development.",
+      "description": "Reverse the fields of every constructor in a\nChurch-encoded value, recursively.\n(a,b) becomes (b,a). 0 or 1 fields: unchanged.\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Church value folds recursive fields by applying\nthem to all case-handlers:\n  Nat Z:       λz.λs.z\n  Nat S(S(Z)): λz.λs.s(s(z))",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0)",
+          "expected": "λa.λb.a"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v1((λv0.λv1.v1((λv0.λv1.v0)(v0, v1)))(v0, v1)))",
+          "expected": "λa.λb.b(b(a))"
+        },
+        {
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.c(λx.x, λc.λn.n)), λc.λn.n)), λv0.λv1.v0)",
+          "expected": "λa.λb.a"
         }
       ]
     },
@@ -1011,16 +1074,20 @@
       "id": "cadt_ser",
       "category": "cadt",
       "categoryName": "Church ADTs",
-      "description": "Mock description for cadt_ser. This is seed data for local development.",
+      "description": "Serialize a Church-encoded value to a flat Scott list\nof Church booleans (bits).\n\nEncoding: for N constructors, each index uses\nceil(log2(N)) bits (MSB first), then children.\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Church value folds recursive fields by applying\nthem to all case-handlers:\n  Nat Z:       λz.λs.z\n  Nat S(S(Z)): λz.λs.s(s(z))\n\nChurch booleans: True = λa.λb.a, False = λa.λb.b.\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0)",
+          "expected": "λa.λb.a(λc.λd.d, λc.λd.d)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v1)",
+          "expected": "λa.λb.a(λc.λd.c, λc.λd.d)"
+        },
+        {
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v0)",
+          "expected": "λa.λb.a(λc.λd.d, λc.λd.d)"
         }
       ]
     },
@@ -1028,16 +1095,20 @@
       "id": "cbin_add",
       "category": "cbin",
       "categoryName": "Church Binaries",
-      "description": "Mock description for cbin_add. This is seed data for local development.",
+      "description": "Add two Church binary numbers. Return A + B.\n\nA Church binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x(o,i,e))\n  I(x) = λo.λi.λe.i(x(o,i,e))\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).\nA Church Bin folds: I(O(I(E))) = λo.λi.λe.i(o(i(e))).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λo.λi.λe.e, λo.λi.λe.e)",
+          "expected": "λa.λb.λc.c"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λo.λi.λe.e, λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))",
+          "expected": "λa.λb.λc.b(b(c))"
+        },
+        {
+          "input": "@main(λo.λi.λe.i((λo.λi.λe.e)(o, i, e)), λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))",
+          "expected": "λa.λb.λc.a(b(c))"
         }
       ]
     },
@@ -1045,16 +1116,20 @@
       "id": "cbin_div",
       "category": "cbin",
       "categoryName": "Church Binaries",
-      "description": "Mock description for cbin_div. This is seed data for local development.",
+      "description": "Divide two Church binaries. floor(A/B). (B>0)\n\nA Church binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x(o,i,e))\n  I(x) = λo.λi.λe.i(x(o,i,e))\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).\nA Church Bin folds: I(O(I(E))) = λo.λi.λe.i(o(i(e))).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λo.λi.λe.e, λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))",
+          "expected": "λa.λb.λc.c"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))(o, i, e)), λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))",
+          "expected": "λa.λb.λc.b(b(c))"
+        },
+        {
+          "input": "@main(λo.λi.λe.i((λo.λi.λe.o((λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))(o, i, e)))(o, i, e)), λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))",
+          "expected": "λa.λb.λc.b(b(c))"
         }
       ]
     },
@@ -1062,16 +1137,20 @@
       "id": "cbin_exp",
       "category": "cbin",
       "categoryName": "Church Binaries",
-      "description": "Mock description for cbin_exp. This is seed data for local development.",
+      "description": "Exponentiate two Church binaries. A^B. (0^0=1)\n\nA Church binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x(o,i,e))\n  I(x) = λo.λi.λe.i(x(o,i,e))\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).\nA Church Bin folds: I(O(I(E))) = λo.λi.λe.i(o(i(e))).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)), λo.λi.λe.e)",
+          "expected": "λa.λb.λc.b(c)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λo.λi.λe.e, λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))",
+          "expected": "λa.λb.λc.c"
+        },
+        {
+          "input": "@main(λo.λi.λe.i((λo.λi.λe.e)(o, i, e)), λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))(o, i, e)))",
+          "expected": "λa.λb.λc.b(c)"
         }
       ]
     },
@@ -1079,16 +1158,20 @@
       "id": "cbin_gcd",
       "category": "cbin",
       "categoryName": "Church Binaries",
-      "description": "Mock description for cbin_gcd. This is seed data for local development.",
+      "description": "GCD of two Church binary numbers.\n\nA Church binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x(o,i,e))\n  I(x) = λo.λi.λe.i(x(o,i,e))\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).\nA Church Bin folds: I(O(I(E))) = λo.λi.λe.i(o(i(e))).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))(o, i, e)), λo.λi.λe.o((λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))(o, i, e)))",
+          "expected": "λa.λb.λc.a(b(c))"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λo.λi.λe.o((λo.λi.λe.o((λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))(o, i, e)))(o, i, e)), λo.λi.λe.o((λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))(o, i, e)))(o, i, e)))",
+          "expected": "λa.λb.λc.a(a(b(c)))"
+        },
+        {
+          "input": "@main(λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))(o, i, e)), λo.λi.λe.i((λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))(o, i, e)))",
+          "expected": "λa.λb.λc.b(c)"
         }
       ]
     },
@@ -1096,16 +1179,20 @@
       "id": "cbin_log",
       "category": "cbin",
       "categoryName": "Church Binaries",
-      "description": "Mock description for cbin_log. This is seed data for local development.",
+      "description": "Floor logarithm of Church binary numbers.\nGiven A and base B (B ≥ 2, A ≥ 1),\nreturn floor(log_B(A)).\n\nA Church binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x(o,i,e))\n  I(x) = λo.λi.λe.i(x(o,i,e))\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).\nA Church Bin folds: I(O(I(E))) = λo.λi.λe.i(o(i(e))).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λo.λi.λe.i((λo.λi.λe.e)(o, i, e)), λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))",
+          "expected": "λa.λb.λc.c"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λo.λi.λe.o((λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))(o, i, e)), λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))",
+          "expected": "λa.λb.λc.a(b(c))"
+        },
+        {
+          "input": "@main(λo.λi.λe.o((λo.λi.λe.o((λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))(o, i, e)))(o, i, e)), λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))",
+          "expected": "λa.λb.λc.b(b(c))"
         }
       ]
     },
@@ -1113,16 +1200,20 @@
       "id": "cbin_mod",
       "category": "cbin",
       "categoryName": "Church Binaries",
-      "description": "Mock description for cbin_mod. This is seed data for local development.",
+      "description": "Modulo of two Church binaries. A mod B. (B>0)\n\nA Church binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x(o,i,e))\n  I(x) = λo.λi.λe.i(x(o,i,e))\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).\nA Church Bin folds: I(O(I(E))) = λo.λi.λe.i(o(i(e))).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λo.λi.λe.e, λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))",
+          "expected": "λa.λb.λc.c"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))(o, i, e)), λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))",
+          "expected": "λa.λb.λc.b(c)"
+        },
+        {
+          "input": "@main(λo.λi.λe.i((λo.λi.λe.o((λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))(o, i, e)))(o, i, e)), λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))",
+          "expected": "λa.λb.λc.c"
         }
       ]
     },
@@ -1130,16 +1221,20 @@
       "id": "cbin_mul",
       "category": "cbin",
       "categoryName": "Church Binaries",
-      "description": "Mock description for cbin_mul. This is seed data for local development.",
+      "description": "Multiply two Church binary numbers. A * B.\n\nA Church binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x(o,i,e))\n  I(x) = λo.λi.λe.i(x(o,i,e))\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).\nA Church Bin folds: I(O(I(E))) = λo.λi.λe.i(o(i(e))).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λo.λi.λe.e, λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))",
+          "expected": "λa.λb.λc.c"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λo.λi.λe.i((λo.λi.λe.e)(o, i, e)), λo.λi.λe.i((λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))(o, i, e)))",
+          "expected": "λa.λb.λc.b(a(b(c)))"
+        },
+        {
+          "input": "@main(λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)), λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))",
+          "expected": "λa.λb.λc.a(b(b(c)))"
         }
       ]
     },
@@ -1147,16 +1242,20 @@
       "id": "cbin_pri",
       "category": "cbin",
       "categoryName": "Church Binaries",
-      "description": "Mock description for cbin_pri. This is seed data for local development.",
+      "description": "Primality test on a Church binary number.\nReturn True if prime, False otherwise.\n\nA Church binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x(o,i,e))\n  I(x) = λo.λi.λe.i(x(o,i,e))\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).\nA Church Bin folds: I(O(I(E))) = λo.λi.λe.i(o(i(e))).\n\nChurch booleans: True = λa.λb.a, False = λa.λb.b.",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λo.λi.λe.e)",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))",
+          "expected": "λa.λb.a"
         }
       ]
     },
@@ -1164,16 +1263,20 @@
       "id": "cbin_sqr",
       "category": "cbin",
       "categoryName": "Church Binaries",
-      "description": "Mock description for cbin_sqr. This is seed data for local development.",
+      "description": "Integer square root of a Church binary. floor(√N).\n\nA Church binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x(o,i,e))\n  I(x) = λo.λi.λe.i(x(o,i,e))\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).\nA Church Bin folds: I(O(I(E))) = λo.λi.λe.i(o(i(e))).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λo.λi.λe.e)",
+          "expected": "λa.λb.λc.c"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))",
+          "expected": "λa.λb.λc.b(c)"
+        },
+        {
+          "input": "@main(λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))",
+          "expected": "λa.λb.λc.b(c)"
         }
       ]
     },
@@ -1181,16 +1284,20 @@
       "id": "cbin_tot",
       "category": "cbin",
       "categoryName": "Church Binaries",
-      "description": "Mock description for cbin_tot. This is seed data for local development.",
+      "description": "Euler's totient φ(N) of a Church binary number:\ncount of integers 1..N coprime with N.\n\nA Church binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x(o,i,e))\n  I(x) = λo.λi.λe.i(x(o,i,e))\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).\nA Church Bin folds: I(O(I(E))) = λo.λi.λe.i(o(i(e))).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))",
+          "expected": "λa.λb.λc.b(c)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λo.λi.λe.o((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))",
+          "expected": "λa.λb.λc.b(c)"
+        },
+        {
+          "input": "@main(λo.λi.λe.i((λo.λi.λe.i((λo.λi.λe.e)(o, i, e)))(o, i, e)))",
+          "expected": "λa.λb.λc.a(b(c))"
         }
       ]
     },
@@ -1198,16 +1305,20 @@
       "id": "clst_dot",
       "category": "clst",
       "categoryName": "Church Lists",
-      "description": "Mock description for clst_dot. This is seed data for local development.",
+      "description": "Dot product of two Church lists.\n\nGiven add A, mul M, zero Z, and [a1..aN], [x1..xN]:\n  A(M(a1,x1), A(M(a2,x2), ...A(M(aN,xN), Z)...))\n\nA Church list folds over its elements:\n  Nil       = λc.λn.n\n  Cons(h,t) = λc.λn.c(h, t(c,n))\nSo [A,B,C] = λc.λn.c(A, c(B, c(C, n))).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λC.λD.λE.λA.λB.@main(C, D, E, λc.λn.c(A, n), λc.λn.c(B, n))",
+          "expected": "λa.λb.λc.λd.λe.a(b(d, e), c)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λE.λF.λG.λA.λB.λC.λD.@main(E, F, G, λc.λn.c(A, c(B, n)), λc.λn.c(C, c(D, n)))",
+          "expected": "λa.λb.λc.λd.λe.λf.λg.a(b(d, f), a(b(e, g), c))"
+        },
+        {
+          "input": "λG.λH.λI.λA.λB.λC.λD.λE.λF.@main(G, H, I, λc.λn.c(A, c(B, c(C, n))), λc.λn.c(D, c(E, c(F, n))))",
+          "expected": "λa.λb.λc.λd.λe.λf.λg.λh.λi.a(b(d, g), a(b(e, h), a(b(f, i), c)))"
         }
       ]
     },
@@ -1215,16 +1326,20 @@
       "id": "clst_fol",
       "category": "clst",
       "categoryName": "Church Lists",
-      "description": "Mock description for clst_fol. This is seed data for local development.",
+      "description": "Right-fold a Church list.\nGiven F, Z, and [A,B,C], return F(A, F(B, F(C, Z))).\n\nA Church list folds over its elements:\n  Nil       = λc.λn.n\n  Cons(h,t) = λc.λn.c(h, t(c,n))\nSo [A,B,C] = λc.λn.c(A, c(B, c(C, n))).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λB.λC.λA.@main(B, C, λc.λn.c(A, n))",
+          "expected": "λa.λb.λc.a(c, b)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λC.λD.λA.λB.@main(C, D, λc.λn.c(A, c(B, n)))",
+          "expected": "λa.λb.λc.λd.a(c, a(d, b))"
+        },
+        {
+          "input": "λD.λE.λA.λB.λC.@main(D, E, λc.λn.c(A, c(B, c(C, n))))",
+          "expected": "λa.λb.λc.λd.λe.a(c, a(d, a(e, b)))"
         }
       ]
     },
@@ -1232,16 +1347,20 @@
       "id": "clst_hed",
       "category": "clst",
       "categoryName": "Church Lists",
-      "description": "Mock description for clst_hed. This is seed data for local development.",
+      "description": "Return the first element of a Church list.\n\nA Church list folds over its elements:\n  Nil       = λc.λn.n\n  Cons(h,t) = λc.λn.c(h, t(c,n))\nSo [A,B,C] = λc.λn.c(A, c(B, c(C, n))).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λA.@main(λc.λn.c(A, n))",
+          "expected": "λa.a"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λA.λB.@main(λc.λn.c(A, c(B, n)))",
+          "expected": "λa.λb.a"
+        },
+        {
+          "input": "λA.λB.λC.@main(λc.λn.c(A, c(B, c(C, n))))",
+          "expected": "λa.λb.λc.a"
         }
       ]
     },
@@ -1249,16 +1368,20 @@
       "id": "clst_map",
       "category": "clst",
       "categoryName": "Church Lists",
-      "description": "Mock description for clst_map. This is seed data for local development.",
+      "description": "Apply F to every element of a Church list.\n\nA Church list folds over its elements:\n  Nil       = λc.λn.n\n  Cons(h,t) = λc.λn.c(h, t(c,n))\nSo [A,B,C] = λc.λn.c(A, c(B, c(C, n))).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λB.λA.@main(B, λc.λn.c(A, n))",
+          "expected": "λa.λb.λc.λd.c(a(b), d)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λC.λA.λB.@main(C, λc.λn.c(A, c(B, n)))",
+          "expected": "λa.λb.λc.λd.λe.d(a(b), d(a(c), e))"
+        },
+        {
+          "input": "λD.λA.λB.λC.@main(D, λc.λn.c(A, c(B, c(C, n))))",
+          "expected": "λa.λb.λc.λd.λe.λf.e(a(b), e(a(c), e(a(d), f)))"
         }
       ]
     },
@@ -1266,16 +1389,20 @@
       "id": "clst_nth",
       "category": "clst",
       "categoryName": "Church Lists",
-      "description": "Mock description for clst_nth. This is seed data for local development.",
+      "description": "Return the element at index I (Church nat, 0-based)\nof a Church list.\n\nA Church list folds over its elements:\n  Nil       = λc.λn.n\n  Cons(h,t) = λc.λn.c(h, t(c,n))\nSo [A,B,C] = λc.λn.c(A, c(B, c(C, n))).\n\nA Church nat:\n  0 = λf.λx.x\n  1 = λf.λx.f(x)\n  2 = λf.λx.f(f(x))",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λA.λB.λC.@main(λf.λx.x, λc.λn.c(A, c(B, c(C, n))))",
+          "expected": "λa.λb.λc.a"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λA.λB.λC.@main(λf.λx.f(x), λc.λn.c(A, c(B, c(C, n))))",
+          "expected": "λa.λb.λc.b"
+        },
+        {
+          "input": "λA.λB.λC.@main(λf.λx.f(f(x)), λc.λn.c(A, c(B, c(C, n))))",
+          "expected": "λa.λb.λc.c"
         }
       ]
     },
@@ -1283,16 +1410,20 @@
       "id": "clst_rev",
       "category": "clst",
       "categoryName": "Church Lists",
-      "description": "Mock description for clst_rev. This is seed data for local development.",
+      "description": "Reverse a Church list.\n\nA Church list folds over its elements:\n  Nil       = λc.λn.n\n  Cons(h,t) = λc.λn.c(h, t(c,n))\nSo [A,B,C] = λc.λn.c(A, c(B, c(C, n))).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λA.@main(λc.λn.c(A, n))",
+          "expected": "λa.λb.λc.b(a, c)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λA.λB.@main(λc.λn.c(A, c(B, n)))",
+          "expected": "λa.λb.λc.λd.c(b, c(a, d))"
+        },
+        {
+          "input": "λA.λB.λC.@main(λc.λn.c(A, c(B, c(C, n))))",
+          "expected": "λa.λb.λc.λd.λe.d(c, d(b, d(a, e)))"
         }
       ]
     },
@@ -1300,16 +1431,20 @@
       "id": "clst_shl",
       "category": "clst",
       "categoryName": "Church Lists",
-      "description": "Mock description for clst_shl. This is seed data for local development.",
+      "description": "Rotate a Church list left by one. [A,B,C]→[B,C,A].\n\nA Church list folds over its elements:\n  Nil       = λc.λn.n\n  Cons(h,t) = λc.λn.c(h, t(c,n))\nSo [A,B,C] = λc.λn.c(A, c(B, c(C, n))).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λA.@main(λc.λn.c(A, n))",
+          "expected": "λa.λb.λc.b(a, c)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λA.λB.@main(λc.λn.c(A, c(B, n)))",
+          "expected": "λa.λb.λc.λd.c(b, c(a, d))"
+        },
+        {
+          "input": "λA.λB.λC.@main(λc.λn.c(A, c(B, c(C, n))))",
+          "expected": "λa.λb.λc.λd.λe.d(b, d(c, d(a, e)))"
         }
       ]
     },
@@ -1317,16 +1452,20 @@
       "id": "clst_shr",
       "category": "clst",
       "categoryName": "Church Lists",
-      "description": "Mock description for clst_shr. This is seed data for local development.",
+      "description": "Rotate a Church list right by one. [A,B,C]→[C,A,B].\n\nA Church list folds over its elements:\n  Nil       = λc.λn.n\n  Cons(h,t) = λc.λn.c(h, t(c,n))\nSo [A,B,C] = λc.λn.c(A, c(B, c(C, n))).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λA.@main(λc.λn.c(A, n))",
+          "expected": "λa.λb.λc.b(a, c)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λA.λB.@main(λc.λn.c(A, c(B, n)))",
+          "expected": "λa.λb.λc.λd.c(b, c(a, d))"
+        },
+        {
+          "input": "λA.λB.λC.@main(λc.λn.c(A, c(B, c(C, n))))",
+          "expected": "λa.λb.λc.λd.λe.d(c, d(a, d(b, e)))"
         }
       ]
     },
@@ -1334,16 +1473,20 @@
       "id": "clst_srt",
       "category": "clst",
       "categoryName": "Church Lists",
-      "description": "Mock description for clst_srt. This is seed data for local development.",
+      "description": "Sort a Church list of Church booleans.\nAll False values come before True.\n\nA Church list folds over its elements:\n  Nil       = λc.λn.n\n  Cons(h,t) = λc.λn.c(h, t(c,n))\nSo [A,B,C] = λc.λn.c(A, c(B, c(C, n))).\n\nChurch booleans: True = λa.λb.a, False = λa.λb.b.",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λc.λn.c(λa.λb.a, n))",
+          "expected": "λa.λb.a(λc.λd.c, b)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λc.λn.c(λa.λb.b, n))",
+          "expected": "λa.λb.a(λc.λd.d, b)"
+        },
+        {
+          "input": "@main(λc.λn.c(λa.λb.a, c(λa.λb.b, n)))",
+          "expected": "λa.λb.a(λc.λd.d, a(λc.λd.c, b))"
         }
       ]
     },
@@ -1351,16 +1494,20 @@
       "id": "clst_zip",
       "category": "clst",
       "categoryName": "Church Lists",
-      "description": "Mock description for clst_zip. This is seed data for local development.",
+      "description": "Zip two Church lists with function F.\n[A,B,C] zip [X,Y,Z] = [F(A,X), F(B,Y), F(C,Z)].\n\nA Church list folds over its elements:\n  Nil       = λc.λn.n\n  Cons(h,t) = λc.λn.c(h, t(c,n))\nSo [A,B,C] = λc.λn.c(A, c(B, c(C, n))).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λC.λA.λB.@main(C, λc.λn.c(A, n), λc.λn.c(B, n))",
+          "expected": "λa.λb.λc.λd.λe.d(a(b, c), e)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λE.λA.λB.λC.λD.@main(E, λc.λn.c(A, c(B, n)), λc.λn.c(C, c(D, n)))",
+          "expected": "λa.λb.λc.λd.λe.λf.λg.f(a(b, d), f(a(c, e), g))"
+        },
+        {
+          "input": "λG.λA.λB.λC.λD.λE.λF.@main(G, λc.λn.c(A, c(B, c(C, n))), λc.λn.c(D, c(E, c(F, n))))",
+          "expected": "λa.λb.λc.λd.λe.λf.λg.λh.λi.h(a(b, e), h(a(c, f), h(a(d, g), i)))"
         }
       ]
     },
@@ -1368,7 +1515,7 @@
       "id": "cnat_add",
       "category": "cnat",
       "categoryName": "Church Naturals",
-      "description": "Mock description for cnat_add. This is seed data for local development.",
+      "description": "Add two Church nats. Return A + B.\n\nA Church nat:\n  0 = λf.λx.x\n  1 = λf.λx.f(x)\n  2 = λf.λx.f(f(x))",
       "testCount": 10,
       "tests": [
         {
@@ -1376,8 +1523,12 @@
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λf.λx.x, λf.λx.f(f(f(x))))",
+          "expected": "λa.λb.a(a(a(b)))"
+        },
+        {
+          "input": "@main(λf.λx.f(x), λf.λx.f(x))",
+          "expected": "λa.λb.a(a(b))"
         }
       ]
     },
@@ -1385,16 +1536,20 @@
       "id": "cnat_div",
       "category": "cnat",
       "categoryName": "Church Naturals",
-      "description": "Mock description for cnat_div. This is seed data for local development.",
+      "description": "Divide two Church nats. Return floor(A / B).\n\nA Church nat:\n  0 = λf.λx.x\n  1 = λf.λx.f(x)\n  2 = λf.λx.f(f(x))",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λf.λx.x, λf.λx.f(f(f(x))))",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λf.λx.f(f(f(f(f(f(f(x))))))), λf.λx.f(f(x)))",
+          "expected": "λa.λb.a(a(a(b)))"
+        },
+        {
+          "input": "@main(λf.λx.f(f(f(f(f(f(f(f(f(x))))))))), λf.λx.f(f(f(x))))",
+          "expected": "λa.λb.a(a(a(b)))"
         }
       ]
     },
@@ -1402,15 +1557,19 @@
       "id": "cnat_exp",
       "category": "cnat",
       "categoryName": "Church Naturals",
-      "description": "Mock description for cnat_exp. This is seed data for local development.",
+      "description": "Exponentiate two Church nats. Return A ^ B.\n\nA Church nat:\n  0 = λf.λx.x\n  1 = λf.λx.f(x)\n  2 = λf.λx.f(f(x))",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λf.λx.f(f(x)), λf.λx.x)",
+          "expected": "λa.λb.a(b)"
+        },
+        {
+          "input": "@main(λf.λx.x, λf.λx.f(f(f(x))))",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "input": "@main(λf.λx.f(x), λf.λx.f(f(f(f(f(f(f(x))))))))",
           "expected": "λa.λb.a(b)"
         }
       ]
@@ -1419,15 +1578,19 @@
       "id": "cnat_gcd",
       "category": "cnat",
       "categoryName": "Church Naturals",
-      "description": "Mock description for cnat_gcd. This is seed data for local development.",
+      "description": "GCD of two Church nats.\n\nA Church nat:\n  0 = λf.λx.x\n  1 = λf.λx.f(x)\n  2 = λf.λx.f(f(x))",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λf.λx.f(f(f(f(f(f(x)))))), λf.λx.f(f(f(f(x)))))",
+          "expected": "λa.λb.a(a(b))"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "input": "@main(λf.λx.f(f(f(f(f(f(f(f(x)))))))), λf.λx.f(f(f(f(f(f(f(f(f(f(f(f(x)))))))))))))",
+          "expected": "λa.λb.a(a(a(a(b))))"
+        },
+        {
+          "input": "@main(λf.λx.f(f(f(f(f(f(f(x))))))), λf.λx.f(f(f(f(f(x))))))",
           "expected": "λa.λb.a(b)"
         }
       ]
@@ -1436,16 +1599,20 @@
       "id": "cnat_log",
       "category": "cnat",
       "categoryName": "Church Naturals",
-      "description": "Mock description for cnat_log. This is seed data for local development.",
+      "description": "Floor logarithm of two Church nats.\nGiven N and base B (B ≥ 2, N ≥ 1),\nreturn floor(log_B(N)).\n\nA Church nat:\n  0 = λf.λx.x\n  1 = λf.λx.f(x)\n  2 = λf.λx.f(f(x))",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λf.λx.f(x), λf.λx.f(f(x)))",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λf.λx.f(f(f(f(x)))), λf.λx.f(f(x)))",
+          "expected": "λa.λb.a(a(b))"
+        },
+        {
+          "input": "@main(λf.λx.f(f(f(f(f(f(f(f(x)))))))), λf.λx.f(f(x)))",
+          "expected": "λa.λb.a(a(a(b)))"
         }
       ]
     },
@@ -1453,16 +1620,20 @@
       "id": "cnat_mod",
       "category": "cnat",
       "categoryName": "Church Naturals",
-      "description": "Mock description for cnat_mod. This is seed data for local development.",
+      "description": "Modulo of two Church nats. Return A mod B.\n\nA Church nat:\n  0 = λf.λx.x\n  1 = λf.λx.f(x)\n  2 = λf.λx.f(f(x))",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λf.λx.x, λf.λx.f(f(f(x))))",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "input": "@main(λf.λx.f(f(f(f(f(f(f(x))))))), λf.λx.f(f(x)))",
           "expected": "λa.λb.a(b)"
+        },
+        {
+          "input": "@main(λf.λx.f(f(f(f(f(f(f(f(f(x))))))))), λf.λx.f(f(f(x))))",
+          "expected": "λa.λb.b"
         }
       ]
     },
@@ -1470,16 +1641,20 @@
       "id": "cnat_mul",
       "category": "cnat",
       "categoryName": "Church Naturals",
-      "description": "Mock description for cnat_mul. This is seed data for local development.",
+      "description": "Multiply two Church nats. Return A * B.\n\nA Church nat:\n  0 = λf.λx.x\n  1 = λf.λx.f(x)\n  2 = λf.λx.f(f(x))",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λf.λx.x, λf.λx.f(f(f(x))))",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λf.λx.f(x), λf.λx.f(f(f(f(f(x))))))",
+          "expected": "λa.λb.a(a(a(a(a(b)))))"
+        },
+        {
+          "input": "@main(λf.λx.f(f(x)), λf.λx.f(f(f(x))))",
+          "expected": "λa.λb.a(a(a(a(a(a(b))))))"
         }
       ]
     },
@@ -1487,16 +1662,20 @@
       "id": "cnat_pri",
       "category": "cnat",
       "categoryName": "Church Naturals",
-      "description": "Mock description for cnat_pri. This is seed data for local development.",
+      "description": "Primality test on a Church nat.\nReturn True if N is prime, False otherwise.\n\nA Church nat:\n  0 = λf.λx.x\n  1 = λf.λx.f(x)\n  2 = λf.λx.f(f(x))\n\nChurch booleans: True = λa.λb.a, False = λa.λb.b.",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λf.λx.x)",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λf.λx.f(x))",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λf.λx.f(f(x)))",
+          "expected": "λa.λb.a"
         }
       ]
     },
@@ -1504,15 +1683,19 @@
       "id": "cnat_sqr",
       "category": "cnat",
       "categoryName": "Church Naturals",
-      "description": "Mock description for cnat_sqr. This is seed data for local development.",
+      "description": "Integer square root of a Church nat. floor(√N).\n\nA Church nat:\n  0 = λf.λx.x\n  1 = λf.λx.f(x)\n  2 = λf.λx.f(f(x))",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λf.λx.x)",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "input": "@main(λf.λx.f(x))",
+          "expected": "λa.λb.a(b)"
+        },
+        {
+          "input": "@main(λf.λx.f(f(x)))",
           "expected": "λa.λb.a(b)"
         }
       ]
@@ -1521,16 +1704,20 @@
       "id": "cnat_tot",
       "category": "cnat",
       "categoryName": "Church Naturals",
-      "description": "Mock description for cnat_tot. This is seed data for local development.",
+      "description": "Euler's totient φ(N) of a Church nat:\ncount of integers 1..N coprime with N.\n\nA Church nat:\n  0 = λf.λx.x\n  1 = λf.λx.f(x)\n  2 = λf.λx.f(f(x))",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λf.λx.f(x))",
+          "expected": "λa.λb.a(b)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
+          "input": "@main(λf.λx.f(f(x)))",
           "expected": "λa.λb.a(b)"
+        },
+        {
+          "input": "@main(λf.λx.f(f(f(x))))",
+          "expected": "λa.λb.a(a(b))"
         }
       ]
     },
@@ -1538,16 +1725,20 @@
       "id": "ctre_bfs",
       "category": "ctre",
       "categoryName": "Church Trees",
-      "description": "Mock description for ctre_bfs. This is seed data for local development.",
+      "description": "Flatten a Church tree into a Scott list in\nbreadth-first order. Shallowest leaves first,\nleft-to-right within each depth.\n\nNode(Node(Leaf(A), Leaf(B)), Leaf(C)) → [C, A, B]\n\nA Church tree folds over its structure:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a(n,l), b(n,l))\nSo Node(Leaf(A), Leaf(B)) = λn.λl.n(l(A), l(B)).\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λA.@main(λn.λl.l(A))",
+          "expected": "λa.λb.λc.b(a, λd.λe.e)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λA.λB.@main(λn.λl.n((λp.λq.q(A))(n, l), (λp.λq.q(B))(n, l)))",
+          "expected": "λa.λb.λc.λd.c(a, λe.λf.e(b, λg.λh.h))"
+        },
+        {
+          "input": "λA.λB.λC.@main(λn.λl.n((λp.λq.p((λr.λs.s(A))(p, q), (λr.λs.s(B))(p, q)))(n, l), (λp.λq.q(C))(n, l)))",
+          "expected": "λa.λb.λc.λd.λe.d(c, λf.λg.f(a, λh.λi.h(b, λj.λk.k)))"
         }
       ]
     },
@@ -1555,16 +1746,20 @@
       "id": "ctre_fft",
       "category": "ctre",
       "categoryName": "Church Trees",
-      "description": "Mock description for ctre_fft. This is seed data for local development.",
+      "description": "Compute the Discrete Fourier Transform\nusing the GN number system.\n\nBalanced Ternary (BT), Church-encoded, LSB first:\n  E       = λt.λo.λi.λe.e\n  T(rest) = λt.λo.λi.λe.t(rest(t,o,i,e))\n  O(rest) = λt.λo.λi.λe.o(rest(t,o,i,e))\n  I(rest) = λt.λo.λi.λe.i(rest(t,o,i,e))\nExample: T(I(E)) = -1 + 1*3 = 2.\nOutputs must be canonical (no trailing O).\n\nGN numbers are Church trees of BT integers:\n  L(n)   = λn.λl.l(n)\n  B(a,b) = λn.λl.n(a(n,l), b(n,l))\n\nFor N-point FFT (N = 2^k), each coefficient is a\nGN(k-1) number. Input coefficients are in\nbit-reversal order:\n  [c0,c1,c2,c3] is stored as B(B(c0,c2),B(c1,c3))\nThe DFT evaluates c0 + c1*x + c2*x² + ...\nat all Nth roots of unity.",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λn.λl.n(λn.λl.l(λn.λl.l(λt.λo.λi.λe.o(i(e))))(n, l), λn.λl.l(λn.λl.l(λt.λo.λi.λe.i(e)))(n, l)))",
+          "expected": "λa.λb.a(λc.λd.d(λe.λf.f(λg.λh.λi.λj.i(i(j))), c, d), λc.λd.d(λe.λf.f(λg.λh.λi.λj.g(i(j))), c, d))"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λn.λl.n(λn.λl.l(λn.λl.l(λt.λo.λi.λe.t(t(i(e)))))(n, l), λn.λl.l(λn.λl.l(λt.λo.λi.λe.t(i(e))))(n, l)))",
+          "expected": "λa.λb.a(λc.λd.d(λe.λf.f(λg.λh.λi.λj.i(g(i(j)))), c, d), λc.λd.d(λe.λf.f(λg.λh.λi.λj.h(i(j))), c, d))"
+        },
+        {
+          "input": "@main(λn.λl.n(λn.λl.l(λn.λl.l(λt.λo.λi.λe.i(t(i(e)))))(n, l), λn.λl.l(λn.λl.l(λt.λo.λi.λe.o(i(e))))(n, l)))",
+          "expected": "λa.λb.a(λc.λd.d(λe.λf.f(λg.λh.λi.λj.i(h(i(j)))), c, d), λc.λd.d(λe.λf.f(λg.λh.λi.λj.i(i(j))), c, d))"
         }
       ]
     },
@@ -1572,16 +1767,20 @@
       "id": "ctre_idx",
       "category": "ctre",
       "categoryName": "Church Trees",
-      "description": "Mock description for ctre_idx. This is seed data for local development.",
+      "description": "Label each leaf of a Church tree with its\nleft-to-right index (Scott nat) using function F.\nOutput is a Church tree.\n\nindex(F, Node(Leaf(A), Leaf(B)))\n  = Node(Leaf(F(0,A)), Leaf(F(1,B)))\n\nA Church tree folds over its structure:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a(n,l), b(n,l))\nSo Node(Leaf(A), Leaf(B)) = λn.λl.n(l(A), l(B)).\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λF.λA.@main(F, λn.λl.l(A))",
+          "expected": "λa.λb.λc.λd.d(a(λe.λf.f, b))"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λF.λA.λB.@main(F, λn.λl.n((λp.λq.q(A))(n, l), (λp.λq.q(B))(n, l)))",
+          "expected": "λa.λb.λc.λd.λe.d(e(a(λf.λg.g, b)), e(a(λf.λg.f(λh.λi.i), c)))"
+        },
+        {
+          "input": "λF.λA.λB.λC.@main(F, λn.λl.n((λp.λq.p((λr.λs.s(A))(p, q), (λr.λs.s(B))(p, q)))(n, l), (λp.λq.q(C))(n, l)))",
+          "expected": "λa.λb.λc.λd.λe.λf.e(e(f(a(λg.λh.h, b)), f(a(λg.λh.g(λi.λj.j), c))), f(a(λg.λh.g(λi.λj.i(λk.λl.l)), d)))"
         }
       ]
     },
@@ -1589,16 +1788,20 @@
       "id": "ctre_inv",
       "category": "ctre",
       "categoryName": "Church Trees",
-      "description": "Mock description for ctre_inv. This is seed data for local development.",
+      "description": "Bit-reversal permutation on a perfect Church tree.\nLeaf at index i moves to bit_reverse(i).\n[A,B,C,D] → [A,C,B,D].\n\nA Church tree folds over its structure:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a(n,l), b(n,l))\nSo Node(Leaf(A), Leaf(B)) = λn.λl.n(l(A), l(B)).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λA.@main(λn.λl.l(A))",
+          "expected": "λa.λb.λc.c(a)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λA.@main(λn.λl.l(A))",
+          "expected": "λa.λb.λc.c(a)"
+        },
+        {
+          "input": "λA.λB.@main(λn.λl.n(l(A), l(B)))",
+          "expected": "λa.λb.λc.λd.c(d(a), d(b))"
         }
       ]
     },
@@ -1606,16 +1809,20 @@
       "id": "ctre_lst",
       "category": "ctre",
       "categoryName": "Church Trees",
-      "description": "Mock description for ctre_lst. This is seed data for local development.",
+      "description": "Flatten a Church tree into a Church list of its leaves,\nleft to right.\n\nA Church tree folds over its structure:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a(n,l), b(n,l))\nSo Node(Leaf(A), Leaf(B)) = λn.λl.n(l(A), l(B)).\n\nA Church list folds over its elements:\n  Nil       = λc.λn.n\n  Cons(h,t) = λc.λn.c(h, t(c,n))\nSo [A,B,C] = λc.λn.c(A, c(B, c(C, n))).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λA.@main(λn.λl.l(A))",
+          "expected": "λa.λb.λc.b(a, c)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λA.λB.@main(λn.λl.n((λp.λq.q(A))(n, l), (λp.λq.q(B))(n, l)))",
+          "expected": "λa.λb.λc.λd.c(a, c(b, d))"
+        },
+        {
+          "input": "λA.λB.λC.@main(λn.λl.n((λp.λq.p((λr.λs.s(A))(p, q), (λr.λs.s(B))(p, q)))(n, l), (λp.λq.q(C))(n, l)))",
+          "expected": "λa.λb.λc.λd.λe.d(a, d(b, d(c, e)))"
         }
       ]
     },
@@ -1623,16 +1830,20 @@
       "id": "ctre_mrg",
       "category": "ctre",
       "categoryName": "Church Trees",
-      "description": "Mock description for ctre_mrg. This is seed data for local development.",
+      "description": "Merge two same-shape Church trees, combining\ncorresponding leaves with function F.\nOutput is a Church tree.\n\nmerge(F, Node(Leaf(A),Leaf(B)), Node(Leaf(P),Leaf(Q)))\n  = Node(Leaf(F(A,P)), Leaf(F(B,Q)))\n\nA Church tree folds over its structure:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a(n,l), b(n,l))\nSo Node(Leaf(A), Leaf(B)) = λn.λl.n(l(A), l(B)).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λF.λA.λP.@main(F, λn.λl.l(A), λn.λl.l(P))",
+          "expected": "λa.λb.λc.λd.λe.e(a(b, c))"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λF.λA.λB.λP.λQ.@main(F, λn.λl.n((λp.λq.q(A))(n, l), (λp.λq.q(B))(n, l)), λn.λl.n((λp.λq.q(P))(n, l), (λp.λq.q(Q))(n, l)))",
+          "expected": "λa.λb.λc.λd.λe.λf.λg.f(g(a(b, d)), g(a(c, e)))"
+        },
+        {
+          "input": "λF.λA.λB.λC.λP.λQ.λR.@main(F, λn.λl.n((λp.λq.p((λr.λs.s(A))(p, q), (λr.λs.s(B))(p, q)))(n, l), (λp.λq.q(C))(n, l)), λn.λl.n((λp.λq.p((λr.λs.s(P))(p, q), (λr.λs.s(Q))(p, q)))(n, l), (λp.λq.q(R))(n, l)))",
+          "expected": "λa.λb.λc.λd.λe.λf.λg.λh.λi.h(h(i(a(b, e)), i(a(c, f))), i(a(d, g)))"
         }
       ]
     },
@@ -1640,16 +1851,20 @@
       "id": "ctre_rev",
       "category": "ctre",
       "categoryName": "Church Trees",
-      "description": "Mock description for ctre_rev. This is seed data for local development.",
+      "description": "Reverse the leaves of a perfect Church tree.\n[A,B,C,D] → [D,C,B,A].\n\nA Church tree folds over its structure:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a(n,l), b(n,l))\nSo Node(Leaf(A), Leaf(B)) = λn.λl.n(l(A), l(B)).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λA.@main(λn.λl.l(A))",
+          "expected": "λa.λb.λc.c(a)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λA.@main(λn.λl.l(A))",
+          "expected": "λa.λb.λc.c(a)"
+        },
+        {
+          "input": "λA.λB.@main(λn.λl.n(l(A), l(B)))",
+          "expected": "λa.λb.λc.λd.c(d(b), d(a))"
         }
       ]
     },
@@ -1657,16 +1872,20 @@
       "id": "ctre_rtl",
       "category": "ctre",
       "categoryName": "Church Trees",
-      "description": "Mock description for ctre_rtl. This is seed data for local development.",
+      "description": "Rotate leaves of a perfect Church tree left by one.\n[A,B,C,D] → [B,C,D,A].\n\nA Church tree folds over its structure:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a(n,l), b(n,l))\nSo Node(Leaf(A), Leaf(B)) = λn.λl.n(l(A), l(B)).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λA.@main(λn.λl.l(A))",
+          "expected": "λa.λb.λc.c(a)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λA.@main(λn.λl.l(A))",
+          "expected": "λa.λb.λc.c(a)"
+        },
+        {
+          "input": "λA.λB.@main(λn.λl.n(l(A), l(B)))",
+          "expected": "λa.λb.λc.λd.c(d(b), d(a))"
         }
       ]
     },
@@ -1674,16 +1893,20 @@
       "id": "ctre_rtr",
       "category": "ctre",
       "categoryName": "Church Trees",
-      "description": "Mock description for ctre_rtr. This is seed data for local development.",
+      "description": "Rotate leaves of a perfect Church tree right by one.\n[A,B,C,D] → [D,A,B,C].\n\nA Church tree folds over its structure:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a(n,l), b(n,l))\nSo Node(Leaf(A), Leaf(B)) = λn.λl.n(l(A), l(B)).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λA.@main(λn.λl.l(A))",
+          "expected": "λa.λb.λc.c(a)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λA.@main(λn.λl.l(A))",
+          "expected": "λa.λb.λc.c(a)"
+        },
+        {
+          "input": "λA.λB.@main(λn.λl.n(l(A), l(B)))",
+          "expected": "λa.λb.λc.λd.c(d(b), d(a))"
         }
       ]
     },
@@ -1691,16 +1914,20 @@
       "id": "ctre_scn",
       "category": "ctre",
       "categoryName": "Church Trees",
-      "description": "Mock description for ctre_scn. This is seed data for local development.",
+      "description": "Exclusive prefix scan over a Church tree's leaves,\npreserving shape. Each leaf_i becomes the fold of\nall leaves before it. Output is a Church tree.\n\nscan(F, Z, Node(Leaf(A), Leaf(B)))\n  = Node(Leaf(Z), Leaf(F(Z,A)))\n\nA Church tree folds over its structure:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a(n,l), b(n,l))\nSo Node(Leaf(A), Leaf(B)) = λn.λl.n(l(A), l(B)).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λF.λZ.λA.@main(F, Z, λn.λl.l(A))",
+          "expected": "λa.λb.λc.λd.λe.e(b)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λF.λZ.λA.λB.@main(F, Z, λn.λl.n((λp.λq.q(A))(n, l), (λp.λq.q(B))(n, l)))",
+          "expected": "λa.λb.λc.λd.λe.λf.e(f(b), f(a(b, c)))"
+        },
+        {
+          "input": "λF.λZ.λA.λB.λC.@main(F, Z, λn.λl.n((λp.λq.p((λr.λs.s(A))(p, q), (λr.λs.s(B))(p, q)))(n, l), (λp.λq.q(C))(n, l)))",
+          "expected": "λa.λb.λc.λd.λe.λf.λg.f(f(g(b), g(a(b, c))), g(a(a(b, c), d)))"
         }
       ]
     },
@@ -1708,16 +1935,20 @@
       "id": "ntup_dot",
       "category": "ntup",
       "categoryName": "N-Tuples",
-      "description": "Mock description for ntup_dot. This is seed data for local development.",
+      "description": "Dot product of two N-tuples.\n\nGiven add A, mul M, zero Z, and tuples (a1..aN),\n(x1..xN), return:\n  A(M(a1,x1), A(M(a2,x2), ...A(M(aN,xN), Z)...))\n\nAn N-tuple packs N elements into one function:\n  λt.t(A,B,C,...)\nThe size N is passed as a Church nat.",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λC.λD.λE.λA.λB.@main(λf.λx.f(x), C, D, E, λt.t(A), λt.t(B))",
+          "expected": "λa.λb.λc.λd.λe.a(b(d, e), c)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λE.λF.λG.λA.λB.λC.λD.@main(λf.λx.f(f(x)), E, F, G, λt.t(A,B), λt.t(C,D))",
+          "expected": "λa.λb.λc.λd.λe.λf.λg.a(b(d, f), a(b(e, g), c))"
+        },
+        {
+          "input": "λG.λH.λI.λA.λB.λC.λD.λE.λF.@main(λf.λx.f(f(f(x))), G, H, I, λt.t(A,B,C), λt.t(D,E,F))",
+          "expected": "λa.λb.λc.λd.λe.λf.λg.λh.λi.a(b(d, g), a(b(e, h), a(b(f, i), c)))"
         }
       ]
     },
@@ -1725,16 +1956,20 @@
       "id": "ntup_fol",
       "category": "ntup",
       "categoryName": "N-Tuples",
-      "description": "Mock description for ntup_fol. This is seed data for local development.",
+      "description": "Right-fold an N-tuple.\nGiven F, Z, and (A,B,C), return F(A, F(B, F(C, Z))).\n\nAn N-tuple packs N elements into one function:\n  λt.t(A,B,C,...)\nThe size N is passed as a Church nat.",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λB.λC.λA.@main(λf.λx.f(x), B, C, λt.t(A))",
+          "expected": "λa.λb.λc.a(c, b)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λC.λD.λA.λB.@main(λf.λx.f(f(x)), C, D, λt.t(A,B))",
+          "expected": "λa.λb.λc.λd.a(c, a(d, b))"
+        },
+        {
+          "input": "λD.λE.λA.λB.λC.@main(λf.λx.f(f(f(x))), D, E, λt.t(A,B,C))",
+          "expected": "λa.λb.λc.λd.λe.a(c, a(d, a(e, b)))"
         }
       ]
     },
@@ -1742,16 +1977,20 @@
       "id": "ntup_hed",
       "category": "ntup",
       "categoryName": "N-Tuples",
-      "description": "Mock description for ntup_hed. This is seed data for local development.",
+      "description": "Return the first element of an N-tuple.\n\nAn N-tuple packs N elements into one function:\n  λt.t(A,B,C,...)\nThe size N is passed as a Church nat.",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λA.@main(λf.λx.f(x), λt.t(A))",
+          "expected": "λa.a"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λA.λB.@main(λf.λx.f(f(x)), λt.t(A,B))",
+          "expected": "λa.λb.a"
+        },
+        {
+          "input": "λA.λB.λC.@main(λf.λx.f(f(f(x))), λt.t(A,B,C))",
+          "expected": "λa.λb.λc.a"
         }
       ]
     },
@@ -1759,16 +1998,20 @@
       "id": "ntup_map",
       "category": "ntup",
       "categoryName": "N-Tuples",
-      "description": "Mock description for ntup_map. This is seed data for local development.",
+      "description": "Apply function F to every element of an N-tuple.\n\nAn N-tuple packs N elements into one function:\n  λt.t(A,B,C,...)\nThe size N is passed as a Church nat.",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λB.λA.@main(B, λf.λx.f(x), λt.t(A))",
+          "expected": "λa.λb.λc.c(a(b))"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λC.λA.λB.@main(C, λf.λx.f(f(x)), λt.t(A,B))",
+          "expected": "λa.λb.λc.λd.d(a(b), a(c))"
+        },
+        {
+          "input": "λD.λA.λB.λC.@main(D, λf.λx.f(f(f(x))), λt.t(A,B,C))",
+          "expected": "λa.λb.λc.λd.λe.e(a(b), a(c), a(d))"
         }
       ]
     },
@@ -1776,16 +2019,20 @@
       "id": "ntup_nth",
       "category": "ntup",
       "categoryName": "N-Tuples",
-      "description": "Mock description for ntup_nth. This is seed data for local development.",
+      "description": "Return the element at index I (Church nat, 0-based)\nof an N-tuple.\n\nAn N-tuple packs N elements into one function:\n  λt.t(A,B,C,...)\nThe size N is passed as a Church nat.",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λA.λB.λC.@main(λf.λx.f(f(f(x))), λf.λx.x, λt.t(A,B,C))",
+          "expected": "λa.λb.λc.a"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λA.λB.λC.@main(λf.λx.f(f(f(x))), λf.λx.f(x), λt.t(A,B,C))",
+          "expected": "λa.λb.λc.b"
+        },
+        {
+          "input": "λA.λB.λC.@main(λf.λx.f(f(f(x))), λf.λx.f(f(x)), λt.t(A,B,C))",
+          "expected": "λa.λb.λc.c"
         }
       ]
     },
@@ -1793,16 +2040,20 @@
       "id": "ntup_rev",
       "category": "ntup",
       "categoryName": "N-Tuples",
-      "description": "Mock description for ntup_rev. This is seed data for local development.",
+      "description": "Reverse an N-tuple. (A,B,C) becomes (C,B,A).\n\nAn N-tuple packs N elements into one function:\n  λt.t(A,B,C,...)\nThe size N is passed as a Church nat.",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λA.@main(λf.λx.f(x), λt.t(A))",
+          "expected": "λa.λb.b(a)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λA.λB.@main(λf.λx.f(f(x)), λt.t(A,B))",
+          "expected": "λa.λb.λc.c(b, a)"
+        },
+        {
+          "input": "λA.λB.λC.@main(λf.λx.f(f(f(x))), λt.t(A,B,C))",
+          "expected": "λa.λb.λc.λd.d(c, b, a)"
         }
       ]
     },
@@ -1810,16 +2061,20 @@
       "id": "ntup_shl",
       "category": "ntup",
       "categoryName": "N-Tuples",
-      "description": "Mock description for ntup_shl. This is seed data for local development.",
+      "description": "Rotate an N-tuple left by one.\n(A,B,C) becomes (B,C,A).\n\nAn N-tuple packs N elements into one function:\n  λt.t(A,B,C,...)\nThe size N is passed as a Church nat.",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λA.@main(λf.λx.f(x), λt.t(A))",
+          "expected": "λa.λb.b(a)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λA.λB.@main(λf.λx.f(f(x)), λt.t(A,B))",
+          "expected": "λa.λb.λc.c(b, a)"
+        },
+        {
+          "input": "λA.λB.λC.@main(λf.λx.f(f(f(x))), λt.t(A,B,C))",
+          "expected": "λa.λb.λc.λd.d(b, c, a)"
         }
       ]
     },
@@ -1827,16 +2082,20 @@
       "id": "ntup_shr",
       "category": "ntup",
       "categoryName": "N-Tuples",
-      "description": "Mock description for ntup_shr. This is seed data for local development.",
+      "description": "Rotate an N-tuple right by one.\n(A,B,C) becomes (C,A,B).\n\nAn N-tuple packs N elements into one function:\n  λt.t(A,B,C,...)\nThe size N is passed as a Church nat.",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λA.@main(λf.λx.f(x), λt.t(A))",
+          "expected": "λa.λb.b(a)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λA.λB.@main(λf.λx.f(f(x)), λt.t(A,B))",
+          "expected": "λa.λb.λc.c(b, a)"
+        },
+        {
+          "input": "λA.λB.λC.@main(λf.λx.f(f(f(x))), λt.t(A,B,C))",
+          "expected": "λa.λb.λc.λd.d(c, a, b)"
         }
       ]
     },
@@ -1844,16 +2103,20 @@
       "id": "ntup_srt",
       "category": "ntup",
       "categoryName": "N-Tuples",
-      "description": "Mock description for ntup_srt. This is seed data for local development.",
+      "description": "Sort an N-tuple of Church booleans.\nAll False values come before True.\n\nAn N-tuple packs N elements into one function:\n  λt.t(A,B,C,...)\nThe size N is passed as a Church nat.\n\nChurch booleans: True = λa.λb.a, False = λa.λb.b.",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λf.λx.f(x), λt.t(λa.λb.a))",
+          "expected": "λa.a(λb.λc.b)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λf.λx.f(x), λt.t(λa.λb.b))",
+          "expected": "λa.a(λb.λc.c)"
+        },
+        {
+          "input": "@main(λf.λx.f(f(x)), λt.t(λa.λb.a,λa.λb.b))",
+          "expected": "λa.a(λb.λc.c, λb.λc.b)"
         }
       ]
     },
@@ -1861,16 +2124,20 @@
       "id": "ntup_zip",
       "category": "ntup",
       "categoryName": "N-Tuples",
-      "description": "Mock description for ntup_zip. This is seed data for local development.",
+      "description": "Zip two N-tuples with function F.\n(A,B,C) zip (X,Y,Z) = (F(A,X), F(B,Y), F(C,Z)).\n\nAn N-tuple packs N elements into one function:\n  λt.t(A,B,C,...)\nThe size N is passed as a Church nat.",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λC.λA.λB.@main(λf.λx.f(x), C, λt.t(A), λt.t(B))",
+          "expected": "λa.λb.λc.λd.d(a(b, c))"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λE.λA.λB.λC.λD.@main(λf.λx.f(f(x)), E, λt.t(A,B), λt.t(C,D))",
+          "expected": "λa.λb.λc.λd.λe.λf.f(a(b, d), a(c, e))"
+        },
+        {
+          "input": "λG.λA.λB.λC.λD.λE.λF.@main(λf.λx.f(f(f(x))), G, λt.t(A,B,C), λt.t(D,E,F))",
+          "expected": "λa.λb.λc.λd.λe.λf.λg.λh.h(a(b, e), a(c, f), a(d, g))"
         }
       ]
     },
@@ -1878,16 +2145,20 @@
       "id": "sadt_chi",
       "category": "sadt",
       "categoryName": "Scott ADTs",
-      "description": "Mock description for sadt_chi. This is seed data for local development.",
+      "description": "Given a type descriptor and a Scott-encoded value,\nreturn its recursive children as a Scott list.\nConstructors with no recursive fields return [].\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Scott value selects the ith of N case-handlers,\napplied to its fields:\n  Nat Z:    λz.λs.z\n  Nat S(n): λn.λz.λs.s(n)\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0)",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v1)",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v0)",
+          "expected": "λa.λb.b"
         }
       ]
     },
@@ -1895,16 +2166,20 @@
       "id": "sadt_ctr",
       "category": "sadt",
       "categoryName": "Scott ADTs",
-      "description": "Mock description for sadt_ctr. This is seed data for local development.",
+      "description": "Build the Nth constructor function for a\nScott-encoded algebraic data type.\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Scott value selects the ith of N case-handlers,\napplied to its fields:\n  Nat Z:    λz.λs.z\n  Nat S(n): λn.λz.λs.s(n)\n\nIndex is a Scott nat:\n  Z = λs.λz.z, S(n) = λs.λz.s(n)",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λs.λz.z)",
+          "expected": "λa.λb.a"
+        },
+        {
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λs.λz.s(λs.λz.z))",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λs.λz.z)",
+          "expected": "λa.λb.a"
         }
       ]
     },
@@ -1912,16 +2187,20 @@
       "id": "sadt_des",
       "category": "sadt",
       "categoryName": "Scott ADTs",
-      "description": "Mock description for sadt_des. This is seed data for local development.",
+      "description": "Deserialize a Scott list of Church booleans\ninto a Scott-encoded value.\n\nEncoding: for N constructors, each index uses\nceil(log2(N)) bits (MSB first), then children.\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Scott value selects the ith of N case-handlers,\napplied to its fields:\n  Nat Z:    λz.λs.z\n  Nat S(n): λn.λz.λs.s(n)\n\nChurch booleans: True = λa.λb.a, False = λa.λb.b.\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λc.λn.c(λa.λb.b, λc.λn.n))",
+          "expected": "λa.λb.a"
+        },
+        {
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λc.λn.c(λa.λb.a, λc.λn.n))",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λc.λn.c(λa.λb.b, λc.λn.n))",
+          "expected": "λa.λb.a"
         }
       ]
     },
@@ -1929,16 +2208,20 @@
       "id": "sadt_eql",
       "category": "sadt",
       "categoryName": "Scott ADTs",
-      "description": "Mock description for sadt_eql. This is seed data for local development.",
+      "description": "Test two Scott-encoded values for structural equality.\nReturn True if equal, False otherwise.\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Scott value selects the ith of N case-handlers,\napplied to its fields:\n  Nat Z:    λz.λs.z\n  Nat S(n): λn.λz.λs.s(n)\n\nChurch booleans: True = λa.λb.a, False = λa.λb.b.",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0, λv0.λv1.v0)",
+          "expected": "λa.λb.a"
+        },
+        {
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0, λv0.λv1.v1)",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v0, λv0.λv1.v0)",
+          "expected": "λa.λb.a"
         }
       ]
     },
@@ -1946,16 +2229,20 @@
       "id": "sadt_fol",
       "category": "sadt",
       "categoryName": "Scott ADTs",
-      "description": "Mock description for sadt_fol. This is seed data for local development.",
+      "description": "Convert a Scott-encoded value to Church encoding (fold).\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Scott value selects the ith of N case-handlers,\napplied to its fields:\n  Nat Z:    λz.λs.z\n  Nat S(n): λn.λz.λs.s(n)\n\nA Church value folds recursive fields by applying\nthem to all case-handlers:\n  Nat Z:       λz.λs.z\n  Nat S(S(Z)): λz.λs.s(s(z))",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0)",
+          "expected": "λa.λb.a"
+        },
+        {
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v1)",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v0)",
+          "expected": "λa.λb.a"
         }
       ]
     },
@@ -1963,16 +2250,20 @@
       "id": "sadt_idx",
       "category": "sadt",
       "categoryName": "Scott ADTs",
-      "description": "Mock description for sadt_idx. This is seed data for local development.",
+      "description": "Given a type descriptor and a Scott-encoded value,\nreturn the outermost constructor index as a Scott nat.\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Scott value selects the ith of N case-handlers,\napplied to its fields:\n  Nat Z:    λz.λs.z\n  Nat S(n): λn.λz.λs.s(n)\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0)",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v1)",
+          "expected": "λa.λb.a(λc.λd.d)"
+        },
+        {
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v0)",
+          "expected": "λa.λb.b"
         }
       ]
     },
@@ -1980,16 +2271,20 @@
       "id": "sadt_len",
       "category": "sadt",
       "categoryName": "Scott ADTs",
-      "description": "Mock description for sadt_len. This is seed data for local development.",
+      "description": "Count all constructors in a Scott-encoded value,\nrecursively. Each constructor counts as 1.\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Scott value selects the ith of N case-handlers,\napplied to its fields:\n  Nat Z:    λz.λs.z\n  Nat S(n): λn.λz.λs.s(n)\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0)",
+          "expected": "λa.λb.a(λc.λd.d)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v0)",
+          "expected": "λa.λb.a(λc.λd.d)"
+        },
+        {
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v1(λv0.λv1.v1(λv0.λv1.v1(λv0.λv1.v0))))",
+          "expected": "λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.j))))"
         }
       ]
     },
@@ -1997,16 +2292,20 @@
       "id": "sadt_mrg",
       "category": "sadt",
       "categoryName": "Scott ADTs",
-      "description": "Mock description for sadt_mrg. This is seed data for local development.",
+      "description": "Merge two Scott-encoded values with function F.\nIf both have the same constructor and it has\nrecursive fields, recurse on corresponding children.\nOtherwise return F(V1, V2).\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Scott value selects the ith of N case-handlers,\napplied to its fields:\n  Nat Z:    λz.λs.z\n  Nat S(n): λn.λz.λs.s(n)",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λa.λb.λp.p(a, b), λv0.λv1.v0, λv0.λv1.v0)",
+          "expected": "λa.a(λb.λc.b, λb.λc.b)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λa.λb.λp.p(a, b), λv0.λv1.v0, λv0.λv1.v1)",
+          "expected": "λa.a(λb.λc.b, λb.λc.c)"
+        },
+        {
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λa.λb.λp.p(a, b), λv0.λv1.v0, λv0.λv1.v0)",
+          "expected": "λa.a(λb.λc.b, λb.λc.b)"
         }
       ]
     },
@@ -2014,16 +2313,20 @@
       "id": "sadt_rev",
       "category": "sadt",
       "categoryName": "Scott ADTs",
-      "description": "Mock description for sadt_rev. This is seed data for local development.",
+      "description": "Reverse the fields of every constructor in a\nScott-encoded value, recursively.\n(a,b) becomes (b,a). 0 or 1 fields: unchanged.\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Scott value selects the ith of N case-handlers,\napplied to its fields:\n  Nat Z:    λz.λs.z\n  Nat S(n): λn.λz.λs.s(n)",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0)",
+          "expected": "λa.λb.a"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v1(λv0.λv1.v1(λv0.λv1.v0)))",
+          "expected": "λa.λb.b(λc.λd.d(λe.λf.e))"
+        },
+        {
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.c(λx.x, λc.λn.n)), λc.λn.n)), λv0.λv1.v0)",
+          "expected": "λa.λb.a"
         }
       ]
     },
@@ -2031,16 +2334,20 @@
       "id": "sadt_ser",
       "category": "sadt",
       "categoryName": "Scott ADTs",
-      "description": "Mock description for sadt_ser. This is seed data for local development.",
+      "description": "Serialize a Scott-encoded value to a flat Scott list\nof Church booleans (bits).\n\nEncoding: for N constructors, each index uses\nceil(log2(N)) bits (MSB first), then children.\n\nA type descriptor is a Scott list of constructor specs.\nEach spec is a Scott list of fields.\nEach field (λx.x) marks a recursive position.\nIn Haskell notation:\n  data Bit  = O | I             is [[],[]]\n  data Nat  = Z | S Nat         is [[],[⊤]]\n  data Bin  = E | O Bin | I Bin is [[],[⊤],[⊤]]\n  data Pair = A | B Pair Pair   is [[],[⊤,⊤]]\nNat encodes as:\n  λc.λn.c(λc.λn.n,\n    λc.λn.c(λc.λn.c(λx.x, λc.λn.n),\n    λc.λn.n))\n\nA Scott value selects the ith of N case-handlers,\napplied to its fields:\n  Nat Z:    λz.λs.z\n  Nat S(n): λn.λz.λs.s(n)\n\nChurch booleans: True = λa.λb.a, False = λa.λb.b.\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v0)",
+          "expected": "λa.λb.a(λc.λd.d, λc.λd.d)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.n, λc.λn.n)), λv0.λv1.v1)",
+          "expected": "λa.λb.a(λc.λd.c, λc.λd.d)"
+        },
+        {
+          "input": "@main(λc.λn.c(λc.λn.n, λc.λn.c(λc.λn.c(λx.x, λc.λn.n), λc.λn.n)), λv0.λv1.v0)",
+          "expected": "λa.λb.a(λc.λd.d, λc.λd.d)"
         }
       ]
     },
@@ -2048,16 +2355,20 @@
       "id": "sbin_add",
       "category": "sbin",
       "categoryName": "Scott Binaries",
-      "description": "Mock description for sbin_add. This is seed data for local development.",
+      "description": "Add two Scott binary numbers. Return A + B.\n\nA Scott binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x)\n  I(x) = λo.λi.λe.i(x)\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λo.λi.λe.e, λo.λi.λe.e)",
+          "expected": "λa.λb.λc.c"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λo.λi.λe.e, λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e)))",
+          "expected": "λa.λb.λc.b(λd.λe.λf.e(λg.λh.λi.i))"
+        },
+        {
+          "input": "@main(λo.λi.λe.i(λo.λi.λe.e), λo.λi.λe.i(λo.λi.λe.e))",
+          "expected": "λa.λb.λc.a(λd.λe.λf.e(λg.λh.λi.i))"
         }
       ]
     },
@@ -2065,16 +2376,20 @@
       "id": "sbin_div",
       "category": "sbin",
       "categoryName": "Scott Binaries",
-      "description": "Mock description for sbin_div. This is seed data for local development.",
+      "description": "Divide two Scott binaries. floor(A / B). (B>0)\n\nA Scott binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x)\n  I(x) = λo.λi.λe.i(x)\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λo.λi.λe.e, λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e)))",
+          "expected": "λa.λb.λc.c"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e))), λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e)))",
+          "expected": "λa.λb.λc.b(λd.λe.λf.e(λg.λh.λi.i))"
+        },
+        {
+          "input": "@main(λo.λi.λe.i(λo.λi.λe.o(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e)))), λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e)))",
+          "expected": "λa.λb.λc.b(λd.λe.λf.e(λg.λh.λi.i))"
         }
       ]
     },
@@ -2082,16 +2397,20 @@
       "id": "sbin_exp",
       "category": "sbin",
       "categoryName": "Scott Binaries",
-      "description": "Mock description for sbin_exp. This is seed data for local development.",
+      "description": "Exponentiate two Scott binaries. A ^ B. (0^0=1)\n\nA Scott binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x)\n  I(x) = λo.λi.λe.i(x)\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e)), λo.λi.λe.e)",
+          "expected": "λa.λb.λc.b(λd.λe.λf.f)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λo.λi.λe.e, λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e)))",
+          "expected": "λa.λb.λc.c"
+        },
+        {
+          "input": "@main(λo.λi.λe.i(λo.λi.λe.e), λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e))))",
+          "expected": "λa.λb.λc.b(λd.λe.λf.f)"
         }
       ]
     },
@@ -2099,16 +2418,20 @@
       "id": "sbin_gcd",
       "category": "sbin",
       "categoryName": "Scott Binaries",
-      "description": "Mock description for sbin_gcd. This is seed data for local development.",
+      "description": "GCD of two Scott binary numbers.\n\nA Scott binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x)\n  I(x) = λo.λi.λe.i(x)\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e))), λo.λi.λe.o(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e))))",
+          "expected": "λa.λb.λc.a(λd.λe.λf.e(λg.λh.λi.i))"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λo.λi.λe.o(λo.λi.λe.o(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e)))), λo.λi.λe.o(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e)))))",
+          "expected": "λa.λb.λc.a(λd.λe.λf.d(λg.λh.λi.h(λj.λk.λl.l)))"
+        },
+        {
+          "input": "@main(λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e))), λo.λi.λe.i(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e))))",
+          "expected": "λa.λb.λc.b(λd.λe.λf.f)"
         }
       ]
     },
@@ -2116,16 +2439,20 @@
       "id": "sbin_log",
       "category": "sbin",
       "categoryName": "Scott Binaries",
-      "description": "Mock description for sbin_log. This is seed data for local development.",
+      "description": "Floor logarithm of Scott binary numbers.\nGiven A and base B (B ≥ 2, A ≥ 1),\nreturn floor(log_B(A)).\n\nA Scott binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x)\n  I(x) = λo.λi.λe.i(x)\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λo.λi.λe.i(λo.λi.λe.e), λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e)))",
+          "expected": "λa.λb.λc.c"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λo.λi.λe.o(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e))), λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e)))",
+          "expected": "λa.λb.λc.a(λd.λe.λf.e(λg.λh.λi.i))"
+        },
+        {
+          "input": "@main(λo.λi.λe.o(λo.λi.λe.o(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e)))), λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e)))",
+          "expected": "λa.λb.λc.b(λd.λe.λf.e(λg.λh.λi.i))"
         }
       ]
     },
@@ -2133,16 +2460,20 @@
       "id": "sbin_mod",
       "category": "sbin",
       "categoryName": "Scott Binaries",
-      "description": "Mock description for sbin_mod. This is seed data for local development.",
+      "description": "Modulo of two Scott binaries. A mod B. (B>0)\n\nA Scott binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x)\n  I(x) = λo.λi.λe.i(x)\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λo.λi.λe.e, λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e)))",
+          "expected": "λa.λb.λc.c"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e))), λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e)))",
+          "expected": "λa.λb.λc.b(λd.λe.λf.f)"
+        },
+        {
+          "input": "@main(λo.λi.λe.i(λo.λi.λe.o(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e)))), λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e)))",
+          "expected": "λa.λb.λc.c"
         }
       ]
     },
@@ -2150,16 +2481,20 @@
       "id": "sbin_mul",
       "category": "sbin",
       "categoryName": "Scott Binaries",
-      "description": "Mock description for sbin_mul. This is seed data for local development.",
+      "description": "Multiply two Scott binary numbers. A * B.\n\nA Scott binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x)\n  I(x) = λo.λi.λe.i(x)\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λo.λi.λe.e, λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e)))",
+          "expected": "λa.λb.λc.c"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λo.λi.λe.i(λo.λi.λe.e), λo.λi.λe.i(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e))))",
+          "expected": "λa.λb.λc.b(λd.λe.λf.d(λg.λh.λi.h(λj.λk.λl.l)))"
+        },
+        {
+          "input": "@main(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e)), λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e)))",
+          "expected": "λa.λb.λc.a(λd.λe.λf.e(λg.λh.λi.h(λj.λk.λl.l)))"
         }
       ]
     },
@@ -2167,16 +2502,20 @@
       "id": "sbin_pri",
       "category": "sbin",
       "categoryName": "Scott Binaries",
-      "description": "Mock description for sbin_pri. This is seed data for local development.",
+      "description": "Primality test on a Scott binary number.\nReturn True if prime, False otherwise.\n\nA Scott binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x)\n  I(x) = λo.λi.λe.i(x)\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).\n\nChurch booleans: True = λa.λb.a, False = λa.λb.b.",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λo.λi.λe.e)",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λo.λi.λe.i(λo.λi.λe.e))",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e)))",
+          "expected": "λa.λb.a"
         }
       ]
     },
@@ -2184,16 +2523,20 @@
       "id": "sbin_sqr",
       "category": "sbin",
       "categoryName": "Scott Binaries",
-      "description": "Mock description for sbin_sqr. This is seed data for local development.",
+      "description": "Integer square root of a Scott binary. floor(√N).\n\nA Scott binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x)\n  I(x) = λo.λi.λe.i(x)\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λo.λi.λe.e)",
+          "expected": "λa.λb.λc.c"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λo.λi.λe.i(λo.λi.λe.e))",
+          "expected": "λa.λb.λc.b(λd.λe.λf.f)"
+        },
+        {
+          "input": "@main(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e)))",
+          "expected": "λa.λb.λc.b(λd.λe.λf.f)"
         }
       ]
     },
@@ -2201,16 +2544,20 @@
       "id": "sbin_tot",
       "category": "sbin",
       "categoryName": "Scott Binaries",
-      "description": "Mock description for sbin_tot. This is seed data for local development.",
+      "description": "Euler's totient φ(N) of a Scott binary number:\ncount of integers 1..N coprime with N.\n\nA Scott binary natural (LSB first, no trailing zeros):\n  E    = λo.λi.λe.e\n  O(x) = λo.λi.λe.o(x)\n  I(x) = λo.λi.λe.i(x)\n0=E, 1=I(E), 2=O(I(E)), 3=I(I(E)), 5=I(O(I(E))).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λo.λi.λe.i(λo.λi.λe.e))",
+          "expected": "λa.λb.λc.b(λd.λe.λf.f)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λo.λi.λe.o(λo.λi.λe.i(λo.λi.λe.e)))",
+          "expected": "λa.λb.λc.b(λd.λe.λf.f)"
+        },
+        {
+          "input": "@main(λo.λi.λe.i(λo.λi.λe.i(λo.λi.λe.e)))",
+          "expected": "λa.λb.λc.a(λd.λe.λf.e(λg.λh.λi.i))"
         }
       ]
     },
@@ -2218,16 +2565,20 @@
       "id": "slst_dot",
       "category": "slst",
       "categoryName": "Scott Lists",
-      "description": "Mock description for slst_dot. This is seed data for local development.",
+      "description": "Dot product of two Scott lists.\n\nGiven add A, mul M, zero Z, and [a1..aN], [x1..xN]:\n  A(M(a1,x1), A(M(a2,x2), ...A(M(aN,xN), Z)...))\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λC.λD.λE.λA.λB.@main(C, D, E, λc.λn.c(A, λc.λn.n), λc.λn.c(B, λc.λn.n))",
+          "expected": "λa.λb.λc.λd.λe.a(b(d, e), c)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λE.λF.λG.λA.λB.λC.λD.@main(E, F, G, λc.λn.c(A, λc.λn.c(B, λc.λn.n)), λc.λn.c(C, λc.λn.c(D, λc.λn.n)))",
+          "expected": "λa.λb.λc.λd.λe.λf.λg.a(b(d, f), a(b(e, g), c))"
+        },
+        {
+          "input": "λG.λH.λI.λA.λB.λC.λD.λE.λF.@main(G, H, I, λc.λn.c(A, λc.λn.c(B, λc.λn.c(C, λc.λn.n))), λc.λn.c(D, λc.λn.c(E, λc.λn.c(F, λc.λn.n))))",
+          "expected": "λa.λb.λc.λd.λe.λf.λg.λh.λi.a(b(d, g), a(b(e, h), a(b(f, i), c)))"
         }
       ]
     },
@@ -2235,16 +2586,20 @@
       "id": "slst_fol",
       "category": "slst",
       "categoryName": "Scott Lists",
-      "description": "Mock description for slst_fol. This is seed data for local development.",
+      "description": "Right-fold a Scott list.\nGiven F, Z, and [A,B,C], return F(A, F(B, F(C, Z))).\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λB.λC.λA.@main(B, C, λc.λn.c(A, λc.λn.n))",
+          "expected": "λa.λb.λc.a(c, b)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λC.λD.λA.λB.@main(C, D, λc.λn.c(A, λc.λn.c(B, λc.λn.n)))",
+          "expected": "λa.λb.λc.λd.a(c, a(d, b))"
+        },
+        {
+          "input": "λD.λE.λA.λB.λC.@main(D, E, λc.λn.c(A, λc.λn.c(B, λc.λn.c(C, λc.λn.n))))",
+          "expected": "λa.λb.λc.λd.λe.a(c, a(d, a(e, b)))"
         }
       ]
     },
@@ -2252,16 +2607,20 @@
       "id": "slst_hed",
       "category": "slst",
       "categoryName": "Scott Lists",
-      "description": "Mock description for slst_hed. This is seed data for local development.",
+      "description": "Return the first element of a Scott list.\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λA.@main(λc.λn.c(A, λc.λn.n))",
+          "expected": "λa.a"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λA.λB.@main(λc.λn.c(A, λc.λn.c(B, λc.λn.n)))",
+          "expected": "λa.λb.a"
+        },
+        {
+          "input": "λA.λB.λC.@main(λc.λn.c(A, λc.λn.c(B, λc.λn.c(C, λc.λn.n))))",
+          "expected": "λa.λb.λc.a"
         }
       ]
     },
@@ -2269,16 +2628,20 @@
       "id": "slst_map",
       "category": "slst",
       "categoryName": "Scott Lists",
-      "description": "Mock description for slst_map. This is seed data for local development.",
+      "description": "Apply F to every element of a Scott list.\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λB.λA.@main(B, λc.λn.c(A, λc.λn.n))",
+          "expected": "λa.λb.λc.λd.c(a(b), λe.λf.f)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λC.λA.λB.@main(C, λc.λn.c(A, λc.λn.c(B, λc.λn.n)))",
+          "expected": "λa.λb.λc.λd.λe.d(a(b), λf.λg.f(a(c), λh.λi.i))"
+        },
+        {
+          "input": "λD.λA.λB.λC.@main(D, λc.λn.c(A, λc.λn.c(B, λc.λn.c(C, λc.λn.n))))",
+          "expected": "λa.λb.λc.λd.λe.λf.e(a(b), λg.λh.g(a(c), λi.λj.i(a(d), λk.λl.l)))"
         }
       ]
     },
@@ -2286,16 +2649,20 @@
       "id": "slst_nth",
       "category": "slst",
       "categoryName": "Scott Lists",
-      "description": "Mock description for slst_nth. This is seed data for local development.",
+      "description": "Return the element at index I (Scott nat, 0-based)\nof a Scott list.\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λA.λB.λC.@main(λs.λz.z, λc.λn.c(A, λc.λn.c(B, λc.λn.c(C, λc.λn.n))))",
+          "expected": "λa.λb.λc.a"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λA.λB.λC.@main(λs.λz.s(λs.λz.z), λc.λn.c(A, λc.λn.c(B, λc.λn.c(C, λc.λn.n))))",
+          "expected": "λa.λb.λc.b"
+        },
+        {
+          "input": "λA.λB.λC.@main(λs.λz.s(λs.λz.s(λs.λz.z)), λc.λn.c(A, λc.λn.c(B, λc.λn.c(C, λc.λn.n))))",
+          "expected": "λa.λb.λc.c"
         }
       ]
     },
@@ -2303,16 +2670,20 @@
       "id": "slst_rev",
       "category": "slst",
       "categoryName": "Scott Lists",
-      "description": "Mock description for slst_rev. This is seed data for local development.",
+      "description": "Reverse a Scott list.\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λA.@main(λc.λn.c(A, λc.λn.n))",
+          "expected": "λa.λb.λc.b(a, λd.λe.e)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λA.λB.@main(λc.λn.c(A, λc.λn.c(B, λc.λn.n)))",
+          "expected": "λa.λb.λc.λd.c(b, λe.λf.e(a, λg.λh.h))"
+        },
+        {
+          "input": "λA.λB.λC.@main(λc.λn.c(A, λc.λn.c(B, λc.λn.c(C, λc.λn.n))))",
+          "expected": "λa.λb.λc.λd.λe.d(c, λf.λg.f(b, λh.λi.h(a, λj.λk.k)))"
         }
       ]
     },
@@ -2320,16 +2691,20 @@
       "id": "slst_shl",
       "category": "slst",
       "categoryName": "Scott Lists",
-      "description": "Mock description for slst_shl. This is seed data for local development.",
+      "description": "Rotate a Scott list left by one. [A,B,C]→[B,C,A].\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λA.@main(λc.λn.c(A, λc.λn.n))",
+          "expected": "λa.λb.λc.b(a, λd.λe.e)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λA.λB.@main(λc.λn.c(A, λc.λn.c(B, λc.λn.n)))",
+          "expected": "λa.λb.λc.λd.c(b, λe.λf.e(a, λg.λh.h))"
+        },
+        {
+          "input": "λA.λB.λC.@main(λc.λn.c(A, λc.λn.c(B, λc.λn.c(C, λc.λn.n))))",
+          "expected": "λa.λb.λc.λd.λe.d(b, λf.λg.f(c, λh.λi.h(a, λj.λk.k)))"
         }
       ]
     },
@@ -2337,16 +2712,20 @@
       "id": "slst_shr",
       "category": "slst",
       "categoryName": "Scott Lists",
-      "description": "Mock description for slst_shr. This is seed data for local development.",
+      "description": "Rotate a Scott list right by one. [A,B,C]→[C,A,B].\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λA.@main(λc.λn.c(A, λc.λn.n))",
+          "expected": "λa.λb.λc.b(a, λd.λe.e)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λA.λB.@main(λc.λn.c(A, λc.λn.c(B, λc.λn.n)))",
+          "expected": "λa.λb.λc.λd.c(b, λe.λf.e(a, λg.λh.h))"
+        },
+        {
+          "input": "λA.λB.λC.@main(λc.λn.c(A, λc.λn.c(B, λc.λn.c(C, λc.λn.n))))",
+          "expected": "λa.λb.λc.λd.λe.d(c, λf.λg.f(a, λh.λi.h(b, λj.λk.k)))"
         }
       ]
     },
@@ -2354,16 +2733,20 @@
       "id": "slst_srt",
       "category": "slst",
       "categoryName": "Scott Lists",
-      "description": "Mock description for slst_srt. This is seed data for local development.",
+      "description": "Sort a Scott list of Church booleans.\nAll False values come before True.\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).\n\nChurch booleans: True = λa.λb.a, False = λa.λb.b.",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λc.λn.c(λa.λb.a, λc.λn.n))",
+          "expected": "λa.λb.a(λc.λd.c, λc.λd.d)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λc.λn.c(λa.λb.b, λc.λn.n))",
+          "expected": "λa.λb.a(λc.λd.d, λc.λd.d)"
+        },
+        {
+          "input": "@main(λc.λn.c(λa.λb.a, λc.λn.c(λa.λb.b, λc.λn.n)))",
+          "expected": "λa.λb.a(λc.λd.d, λc.λd.c(λe.λf.e, λe.λf.f))"
         }
       ]
     },
@@ -2371,16 +2754,20 @@
       "id": "slst_zip",
       "category": "slst",
       "categoryName": "Scott Lists",
-      "description": "Mock description for slst_zip. This is seed data for local development.",
+      "description": "Zip two Scott lists with function F.\n[A,B,C] zip [X,Y,Z] = [F(A,X), F(B,Y), F(C,Z)].\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λC.λA.λB.@main(C, λc.λn.c(A, λc.λn.n), λc.λn.c(B, λc.λn.n))",
+          "expected": "λa.λb.λc.λd.λe.d(a(b, c), λf.λg.g)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λE.λA.λB.λC.λD.@main(E, λc.λn.c(A, λc.λn.c(B, λc.λn.n)), λc.λn.c(C, λc.λn.c(D, λc.λn.n)))",
+          "expected": "λa.λb.λc.λd.λe.λf.λg.f(a(b, d), λh.λi.h(a(c, e), λj.λk.k))"
+        },
+        {
+          "input": "λG.λA.λB.λC.λD.λE.λF.@main(G, λc.λn.c(A, λc.λn.c(B, λc.λn.c(C, λc.λn.n))), λc.λn.c(D, λc.λn.c(E, λc.λn.c(F, λc.λn.n))))",
+          "expected": "λa.λb.λc.λd.λe.λf.λg.λh.λi.h(a(b, e), λj.λk.j(a(c, f), λl.λm.l(a(d, g), λn.λo.o)))"
         }
       ]
     },
@@ -2388,16 +2775,20 @@
       "id": "snat_add",
       "category": "snat",
       "categoryName": "Scott Naturals",
-      "description": "Mock description for snat_add. This is seed data for local development.",
+      "description": "Add two Scott nats. Return A + B.\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λs.λz.z, λs.λz.z)",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λs.λz.z, λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))",
+          "expected": "λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.h)))"
+        },
+        {
+          "input": "@main(λs.λz.s(λs.λz.z), λs.λz.s(λs.λz.z))",
+          "expected": "λa.λb.a(λc.λd.c(λe.λf.f))"
         }
       ]
     },
@@ -2405,16 +2796,20 @@
       "id": "snat_div",
       "category": "snat",
       "categoryName": "Scott Naturals",
-      "description": "Mock description for snat_div. This is seed data for local development.",
+      "description": "Divide two Scott nats. Return floor(A / B).\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λs.λz.z, λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))))), λs.λz.s(λs.λz.s(λs.λz.z)))",
+          "expected": "λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.h)))"
+        },
+        {
+          "input": "@main(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))))))), λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))",
+          "expected": "λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.h)))"
         }
       ]
     },
@@ -2422,16 +2817,20 @@
       "id": "snat_exp",
       "category": "snat",
       "categoryName": "Scott Naturals",
-      "description": "Mock description for snat_exp. This is seed data for local development.",
+      "description": "Exponentiate two Scott nats. Return A ^ B.\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λs.λz.s(λs.λz.s(λs.λz.z)), λs.λz.z)",
+          "expected": "λa.λb.a(λc.λd.d)"
+        },
+        {
+          "input": "@main(λs.λz.z, λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λs.λz.s(λs.λz.z), λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))))))",
+          "expected": "λa.λb.a(λc.λd.d)"
         }
       ]
     },
@@ -2439,16 +2838,20 @@
       "id": "snat_gcd",
       "category": "snat",
       "categoryName": "Scott Naturals",
-      "description": "Mock description for snat_gcd. This is seed data for local development.",
+      "description": "GCD of two Scott nats.\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z)))))), λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z)))))",
+          "expected": "λa.λb.a(λc.λd.c(λe.λf.f))"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z)))))))), λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z)))))))))))))",
+          "expected": "λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.j))))"
+        },
+        {
+          "input": "@main(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))))), λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))))",
+          "expected": "λa.λb.a(λc.λd.d)"
         }
       ]
     },
@@ -2456,16 +2859,20 @@
       "id": "snat_log",
       "category": "snat",
       "categoryName": "Scott Naturals",
-      "description": "Mock description for snat_log. This is seed data for local development.",
+      "description": "Floor logarithm of two Scott nats.\nGiven N and base B (B ≥ 2, N ≥ 1),\nreturn floor(log_B(N)).\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λs.λz.s(λs.λz.z), λs.λz.s(λs.λz.s(λs.λz.z)))",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z)))), λs.λz.s(λs.λz.s(λs.λz.z)))",
+          "expected": "λa.λb.a(λc.λd.c(λe.λf.f))"
+        },
+        {
+          "input": "@main(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z)))))))), λs.λz.s(λs.λz.s(λs.λz.z)))",
+          "expected": "λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.h)))"
         }
       ]
     },
@@ -2473,16 +2880,20 @@
       "id": "snat_mod",
       "category": "snat",
       "categoryName": "Scott Naturals",
-      "description": "Mock description for snat_mod. This is seed data for local development.",
+      "description": "Modulo of two Scott nats. Return A mod B.\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λs.λz.z, λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))))), λs.λz.s(λs.λz.s(λs.λz.z)))",
+          "expected": "λa.λb.a(λc.λd.d)"
+        },
+        {
+          "input": "@main(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))))))), λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))",
+          "expected": "λa.λb.b"
         }
       ]
     },
@@ -2490,16 +2901,20 @@
       "id": "snat_mul",
       "category": "snat",
       "categoryName": "Scott Naturals",
-      "description": "Mock description for snat_mul. This is seed data for local development.",
+      "description": "Multiply two Scott nats. Return A * B.\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λs.λz.z, λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λs.λz.s(λs.λz.z), λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))))",
+          "expected": "λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.l)))))"
+        },
+        {
+          "input": "@main(λs.λz.s(λs.λz.s(λs.λz.z)), λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))",
+          "expected": "λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.n))))))"
         }
       ]
     },
@@ -2507,16 +2922,20 @@
       "id": "snat_pri",
       "category": "snat",
       "categoryName": "Scott Naturals",
-      "description": "Mock description for snat_pri. This is seed data for local development.",
+      "description": "Primality test on a Scott nat.\nReturn True if N is prime, False otherwise.\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).\n\nChurch booleans: True = λa.λb.a, False = λa.λb.b.",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λs.λz.z)",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λs.λz.s(λs.λz.z))",
+          "expected": "λa.λb.b"
+        },
+        {
+          "input": "@main(λs.λz.s(λs.λz.s(λs.λz.z)))",
+          "expected": "λa.λb.a"
         }
       ]
     },
@@ -2524,16 +2943,20 @@
       "id": "snat_sqr",
       "category": "snat",
       "categoryName": "Scott Naturals",
-      "description": "Mock description for snat_sqr. This is seed data for local development.",
+      "description": "Integer square root of a Scott nat. floor(√N).\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
+          "input": "@main(λs.λz.z)",
           "expected": "λa.λb.b"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λs.λz.s(λs.λz.z))",
+          "expected": "λa.λb.a(λc.λd.d)"
+        },
+        {
+          "input": "@main(λs.λz.s(λs.λz.s(λs.λz.z)))",
+          "expected": "λa.λb.a(λc.λd.d)"
         }
       ]
     },
@@ -2541,16 +2964,20 @@
       "id": "snat_tot",
       "category": "snat",
       "categoryName": "Scott Naturals",
-      "description": "Mock description for snat_tot. This is seed data for local development.",
+      "description": "Euler's totient φ(N) of a Scott nat:\ncount of integers 1..N coprime with N.\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λs.λz.s(λs.λz.z))",
+          "expected": "λa.λb.a(λc.λd.d)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λs.λz.s(λs.λz.s(λs.λz.z)))",
+          "expected": "λa.λb.a(λc.λd.d)"
+        },
+        {
+          "input": "@main(λs.λz.s(λs.λz.s(λs.λz.s(λs.λz.z))))",
+          "expected": "λa.λb.a(λc.λd.c(λe.λf.f))"
         }
       ]
     },
@@ -2558,16 +2985,20 @@
       "id": "stre_bfs",
       "category": "stre",
       "categoryName": "Scott Trees",
-      "description": "Mock description for stre_bfs. This is seed data for local development.",
+      "description": "Flatten a Scott tree into a Scott list in\nbreadth-first order. Shallowest leaves first,\nleft-to-right within each depth.\n\nNode(Node(Leaf(A), Leaf(B)), Leaf(C)) → [C, A, B]\n\nA Scott tree:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a,b)\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λA.@main(λn.λl.l(A))",
+          "expected": "λa.λb.λc.b(a, λd.λe.e)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λA.λB.@main(λn.λl.n(λn.λl.l(A), λn.λl.l(B)))",
+          "expected": "λa.λb.λc.λd.c(a, λe.λf.e(b, λg.λh.h))"
+        },
+        {
+          "input": "λA.λB.λC.@main(λn.λl.n(λn.λl.n(λn.λl.l(A), λn.λl.l(B)), λn.λl.l(C)))",
+          "expected": "λa.λb.λc.λd.λe.d(c, λf.λg.f(a, λh.λi.h(b, λj.λk.k)))"
         }
       ]
     },
@@ -2575,16 +3006,20 @@
       "id": "stre_fft",
       "category": "stre",
       "categoryName": "Scott Trees",
-      "description": "Mock description for stre_fft. This is seed data for local development.",
+      "description": "Compute the Discrete Fourier Transform\nusing the GN number system.\n\nBalanced Ternary (BT), Scott-encoded, LSB first:\n  E       = λt.λo.λi.λe.e\n  T(rest) = λt.λo.λi.λe.t(rest)   (digit -1)\n  O(rest) = λt.λo.λi.λe.o(rest)   (digit  0)\n  I(rest) = λt.λo.λi.λe.i(rest)   (digit +1)\nExample: T(I(E)) = -1 + 1*3 = 2.\nOutputs must be canonical (no trailing O).\n\nGN numbers are Scott trees of BT integers:\n  L(n)   = λn.λl.l(n)     (scalar)\n  B(a,b) = λn.λl.n(a,b)   (pair: a + b*w)\n\nFor N-point FFT (N = 2^k), each coefficient is a\nGN(k-1) number. Input coefficients are in\nbit-reversal order:\n  [c0,c1,c2,c3] is stored as B(B(c0,c2),B(c1,c3))\nThe DFT evaluates c0 + c1*x + c2*x² + ...\nat all Nth roots of unity.",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "@main(λb.λl.b(λb.λl.l(λb.λl.l(λt.λo.λi.λe.o(λt.λo.λi.λe.i(λt.λo.λi.λe.e)))), λb.λl.l(λb.λl.l(λt.λo.λi.λe.i(λt.λo.λi.λe.e)))))",
+          "expected": "λa.λb.a(λc.λd.d(λe.λf.f(λg.λh.λi.λj.i(λk.λl.λm.λn.m(λo.λp.λq.λr.r)))), λc.λd.d(λe.λf.f(λg.λh.λi.λj.g(λk.λl.λm.λn.m(λo.λp.λq.λr.r)))))"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "@main(λb.λl.b(λb.λl.l(λb.λl.l(λt.λo.λi.λe.t(λt.λo.λi.λe.t(λt.λo.λi.λe.i(λt.λo.λi.λe.e))))), λb.λl.l(λb.λl.l(λt.λo.λi.λe.t(λt.λo.λi.λe.i(λt.λo.λi.λe.e))))))",
+          "expected": "λa.λb.a(λc.λd.d(λe.λf.f(λg.λh.λi.λj.i(λk.λl.λm.λn.k(λo.λp.λq.λr.q(λs.λt.λu.λv.v))))), λc.λd.d(λe.λf.f(λg.λh.λi.λj.h(λk.λl.λm.λn.m(λo.λp.λq.λr.r)))))"
+        },
+        {
+          "input": "@main(λb.λl.b(λb.λl.l(λb.λl.l(λt.λo.λi.λe.i(λt.λo.λi.λe.t(λt.λo.λi.λe.i(λt.λo.λi.λe.e))))), λb.λl.l(λb.λl.l(λt.λo.λi.λe.o(λt.λo.λi.λe.i(λt.λo.λi.λe.e))))))",
+          "expected": "λa.λb.a(λc.λd.d(λe.λf.f(λg.λh.λi.λj.i(λk.λl.λm.λn.l(λo.λp.λq.λr.q(λs.λt.λu.λv.v))))), λc.λd.d(λe.λf.f(λg.λh.λi.λj.i(λk.λl.λm.λn.m(λo.λp.λq.λr.r)))))"
         }
       ]
     },
@@ -2592,16 +3027,20 @@
       "id": "stre_idx",
       "category": "stre",
       "categoryName": "Scott Trees",
-      "description": "Mock description for stre_idx. This is seed data for local development.",
+      "description": "Label each leaf of a Scott tree with its left-to-right\nindex (Scott nat) using function F.\n\nindex(F, Node(Leaf(A), Leaf(B)))\n  = Node(Leaf(F(0,A)), Leaf(F(1,B)))\n\nA Scott tree:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a,b)\n\nA Scott nat: Z = λs.λz.z, S(n) = λs.λz.s(n).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λF.λA.@main(F, λn.λl.l(A))",
+          "expected": "λa.λb.λc.λd.d(a(λe.λf.f, b))"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λF.λA.λB.@main(F, λn.λl.n(λn.λl.l(A), λn.λl.l(B)))",
+          "expected": "λa.λb.λc.λd.λe.d(λf.λg.g(a(λh.λi.i, b)), λf.λg.g(a(λh.λi.h(λj.λk.k), c)))"
+        },
+        {
+          "input": "λF.λA.λB.λC.@main(F, λn.λl.n(λn.λl.n(λn.λl.l(A), λn.λl.l(B)), λn.λl.l(C)))",
+          "expected": "λa.λb.λc.λd.λe.λf.e(λg.λh.g(λi.λj.j(a(λk.λl.l, b)), λi.λj.j(a(λk.λl.k(λm.λn.n), c))), λg.λh.h(a(λi.λj.i(λk.λl.k(λm.λn.n)), d)))"
         }
       ]
     },
@@ -2609,16 +3048,20 @@
       "id": "stre_inv",
       "category": "stre",
       "categoryName": "Scott Trees",
-      "description": "Mock description for stre_inv. This is seed data for local development.",
+      "description": "Bit-reversal permutation on a perfect Scott tree.\nLeaf at index i moves to bit_reverse(i).\n[A,B,C,D] → [A,C,B,D].\n\nA Scott tree:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a,b)",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λA.@main(λn.λl.l(A))",
+          "expected": "λa.λb.λc.c(a)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λA.@main(λn.λl.l(A))",
+          "expected": "λa.λb.λc.c(a)"
+        },
+        {
+          "input": "λA.λB.@main(λn.λl.n(λn.λl.l(A), λn.λl.l(B)))",
+          "expected": "λa.λb.λc.λd.c(λe.λf.f(a), λe.λf.f(b))"
         }
       ]
     },
@@ -2626,16 +3069,20 @@
       "id": "stre_lst",
       "category": "stre",
       "categoryName": "Scott Trees",
-      "description": "Mock description for stre_lst. This is seed data for local development.",
+      "description": "Flatten a Scott tree into a Scott list of its leaves,\nleft to right.\n\nA Scott tree:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a,b)\n\nA Scott list: Nil = λc.λn.n, Cons(h,t) = λc.λn.c(h,t).",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λA.@main(λn.λl.l(A))",
+          "expected": "λa.λb.λc.b(a, λd.λe.e)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λA.λB.@main(λn.λl.n(λn.λl.l(A), λn.λl.l(B)))",
+          "expected": "λa.λb.λc.λd.c(a, λe.λf.e(b, λg.λh.h))"
+        },
+        {
+          "input": "λA.λB.λC.@main(λn.λl.n(λn.λl.n(λn.λl.l(A), λn.λl.l(B)), λn.λl.l(C)))",
+          "expected": "λa.λb.λc.λd.λe.d(a, λf.λg.f(b, λh.λi.h(c, λj.λk.k)))"
         }
       ]
     },
@@ -2643,16 +3090,20 @@
       "id": "stre_mrg",
       "category": "stre",
       "categoryName": "Scott Trees",
-      "description": "Mock description for stre_mrg. This is seed data for local development.",
+      "description": "Merge two same-shape Scott trees, combining\ncorresponding leaves with function F.\n\nmerge(F, Node(Leaf(A),Leaf(B)), Node(Leaf(P),Leaf(Q)))\n  = Node(Leaf(F(A,P)), Leaf(F(B,Q)))\n\nA Scott tree:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a,b)",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λF.λA.λP.@main(F, λn.λl.l(A), λn.λl.l(P))",
+          "expected": "λa.λb.λc.λd.λe.e(a(b, c))"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λF.λA.λB.λP.λQ.@main(F, λn.λl.n(λn.λl.l(A), λn.λl.l(B)), λn.λl.n(λn.λl.l(P), λn.λl.l(Q)))",
+          "expected": "λa.λb.λc.λd.λe.λf.λg.f(λh.λi.i(a(b, d)), λh.λi.i(a(c, e)))"
+        },
+        {
+          "input": "λF.λA.λB.λC.λP.λQ.λR.@main(F, λn.λl.n(λn.λl.n(λn.λl.l(A), λn.λl.l(B)), λn.λl.l(C)), λn.λl.n(λn.λl.n(λn.λl.l(P), λn.λl.l(Q)), λn.λl.l(R)))",
+          "expected": "λa.λb.λc.λd.λe.λf.λg.λh.λi.h(λj.λk.j(λl.λm.m(a(b, e)), λl.λm.m(a(c, f))), λj.λk.k(a(d, g)))"
         }
       ]
     },
@@ -2660,16 +3111,20 @@
       "id": "stre_rev",
       "category": "stre",
       "categoryName": "Scott Trees",
-      "description": "Mock description for stre_rev. This is seed data for local development.",
+      "description": "Reverse the leaves of a perfect Scott tree.\n[A,B,C,D] → [D,C,B,A].\n\nA Scott tree:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a,b)",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λA.@main(λn.λl.l(A))",
+          "expected": "λa.λb.λc.c(a)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λA.@main(λn.λl.l(A))",
+          "expected": "λa.λb.λc.c(a)"
+        },
+        {
+          "input": "λA.λB.@main(λn.λl.n(λn.λl.l(A), λn.λl.l(B)))",
+          "expected": "λa.λb.λc.λd.c(λe.λf.f(b), λe.λf.f(a))"
         }
       ]
     },
@@ -2677,16 +3132,20 @@
       "id": "stre_rtl",
       "category": "stre",
       "categoryName": "Scott Trees",
-      "description": "Mock description for stre_rtl. This is seed data for local development.",
+      "description": "Rotate the leaves of a perfect Scott tree left by one.\n[A,B,C,D] → [B,C,D,A].\n\nA Scott tree:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a,b)",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λA.@main(λn.λl.l(A))",
+          "expected": "λa.λb.λc.c(a)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λA.@main(λn.λl.l(A))",
+          "expected": "λa.λb.λc.c(a)"
+        },
+        {
+          "input": "λA.λB.@main(λn.λl.n(λn.λl.l(A), λn.λl.l(B)))",
+          "expected": "λa.λb.λc.λd.c(λe.λf.f(b), λe.λf.f(a))"
         }
       ]
     },
@@ -2694,16 +3153,20 @@
       "id": "stre_rtr",
       "category": "stre",
       "categoryName": "Scott Trees",
-      "description": "Mock description for stre_rtr. This is seed data for local development.",
+      "description": "Rotate the leaves of a perfect Scott tree right by one.\n[A,B,C,D] → [D,A,B,C].\n\nA Scott tree:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a,b)",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λA.@main(λn.λl.l(A))",
+          "expected": "λa.λb.λc.c(a)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λA.@main(λn.λl.l(A))",
+          "expected": "λa.λb.λc.c(a)"
+        },
+        {
+          "input": "λA.λB.@main(λn.λl.n(λn.λl.l(A), λn.λl.l(B)))",
+          "expected": "λa.λb.λc.λd.c(λe.λf.f(b), λe.λf.f(a))"
         }
       ]
     },
@@ -2711,16 +3174,20 @@
       "id": "stre_scn",
       "category": "stre",
       "categoryName": "Scott Trees",
-      "description": "Mock description for stre_scn. This is seed data for local development.",
+      "description": "Exclusive prefix scan over a Scott tree's leaves,\npreserving shape. Each leaf_i becomes the fold of\nall leaves before it.\n\nscan(F, Z, Node(Leaf(A), Leaf(B)))\n  = Node(Leaf(Z), Leaf(F(Z,A)))\n\nA Scott tree:\n  Leaf(x)   = λn.λl.l(x)\n  Node(a,b) = λn.λl.n(a,b)",
       "testCount": 10,
       "tests": [
         {
-          "input": "@main(λf.λx.x, λf.λx.x)",
-          "expected": "λa.λb.b"
+          "input": "λF.λZ.λA.@main(F, Z, λn.λl.l(A))",
+          "expected": "λa.λb.λc.λd.λe.e(b)"
         },
         {
-          "input": "@main(λf.λx.f(x), λf.λx.x)",
-          "expected": "λa.λb.a(b)"
+          "input": "λF.λZ.λA.λB.@main(F, Z, λn.λl.n(λn.λl.l(A), λn.λl.l(B)))",
+          "expected": "λa.λb.λc.λd.λe.λf.e(λg.λh.h(b), λg.λh.h(a(b, c)))"
+        },
+        {
+          "input": "λF.λZ.λA.λB.λC.@main(F, Z, λn.λl.n(λn.λl.n(λn.λl.l(A), λn.λl.l(B)), λn.λl.l(C)))",
+          "expected": "λa.λb.λc.λd.λe.λf.λg.f(λh.λi.h(λj.λk.k(b), λj.λk.k(a(b, c))), λh.λi.i(a(a(b, c), d)))"
         }
       ]
     }
@@ -2775,5 +3242,5 @@
       "name": "N-Tuples"
     }
   ],
-  "generatedAt": "2026-04-24T20:03:48.072Z"
+  "generatedAt": "2026-04-25T00:12:46.361Z"
 }

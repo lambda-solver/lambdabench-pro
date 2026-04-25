@@ -41,24 +41,32 @@ const twoModels: BenchmarkData["rankings"] = [
 
 describe("IntelligencePanel", () => {
   test("renders the panel heading", async () => {
-    const { getByText } = await render(<IntelligencePanel data={makeData(twoModels)} />);
+    const { getByText } = await render(
+      <IntelligencePanel data={makeData(twoModels)} />,
+    );
     await expect.element(getByText("Intelligence")).toBeVisible();
   });
 
   test("renders both model names (org/ prefix stripped)", async () => {
-    const { getByText } = await render(<IntelligencePanel data={makeData(twoModels)} />);
+    const { getByText } = await render(
+      <IntelligencePanel data={makeData(twoModels)} />,
+    );
     await expect.element(getByText(/model-a/)).toBeVisible();
     await expect.element(getByText(/model-b/)).toBeVisible();
   });
 
   test("shows score strings for each model", async () => {
-    const { getByText } = await render(<IntelligencePanel data={makeData(twoModels)} />);
+    const { getByText } = await render(
+      <IntelligencePanel data={makeData(twoModels)} />,
+    );
     await expect.element(getByText(/80\/100/)).toBeVisible();
     await expect.element(getByText(/50\/100/)).toBeVisible();
   });
 
   test("model-a (80 right) appears before model-b (50 right) in DOM", async () => {
-    const { container } = await render(<IntelligencePanel data={makeData(twoModels)} />);
+    const { container } = await render(
+      <IntelligencePanel data={makeData(twoModels)} />,
+    );
     const text = container.textContent ?? "";
     const posA = text.indexOf("model-a");
     const posB = text.indexOf("model-b");
@@ -68,7 +76,9 @@ describe("IntelligencePanel", () => {
   });
 
   test("renders with empty rankings without crashing", async () => {
-    const { container } = await render(<IntelligencePanel data={makeData([])} />);
+    const { container } = await render(
+      <IntelligencePanel data={makeData([])} />,
+    );
     expect(container.querySelector("div")).toBeTruthy();
   });
 });

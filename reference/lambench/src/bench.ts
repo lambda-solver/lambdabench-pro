@@ -1,15 +1,20 @@
-import { spawn } from "child_process";
-import { generateText, streamText, type LanguageModel } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
 import { google } from "@ai-sdk/google";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { xai } from "@ai-sdk/xai";
+import { generateText, type LanguageModel, streamText } from "ai";
+import { spawn } from "child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "fs";
 import { homedir } from "os";
 import { join } from "path";
 import type { Task } from "./check";
-import { load_tasks } from "./check";
-import { REF_DIR, reference_bits, run_task, task_score } from "./check";
+import {
+  load_tasks,
+  REF_DIR,
+  reference_bits,
+  run_task,
+  task_score,
+} from "./check";
 
 const DEFAULT_TASK_TIMEOUT_MS = 3600 * 1000;
 
@@ -28,10 +33,10 @@ type EvalResult = {
 };
 
 type EvalModel = {
-  spec:     string;
+  spec: string;
   provider: string;
   model_id: string;
-  sdk?:     LanguageModel;
+  sdk?: LanguageModel;
 };
 
 type Args = {
@@ -152,7 +157,7 @@ function parse_args(): Args {
   if (args.length === 0) {
     console.error(
       "usage: bun eval <provider/model> [--filter prefix] " +
-      "[--concurrency n] [--timeout seconds]"
+        "[--concurrency n] [--timeout seconds]",
     );
     process.exit(1);
   }
@@ -168,18 +173,14 @@ function parse_args(): Args {
     if (arg === "--filter") parsed.filter = args[++i];
     else if (arg.startsWith("--filter=")) {
       parsed.filter = arg.slice("--filter=".length);
-    }
-    else if (arg === "--concurrency") parsed.concurrency = Number(args[++i]);
+    } else if (arg === "--concurrency") parsed.concurrency = Number(args[++i]);
     else if (arg.startsWith("--concurrency=")) {
       parsed.concurrency = Number(arg.slice("--concurrency=".length));
-    }
-    else if (arg === "--timeout") {
+    } else if (arg === "--timeout") {
       parsed.timeout_ms = Number(args[++i]) * 1000;
-    }
-    else if (arg.startsWith("--timeout=")) {
+    } else if (arg.startsWith("--timeout=")) {
       parsed.timeout_ms = Number(arg.slice("--timeout=".length)) * 1000;
-    }
-    else if (arg === "--no-reasoning") parsed.no_reasoning = true;
+    } else if (arg === "--no-reasoning") parsed.no_reasoning = true;
     else throw new Error(`unknown argument: ${arg}`);
   }
 
@@ -217,7 +218,7 @@ function matches_filter(id: string, filter?: string): boolean {
   if (!filter) return true;
   if (filter.includes("*")) {
     var re = new RegExp(
-      "^" + filter.split("*").map(escape_re).join(".*") + "$"
+      "^" + filter.split("*").map(escape_re).join(".*") + "$",
     );
     return re.test(id);
   }
@@ -233,7 +234,7 @@ function get_model(spec: string): EvalModel {
   var model_id = normalize_model_id(provider, rest.join("/"));
   if (!provider || !model_id) {
     throw new Error(
-      "model must look like <provider>/<model>, for example openai/gpt-5.5"
+      "model must look like <provider>/<model>, for example openai/gpt-5.5",
     );
   }
   validate_model_provider(spec, provider, model_id);
@@ -281,13 +282,13 @@ function validate_model_provider(
   if (provider === "openai" && looks_like_anthropic_model(model_id)) {
     throw new Error(
       `model "${spec}" looks like an Anthropic model; ` +
-      `use "anthropic/${model_id}"`
+        `use "anthropic/${model_id}"`,
     );
   }
 
   if (provider === "anthropic" && looks_like_openai_model(model_id)) {
     throw new Error(
-      `model "${spec}" looks like an OpenAI model; use "openai/${model_id}"`
+      `model "${spec}" looks like an OpenAI model; use "openai/${model_id}"`,
     );
   }
 }
@@ -320,14 +321,14 @@ function normalize_model_id(provider: string, model_id: string): string {
 
 function normalize_anthropic_model(model_id: string): string {
   var aliases: Record<string, string> = {
-    "haiku-4.5":  "claude-haiku-4-5",
-    "opus-4":     "claude-opus-4-0",
-    "opus-4.0":   "claude-opus-4-0",
-    "opus-4.1":   "claude-opus-4-1",
-    "opus-4.5":   "claude-opus-4-5",
-    "opus-4.6":   "claude-opus-4-6",
-    "opus-4.7":   "claude-opus-4-7",
-    "sonnet-4":   "claude-sonnet-4-0",
+    "haiku-4.5": "claude-haiku-4-5",
+    "opus-4": "claude-opus-4-0",
+    "opus-4.0": "claude-opus-4-0",
+    "opus-4.1": "claude-opus-4-1",
+    "opus-4.5": "claude-opus-4-5",
+    "opus-4.6": "claude-opus-4-6",
+    "opus-4.7": "claude-opus-4-7",
+    "sonnet-4": "claude-sonnet-4-0",
     "sonnet-4.0": "claude-sonnet-4-0",
     "sonnet-4.5": "claude-sonnet-4-5",
     "sonnet-4.6": "claude-sonnet-4-6",
@@ -369,7 +370,7 @@ function extract_submission(text: string): string {
   var src = (fence ? fence[1] : text).trim();
 
   var lines = src.split("\n");
-  var first_def = lines.findIndex(line => line.trim().startsWith("@"));
+  var first_def = lines.findIndex((line) => line.trim().startsWith("@"));
   if (first_def >= 0) src = lines.slice(first_def).join("\n").trim();
 
   return src;
@@ -393,10 +394,13 @@ function format_line(result: EvalResult): string {
 }
 
 function summarize_error(error: string): string {
-  var lines = error.split("\n").map(line => line.trim()).filter(Boolean);
+  var lines = error
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
   return (
-    lines.find(line => line.startsWith("error:")) ??
-    lines.find(line => line.startsWith("want:")) ??
+    lines.find((line) => line.startsWith("error:")) ??
+    lines.find((line) => line.startsWith("want:")) ??
     lines[0] ??
     "failed"
   );
@@ -411,11 +415,14 @@ function clean_process_error(
   var json_error = extract_json_error(text);
   if (json_error) return json_error;
 
-  var lines = text.split("\n").map(line => line.trim()).filter(Boolean);
-  var useful = lines.find(line => line.includes("invalid_request_error"));
-  useful ??= lines.find(line => line.includes("not supported"));
-  useful ??= lines.find(line => line.includes("Forbidden"));
-  useful ??= lines.find(line => line.startsWith("ERROR:"));
+  var lines = text
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+  var useful = lines.find((line) => line.includes("invalid_request_error"));
+  useful ??= lines.find((line) => line.includes("not supported"));
+  useful ??= lines.find((line) => line.includes("Forbidden"));
+  useful ??= lines.find((line) => line.startsWith("ERROR:"));
   return useful ?? `${cmd} failed`;
 }
 
@@ -470,17 +477,17 @@ function run_process(
       child.kill("SIGKILL");
     }, timeout_ms);
 
-    child.stdout.on("data", data => {
+    child.stdout.on("data", (data) => {
       stdout += data.toString();
     });
-    child.stderr.on("data", data => {
+    child.stderr.on("data", (data) => {
       stderr += data.toString();
     });
-    child.on("error", error => {
+    child.on("error", (error) => {
       clearTimeout(timer);
       reject(error);
     });
-    child.on("close", code => {
+    child.on("close", (code) => {
       clearTimeout(timer);
       if (timed_out) {
         reject(new Error(`${cmd} timed out after ${timeout_ms}ms`));
@@ -693,7 +700,15 @@ async function eval_task(
     var deadline_ms = started + timeout_ms;
     var timeout = timeout_result(timeout_ms, abort);
     return await Promise.race([
-      eval_task_body(task, model, out_dir, started, deadline_ms, abort.signal, no_reasoning),
+      eval_task_body(
+        task,
+        model,
+        out_dir,
+        started,
+        deadline_ms,
+        abort.signal,
+        no_reasoning,
+      ),
       timeout.promise,
     ]);
   } catch (e: any) {
@@ -718,7 +733,7 @@ function build_text_report(
   total_tasks: number,
 ): string {
   var lines: string[] = [];
-  var right = results.filter(result => result.pass).length;
+  var right = results.filter((result) => result.pass).length;
 
   lines.push(`score: ${score.toFixed(1)}`);
   lines.push(`evals: ${results.length}/${total_tasks}`);
@@ -781,7 +796,7 @@ async function main() {
   var args = parse_args();
   var model = get_model(args.model);
   var all_tasks = load_tasks(join(import.meta.dir, "..", "tsk"));
-  var tasks = all_tasks.filter(task => matches_filter(task.id, args.filter));
+  var tasks = all_tasks.filter((task) => matches_filter(task.id, args.filter));
   var started_at = new Date();
   var stamp = started_at.toISOString().replace(/[:.]/g, "-");
   var out_dir = join(
@@ -803,19 +818,25 @@ async function main() {
   console.log("");
 
   var completed = 0;
-  var results = await run_pool(tasks, args.concurrency, async task => {
+  var results = await run_pool(tasks, args.concurrency, async (task) => {
     console.log(`→ ${task.id}`);
-    var result = await eval_task(task, model, out_dir, args.timeout_ms, args.no_reasoning);
+    var result = await eval_task(
+      task,
+      model,
+      out_dir,
+      args.timeout_ms,
+      args.no_reasoning,
+    );
     completed += 1;
     console.log(`${format_line(result)} (${completed}/${tasks.length})`);
     return result;
   });
 
-  var pass = results.filter(r => r.pass).length;
-  var created_refs = results.filter(r => r.created_reference).length;
+  var pass = results.filter((r) => r.pass).length;
+  var created_refs = results.filter((r) => r.created_reference).length;
   var score =
-    results.reduce((sum, r) => sum + r.score, 0) /
-    Math.max(all_tasks.length, 1) *
+    (results.reduce((sum, r) => sum + r.score, 0) /
+      Math.max(all_tasks.length, 1)) *
     100;
   var report = {
     model: args.model,

@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+
 /**
  * lamb.ts — Minimal Lamb lambda-calculus interpreter
  *
@@ -16,7 +17,8 @@
  *   @name                 reference to top-level definition
  */
 
-import { readFileSync } from "fs";
+import { BunRuntime, BunServices } from "@effect/platform-bun";
+import { Effect, FileSystem } from "effect";
 
 // ─── AST ────────────────────────────────────────────────────────────────────
 
@@ -40,26 +42,54 @@ type Token =
   | { type: "At" }
   | { type: "Name"; value: string };
 
-function tokenize(src: string): Token[] {
+const tokenize = (src: string): Token[] => {
   const tokens: Token[] = [];
   let i = 0;
   while (i < src.length) {
     const ch = src[i];
-    // skip whitespace
-    if (/\s/.test(ch)) { i++; continue; }
-    // skip line comments
+    if (/\s/.test(ch)) {
+      i++;
+      continue;
+    }
     if (ch === "/" && src[i + 1] === "/") {
       while (i < src.length && src[i] !== "\n") i++;
       continue;
     }
-    if (ch === "λ" || ch === "\\") { tokens.push({ type: "Lambda" }); i++; continue; }
-    if (ch === ".") { tokens.push({ type: "Dot" }); i++; continue; }
-    if (ch === "(") { tokens.push({ type: "LParen" }); i++; continue; }
-    if (ch === ")") { tokens.push({ type: "RParen" }); i++; continue; }
-    if (ch === ",") { tokens.push({ type: "Comma" }); i++; continue; }
-    if (ch === "=") { tokens.push({ type: "Equals" }); i++; continue; }
-    if (ch === "@") { tokens.push({ type: "At" }); i++; continue; }
-    // name: letters, digits, underscore
+    if (ch === "λ" || ch === "\\") {
+      tokens.push({ type: "Lambda" });
+      i++;
+      continue;
+    }
+    if (ch === ".") {
+      tokens.push({ type: "Dot" });
+      i++;
+      continue;
+    }
+    if (ch === "(") {
+      tokens.push({ type: "LParen" });
+      i++;
+      continue;
+    }
+    if (ch === ")") {
+      tokens.push({ type: "RParen" });
+      i++;
+      continue;
+    }
+    if (ch === ",") {
+      tokens.push({ type: "Comma" });
+      i++;
+      continue;
+    }
+    if (ch === "=") {
+      tokens.push({ type: "Equals" });
+      i++;
+      continue;
+    }
+    if (ch === "@") {
+      tokens.push({ type: "At" });
+      i++;
+      continue;
+    }
     if (/[a-zA-Z0-9_]/.test(ch)) {
       let j = i;
       while (j < src.length && /[a-zA-Z0-9_]/.test(src[j])) j++;
@@ -67,27 +97,30 @@ function tokenize(src: string): Token[] {
       i = j;
       continue;
     }
-    // skip unknown chars (e.g. unicode lambda was already handled above)
     i++;
   }
   return tokens;
-}
+};
 
 // ─── PARSER ──────────────────────────────────────────────────────────────────
 
 class Parser {
   private pos = 0;
-  constructor(private tokens: Token[]) {}
+  constructor(private readonly tokens: Token[]) {}
 
-  private peek(): Token | undefined { return this.tokens[this.pos]; }
-  private consume(): Token { return this.tokens[this.pos++]; }
+  private peek(): Token | undefined {
+    return this.tokens[this.pos];
+  }
+  private consume(): Token {
+    return this.tokens[this.pos++];
+  }
   private expect(type: Token["type"]): Token {
     const t = this.consume();
-    if (t.type !== type) throw new Error(`Expected ${type}, got ${t.type} at pos ${this.pos}`);
+    if (t.type !== type)
+      throw new Error(`Expected ${type}, got ${t.type} at pos ${this.pos}`);
     return t;
   }
 
-  /** Parse a whole .lam file: zero or more @name = term */
   parseBook(): Book {
     const book: Book = new Map();
     while (this.pos < this.tokens.length) {
@@ -100,11 +133,10 @@ class Parser {
     return book;
   }
 
-  /** Parse a term (lowest precedence = lambda, then application) */
   parseTerm(): Term {
     const t = this.peek();
     if (t?.type === "Lambda") {
-      this.consume(); // λ
+      this.consume();
       const param = (this.consume() as { type: "Name"; value: string }).value;
       this.expect("Dot");
       const body = this.parseTerm();
@@ -113,17 +145,14 @@ class Parser {
     return this.parseApp();
   }
 
-  /** Parse application: atom (atom)* */
   parseApp(): Term {
     let func = this.parseAtom();
-    // while next token is '(', consume argument list
     while (this.peek()?.type === "LParen") {
-      this.consume(); // (
+      this.consume();
       const arg = this.parseTerm();
       func = { tag: "App", func, arg };
-      // handle multi-arg  f(a, b, c) => ((f a) b) c
       while (this.peek()?.type === "Comma") {
-        this.consume(); // ,
+        this.consume();
         const next = this.parseTerm();
         func = { tag: "App", func, arg: next };
       }
@@ -132,7 +161,6 @@ class Parser {
     return func;
   }
 
-  /** Parse an atom: variable, @ref, or parenthesised term */
   parseAtom(): Term {
     const t = this.peek();
     if (!t) throw new Error("Unexpected end of input");
@@ -155,46 +183,50 @@ class Parser {
   }
 }
 
-function parse(src: string): Book {
+const parse = (src: string): Book => {
   const tokens = tokenize(src);
   const parser = new Parser(tokens);
   return parser.parseBook();
-}
+};
 
 // ─── EVALUATOR ───────────────────────────────────────────────────────────────
-//
-// Normal-order (call-by-name) beta reduction with explicit substitution.
-// We inline Ref definitions eagerly on first encounter to avoid infinite loops
-// while still handling recursive definitions via lazy thunks.
-//
-// Strategy: reduce the leftmost-outermost redex first (normal order).
-// This guarantees termination for all terms that have a normal form.
 
-/** Substitute `name` → `value` throughout `term`, avoiding capture. */
-function subst(term: Term, name: string, value: Term): Term {
+const subst = (term: Term, name: string, value: Term): Term => {
   switch (term.tag) {
     case "Var":
       return term.name === name ? value : term;
     case "Ref":
       return term;
     case "Lam":
-      if (term.param === name) return term; // shadowed
-      // avoid variable capture
+      if (term.param === name) return term;
       if (freeVars(value).has(term.param)) {
         const fresh = freshen(term.param, freeVars(value));
-        const renamed = subst(term.body, term.param, { tag: "Var", name: fresh });
+        const renamed = subst(term.body, term.param, {
+          tag: "Var",
+          name: fresh,
+        });
         return { tag: "Lam", param: fresh, body: subst(renamed, name, value) };
       }
-      return { tag: "Lam", param: term.param, body: subst(term.body, name, value) };
+      return {
+        tag: "Lam",
+        param: term.param,
+        body: subst(term.body, name, value),
+      };
     case "App":
-      return { tag: "App", func: subst(term.func, name, value), arg: subst(term.arg, name, value) };
+      return {
+        tag: "App",
+        func: subst(term.func, name, value),
+        arg: subst(term.arg, name, value),
+      };
   }
-}
+};
 
-function freeVars(term: Term): Set<string> {
+const freeVars = (term: Term): Set<string> => {
   switch (term.tag) {
-    case "Var": return new Set([term.name]);
-    case "Ref": return new Set();
+    case "Var":
+      return new Set([term.name]);
+    case "Ref":
+      return new Set();
     case "Lam": {
       const s = freeVars(term.body);
       s.delete(term.param);
@@ -206,28 +238,24 @@ function freeVars(term: Term): Set<string> {
       return a;
     }
   }
-}
+};
 
 const SUFFIXES = "abcdefghijklmnopqrstuvwxyz".split("");
 
-function freshen(base: string, used: Set<string>): string {
-  let candidate = base + "_";
+const freshen = (base: string, used: Set<string>): string => {
   for (const s of SUFFIXES) {
     if (!used.has(base + s)) return base + s;
   }
   let i = 0;
   while (used.has(base + i)) i++;
   return base + String(i);
-}
+};
 
 const MAX_STEPS = 10_000_000;
 
-/**
- * Fully normalize a term to beta-normal form (normal-order strategy).
- * Normal order: reduce the leftmost-outermost redex first, including under lambdas.
- */
-function normalize(term: Term, book: Book, steps = { n: 0 }): Term {
-  if (steps.n++ > MAX_STEPS) throw new Error("Reduction limit exceeded (possible infinite loop)");
+const normalize = (term: Term, book: Book, steps = { n: 0 }): Term => {
+  if (steps.n++ > MAX_STEPS)
+    throw new Error("Reduction limit exceeded (possible infinite loop)");
   switch (term.tag) {
     case "Var":
       return term;
@@ -237,17 +265,17 @@ function normalize(term: Term, book: Book, steps = { n: 0 }): Term {
       return normalize(def, book, steps);
     }
     case "Lam":
-      // Normalize under lambda (needed for full normal form)
-      return { tag: "Lam", param: term.param, body: normalize(term.body, book, steps) };
+      return {
+        tag: "Lam",
+        param: term.param,
+        body: normalize(term.body, book, steps),
+      };
     case "App": {
-      // Reduce function to WHNF first, then check for beta redex
       const func = normalizeWHNF(term.func, book, steps);
       if (func.tag === "Lam") {
-        // Beta reduction: substitute arg, then continue normalizing
         const reduced = subst(func.body, func.param, term.arg);
         return normalize(reduced, book, steps);
       }
-      // func is stuck (Var or irreducible App) — normalize both sides fully
       return {
         tag: "App",
         func: normalize(func, book, steps),
@@ -255,10 +283,9 @@ function normalize(term: Term, book: Book, steps = { n: 0 }): Term {
       };
     }
   }
-}
+};
 
-/** Reduce to weak head normal form: reduce until the head is a Lam or stuck Var/App. */
-function normalizeWHNF(term: Term, book: Book, steps: { n: number }): Term {
+const normalizeWHNF = (term: Term, book: Book, steps: { n: number }): Term => {
   if (steps.n++ > MAX_STEPS) throw new Error("Reduction limit exceeded");
   switch (term.tag) {
     case "Var":
@@ -278,32 +305,26 @@ function normalizeWHNF(term: Term, book: Book, steps: { n: number }): Term {
       return { tag: "App", func, arg: term.arg };
     }
   }
-}
+};
 
 // ─── PRINTER ─────────────────────────────────────────────────────────────────
-//
-// Print normal form with canonical variable names (a, b, c, ...).
-// All bound variables are renamed in order of first occurrence (depth-first).
 
-function varName(idx: number): string {
+const varName = (idx: number): string => {
   const letters = "abcdefghijklmnopqrstuvwxyz";
   if (idx < 26) return letters[idx];
   return letters[Math.floor(idx / 26) - 1] + letters[idx % 26];
-}
+};
 
 interface PrintCtx {
-  scope: Map<string, number>; // varname -> canonical index
+  scope: Map<string, number>;
   counter: { n: number };
 }
 
-function printTerm(term: Term, ctx: PrintCtx, needsParens = false): string {
+const printTerm = (term: Term, ctx: PrintCtx, needsParens = false): string => {
   switch (term.tag) {
     case "Var": {
       const idx = ctx.scope.get(term.name);
-      if (idx === undefined) {
-        // free variable — keep original name
-        return term.name;
-      }
+      if (idx === undefined) return term.name;
       return varName(idx);
     }
     case "Ref":
@@ -312,13 +333,15 @@ function printTerm(term: Term, ctx: PrintCtx, needsParens = false): string {
       const idx = ctx.counter.n++;
       const newScope = new Map(ctx.scope);
       newScope.set(term.param, idx);
-      const inner = printTerm(term.body, { scope: newScope, counter: ctx.counter });
+      const inner = printTerm(term.body, {
+        scope: newScope,
+        counter: ctx.counter,
+      });
       const paramName = varName(idx);
       const s = `λ${paramName}.${inner}`;
       return needsParens ? `(${s})` : s;
     }
     case "App": {
-      // Collect arg list for multi-arg printing: f(a,b,c)
       const args: Term[] = [];
       let cur: Term = term;
       while (cur.tag === "App") {
@@ -326,52 +349,46 @@ function printTerm(term: Term, ctx: PrintCtx, needsParens = false): string {
         cur = cur.func;
       }
       const func = printTerm(cur, ctx, false);
-      const argStrs = args.map(a => printTerm(a, ctx, false));
-      const s = `${func}(${argStrs.join(",")})`;
-      return s;
+      const argStrs = args.map((a) => printTerm(a, ctx, false));
+      return `${func}(${argStrs.join(",")})`;
     }
   }
-}
+};
 
-function printNormal(term: Term): string {
-  const ctx: PrintCtx = {
-    scope: new Map(),
-    counter: { n: 0 },
-  };
-  return printTerm(term, ctx);
-}
+const printNormal = (term: Term): string =>
+  printTerm(term, { scope: new Map(), counter: { n: 0 } });
 
 // ─── BINARY ENCODING (--to-bin) ──────────────────────────────────────────────
-//
-// Binary lambda calculus (BLC) encoding:
-//   λx.M   →  00 enc(M)
-//   M N    →  01 enc(M) enc(N)
-//   i-th de Bruijn variable (0-indexed)  →  1^(i+1) 0
-//
-// We convert the term to de Bruijn indices first, then encode.
 
 type DeBruijn =
   | { tag: "Idx"; index: number }
   | { tag: "DLam"; body: DeBruijn }
   | { tag: "DApp"; func: DeBruijn; arg: DeBruijn };
 
-function toDeBruijn(term: Term, env: string[]): DeBruijn {
+const toDeBruijn = (term: Term, env: string[]): DeBruijn => {
   switch (term.tag) {
     case "Var": {
       const idx = env.indexOf(term.name);
-      if (idx === -1) throw new Error(`Unbound variable in binary encoding: ${term.name}`);
+      if (idx === -1)
+        throw new Error(`Unbound variable in binary encoding: ${term.name}`);
       return { tag: "Idx", index: idx };
     }
     case "Ref":
-      throw new Error(`Ref @${term.name} must be inlined before binary encoding`);
+      throw new Error(
+        `Ref @${term.name} must be inlined before binary encoding`,
+      );
     case "Lam":
       return { tag: "DLam", body: toDeBruijn(term.body, [term.param, ...env]) };
     case "App":
-      return { tag: "DApp", func: toDeBruijn(term.func, env), arg: toDeBruijn(term.arg, env) };
+      return {
+        tag: "DApp",
+        func: toDeBruijn(term.func, env),
+        arg: toDeBruijn(term.arg, env),
+      };
   }
-}
+};
 
-function encodeBLC(term: DeBruijn): string {
+const encodeBLC = (term: DeBruijn): string => {
   switch (term.tag) {
     case "Idx":
       return "1".repeat(term.index + 1) + "0";
@@ -380,18 +397,40 @@ function encodeBLC(term: DeBruijn): string {
     case "DApp":
       return "01" + encodeBLC(term.func) + encodeBLC(term.arg);
   }
-}
+};
 
-function toBinary(term: Term): string {
-  const db = toDeBruijn(term, []);
-  return encodeBLC(db);
-}
+const toBinary = (term: Term): string => encodeBLC(toDeBruijn(term, []));
 
-// ─── MAIN ────────────────────────────────────────────────────────────────────
+const inlineRefs = (term: Term, book: Book, visited: Set<string>): Term => {
+  switch (term.tag) {
+    case "Var":
+      return term;
+    case "Ref": {
+      if (visited.has(term.name))
+        throw new Error(`Recursive ref @${term.name} cannot be binary-encoded`);
+      const def = book.get(term.name);
+      if (!def) throw new Error(`Undefined ref @${term.name}`);
+      return inlineRefs(def, book, new Set([...visited, term.name]));
+    }
+    case "Lam":
+      return { ...term, body: inlineRefs(term.body, book, visited) };
+    case "App":
+      return {
+        ...term,
+        func: inlineRefs(term.func, book, visited),
+        arg: inlineRefs(term.arg, book, visited),
+      };
+  }
+};
 
-function run() {
-  const args = process.argv.slice(2).filter(a => !a.startsWith("--"));
-  const flags = process.argv.slice(2).filter(a => a.startsWith("--"));
+// ─── MAIN (Effect) ───────────────────────────────────────────────────────────
+
+const program = Effect.gen(function* () {
+  const fs = yield* FileSystem.FileSystem;
+
+  const rawArgs = process.argv.slice(2);
+  const args = rawArgs.filter((a) => !a.startsWith("--"));
+  const flags = rawArgs.filter((a) => a.startsWith("--"));
   const toBin = flags.includes("--to-bin");
 
   if (args.length === 0) {
@@ -399,55 +438,33 @@ function run() {
     process.exit(1);
   }
 
-  const src = readFileSync(args[0], "utf-8");
+  const src = yield* fs.readFileString(args[0], "utf-8");
   const book = parse(src);
 
-  // The entry point is @main (or @_ for normalization helper, or last definition)
-  const entry = book.has("_") ? "_" : book.has("main") ? "main" : [...book.keys()].at(-1);
+  const entry = book.has("_")
+    ? "_"
+    : book.has("main")
+      ? "main"
+      : [...book.keys()].at(-1);
   if (!entry) throw new Error("No definitions found in file");
 
   const term: Term = { tag: "Ref", name: entry };
   const normal = normalize(term, book);
 
   if (toBin) {
-    // For --to-bin we need the normalized closed term
-    // Use de Bruijn encoding on the normalized form
-    // First inline all remaining Refs
     const inlined = inlineRefs(normal, book, new Set());
     const bits = toBinary(inlined);
     process.stdout.write(bits + "\n");
   } else {
     process.stdout.write(printNormal(normal) + "\n");
   }
-}
-
-/** Inline all @refs in a term (for binary encoding). */
-function inlineRefs(term: Term, book: Book, visited: Set<string>): Term {
-  switch (term.tag) {
-    case "Var": return term;
-    case "Ref": {
-      if (visited.has(term.name)) throw new Error(`Recursive ref @${term.name} cannot be binary-encoded`);
-      const def = book.get(term.name);
-      if (!def) throw new Error(`Undefined ref @${term.name}`);
-      return inlineRefs(def, book, new Set([...visited, term.name]));
-    }
-    case "Lam": return { ...term, body: inlineRefs(term.body, book, visited) };
-    case "App": return {
-      ...term,
-      func: inlineRefs(term.func, book, visited),
-      arg: inlineRefs(term.arg, book, visited),
-    };
-  }
-}
+});
 
 if (import.meta.main) {
-  try {
-    run();
-  } catch (e: any) {
-    process.stderr.write("error: " + (e?.message ?? String(e)) + "\n");
-    process.exit(1);
-  }
+  BunRuntime.runMain(program.pipe(Effect.provide(BunServices.layer)), {
+    disableErrorReporting: true,
+  });
 }
 
-export { parse, normalize, printNormal, toBinary, inlineRefs };
-export type { Term, Book };
+export type { Book, Term };
+export { inlineRefs, normalize, parse, printNormal, toBinary };

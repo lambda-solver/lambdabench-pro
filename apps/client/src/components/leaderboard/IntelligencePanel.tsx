@@ -28,7 +28,10 @@ export function IntelligencePanel({ data }: IntelligencePanelProps) {
   );
   const sorted = Arr.sort(data.rankings, byRightDesc);
 
-  const maxNameLen = Math.max(...sorted.map(r => fmtModel(r.model).length), 10);
+  const maxNameLen = Math.max(
+    ...sorted.map((r) => fmtModel(r.model).length),
+    10,
+  );
 
   let n = 1;
 
@@ -38,7 +41,9 @@ export function IntelligencePanel({ data }: IntelligencePanelProps) {
       <VimLine n={n++}>
         <span className="font-bold text-[var(--sol-yellow)]">LamBench</span>
         {"  "}
-        <span className="text-[var(--sol-base1)]">-- Lambda Calculus Benchmark for AI</span>
+        <span className="text-[var(--sol-base1)]">
+          -- Lambda Calculus Benchmark for AI
+        </span>
       </VimLine>
       <VimLine n={n++} />
       <VimLine n={n++}>
@@ -49,14 +54,16 @@ export function IntelligencePanel({ data }: IntelligencePanelProps) {
       <VimLine n={n++} />
 
       {sorted.map((r) => {
-        const name   = fmtModel(r.model);
-        const pct    = parseFloat(r.pct);
-        const score  = `${r.right}/${r.total}`;
+        const name = fmtModel(r.model);
+        const pct = parseFloat(r.pct);
+        const score = `${r.right}/${r.total}`;
         const pctStr = rpad(`${pct.toFixed(1)}%`, 6);
 
         return (
           <VimLine key={r.model} n={n++}>
-            <span className="text-[var(--sol-blue)]">{pad(name, maxNameLen + 1)}</span>
+            <span className="text-[var(--sol-blue)]">
+              {pad(name, maxNameLen + 1)}
+            </span>
             <BarChart pct={pct} />
             {"  "}
             <span className="text-[var(--sol-magenta)]">{rpad(score, 7)}</span>
@@ -67,7 +74,9 @@ export function IntelligencePanel({ data }: IntelligencePanelProps) {
       })}
 
       <VimLine n={n++} />
-      {Array.from({ length: 8 }).map((_, i) => <TildeLine key={i} />)}
+      {Array.from({ length: 8 }).map((_, i) => (
+        <TildeLine key={`tilde-${i}`} />
+      ))}
     </div>
   );
 }

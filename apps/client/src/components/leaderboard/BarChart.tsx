@@ -16,13 +16,16 @@ interface BarChartProps {
  */
 export function BarChart({ pct, width = 28, className }: BarChartProps) {
   const filled = Math.round((pct / 100) * width);
-  const empty  = width - filled;
+  const empty = width - filled;
 
   const colorClass =
-    pct >= 70 ? "text-[var(--sol-green)]"
-    : pct >= 45 ? "text-[var(--sol-blue)]"
-    : pct >= 20 ? "text-[var(--sol-yellow)]"
-    : "text-[var(--sol-red)]";
+    pct >= 70
+      ? "text-[var(--sol-green)]"
+      : pct >= 45
+        ? "text-[var(--sol-blue)]"
+        : pct >= 20
+          ? "text-[var(--sol-yellow)]"
+          : "text-[var(--sol-red)]";
 
   const style = { verticalAlign: "top", lineHeight: "inherit" } as const;
 

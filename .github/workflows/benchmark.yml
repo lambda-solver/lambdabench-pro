@@ -45,22 +45,24 @@ jobs:
         working-directory: reference/lambench
 
       - name: Fetch top models
-        working-directory: reference/lambench
+        run: bun --filter=server run start eval
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           TOP_MODELS: ${{ github.event.inputs.top_models }}
-        run: bun src/eval-runner.ts
 
       - name: Run evaluations
         working-directory: reference/lambench
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          TOP_MODELS: ${{ github.event.inputs.top_models }}
-        run: bun src/check.ts
+        run: |
+          models=$(bun -e "const d=require('../../apps/server/top-models.json');process.stdout.write(d.map(m=>m.modelId).join('\n'))")
+          while IFS= read -r model; do
+            echo "=== Evaluating: $model ==="
+            bun src/bench.ts "openrouter/$model" || true
+          done <<< "$models"
 
       - name: Build results JSON
-        working-directory: reference/lambench
-        run: bun scripts/build-results.ts
+        run: bun --filter=server run start build
 
       - name: Commit results
         uses: stefanzweifel/git-auto-commit-action@v5
