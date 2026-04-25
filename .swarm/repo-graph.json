@@ -1427,6 +1427,476 @@
       "language": "typescript",
       "mtime": "2026-04-24T17:58:43.688Z"
     },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/benchmarks/benchmark.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/benchmarks/benchmark.py",
+      "moduleName": "reference/lambda-RLM/benchmarks/benchmark.py",
+      "exports": [
+        "BIN_LABELS",
+        "assign_bin",
+        "Sample",
+        "Result",
+        "BinStats",
+        "load_oolong",
+        "load_sniah",
+        "load_browsecomp",
+        "load_codeqa",
+        "run_sample",
+        "aggregate",
+        "print_table",
+        "main"
+      ],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.523Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/__init__.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/__init__.py",
+      "moduleName": "reference/lambda-RLM/rlm/__init__.py",
+      "exports": [],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.539Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/clients/__init__.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/clients/__init__.py",
+      "moduleName": "reference/lambda-RLM/rlm/clients/__init__.py",
+      "exports": [],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.539Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/clients/anthropic.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/clients/anthropic.py",
+      "moduleName": "reference/lambda-RLM/rlm/clients/anthropic.py",
+      "exports": [
+        "AnthropicClient"
+      ],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.539Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/clients/azure_openai.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/clients/azure_openai.py",
+      "moduleName": "reference/lambda-RLM/rlm/clients/azure_openai.py",
+      "exports": [
+        "DEFAULT_AZURE_OPENAI_API_KEY",
+        "AzureOpenAIClient"
+      ],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.539Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/clients/base_lm.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/clients/base_lm.py",
+      "moduleName": "reference/lambda-RLM/rlm/clients/base_lm.py",
+      "exports": [
+        "DEFAULT_TIMEOUT",
+        "BaseLM"
+      ],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.539Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/clients/gemini.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/clients/gemini.py",
+      "moduleName": "reference/lambda-RLM/rlm/clients/gemini.py",
+      "exports": [
+        "DEFAULT_GEMINI_API_KEY",
+        "GeminiClient"
+      ],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.539Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/clients/litellm.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/clients/litellm.py",
+      "moduleName": "reference/lambda-RLM/rlm/clients/litellm.py",
+      "exports": [
+        "LiteLLMClient"
+      ],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.539Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/clients/openai.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/clients/openai.py",
+      "moduleName": "reference/lambda-RLM/rlm/clients/openai.py",
+      "exports": [
+        "DEFAULT_OPENAI_API_KEY",
+        "DEFAULT_OPENROUTER_API_KEY",
+        "DEFAULT_VERCEL_API_KEY",
+        "DEFAULT_PRIME_API_KEY",
+        "DEFAULT_NVIDIA_API_KEY",
+        "DEFAULT_PRIME_INTELLECT_BASE_URL",
+        "NVIDIA_BASE_URL",
+        "OpenAIClient"
+      ],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.539Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/clients/portkey.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/clients/portkey.py",
+      "moduleName": "reference/lambda-RLM/rlm/clients/portkey.py",
+      "exports": [
+        "PortkeyClient"
+      ],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.539Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/core/__init__.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/core/__init__.py",
+      "moduleName": "reference/lambda-RLM/rlm/core/__init__.py",
+      "exports": [],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.539Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/core/comms_utils.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/core/comms_utils.py",
+      "moduleName": "reference/lambda-RLM/rlm/core/comms_utils.py",
+      "exports": [
+        "LMRequest",
+        "LMResponse",
+        "socket_send",
+        "socket_recv",
+        "socket_request"
+      ],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.539Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/core/lm_handler.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/core/lm_handler.py",
+      "moduleName": "reference/lambda-RLM/rlm/core/lm_handler.py",
+      "exports": [
+        "LMRequestHandler",
+        "ThreadingLMServer",
+        "LMHandler"
+      ],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.539Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/core/rlm.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/core/rlm.py",
+      "moduleName": "reference/lambda-RLM/rlm/core/rlm.py",
+      "exports": [
+        "RLM"
+      ],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.539Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/core/types.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/core/types.py",
+      "moduleName": "reference/lambda-RLM/rlm/core/types.py",
+      "exports": [
+        "ModelUsageSummary",
+        "UsageSummary",
+        "RLMChatCompletion",
+        "REPLResult",
+        "CodeBlock",
+        "RLMIteration",
+        "RLMMetadata",
+        "QueryMetadata"
+      ],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.539Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/environments/__init__.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/environments/__init__.py",
+      "moduleName": "reference/lambda-RLM/rlm/environments/__init__.py",
+      "exports": [],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.539Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/environments/base_env.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/environments/base_env.py",
+      "moduleName": "reference/lambda-RLM/rlm/environments/base_env.py",
+      "exports": [
+        "RESERVED_TOOL_NAMES",
+        "ToolInfo",
+        "parse_tool_entry",
+        "parse_custom_tools",
+        "extract_tool_value",
+        "format_tools_for_prompt",
+        "validate_custom_tools",
+        "SupportsCustomTools",
+        "BaseEnv",
+        "IsolatedEnv",
+        "NonIsolatedEnv",
+        "SupportsPersistence"
+      ],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.539Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/environments/constants.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/environments/constants.py",
+      "moduleName": "reference/lambda-RLM/rlm/environments/constants.py",
+      "exports": [
+        "APT_PACKAGES",
+        "PIP_PACKAGES"
+      ],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.539Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/environments/daytona_repl.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/environments/daytona_repl.py",
+      "moduleName": "reference/lambda-RLM/rlm/environments/daytona_repl.py",
+      "exports": [
+        "get_default_image",
+        "health",
+        "enqueue",
+        "get_pending",
+        "respond",
+        "BROKER_URL",
+        "llm_query",
+        "llm_query_batched",
+        "STATE_FILE",
+        "load_state",
+        "save_state",
+        "serialize_locals",
+        "FINAL_VAR",
+        "SHOW_VARS",
+        "DaytonaREPL"
+      ],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.539Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/environments/docker_repl.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/environments/docker_repl.py",
+      "moduleName": "reference/lambda-RLM/rlm/environments/docker_repl.py",
+      "exports": [
+        "LLMProxyHandler",
+        "PROXY",
+        "STATE",
+        "llm_query",
+        "llm_query_batched",
+        "load_state",
+        "save_state",
+        "FINAL_VAR",
+        "SHOW_VARS",
+        "DockerREPL"
+      ],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.539Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/environments/e2b_repl.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/environments/e2b_repl.py",
+      "moduleName": "reference/lambda-RLM/rlm/environments/e2b_repl.py",
+      "exports": [
+        "health",
+        "enqueue",
+        "get_pending",
+        "respond",
+        "BROKER_URL",
+        "llm_query",
+        "llm_query_batched",
+        "STATE_FILE",
+        "load_state",
+        "save_state",
+        "serialize_locals",
+        "FINAL_VAR",
+        "E2BREPL"
+      ],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.539Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/environments/local_repl.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/environments/local_repl.py",
+      "moduleName": "reference/lambda-RLM/rlm/environments/local_repl.py",
+      "exports": [
+        "LocalREPL"
+      ],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.539Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/environments/modal_repl.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/environments/modal_repl.py",
+      "moduleName": "reference/lambda-RLM/rlm/environments/modal_repl.py",
+      "exports": [
+        "get_default_image",
+        "health",
+        "enqueue",
+        "get_pending",
+        "respond",
+        "BROKER_URL",
+        "llm_query",
+        "llm_query_batched",
+        "STATE_FILE",
+        "load_state",
+        "save_state",
+        "serialize_locals",
+        "FINAL_VAR",
+        "SHOW_VARS",
+        "ModalREPL"
+      ],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.539Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/environments/prime_repl.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/environments/prime_repl.py",
+      "moduleName": "reference/lambda-RLM/rlm/environments/prime_repl.py",
+      "exports": [
+        "health",
+        "enqueue",
+        "get_pending",
+        "respond",
+        "BROKER_URL",
+        "llm_query",
+        "llm_query_batched",
+        "STATE_FILE",
+        "load_state",
+        "save_state",
+        "serialize_locals",
+        "FINAL_VAR",
+        "SHOW_VARS",
+        "PrimeREPL"
+      ],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.539Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/lambda_rlm.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/lambda_rlm.py",
+      "moduleName": "reference/lambda-RLM/rlm/lambda_rlm.py",
+      "exports": [
+        "TaskType",
+        "ComposeOp",
+        "COMPOSITION_TABLE",
+        "C_COMPOSE",
+        "C_IN",
+        "PipelineFlags",
+        "PLAN_TABLE",
+        "TASK_TEMPLATES",
+        "LambdaPlan",
+        "LambdaRLM"
+      ],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.539Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/logger/__init__.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/logger/__init__.py",
+      "moduleName": "reference/lambda-RLM/rlm/logger/__init__.py",
+      "exports": [],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.543Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/logger/rlm_logger.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/logger/rlm_logger.py",
+      "moduleName": "reference/lambda-RLM/rlm/logger/rlm_logger.py",
+      "exports": [
+        "RLMLogger"
+      ],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.543Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/logger/verbose.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/logger/verbose.py",
+      "moduleName": "reference/lambda-RLM/rlm/logger/verbose.py",
+      "exports": [
+        "COLORS",
+        "STYLE_PRIMARY",
+        "STYLE_SECONDARY",
+        "STYLE_SUCCESS",
+        "STYLE_WARNING",
+        "STYLE_ERROR",
+        "STYLE_TEXT",
+        "STYLE_MUTED",
+        "STYLE_ACCENT",
+        "VerbosePrinter"
+      ],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.543Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/utils/__init__.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/utils/__init__.py",
+      "moduleName": "reference/lambda-RLM/rlm/utils/__init__.py",
+      "exports": [],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.543Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/utils/exceptions.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/utils/exceptions.py",
+      "moduleName": "reference/lambda-RLM/rlm/utils/exceptions.py",
+      "exports": [
+        "BudgetExceededError",
+        "TimeoutExceededError",
+        "TokenLimitExceededError",
+        "ErrorThresholdExceededError",
+        "CancellationError"
+      ],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.543Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/utils/parsing.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/utils/parsing.py",
+      "moduleName": "reference/lambda-RLM/rlm/utils/parsing.py",
+      "exports": [
+        "find_code_blocks",
+        "find_final_answer",
+        "format_execution_result",
+        "check_for_final_answer",
+        "convert_context_for_repl"
+      ],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.543Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/utils/prompts.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/utils/prompts.py",
+      "moduleName": "reference/lambda-RLM/rlm/utils/prompts.py",
+      "exports": [
+        "RLM_SYSTEM_PROMPT",
+        "IMPORTANT",
+        "USER_PROMPT",
+        "USER_PROMPT_WITH_ROOT"
+      ],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.543Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/utils/rlm_utils.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/utils/rlm_utils.py",
+      "moduleName": "reference/lambda-RLM/rlm/utils/rlm_utils.py",
+      "exports": [
+        "filter_sensitive_keys"
+      ],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.543Z"
+    },
+    "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/utils/token_utils.py": {
+      "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambda-RLM/rlm/utils/token_utils.py",
+      "moduleName": "reference/lambda-RLM/rlm/utils/token_utils.py",
+      "exports": [
+        "DEFAULT_CONTEXT_LIMIT",
+        "CHARS_PER_TOKEN_ESTIMATE",
+        "MODEL_CONTEXT_LIMITS",
+        "get_context_limit",
+        "count_tokens"
+      ],
+      "imports": [],
+      "language": "python",
+      "mtime": "2026-04-25T08:49:19.543Z"
+    },
     "/workspaces/typescript-node/lambench-pro/reference/lambench/scripts/build-results.ts": {
       "filePath": "/workspaces/typescript-node/lambench-pro/reference/lambench/scripts/build-results.ts",
       "moduleName": "reference/lambench/scripts/build-results.ts",
@@ -2102,9 +2572,9 @@
     }
   ],
   "metadata": {
-    "generatedAt": "2026-04-25T00:34:10.960Z",
+    "generatedAt": "2026-04-25T09:19:59.335Z",
     "generator": "repo-graph",
-    "nodeCount": 100,
+    "nodeCount": 134,
     "edgeCount": 88
   }
 }
