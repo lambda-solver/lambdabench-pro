@@ -32,7 +32,7 @@ export function ProblemsPanel({ data, onTaskClick }: ProblemsPanelProps) {
     <div className="text-[var(--sol-base00)]">
       {/* Filter row */}
       <VimLine n="">
-        <span className="text-[var(--sol-base1)]">" filter: </span>
+        <span className="text-[var(--sol-base1)]">-- filter: </span>
         {[{ id: "all", name: "all" }, ...data.categories].map((cat) => (
           <button
             key={cat.id}

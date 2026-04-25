@@ -87,7 +87,7 @@ export function TaskModal({ task, rankings, onClose }: TaskModalProps) {
 
           {task.description.split("\n").map((line, i) => (
             <VimLine key={`desc-${i}`} n={i + 4}>
-              <span className="text-[var(--sol-base1)]">{`" ${line}`}</span>
+              <span className="text-[var(--sol-base1)]">{`-- ${line}`}</span>
             </VimLine>
           ))}
 

@@ -80,7 +80,7 @@ export function SpeedPanel({ data }: SpeedPanelProps) {
       <VimLine n={n++} />
       <VimLine n={n++}>
         <span className="text-[var(--sol-base1)]">
-          " Wall-clock time per passing task (model + interpreter)
+          -- Wall-clock time per passing task (model + interpreter)
         </span>
       </VimLine>
       {Array.from({ length: 8 }).map((_, i) => (

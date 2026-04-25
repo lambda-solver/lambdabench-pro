@@ -148,7 +148,7 @@ export function ElegancePanel({ data }: ElegancePanelProps) {
 
       <VimLine n={n++} />
       <VimLine n={n++}>
-        <span className="text-[var(--sol-base1)]">{`" mean: `}</span>
+        <span className="text-[var(--sol-base1)]">{"-- mean: "}</span>
         <span className="text-[var(--sol-magenta)]">{fmtShorter(mean)}</span>
         <span className="text-[var(--sol-base1)]">
           {"  shorter than reference"}

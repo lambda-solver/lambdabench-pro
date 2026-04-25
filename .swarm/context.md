@@ -4,9 +4,9 @@
 
 | Tool | Calls | Success | Failed | Avg Duration |
 |------|-------|---------|--------|--------------|
-| bash | 542 | 542 | 0 | 1821ms |
-| read | 253 | 253 | 0 | 55ms |
-| edit | 131 | 131 | 0 | 23ms |
+| bash | 564 | 564 | 0 | 1770ms |
+| read | 263 | 263 | 0 | 54ms |
+| edit | 139 | 139 | 0 | 23ms |
 | write | 86 | 86 | 0 | 19ms |
 | todowrite | 42 | 42 | 0 | 5ms |
 | glob | 41 | 41 | 0 | 56ms |
