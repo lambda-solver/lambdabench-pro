@@ -9,6 +9,7 @@
  */
 
 import { Array as Arr, Effect, FileSystem, Layer, Path } from "effect";
+import { ModelUnresponsiveError } from "../llm/ModelGuard";
 import type { TopModel } from "./EvalRunner";
 import {
   LAM_DIR,
@@ -21,6 +22,7 @@ import { makeOpenRouterLayer } from "../llm/OpenRouterClient";
 import { BunHttpClient } from "@effect/platform-bun";
 import { defaultConfig, rlmEval } from "../rlm/LambdaRlm";
 import { writeResultFile } from "../run/RunWriter";
+import { build } from "../build/BuildResults";
 
 // ─── loadRefBitsMap ───────────────────────────────────────────────────────────
 
@@ -106,27 +108,53 @@ export const runModelEval = Effect.fn("runModelEval")(function* (
     Layer.provide(BunHttpClient.layer),
   );
 
+  /** Wrap a variant so ModelUnresponsiveError skips it cleanly. */
+  const guarded = <A, E, R>(
+    variant: string,
+    eff: Effect.Effect<A, E, R>,
+  ) =>
+    eff.pipe(
+      Effect.catchIf(
+        (e: unknown): e is ModelUnresponsiveError =>
+          e instanceof ModelUnresponsiveError,
+        (e) => {
+          const err = e as unknown as ModelUnresponsiveError;
+          return Effect.log(
+            `[ModelEvalRunner] SKIP ${model.modelId} (${variant}) — unresponsive after ${err.attempts} attempts`,
+          );
+        },
+      ),
+    );
+
   yield* Effect.all(
     [
       // Standard eval: single LLM call per task
-      Effect.gen(function* () {
-        const results = yield* runAllTasksForModel(tasks, refBitsMap).pipe(
-          Effect.provide(llmLayer),
-        );
-        yield* writeResultFile(model.modelId, results, "standard");
-      }),
-
-      // λ-RLM eval: up to maxDepth calls per task
-      Effect.gen(function* () {
-        const { results, totalAttempts, maxDepthUsed } =
-          yield* runRlmForAllTasks(tasks, refBitsMap).pipe(
+      guarded(
+        "standard",
+        Effect.gen(function* () {
+          const results = yield* runAllTasksForModel(tasks, refBitsMap).pipe(
             Effect.provide(llmLayer),
           );
-        yield* writeResultFile(`${model.modelId}/rlm`, results, "rlm", {
-          depth: maxDepthUsed,
-          attempts: totalAttempts,
-        });
-      }),
+          yield* writeResultFile(model.modelId, results, "standard");
+          yield* build().pipe(Effect.catch((_) => Effect.void));
+        }),
+      ),
+
+      // λ-RLM eval: up to maxDepth self-correction calls per task
+      guarded(
+        "rlm",
+        Effect.gen(function* () {
+          const { results, totalAttempts, maxDepthUsed } =
+            yield* runRlmForAllTasks(tasks, refBitsMap).pipe(
+              Effect.provide(llmLayer),
+            );
+          yield* writeResultFile(`${model.modelId}/rlm`, results, "rlm", {
+            depth: maxDepthUsed,
+            attempts: totalAttempts,
+          });
+          yield* build().pipe(Effect.catch((_) => Effect.void));
+        }),
+      ),
     ],
     { concurrency: 2 },
   );

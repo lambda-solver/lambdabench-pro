@@ -1,0 +1,6 @@
+model: minimax/minimax-m2.5:free/rlm
+right: 0/1
+variant: rlm
+rlm_depth: 3
+rlm_attempts: 3
+- cnat_add: 0.000 fail time=341.295s

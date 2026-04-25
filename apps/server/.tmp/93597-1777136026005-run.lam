@@ -1,0 +1,1 @@
+@main = λa.λb.a(λc.λd.c(λe.λf.e(λg.λh.g(λi.λj.i(λk.λl.k(λm.λn.m(λo.λp.o(λq.λr.q(λs.λt.s(λu.λv.u(λw.λx.w(λy.λz.y(λaa.λab.aa(λac.λad.ac(λae.λaf.ae(λag.λah.ah))))))))))))))))

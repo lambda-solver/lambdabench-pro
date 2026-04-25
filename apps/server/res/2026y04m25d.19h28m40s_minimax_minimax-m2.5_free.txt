@@ -1,0 +1,4 @@
+model: minimax/minimax-m2.5:free
+right: 0/1
+variant: standard
+- cnat_add: 0.000 fail time=26.534s

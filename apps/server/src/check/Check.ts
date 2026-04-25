@@ -2,16 +2,23 @@
  * Check.ts — Task parser, lam runner, scorer, and evaluator.
  *
  * Replaces reference/lambench/src/check.ts.
- * Uses Effect FileSystem for I/O; uses Bun.spawnSync for subprocess calls
- * (synchronous, no ChildProcess streams needed for short-lived lam runs).
+ * Uses Effect FileSystem for I/O; calls Lamb.ts exports directly in-process
+ * (no subprocess, no tmp files for eval — fast and reliable).
  * The lam/ reference solutions live in apps/server/lam/.
  * The tsk/ task definitions live in apps/server/tsk/.
  */
 
 import { Array as Arr, Effect, FileSystem, Path } from "effect";
-import { LanguageModel } from "effect/unstable/ai";
 import { extractLamCode } from "../rlm/LamCodeExtractor";
 import { buildSolvePrompt } from "../llm/LlmPrompts";
+import { guardedGenerate, ModelUnresponsiveError } from "../llm/ModelGuard";
+import {
+  inlineRefs,
+  normalize,
+  parse as parseLam,
+  printNormal,
+  toBinary,
+} from "../lamb/Lamb";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -39,10 +46,6 @@ export type CheckResult = {
 const SERVER_ROOT = new URL("../..", import.meta.url).pathname.replace(/\/$/, "");
 export const LAM_DIR = `${SERVER_ROOT}/lam`;
 export const TSK_DIR = `${SERVER_ROOT}/tsk`;
-const TMP_DIR = `${SERVER_ROOT}/.tmp`;
-const LAMB_TS = new URL("../lamb/Lamb.ts", import.meta.url).pathname;
-
-export const LAM_TIMEOUT_MS = 10_000;
 
 // ─── Errors ──────────────────────────────────────────────────────────────────
 
@@ -108,78 +111,43 @@ export const loadAllTasks = Effect.gen(function* () {
   );
 });
 
-// ─── Lam runner (Bun.spawnSync) ──────────────────────────────────────────────
+// ─── Lam runner (in-process) ─────────────────────────────────────────────────
 
-const cleanLamError = (msg: string): string => {
-  const lines = msg
-    // biome-ignore lint/suspicious/noControlCharactersInRegex: intentional ANSI strip
-    .replace(/\u001b\[[0-9;?]*[ -/]*[@-~]/g, "")
-    .split("\n")
-    .map((l) => l.trim())
-    .filter(Boolean);
-  return (
-    lines.find((l) => /^(RangeError|SyntaxError|TypeError|Error):/.test(l)) ??
-    lines.find((l) => /^Expected /.test(l)) ??
-    lines.find((l) => /^error:/.test(l)) ??
-    lines[0] ??
-    "lamb failed"
-  );
-};
-
-const runLamSync = (
-  file: string,
-  extraArgs: string[],
-  timeoutMs: number,
-): string => {
-  const res = Bun.spawnSync(["bun", LAMB_TS, file, ...extraArgs], {
-    env: { ...process.env, NO_COLOR: "1", TERM: "dumb" },
-    timeout: timeoutMs,
-    stdout: "pipe",
-    stderr: "pipe",
-  });
-
-  if (!res.success) {
-    const msg =
-      (res.stderr?.toString() ?? "") ||
-      (res.stdout?.toString() ?? "") ||
-      `lamb exited with ${res.exitCode}`;
-    throw new LamError(cleanLamError(msg));
-  }
-  return res.stdout.toString().trim();
-};
-
-const ensureTmp = Effect.fn("ensureTmp")(function* () {
-  const fs = yield* FileSystem.FileSystem;
-  yield* fs.makeDirectory(TMP_DIR, { recursive: true });
-});
-
-/** Write src to a tmp file and run the lamb interpreter on it. */
-export const lamRun = Effect.fn("lamRun")(function* (
-  src: string,
-  timeoutMs = LAM_TIMEOUT_MS,
-) {
-  yield* ensureTmp();
-  const fs = yield* FileSystem.FileSystem;
-  const file = `${TMP_DIR}/${process.pid}-${Date.now()}-run.lam`;
-  yield* fs.writeFileString(file, src);
+/**
+ * Evaluate a lambda calculus source string in-process.
+ * Evaluates the LAST defined entry in the book — when Check appends
+ * `@_ = ${test.expr}` to a submission, `_` is always last and is the
+ * expression under test. For standalone runs `@main` is the only entry.
+ */
+export const lamRun = Effect.fn("lamRun")(function* (src: string) {
   return yield* Effect.try({
-    try: () => runLamSync(file, [], timeoutMs),
+    try: () => {
+      const book = parseLam(src);
+      if (book.size === 0) throw new LamError("empty program");
+      // Last inserted key is always the entry point (Map preserves order).
+      const last = [...book.keys()].at(-1)!;
+      const term = book.get(last)!;
+      const result = normalize(term, book);
+      return printNormal(result);
+    },
     catch: (e): LamError =>
       e instanceof LamError ? e : new LamError(String(e)),
   });
 });
 
-/** Compute binary encoding length (BLC bits) of a submission. */
-export const binSize = Effect.fn("binSize")(function* (
-  src: string,
-  timeoutMs = LAM_TIMEOUT_MS,
-) {
-  yield* ensureTmp();
-  const fs = yield* FileSystem.FileSystem;
-  const file = `${TMP_DIR}/${process.pid}-${Date.now()}-size.lam`;
-  yield* fs.writeFileString(file, src);
+/**
+ * Compute binary encoding length (BLC bits) of a submission in-process.
+ * Always encodes @main — the submission's primary definition.
+ */
+export const binSize = Effect.fn("binSize")(function* (src: string) {
   return yield* Effect.try({
-    try: () => runLamSync(file, ["--to-bin"], timeoutMs).length,
+    try: () => {
+      const book = parseLam(src);
+      const main = book.get("main");
+      if (!main) throw new LamError("no @main definition");
+      const inlined = inlineRefs(main, book);
+      return toBinary(inlined).length;
+    },
     catch: (e): LamError =>
       e instanceof LamError ? e : new LamError(String(e)),
   });
@@ -333,18 +301,28 @@ export const runTaskWithLlm = Effect.fn("runTaskWithLlm")(function* (
 ) {
   const start = Date.now();
 
-  const rawResponse = yield* LanguageModel.generateText({
-    prompt: buildSolvePrompt(task),
-  }).pipe(
-    Effect.map((r) => r.text),
-    Effect.catch((_e) =>
-      Effect.succeed(`@main = λf.λx.x  // LLM error: ${String(_e)}`),
+  const prompt = buildSolvePrompt(task);
+  yield* Effect.log(
+    `[standard] ${task.id} → prompt (${prompt.length} chars): ${prompt.slice(0, 80).replace(/\n/g, " ")}…`,
+  );
+
+  const rawResponse = yield* guardedGenerate(prompt, "standard").pipe(
+    Effect.catchTag("ModelUnresponsiveError", (e) =>
+      Effect.fail(new ModelUnresponsiveError(e.model, e.attempts)),
     ),
   );
 
   const submission = extractLamCode(rawResponse);
+  yield* Effect.log(
+    `[standard] ${task.id} ← ${rawResponse.slice(0, 200).replace(/\n/g, " ")}`,
+  );
+
   const checkResult = yield* runTask(task, submission, refBits);
   const elapsedMs = Date.now() - start;
+
+  yield* Effect.log(
+    `[standard] ${task.id} check: ${checkResult.pass ? "PASS" : "FAIL"} bits=${checkResult.bits} score=${checkResult.score.toFixed(3)} time=${(elapsedMs / 1000).toFixed(1)}s`,
+  );
 
   return { ...checkResult, elapsedMs } satisfies TimedCheckResult;
 });

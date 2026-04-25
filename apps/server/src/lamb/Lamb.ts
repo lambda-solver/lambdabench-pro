@@ -133,16 +133,34 @@ class Parser {
 
   parseApp(): Term {
     let func = this.parseAtom();
-    while (this.peek()?.type === "LParen") {
-      this.consume();
-      const arg = this.parseTerm();
-      func = { tag: "App", func, arg };
-      while (this.peek()?.type === "Comma") {
+    // Accept both explicit-paren style  f(x, y)  and juxtaposition  f x y
+    while (true) {
+      const t = this.peek();
+      if (t?.type === "LParen") {
+        // Could be either f(arg, arg2) or f (arg) — peek one further
+        // If what's inside resolves to a single arg with no comma it's juxtaposition-style grouping;
+        // either way: consume the group as a single argument.
         this.consume();
-        const next = this.parseTerm();
-        func = { tag: "App", func, arg: next };
+        const arg = this.parseTerm();
+        if (this.peek()?.type === "Comma") {
+          // Explicit multi-arg: f(a, b) → App(App(f,a),b)
+          func = { tag: "App", func, arg };
+          while (this.peek()?.type === "Comma") {
+            this.consume();
+            const next = this.parseTerm();
+            func = { tag: "App", func, arg: next };
+          }
+        } else {
+          func = { tag: "App", func, arg };
+        }
+        this.expect("RParen");
+      } else if (t?.type === "Name") {
+        // Juxtaposition: f x  (only bare variable names — @refs are book-level defs)
+        const arg = this.parseAtom();
+        func = { tag: "App", func, arg };
+      } else {
+        break;
       }
-      this.expect("RParen");
     }
     return func;
   }

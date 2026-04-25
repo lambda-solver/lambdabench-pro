@@ -1,0 +1,4 @@
+model: minimax/minimax-m2.5:free
+right: 0/1
+variant: standard
+- snat_exp: 0.000 fail time=367.476s

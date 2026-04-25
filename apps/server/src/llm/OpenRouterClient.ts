@@ -43,7 +43,7 @@ const OpenRouterClientLayer = OpenRouterClient.layerConfig({
  * Build a `LanguageModel.LanguageModel` layer backed by OpenRouter for the
  * given model ID. Reads `OPENROUTER_API_KEY` via `Config.redacted`.
  *
- * @param model - OpenRouter model identifier, e.g. "minimax/minimax-m2.5:free"
+ * @param model - OpenRouter model identifier, e.g. "nvidia/nemotron-3-super-120b-a12b:free"
  */
 export const makeOpenRouterLayer = (model: string) =>
   OpenRouterLanguageModel.layer({ model }).pipe(Layer.provide(OpenRouterClientLayer))

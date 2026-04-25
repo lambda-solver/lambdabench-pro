@@ -31,6 +31,7 @@ import {
   buildTaskDetectionProbe,
 } from "../llm/LlmPrompts";
 import { LlmError } from "../llm/OpenRouterClient";
+import { guardedGenerate, ModelUnresponsiveError } from "../llm/ModelGuard";
 import { type LambdaPlan, parseTaskType, plan, splitText } from "./LambdaPlan";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -83,7 +84,7 @@ export const defaultConfig = (): LambdaRlmConfig => ({
 /** Shorthand for the full Effect type produced by Φ and its helpers. */
 type PhiEffect = Effect.Effect<
   LlmCheckResult,
-  never,
+  ModelUnresponsiveError,
   LanguageModel.LanguageModel | FileSystem.FileSystem | Path.Path
 >;
 
@@ -108,26 +109,30 @@ const selectBest = (results: ReadonlyArray<LlmCheckResult>): LlmCheckResult => {
 // ─── Internal: absorbToCheckResult ───────────────────────────────────────────
 
 /**
- * Absorb any remaining typed errors from the lam runner into a failed
- * LlmCheckResult so the Φ chain always returns `never` in the error channel.
+ * Absorb lam-runner and other non-unresponsive errors into a failed
+ * LlmCheckResult. ModelUnresponsiveError is re-raised so it propagates
+ * all the way up to ModelEvalRunner which skips the whole model.
  */
 const absorbToCheckResult = (
   task: Task,
   eff: Effect.Effect<LlmCheckResult, unknown, LanguageModel.LanguageModel | FileSystem.FileSystem | Path.Path>,
 ): PhiEffect =>
   eff.pipe(
-    Effect.catch((_e) =>
-      Effect.succeed<LlmCheckResult>({
-        id: task.id,
-        pass: false,
-        bits: 0,
-        score: 0,
-        errors: [`internal error: ${String(_e)}`],
-        attempts: 1,
-        depth: 0,
-      }),
+    Effect.catchIf(
+      (e): e is Exclude<unknown, ModelUnresponsiveError> =>
+        !(e instanceof ModelUnresponsiveError),
+      (_e) =>
+        Effect.succeed<LlmCheckResult>({
+          id: task.id,
+          pass: false,
+          bits: 0,
+          score: 0,
+          errors: [`internal error: ${String(_e)}`],
+          attempts: 1,
+          depth: 0,
+        }),
     ),
-  );
+  ) as PhiEffect;
 
 // ─── Internal: LeafInput / leafCall ──────────────────────────────────────────
 
@@ -149,22 +154,30 @@ type LeafInput = {
  * as the oracle to verify the response.
  */
 const leafCall = Effect.fn("leafCall")(function* (input: LeafInput) {
-  const prompt =
-    input.priorAttempt !== undefined
-      ? buildRetryPrompt(input.task, input.priorAttempt, input.priorErrors)
-      : buildSolvePrompt(input.task);
+  const isRetry = input.priorAttempt !== undefined;
+  const prompt = isRetry
+    ? buildRetryPrompt(input.task, input.priorAttempt!, input.priorErrors)
+    : buildSolvePrompt(input.task);
 
-  const rawResponse = yield* LanguageModel.generateText({ prompt })
-    .pipe(
-      Effect.map((r) => r.text),
-      Effect.catch(
-        (_e) =>
-          Effect.succeed(`@main = λf.λx.x  // error: ${String(_e)}`),
-      ),
-    );
+  yield* Effect.log(
+    `[λ-RLM] ${input.task.id}${isRetry ? " retry" : ""} → prompt (${prompt.length} chars): ${prompt.slice(0, 80).replace(/\n/g, " ")}…`,
+  );
+
+  const rawResponse = yield* guardedGenerate(prompt, "rlm").pipe(
+    Effect.catchTag("ModelUnresponsiveError", (e) =>
+      Effect.fail(new ModelUnresponsiveError(e.model, e.attempts)),
+    ),
+  );
 
   const submission = extractLamCode(rawResponse);
+  yield* Effect.log(
+    `[λ-RLM] ${input.task.id} ← ${rawResponse.slice(0, 200).replace(/\n/g, " ")}`,
+  );
+
   const checkResult = yield* runTask(input.task, submission, input.refBits);
+  yield* Effect.log(
+    `[λ-RLM] ${input.task.id} check: ${checkResult.pass ? "PASS" : "FAIL"} errors=${checkResult.errors.length}`,
+  );
 
   return { ...checkResult, attempts: 1, depth: 0 } satisfies LlmCheckResult;
 });
@@ -339,11 +352,9 @@ export const rlmEval = Effect.fn("rlmEval")(function* (
 
   // ── Phase 2: Task Detection — exactly 1 LLM call ─────────────────────────
   const probe = buildTaskDetectionProbe(context0.slice(0, 500), n);
-  const probeResponse = yield* LanguageModel.generateText({ prompt: probe })
-    .pipe(
-      Effect.map((r) => r.text),
-      Effect.catch((_) => Effect.succeed("7")), // default to GENERAL
-    );
+  const probeResponse = yield* guardedGenerate(probe, "probe").pipe(
+    Effect.catchTag("ModelUnresponsiveError", (_) => Effect.succeed("7")), // default to GENERAL on failure
+  );
   const taskType = parseTaskType(probeResponse);
 
   // ── Phase 3: Optimal Planning — 0 LLM calls (pure math) ─────────────────

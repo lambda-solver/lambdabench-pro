@@ -8,17 +8,17 @@ This is the first curator run for this project. No prior phase data available.
 
 | Tool | Calls | Success | Failed | Avg Duration |
 |------|-------|---------|--------|--------------|
-| bash | 893 | 893 | 0 | 1544ms |
-| read | 524 | 524 | 0 | 69ms |
-| edit | 258 | 258 | 0 | 21ms |
-| write | 174 | 174 | 0 | 21ms |
-| glob | 99 | 99 | 0 | 62ms |
-| todowrite | 69 | 69 | 0 | 5ms |
-| grep | 44 | 44 | 0 | 44ms |
+| bash | 1027 | 1027 | 0 | 5435ms |
+| read | 573 | 573 | 0 | 101ms |
+| edit | 308 | 308 | 0 | 24ms |
+| write | 183 | 183 | 0 | 22ms |
+| glob | 104 | 104 | 0 | 65ms |
+| todowrite | 87 | 87 | 0 | 6ms |
+| grep | 48 | 48 | 0 | 46ms |
 | update_task_status | 27 | 27 | 0 | 20ms |
+| webfetch | 19 | 19 | 0 | 400ms |
 | check_gate_status | 19 | 19 | 0 | 5ms |
-| webfetch | 18 | 18 | 0 | 389ms |
-| task | 16 | 16 | 0 | 76517ms |
+| task | 17 | 17 | 0 | 76402ms |
 | skill | 10 | 10 | 0 | 34ms |
 | save_plan | 7 | 7 | 0 | 28ms |
 | question | 6 | 6 | 0 | 70461ms |
@@ -39,18 +39,17 @@ This is the first curator run for this project. No prior phase data available.
 
 ## LLM-Enhanced Analysis
 BRIEFING:
-First session — no prior context. This appears to be a CURATOR_INIT running after NPMI (Normalized Pointwise Mutual Information) analysis was performed on the codebase to detect hidden file couplings. 4 knowledge entries have been generated, all capturing file pairs that frequently co-change but lack explicit import relationships. All entries are in "candidate" status with confidence 0.36.
+First session — no prior context. Project is mid-implementation: **Phase 1 [IN PROGRESS]** replacing OpenRouterClient with @effect/ai-openai. Agent activity heavy: 1027 bash calls, 573 file reads, 308 edits across the codebase. Current task (1.1) involves rewriting OpenRouterClient.ts as a thin Layer factory. 4 candidate knowledge entries exist from co-change analysis but focus on client-side React component coupling (theme-toggle, TabLine, BarChart) — unrelated to current backend LLM task.
 
 CONTRADICTIONS:
-- None detected
+- None detected — knowledge entries describe UI component architecture; current swarm task is backend LLM client replacement. Different domains.
 
 OBSERVATIONS:
-- entry 78a63311-1228-49fe-8d92-5d48f48b7efb appears high-confidence: NPMI=1.000 indicates perfect co-change correlation between app.tsx and theme-toggle.tsx — likely theme state affects app-level rendering (suggests promote to hive_eligible if confirmed by architectural review)
-- entry 2518c6ee-d236-4fcf-8e54-aebfb498ed90 appears stale: BarChart.tsx and VimLine.tsx — need to verify these files exist in current codebase before treating as valid architectural concern (suggests validate file existence before injecting)
-- entry a7cf5fef-75d8-4dfb-90e3-abf0e3686078 could be tighter: Consolidate with 78a63311 — both involve app.tsx co-changing with child components, redundant signal (suggests rewrite as single entry: "app.tsx co-changes with multiple child UI components (theme-toggle.tsx, TabLine.tsx) — suggests shared theme/rendering concern")
-- entry 27b84d9c-0949-4659-92fd-b29ece4d7f4b contradicts project state: This is a child-of-child relationship (TabLine ↔ theme-toggle) — if app.tsx already co-changes with both, this nested coupling may be derivative rather than independent (suggests tag as secondary, deprioritize)
-- new candidate: Client React components show clustered co-change pattern — app.tsx ↔ theme-toggle.tsx ↔ TabLine.tsx all correlated — this suggests a shared "theme-aware UI" architectural concern where theme changes trigger re-renders in multiple components (suggests new entry)
+- entry 78a63311-1228-49fe-8d92-5d48f48b7efb appears stale: co-change between theme-toggle.tsx and app.tsx is UI concern, not relevant to current server/LLM work (confidence 0.36, low)
+- entry 27b84d9c-0949-4659-92fd-b29ece4d7f4b could be tighter: TabLine.tsx and theme-toggle.tsx co-change pattern is likely incidental theming, not a meaningful architectural lesson
+- All 4 entries share low confidence (0.36) and "candidate" status — should likely be archived rather than promoted to hive_eligible
+- new candidate: Swarm implementation is proceeding rapidly with heavy refactoring; consider capturing a lesson about Layer composition patterns used in OpenRouterClient replacement
 
 KNOWLEDGE_STATS:
 - Entries reviewed: 4
-- Prior phases covered: 0
+- Prior phases covered: 0 (first session)

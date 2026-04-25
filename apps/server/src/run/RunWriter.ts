@@ -78,7 +78,7 @@ export const writeResultFile = Effect.fn("writeResultFile")(function* (
 
   const taskLines = results.map((r) => {
     const status = r.pass ? "pass" : "fail";
-    const score = r.score.toFixed(3);
+    const score = Number.isFinite(r.score) ? r.score.toFixed(3) : "0.000";
     const time = (r.elapsedMs / 1000).toFixed(3);
     const bits = r.pass && r.bits > 0 ? ` bits=${r.bits}` : "";
     return `- ${r.id}: ${score} ${status} time=${time}s${bits}`;

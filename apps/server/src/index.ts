@@ -92,7 +92,9 @@ const parseArgs = (): ReadonlyArray<"eval" | "run" | "build"> => {
     .filter((a) => a === "eval" || a === "run" || a === "build") as Array<
     "eval" | "run" | "build"
   >;
-  return args.length === 0 ? ["eval", "run", "build"] : args;
+  // Default: run + build only — eval fetches live rankings and overwrites
+  // top-models.json; run it explicitly when you want to refresh the model list.
+  return args.length === 0 ? ["run", "build"] : args;
 };
 
 // ─── Main ────────────────────────────────────────────────────────────────────

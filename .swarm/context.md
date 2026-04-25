@@ -4,20 +4,20 @@
 
 | Tool | Calls | Success | Failed | Avg Duration |
 |------|-------|---------|--------|--------------|
-| bash | 936 | 936 | 0 | 1573ms |
-| read | 541 | 541 | 0 | 69ms |
-| edit | 268 | 268 | 0 | 22ms |
-| write | 181 | 181 | 0 | 22ms |
-| glob | 104 | 104 | 0 | 65ms |
-| todowrite | 77 | 77 | 0 | 6ms |
-| grep | 44 | 44 | 0 | 44ms |
+| bash | 1063 | 1063 | 0 | 5276ms |
+| read | 608 | 608 | 0 | 98ms |
+| edit | 324 | 324 | 0 | 24ms |
+| write | 185 | 185 | 0 | 23ms |
+| glob | 110 | 110 | 0 | 65ms |
+| todowrite | 92 | 92 | 0 | 6ms |
+| grep | 48 | 48 | 0 | 46ms |
 | update_task_status | 27 | 27 | 0 | 20ms |
+| webfetch | 19 | 19 | 0 | 400ms |
 | check_gate_status | 19 | 19 | 0 | 5ms |
-| webfetch | 18 | 18 | 0 | 389ms |
-| task | 17 | 17 | 0 | 76402ms |
-| skill | 10 | 10 | 0 | 34ms |
+| task | 18 | 18 | 0 | 73462ms |
+| skill | 11 | 11 | 0 | 39ms |
+| question | 7 | 7 | 0 | 63035ms |
 | save_plan | 7 | 7 | 0 | 28ms |
-| question | 6 | 6 | 0 | 70461ms |
 | batch_symbols | 2 | 2 | 0 | 5ms |
 | sast_scan | 2 | 2 | 0 | 24ms |
 | symbols | 2 | 2 | 0 | 2ms |
