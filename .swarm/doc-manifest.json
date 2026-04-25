@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "scanned_at": "2026-04-25T23:07:01.800Z",
+  "scanned_at": "2026-04-25T23:12:48.363Z",
   "files": [
     {
       "path": ".github/actions/setup/action.yml",
@@ -28,7 +28,7 @@
       "title": "benchmark.yml",
       "summary": "name: Benchmark on: push: branches: - main workflow_dispatch: inputs: top_models: description: \"Comma-separated model IDs to benchmark (leave blank to use bench.config.json)\" required: false defaul...",
       "lines": 89,
-      "mtime": 1777158419541.1162
+      "mtime": 1777158443569.5
     },
     {
       "path": ".github/workflows/check.yml",

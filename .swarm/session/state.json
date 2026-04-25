@@ -1,27 +1,27 @@
 {
   "version": 2,
-  "writtenAt": 1777158435388,
+  "writtenAt": 1777158812685,
   "toolAggregates": {
     "read": {
       "tool": "read",
-      "count": 632,
-      "successCount": 632,
+      "count": 633,
+      "successCount": 633,
       "failureCount": 0,
-      "totalDuration": 60038
+      "totalDuration": 60055
     },
     "edit": {
       "tool": "edit",
-      "count": 354,
-      "successCount": 354,
+      "count": 355,
+      "successCount": 355,
       "failureCount": 0,
-      "totalDuration": 8412
+      "totalDuration": 8421
     },
     "bash": {
       "tool": "bash",
-      "count": 1168,
-      "successCount": 1168,
+      "count": 1186,
+      "successCount": 1186,
       "failureCount": 0,
-      "totalDuration": 5800387
+      "totalDuration": 5811715
     },
     "glob": {
       "tool": "glob",
@@ -1189,14 +1189,50 @@
     },
     "ses_239594de9ffeuh0obslrjQDNvk": {
       "agentName": "build",
-      "lastToolCallTime": 1777158345210,
+      "lastToolCallTime": 1777158756209,
       "lastAgentEventTime": 1777154375473,
       "delegationActive": true,
-      "activeInvocationId": 44,
+      "activeInvocationId": 47,
       "lastInvocationIdByAgent": {
-        "build": 44
+        "build": 47
       },
       "windows": {
+        "build:47": {
+          "id": 47,
+          "agentName": "build",
+          "startedAtMs": 1777158756209,
+          "toolCalls": 0,
+          "consecutiveErrors": 0,
+          "hardLimitHit": false,
+          "lastSuccessTimeMs": 1777158812683,
+          "recentToolCalls": [],
+          "warningIssued": false,
+          "warningReason": ""
+        },
+        "build:46": {
+          "id": 46,
+          "agentName": "build",
+          "startedAtMs": 1777158701468,
+          "toolCalls": 0,
+          "consecutiveErrors": 0,
+          "hardLimitHit": false,
+          "lastSuccessTimeMs": 1777158753818,
+          "recentToolCalls": [],
+          "warningIssued": false,
+          "warningReason": ""
+        },
+        "build:45": {
+          "id": 45,
+          "agentName": "build",
+          "startedAtMs": 1777158546568,
+          "toolCalls": 0,
+          "consecutiveErrors": 0,
+          "hardLimitHit": false,
+          "lastSuccessTimeMs": 1777158546568,
+          "recentToolCalls": [],
+          "warningIssued": false,
+          "warningReason": ""
+        },
         "build:44": {
           "id": 44,
           "agentName": "build",
@@ -1204,7 +1240,7 @@
           "toolCalls": 0,
           "consecutiveErrors": 0,
           "hardLimitHit": false,
-          "lastSuccessTimeMs": 1777158435384,
+          "lastSuccessTimeMs": 1777158453864,
           "recentToolCalls": [],
           "warningIssued": false,
           "warningReason": ""
@@ -1748,7 +1784,9 @@
       "lastCompletedPhaseAgentsDispatched": [],
       "qaSkipCount": 0,
       "qaSkipTaskIds": [],
-      "pendingAdvisoryMessages": [],
+      "pendingAdvisoryMessages": [
+        "WARNING: Agent has made 15 tool calls with no file modifications. If you are stuck, use /swarm handoff to reset or /swarm turbo to reduce overhead."
+      ],
       "taskWorkflowStates": {
         "1.1": "complete",
         "1.2": "idle",
