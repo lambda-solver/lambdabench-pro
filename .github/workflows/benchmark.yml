@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-  schedule:
-    # Every Monday at 04:00 UTC
-    - cron: "0 4 * * 1"
   workflow_dispatch:
     inputs:
       top_models:
@@ -23,7 +20,7 @@ jobs:
   run-benchmark:
     name: "Run Benchmark"
     runs-on: ubuntu-latest
-    if: ${{ github.event_name != 'push' }}
+    if: ${{ true }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
