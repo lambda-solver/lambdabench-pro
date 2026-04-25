@@ -1,0 +1,6 @@
+model: nvidia/nemotron-3-super-120b-a12b:free/rlm
+right: 1/1
+variant: rlm
+rlm_depth: 3
+rlm_attempts: 1
+- cnat_add: 0.500 pass time=16.458s bits=33
