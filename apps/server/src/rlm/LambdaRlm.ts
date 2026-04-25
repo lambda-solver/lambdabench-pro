@@ -65,18 +65,18 @@ export type LambdaRlmConfig = {
 // ─── Config from env ─────────────────────────────────────────────────────────
 
 /**
- * Build the default LambdaRlmConfig from environment variables.
- *   RLM_MAX_DEPTH → maxDepth   (default: 3)
+ * Build the default LambdaRlmConfig.
+ *   maxDepth — from bench.config.json (passed in by the caller); default 3.
  *
  * Model selection is handled by the LanguageModel layer provided at runtime,
  * not by this config — see makeOpenRouterLayer in OpenRouterClient.ts.
  */
-export const defaultConfig = (): LambdaRlmConfig => ({
+export const defaultConfig = (maxDepth = 3): LambdaRlmConfig => ({
   contextWindowChars: 100_000,
   accuracyTarget: 0.8,
   aLeaf: 0.95,
   aCompose: 0.9,
-  maxDepth: parseInt(process.env["RLM_MAX_DEPTH"] ?? "3", 10),
+  maxDepth,
 });
 
 // ─── Effect type alias ────────────────────────────────────────────────────────

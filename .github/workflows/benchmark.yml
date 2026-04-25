@@ -41,11 +41,9 @@ jobs:
         run: bun install
 
       - name: Fetch top models + run eval (standard + λ-RLM) + build results.json
-        run: bun --filter=server run start eval run build
+        run: bun --filter=server run start run build
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          TOP_MODELS: ${{ github.event.inputs.top_models }}
-          RLM_MAX_DEPTH: 3
 
       - name: Commit results
         uses: stefanzweifel/git-auto-commit-action@v5

@@ -7,31 +7,29 @@
  *   bun src/index.ts build          # build apps/client/public/data/results.json
  *   bun src/index.ts eval run build # full pipeline
  *
- * Env (eval command):
- *   OPENROUTER_API_KEY   Required unless DEV_MODE=true or TOP_MODELS is set
- *   TOP_MODELS           Comma-separated fallback model IDs
+ * Config (bench.config.json — committed, edit to change benchmark settings):
+ *   models       — model IDs to evaluate
+ *   rlmMaxDepth  — λ-RLM self-correction depth (default 3)
+ *   tasks        — task ID filter; empty array = all tasks
+ *
+ * Env (.env — secrets only, never commit):
+ *   OPENROUTER_API_KEY   Required for all LLM calls
+ *
+ * Env (eval command only):
  *   DEV_MODE             Set to "true" to skip live fetch and use mock models
- *
- * Env (run command):
- *   OPENROUTER_API_KEY   Required for LLM calls
- *   LLM_MODEL            Model to evaluate (default: minimax/minimax-m2.5:free)
- *   RLM_MAX_DEPTH        λ-RLM self-correction depth (default: 3)
- *   TOP_MODELS_FILE      Optional path to top-models.json
- *
- * Env (build command):
- *   TOP_MODELS_FILE      Optional path to top-models.json
+ *   TOP_MODELS           Comma-separated fallback model IDs (overrides eval fetch)
  */
 
 import { BunHttpClient, BunRuntime, BunServices } from "@effect/platform-bun";
 import { Effect, FileSystem, Layer } from "effect";
 import { build } from "./build/BuildResults";
+import { loadBenchConfig } from "./config/BenchConfig";
 import { resolveTopModels } from "./eval/EvalRunner";
 import {
   loadAllTasks,
   loadRefBitsMap,
   runModelEval,
 } from "./eval/ModelEvalRunner";
-import { makeOpenRouterLayer } from "./llm/OpenRouterClient";
 import type { TopModel } from "./eval/EvalRunner";
 
 // ─── Commands ────────────────────────────────────────────────────────────────
@@ -54,32 +52,32 @@ const evalCommand = Effect.gen(function* () {
 });
 
 const buildCommand = Effect.gen(function* () {
-  const topModelsPath = process.env["TOP_MODELS_FILE"] ?? TOP_MODELS_FILE;
-  yield* build(topModelsPath);
+  yield* build(TOP_MODELS_FILE);
 });
 
 const runCommand = Effect.gen(function* () {
-  const topModelsPath = process.env["TOP_MODELS_FILE"] ?? TOP_MODELS_FILE;
-  const fs = yield* FileSystem.FileSystem;
+  const config = yield* loadBenchConfig();
 
-  // Load top-models.json
-  const topModelsText = yield* fs.readFileString(topModelsPath);
-  const topModels = JSON.parse(topModelsText) as ReadonlyArray<TopModel>;
+  yield* Effect.log(`[lambench] Config: ${config.models.length} model(s), rlmMaxDepth=${config.rlmMaxDepth}, tasks=${config.tasks.length === 0 ? "all" : config.tasks.join(",")}`);
 
-  yield* Effect.log(`[lambench] Running eval for ${topModels.length} model(s)`);
+  // Build TopModel list from config.models (price unknown at this point — 0)
+  const topModels: ReadonlyArray<TopModel> = config.models.map((modelId) => ({
+    modelId,
+    pricePerMOutput: 0,
+  }));
 
   // Load tasks + reference bits once, share across all models
-  // TASKS=cnat_add,cnat_mul — optional comma-separated filter for smoke testing
-  const taskFilter = process.env["TASKS"]?.split(",").map((s) => s.trim()).filter(Boolean);
   const allTasks = yield* loadAllTasks;
-  const tasks = taskFilter ? allTasks.filter((t) => taskFilter.includes(t.id)) : allTasks;
+  const tasks = config.tasks.length > 0
+    ? allTasks.filter((t) => config.tasks.includes(t.id))
+    : allTasks;
   yield* Effect.log(`[lambench] Tasks: ${tasks.map((t) => t.id).join(", ")}`);
   const refBitsMap = yield* loadRefBitsMap();
 
   // Evaluate each model sequentially (rate-limit friendly)
   yield* Effect.forEach(
     topModels,
-    (model) => runModelEval(model, tasks, refBitsMap),
+    (model) => runModelEval(model, tasks, refBitsMap, config.rlmMaxDepth),
     { concurrency: 1 },
   );
 });
@@ -112,12 +110,7 @@ const program = Effect.gen(function* () {
   yield* Effect.log("[lambench] Done.");
 });
 
-const appLayer = Layer.mergeAll(
-  BunServices.layer,
-  BunHttpClient.layer,
-  makeOpenRouterLayer(
-    process.env["LLM_MODEL"] ?? "minimax/minimax-m2.5:free",
-  ).pipe(Layer.provide(BunHttpClient.layer)),
-);
+// LanguageModel is provided per-model inside runModelEval — not needed here.
+const appLayer = Layer.mergeAll(BunServices.layer, BunHttpClient.layer);
 
 BunRuntime.runMain(program.pipe(Effect.provide(appLayer)));
