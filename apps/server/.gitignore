@@ -1,0 +1,2 @@
+# Un-ignore src/build/ — it's source code, not a build output
+!src/build/
