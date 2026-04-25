@@ -50,5 +50,8 @@ tsconfig.tsbuildinfo
 # References
 .reference
 
+# Swarm orchestration (local only)
+.swarm
+
 # DB Volumes
 # data/ — intentionally NOT ignored; results.json is committed as seed data
