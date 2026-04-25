@@ -46,4 +46,7 @@ const OpenRouterClientLayer = OpenRouterClient.layerConfig({
  * @param model - OpenRouter model identifier, e.g. "nvidia/nemotron-3-super-120b-a12b:free"
  */
 export const makeOpenRouterLayer = (model: string) =>
-  OpenRouterLanguageModel.layer({ model }).pipe(Layer.provide(OpenRouterClientLayer))
+  OpenRouterLanguageModel.layer({
+    model,
+    config: { max_tokens: 500 },
+  }).pipe(Layer.provide(OpenRouterClientLayer))

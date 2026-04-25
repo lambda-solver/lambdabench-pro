@@ -19,7 +19,6 @@ import {
 } from "../check/Check";
 import type { Task } from "../check/Check";
 import { makeOpenRouterLayer } from "../llm/OpenRouterClient";
-import { BunHttpClient } from "@effect/platform-bun";
 import { defaultConfig, rlmEval } from "../rlm/LambdaRlm";
 import { writeResultFile } from "../run/RunWriter";
 import { build } from "../build/BuildResults";
@@ -107,9 +106,7 @@ export const runModelEval = Effect.fn("runModelEval")(function* (
     `[ModelEvalRunner] Starting eval for ${model.modelId} (${tasks.length} tasks)`,
   );
 
-  const llmLayer = makeOpenRouterLayer(model.modelId).pipe(
-    Layer.provide(BunHttpClient.layer),
-  );
+  const llmLayer = makeOpenRouterLayer(model.modelId);
 
   /** Wrap a variant so ModelUnresponsiveError skips it cleanly. */
   const guarded = <A, E, R>(

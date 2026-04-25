@@ -34,7 +34,7 @@ export class ModelUnresponsiveError {
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
-const CALL_TIMEOUT = Duration.seconds(60)
+const CALL_TIMEOUT = Duration.seconds(180)
 const MAX_RETRIES = 3
 const BASE_BACKOFF = Duration.seconds(5)
 
