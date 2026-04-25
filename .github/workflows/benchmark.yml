@@ -10,13 +10,9 @@ on:
   workflow_dispatch:
     inputs:
       top_models:
-        description: "Comma-separated model IDs to benchmark (leave blank to auto-fetch top 2)"
+        description: "Comma-separated model IDs to benchmark (leave blank to use bench.config.json)"
         required: false
         default: ""
-      skip_benchmark:
-        description: "Skip benchmark run and only deploy (true/false)"
-        required: false
-        default: "false"
 
 permissions:
   contents: write
@@ -27,7 +23,7 @@ jobs:
   run-benchmark:
     name: "Run Benchmark"
     runs-on: ubuntu-latest
-    if: ${{ github.event_name != 'push' && github.event.inputs.skip_benchmark != 'true' }}
+    if: ${{ github.event_name != 'push' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -40,10 +36,11 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Fetch top models + run eval (standard + λ-RLM) + build results.json
+      - name: Run eval (standard + λ-RLM) + build results.json
         run: bun --filter=server run start run build
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          TOP_MODELS: ${{ github.event.inputs.top_models }}
 
       - name: Commit results
         uses: stefanzweifel/git-auto-commit-action@v5
@@ -65,7 +62,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          # Pull the freshly committed results.json
           ref: main
 
       - name: Setup Bun
