@@ -1,7 +1,6 @@
-<!-- PLAN_HASH: 29ji8dvbk83te -->
 # λ-RLM Integration into LamBench Pro
 Swarm: lambench-rlm
-Phase: 1 [PENDING] | Updated: 2026-04-25T10:19:27.612Z
+Phase: 1 [PENDING] | Updated: 2026-04-25T10:19:27.620Z
 
 ---
 ## Phase 1: Domain schema additions [PENDING]
