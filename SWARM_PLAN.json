@@ -25,9 +25,7 @@
           "status": "pending",
           "size": "small",
           "description": "Update apps/server/src/index.ts appLayer: call makeOpenRouterLayer(process.env[\"LLM_MODEL\"] ?? \"minimax/minimax-m2.5:free\") to get the LanguageModel layer. Compose it with BunServices and BunHttpClient in Layer.mergeAll. Remove the old OpenRouterClient.layer reference.",
-          "depends": [
-            "1.1"
-          ],
+          "depends": ["1.1"],
           "acceptance": "bun run type-check passes; appLayer provides LanguageModel service; no reference to old OpenRouterClient service.",
           "files_touched": []
         }
@@ -44,9 +42,7 @@
           "status": "pending",
           "size": "medium",
           "description": "Update apps/server/src/rlm/LambdaRlm.ts: replace every (yield* OpenRouterClient).complete(modelId, messages) call with yield* LanguageModel.generateText({ prompt: messages[0]!.content }).pipe(Effect.map(r => r.text)). For multi-turn messages, use Prompt.make(messages) as the prompt input. Remove the modelId field from LambdaRlmConfig — model is now baked into the layer. Keep the absorbToCheckResult boundary unchanged (it catches unknown, so AiError is absorbed correctly). Update PhiEffect service requirements: replace OpenRouterClient with LanguageModel.LanguageModel.",
-          "depends": [
-            "1.1"
-          ],
+          "depends": ["1.1"],
           "acceptance": "TypeScript compiles; LambdaRlm.ts imports LanguageModel from effect/unstable/ai; no reference to OpenRouterClient service; PhiEffect uses LanguageModel in requirement channel.",
           "files_touched": []
         },
@@ -56,9 +52,7 @@
           "status": "pending",
           "size": "medium",
           "description": "Update apps/server/src/check/Check.ts runTaskWithLlm: remove the modelId parameter. Replace (yield* OpenRouterClient).complete(modelId, [...]) with yield* LanguageModel.generateText({ prompt: buildSolvePrompt(task) }).pipe(Effect.map(r => r.text)). The AiError is caught at the existing Effect.catch boundary and replaced with the fallback lambda expression string. Update runAllTasksForModel signature to remove modelId param; update its call sites in ModelEvalRunner.",
-          "depends": [
-            "1.1"
-          ],
+          "depends": ["1.1"],
           "acceptance": "TypeScript compiles; runTaskWithLlm and runAllTasksForModel no longer accept modelId; LanguageModel is in the requirement channel of both functions.",
           "files_touched": []
         },
@@ -68,10 +62,7 @@
           "status": "pending",
           "size": "medium",
           "description": "Update apps/server/src/eval/ModelEvalRunner.ts: inside runModelEval, build a per-model LanguageModel layer with makeOpenRouterLayer(model.modelId) and provide it to the runAllTasksForModel and runRlmForAllTasks calls via Effect.provide. Remove modelId threading from runRlmForAllTasks. This is the correct Effect pattern: compose a fresh layer per evaluation run rather than passing modelId as a parameter.",
-          "depends": [
-            "2.1",
-            "2.2"
-          ],
+          "depends": ["2.1", "2.2"],
           "acceptance": "TypeScript compiles; runModelEval creates makeOpenRouterLayer(model.modelId) and provides it; no modelId param flows through Check or RLM call chains.",
           "files_touched": []
         }
@@ -88,9 +79,7 @@
           "status": "pending",
           "size": "medium",
           "description": "Rewrite apps/server/src/llm/OpenRouterClient.test.ts: the old tests intercepted raw HTTP via mockHttpLayer. Replace with a mock LanguageModel layer: Layer.succeed(LanguageModel.LanguageModel, { generateText: () => Effect.succeed(mockResponse), generateObject: ..., streamText: ... }). Test that makeOpenRouterLayer(modelId) returns a Layer<LanguageModel>. Add an integration-style test (skipped by default) that actually calls OpenRouter with OPENROUTER_API_KEY from env.",
-          "depends": [
-            "1.1"
-          ],
+          "depends": ["1.1"],
           "acceptance": "bun test --filter=server -- src/llm/OpenRouterClient.test.ts: all tests pass.",
           "files_touched": []
         }

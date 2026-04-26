@@ -132,7 +132,10 @@ export type LambdaPlan = {
 const initialKStar = (n: number, K: number, cCompose: number): number => {
   const K_STAR_MAX = 20;
   return cCompose > 0.1
-    ? Math.min(K_STAR_MAX, Math.max(2, Math.ceil(Math.sqrt((n * C_IN) / cCompose))))
+    ? Math.min(
+        K_STAR_MAX,
+        Math.max(2, Math.ceil(Math.sqrt((n * C_IN) / cCompose))),
+      )
     : Math.min(K_STAR_MAX, Math.max(2, Math.ceil(n / K)));
 };
 
@@ -154,14 +157,18 @@ const satisfyAccuracyConstraint = (
   accuracyTarget: number,
 ): { kStar: number; d: number } => {
   const maxK = Math.max(2, Math.floor(n / K));
-  if (Math.pow(aLeaf, d) * Math.pow(aCompose, d) >= accuracyTarget || kStar >= maxK) {
+  if (aLeaf ** d * aCompose ** d >= accuracyTarget || kStar >= maxK) {
     return { kStar, d };
   }
   const nextK = kStar + 1;
   return satisfyAccuracyConstraint(
     nextK,
     computeDepth(n, K, nextK),
-    n, K, aLeaf, aCompose, accuracyTarget,
+    n,
+    K,
+    aLeaf,
+    aCompose,
+    accuracyTarget,
   );
 };
 
@@ -196,8 +203,12 @@ export const plan = (
   // Fast-path: fits in one context window — no splitting needed.
   if (n <= K) {
     return {
-      taskType, composeOp, pipeline,
-      kStar: 1, tauStar: n, depth: 0,
+      taskType,
+      composeOp,
+      pipeline,
+      kStar: 1,
+      tauStar: n,
+      depth: 0,
       costEstimate: C_IN * n + C_IN * 500,
       n,
     };
@@ -206,14 +217,29 @@ export const plan = (
   const rawKStar = initialKStar(n, K, cCompose);
   const rawD = computeDepth(n, K, rawKStar);
   const { kStar, d } = satisfyAccuracyConstraint(
-    rawKStar, rawD, n, K, aLeaf, aCompose, accuracyTarget,
+    rawKStar,
+    rawD,
+    n,
+    K,
+    aLeaf,
+    aCompose,
+    accuracyTarget,
   );
 
   const tauStar = Math.min(K, Math.max(1, Math.floor(n / kStar)));
   const costEstimate =
-    Math.pow(kStar, d) * C_IN * tauStar + d * cCompose * kStar + C_IN * 500;
+    kStar ** d * C_IN * tauStar + d * cCompose * kStar + C_IN * 500;
 
-  return { taskType, composeOp, pipeline, kStar, tauStar, depth: d, costEstimate, n };
+  return {
+    taskType,
+    composeOp,
+    pipeline,
+    kStar,
+    tauStar,
+    depth: d,
+    costEstimate,
+    n,
+  };
 };
 
 // ─── splitText() ─────────────────────────────────────────────────────────────
@@ -241,18 +267,21 @@ const buildChunks = (
   k: number,
   chunkSize: number,
 ): ReadonlyArray<string> =>
-  Array.from({ length: k }, (_, i) => i).reduce<{
-    chunks: string[];
-    start: number;
-  }>(
-    ({ chunks, start }, i) => {
-      if (start >= text.length) return { chunks, start };
-      if (i === k - 1) return { chunks: [...chunks, text.slice(start)], start: text.length };
-      const end = snappedEnd(text, start, chunkSize);
-      return { chunks: [...chunks, text.slice(start, end)], start: end };
-    },
-    { chunks: [], start: 0 },
-  ).chunks.filter((c) => c.length > 0);
+  Array.from({ length: k }, (_, i) => i)
+    .reduce<{
+      chunks: string[];
+      start: number;
+    }>(
+      ({ chunks, start }, i) => {
+        if (start >= text.length) return { chunks, start };
+        if (i === k - 1)
+          return { chunks: [...chunks, text.slice(start)], start: text.length };
+        const end = snappedEnd(text, start, chunkSize);
+        return { chunks: [...chunks, text.slice(start, end)], start: end };
+      },
+      { chunks: [], start: 0 },
+    )
+    .chunks.filter((c) => c.length > 0);
 
 /**
  * Split text into k approximately equal chunks, snapping boundaries to the

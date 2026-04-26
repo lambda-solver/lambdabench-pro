@@ -5,7 +5,10 @@
  */
 
 /** Find the index of the first @helper block that precedes @main, walking up. */
-const helperBlockStart = (lines: ReadonlyArray<string>, mainIdx: number): number =>
+const helperBlockStart = (
+  lines: ReadonlyArray<string>,
+  mainIdx: number,
+): number =>
   mainIdx === 0 || !lines[mainIdx - 1]!.trim().startsWith("@")
     ? mainIdx
     : helperBlockStart(lines, mainIdx - 1);

@@ -9,7 +9,7 @@
 export class RedisClient {
   constructor(_url?: string) {}
   connect() {
-    return Promise.resolve()
+    return Promise.resolve();
   }
   close() {}
 }
@@ -18,7 +18,7 @@ export const s3 = new Proxy(
   {},
   {
     get: () => {
-      throw new Error("bun S3 stub: not available in test environment")
+      throw new Error("bun S3 stub: not available in test environment");
     },
   },
-)
+);

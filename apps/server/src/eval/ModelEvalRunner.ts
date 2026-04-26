@@ -8,20 +8,20 @@
  *   ], { concurrency: 2 })
  */
 
-import { Array as Arr, Effect, FileSystem, Layer, Path } from "effect";
-import { ModelUnresponsiveError } from "../llm/ModelGuard";
-import type { TopModel } from "./EvalRunner";
+import { Array as Arr, Effect, FileSystem, Path } from "effect";
+import { build } from "../build/BuildResults";
+import type { Task } from "../check/Check";
 import {
   LAM_DIR,
   loadAllTasks,
   referenceBits,
   runAllTasksForModel,
 } from "../check/Check";
-import type { Task } from "../check/Check";
+import { ModelUnresponsiveError } from "../llm/ModelGuard";
 import { makeOpenRouterLayer } from "../llm/OpenRouterClient";
 import { defaultConfig, rlmEval } from "../rlm/LambdaRlm";
 import { writeResultFile } from "../run/RunWriter";
-import { build } from "../build/BuildResults";
+import type { TopModel } from "./EvalRunner";
 
 // ─── loadRefBitsMap ───────────────────────────────────────────────────────────
 
@@ -109,10 +109,7 @@ export const runModelEval = Effect.fn("runModelEval")(function* (
   const llmLayer = makeOpenRouterLayer(model.modelId);
 
   /** Wrap a variant so ModelUnresponsiveError skips it cleanly. */
-  const guarded = <A, E, R>(
-    variant: string,
-    eff: Effect.Effect<A, E, R>,
-  ) =>
+  const guarded = <A, E, R>(variant: string, eff: Effect.Effect<A, E, R>) =>
     eff.pipe(
       Effect.catchIf(
         (e: unknown): e is ModelUnresponsiveError =>
@@ -132,9 +129,11 @@ export const runModelEval = Effect.fn("runModelEval")(function* (
       guarded(
         "standard",
         Effect.gen(function* () {
-          const results = yield* runAllTasksForModel(tasks, refBitsMap, concurrency).pipe(
-            Effect.provide(llmLayer),
-          );
+          const results = yield* runAllTasksForModel(
+            tasks,
+            refBitsMap,
+            concurrency,
+          ).pipe(Effect.provide(llmLayer));
           yield* writeResultFile(model.modelId, results, "standard");
           yield* build().pipe(Effect.catch((_) => Effect.void));
         }),
@@ -145,9 +144,12 @@ export const runModelEval = Effect.fn("runModelEval")(function* (
         "rlm",
         Effect.gen(function* () {
           const { results, totalAttempts, maxDepthUsed } =
-            yield* runRlmForAllTasks(tasks, refBitsMap, rlmMaxDepth, concurrency).pipe(
-              Effect.provide(llmLayer),
-            );
+            yield* runRlmForAllTasks(
+              tasks,
+              refBitsMap,
+              rlmMaxDepth,
+              concurrency,
+            ).pipe(Effect.provide(llmLayer));
           yield* writeResultFile(`${model.modelId}/rlm`, results, "rlm", {
             depth: maxDepthUsed,
             attempts: totalAttempts,
@@ -164,6 +166,6 @@ export const runModelEval = Effect.fn("runModelEval")(function* (
   );
 });
 
+export type { Task };
 // Re-export for use in index.ts
 export { loadAllTasks };
-export type { Task };

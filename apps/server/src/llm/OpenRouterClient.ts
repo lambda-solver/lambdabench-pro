@@ -10,10 +10,13 @@
  *   // layer: Layer<LanguageModel, ConfigError, HttpClient>
  */
 
-import { Config, Layer } from "effect"
-import { OpenRouterClient, OpenRouterLanguageModel } from "@effect/ai-openrouter"
-import { FetchHttpClient } from "effect/unstable/http"
-import type { LanguageModel } from "effect/unstable/ai"
+import {
+  OpenRouterClient,
+  OpenRouterLanguageModel,
+} from "@effect/ai-openrouter";
+import { Config, Layer } from "effect";
+import type { LanguageModel } from "effect/unstable/ai";
+import { FetchHttpClient } from "effect/unstable/http";
 
 // ─── Re-exports used by absorb boundaries in LambdaRlm and Check ─────────────
 
@@ -23,21 +26,21 @@ import type { LanguageModel } from "effect/unstable/ai"
  * without leaking into the typed error channel.
  */
 export class LlmError {
-  readonly _tag = "LlmError"
+  readonly _tag = "LlmError";
   constructor(readonly message: string) {}
 }
 
 /** A single message in an OpenAI-compatible chat conversation. */
 export type ChatMessage = {
-  readonly role: "user" | "assistant" | "system"
-  readonly content: string
-}
+  readonly role: "user" | "assistant" | "system";
+  readonly content: string;
+};
 
 // ─── Layer factory ────────────────────────────────────────────────────────────
 
 const OpenRouterClientLayer = OpenRouterClient.layerConfig({
   apiKey: Config.redacted("OPENROUTER_API_KEY"),
-}).pipe(Layer.provide(FetchHttpClient.layer))
+}).pipe(Layer.provide(FetchHttpClient.layer));
 
 /**
  * Build a `LanguageModel.LanguageModel` layer backed by OpenRouter for the
@@ -49,4 +52,4 @@ export const makeOpenRouterLayer = (model: string) =>
   OpenRouterLanguageModel.layer({
     model,
     config: { max_tokens: 4096, reasoning: { effort: "none" } },
-  }).pipe(Layer.provide(OpenRouterClientLayer))
+  }).pipe(Layer.provide(OpenRouterClientLayer));

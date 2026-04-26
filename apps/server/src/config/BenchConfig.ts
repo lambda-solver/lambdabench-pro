@@ -36,7 +36,8 @@ export type ResolvedBenchConfig = {
 
 // ─── Loader ──────────────────────────────────────────────────────────────────
 
-const CONFIG_PATH = new URL("../../bench.config.json", import.meta.url).pathname;
+const CONFIG_PATH = new URL("../../bench.config.json", import.meta.url)
+  .pathname;
 
 export const loadBenchConfig = Effect.fn("loadBenchConfig")(function* () {
   const fs = yield* FileSystem.FileSystem;

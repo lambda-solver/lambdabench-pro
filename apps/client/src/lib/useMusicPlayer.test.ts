@@ -63,8 +63,8 @@ describe("useMusicPlayer", () => {
     await vi.advanceTimersByTimeAsync(DELAY_MS);
 
     expect(instances).toHaveLength(1);
-    expect(instances[0]!.src).toBe(musicUrl());
-    expect(instances[0]!.play).toHaveBeenCalledOnce();
+    expect(instances[0]?.src).toBe(musicUrl());
+    expect(instances[0]?.play).toHaveBeenCalledOnce();
   });
 
   it("does not create Audio if muted before the timer fires", async () => {
@@ -80,10 +80,10 @@ describe("useMusicPlayer", () => {
     const { result } = await renderHook(() => useMusicPlayer());
 
     await vi.advanceTimersByTimeAsync(DELAY_MS);
-    expect(instances[0]!.play).toHaveBeenCalledOnce();
+    expect(instances[0]?.play).toHaveBeenCalledOnce();
 
     result.current.toggle(); // mute
-    expect(instances[0]!.pause).toHaveBeenCalledOnce();
+    expect(instances[0]?.pause).toHaveBeenCalledOnce();
   });
 
   it("muted state is persisted to localStorage", async () => {
@@ -110,13 +110,13 @@ describe("useMusicPlayer", () => {
     await vi.advanceTimersByTimeAsync(DELAY_MS);
 
     // Simulate playback finishing
-    instances[0]!.ended = true;
-    instances[0]!.paused = true;
+    if (instances[0]) instances[0].ended = true;
+    if (instances[0]) instances[0].paused = true;
 
     result.current.toggle(); // mute
     result.current.toggle(); // unmute
 
     // play() was called once at timer fire, not again after unmute on ended audio
-    expect(instances[0]!.play).toHaveBeenCalledOnce();
+    expect(instances[0]?.play).toHaveBeenCalledOnce();
   });
 });

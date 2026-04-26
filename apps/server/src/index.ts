@@ -24,13 +24,13 @@ import { BunHttpClient, BunRuntime, BunServices } from "@effect/platform-bun";
 import { Effect, FileSystem, Layer } from "effect";
 import { build } from "./build/BuildResults";
 import { loadBenchConfig } from "./config/BenchConfig";
+import type { TopModel } from "./eval/EvalRunner";
 import { resolveTopModels } from "./eval/EvalRunner";
 import {
   loadAllTasks,
   loadRefBitsMap,
   runModelEval,
 } from "./eval/ModelEvalRunner";
-import type { TopModel } from "./eval/EvalRunner";
 
 // ─── Commands ────────────────────────────────────────────────────────────────
 
@@ -46,9 +46,13 @@ const evalCommand = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
   yield* fs.writeFileString(TOP_MODELS_FILE, JSON.stringify(top, null, 2));
   yield* Effect.log(`Written ${top.length} top models → ${TOP_MODELS_FILE}`);
-  yield* Effect.forEach(top, (m) => Effect.log(`  ${m.modelId}  $${m.pricePerMOutput}/1M`), {
-    concurrency: 1,
-  });
+  yield* Effect.forEach(
+    top,
+    (m) => Effect.log(`  ${m.modelId}  $${m.pricePerMOutput}/1M`),
+    {
+      concurrency: 1,
+    },
+  );
 });
 
 const buildCommand = Effect.gen(function* () {
@@ -58,7 +62,9 @@ const buildCommand = Effect.gen(function* () {
 const runCommand = Effect.gen(function* () {
   const config = yield* loadBenchConfig();
 
-  yield* Effect.log(`[lambench] Config: ${config.models.length} model(s), rlmMaxDepth=${config.rlmMaxDepth}, concurrency=${config.concurrency}, tasks=${config.tasks.length === 0 ? "all" : config.tasks.join(",")}`);
+  yield* Effect.log(
+    `[lambench] Config: ${config.models.length} model(s), rlmMaxDepth=${config.rlmMaxDepth}, concurrency=${config.concurrency}, tasks=${config.tasks.length === 0 ? "all" : config.tasks.join(",")}`,
+  );
 
   // Build TopModel list from config.models (price unknown at this point — 0)
   const topModels: ReadonlyArray<TopModel> = config.models.map((modelId) => ({
@@ -68,16 +74,24 @@ const runCommand = Effect.gen(function* () {
 
   // Load tasks + reference bits once, share across all models
   const allTasks = yield* loadAllTasks;
-  const tasks = config.tasks.length > 0
-    ? allTasks.filter((t) => config.tasks.includes(t.id))
-    : allTasks;
+  const tasks =
+    config.tasks.length > 0
+      ? allTasks.filter((t) => config.tasks.includes(t.id))
+      : allTasks;
   yield* Effect.log(`[lambench] Tasks: ${tasks.map((t) => t.id).join(", ")}`);
   const refBitsMap = yield* loadRefBitsMap();
 
   // Evaluate each model sequentially (rate-limit friendly)
   yield* Effect.forEach(
     topModels,
-    (model) => runModelEval(model, tasks, refBitsMap, config.rlmMaxDepth, config.concurrency),
+    (model) =>
+      runModelEval(
+        model,
+        tasks,
+        refBitsMap,
+        config.rlmMaxDepth,
+        config.concurrency,
+      ),
     { concurrency: 1 },
   );
 });

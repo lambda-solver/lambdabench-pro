@@ -35,8 +35,7 @@ const formatTimestamp = (d: Date): string => {
 };
 
 /** Make the model ID safe for use in a filename. */
-const safeModelId = (modelId: string): string =>
-  modelId.replace(/[/: ]/g, "_");
+const safeModelId = (modelId: string): string => modelId.replace(/[/: ]/g, "_");
 
 // ─── writeResultFile ──────────────────────────────────────────────────────────
 
@@ -53,9 +52,9 @@ export const writeResultFile = Effect.fn("writeResultFile")(function* (
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
 
-  yield* fs.makeDirectory(RES_DIR, { recursive: true }).pipe(
-    Effect.catch((_) => Effect.void),
-  );
+  yield* fs
+    .makeDirectory(RES_DIR, { recursive: true })
+    .pipe(Effect.catch((_) => Effect.void));
 
   const timestamp = formatTimestamp(new Date());
   const filename = `${timestamp}_${safeModelId(modelId)}.txt`;

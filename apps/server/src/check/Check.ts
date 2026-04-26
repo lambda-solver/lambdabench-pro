@@ -9,9 +9,6 @@
  */
 
 import { Array as Arr, Effect, FileSystem, Path } from "effect";
-import { extractLamCode } from "../rlm/LamCodeExtractor";
-import { buildSolvePrompt } from "../llm/LlmPrompts";
-import { guardedGenerate, ModelUnresponsiveError } from "../llm/ModelGuard";
 import {
   inlineRefs,
   normalize,
@@ -19,6 +16,9 @@ import {
   printNormal,
   toBinary,
 } from "../lamb/Lamb";
+import { buildSolvePrompt } from "../llm/LlmPrompts";
+import { guardedGenerate, ModelUnresponsiveError } from "../llm/ModelGuard";
+import { extractLamCode } from "../rlm/LamCodeExtractor";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -43,7 +43,10 @@ export type CheckResult = {
 
 // ─── Paths ───────────────────────────────────────────────────────────────────
 
-const SERVER_ROOT = new URL("../..", import.meta.url).pathname.replace(/\/$/, "");
+const SERVER_ROOT = new URL("../..", import.meta.url).pathname.replace(
+  /\/$/,
+  "",
+);
 export const LAM_DIR = `${SERVER_ROOT}/lam`;
 export const TSK_DIR = `${SERVER_ROOT}/tsk`;
 
@@ -328,19 +331,17 @@ export const runTaskWithLlm = Effect.fn("runTaskWithLlm")(function* (
 });
 
 /** Run all tasks using standard single-shot LLM eval (model provided by Layer). */
-export const runAllTasksForModel = Effect.fn("runAllTasksForModel")(
-  function* (
-    tasks: ReadonlyArray<Task>,
-    refBitsMap: ReadonlyMap<string, number>,
-    concurrency = 4,
-  ) {
-    return yield* Effect.forEach(
-      tasks,
-      (task) => runTaskWithLlm(task, refBitsMap.get(task.id)),
-      { concurrency },
-    );
-  },
-);
+export const runAllTasksForModel = Effect.fn("runAllTasksForModel")(function* (
+  tasks: ReadonlyArray<Task>,
+  refBitsMap: ReadonlyMap<string, number>,
+  concurrency = 4,
+) {
+  return yield* Effect.forEach(
+    tasks,
+    (task) => runTaskWithLlm(task, refBitsMap.get(task.id)),
+    { concurrency },
+  );
+});
 
 export const showResult = (r: CheckResult): string => {
   const status = r.pass ? "✓" : "✗";

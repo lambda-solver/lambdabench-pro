@@ -1,6 +1,6 @@
 /// <reference types="vitest/config" />
-import path from "node:path"
-import { defineProject } from "vitest/config"
+import path from "node:path";
+import { defineProject } from "vitest/config";
 
 export default defineProject({
   resolve: {
@@ -14,4 +14,4 @@ export default defineProject({
     include: ["src/**/*.test.ts"],
     globals: true,
   },
-})
+});

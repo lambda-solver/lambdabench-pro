@@ -66,7 +66,7 @@ export function ProblemsPanel({ data, onTaskClick }: ProblemsPanelProps) {
         );
 
         const desc = task.description.split("\n")[0] ?? "";
-        const truncated = desc.length > 60 ? desc.slice(0, 57) + "..." : desc;
+        const truncated = desc.length > 60 ? `${desc.slice(0, 57)}...` : desc;
 
         return (
           <button

@@ -18,6 +18,6 @@
 export const fmtModel = (m: string): string => {
   const clean = m.startsWith("openrouter/") ? m.slice("openrouter/".length) : m;
   return clean.endsWith("/rlm")
-    ? clean.slice(0, -"/rlm".length) + " [rlm]"
+    ? `${clean.slice(0, -"/rlm".length)} [rlm]`
     : clean;
 };

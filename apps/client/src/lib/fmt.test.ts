@@ -19,9 +19,9 @@ describe("fmtModel", () => {
   });
 
   test("strips openrouter/ prefix AND appends [rlm]", () => {
-    expect(
-      fmtModel("openrouter/minimax/minimax-m2.5:free/rlm"),
-    ).toBe("minimax/minimax-m2.5:free [rlm]");
+    expect(fmtModel("openrouter/minimax/minimax-m2.5:free/rlm")).toBe(
+      "minimax/minimax-m2.5:free [rlm]",
+    );
   });
 
   test("no openrouter/ prefix — returned as-is", () => {
@@ -29,9 +29,7 @@ describe("fmtModel", () => {
   });
 
   test("no /rlm suffix — no [rlm] appended", () => {
-    expect(fmtModel("openrouter/google/gemini-2.5-pro")).not.toContain(
-      "[rlm]",
-    );
+    expect(fmtModel("openrouter/google/gemini-2.5-pro")).not.toContain("[rlm]");
   });
 
   test("openrouter/minimax/minimax-m2.5:free stays without [rlm]", () => {

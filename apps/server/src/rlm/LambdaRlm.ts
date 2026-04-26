@@ -20,19 +20,19 @@
  *     effectiveDepth = max(plan.depth, maxDepth) drives self-correction retries.
  */
 
-import { Effect, FileSystem, Path } from "effect";
-import { LanguageModel } from "effect/unstable/ai";
+import { Effect, type FileSystem, type Path } from "effect";
+import type { LanguageModel } from "effect/unstable/ai";
 import type { CheckResult, Task } from "../check/Check";
 import { runTask } from "../check/Check";
-import { extractLamCode } from "./LamCodeExtractor";
 import {
   buildRetryPrompt,
   buildSolvePrompt,
   buildTaskDetectionProbe,
 } from "../llm/LlmPrompts";
-import { LlmError } from "../llm/OpenRouterClient";
 import { guardedGenerate, ModelUnresponsiveError } from "../llm/ModelGuard";
+import { LlmError } from "../llm/OpenRouterClient";
 import { type LambdaPlan, parseTaskType, plan, splitText } from "./LambdaPlan";
+import { extractLamCode } from "./LamCodeExtractor";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -115,7 +115,11 @@ const selectBest = (results: ReadonlyArray<LlmCheckResult>): LlmCheckResult => {
  */
 const absorbToCheckResult = (
   task: Task,
-  eff: Effect.Effect<LlmCheckResult, unknown, LanguageModel.LanguageModel | FileSystem.FileSystem | Path.Path>,
+  eff: Effect.Effect<
+    LlmCheckResult,
+    unknown,
+    LanguageModel.LanguageModel | FileSystem.FileSystem | Path.Path
+  >,
 ): PhiEffect =>
   eff.pipe(
     Effect.catchIf(
@@ -235,14 +239,15 @@ const executeΦ = (input: PhiInput): PhiEffect => {
     input.task,
     Effect.gen(function* () {
       const partials = yield* Effect.all(
-        chunks.map((chunk): PhiEffect =>
-          Effect.suspend(() =>
-            executeΦ({
-              ...input,
-              context: chunk,
-              depthRemaining: input.depthRemaining - 1,
-            }),
-          ),
+        chunks.map(
+          (chunk): PhiEffect =>
+            Effect.suspend(() =>
+              executeΦ({
+                ...input,
+                context: chunk,
+                depthRemaining: input.depthRemaining - 1,
+              }),
+            ),
         ),
         { concurrency: input.lambdaPlan.kStar },
       );

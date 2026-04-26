@@ -30,7 +30,7 @@ const tokenize = (src: string): Token[] => {
   const tokens: Token[] = [];
   let i = 0;
   while (i < src.length) {
-    const ch = src[i]!;
+    const ch = src[i] ?? "";
     if (/\s/.test(ch)) {
       i++;
       continue;
@@ -76,7 +76,7 @@ const tokenize = (src: string): Token[] => {
     }
     if (/[a-zA-Z0-9_]/.test(ch)) {
       let j = i;
-      while (j < src.length && /[a-zA-Z0-9_]/.test(src[j]!)) j++;
+      while (j < src.length && /[a-zA-Z0-9_]/.test(src[j] ?? "")) j++;
       tokens.push({ type: "Name", value: src.slice(i, j) });
       i = j;
       continue;
@@ -314,8 +314,8 @@ export const normalize = (term: Term, book: Book, steps = { n: 0 }): Term => {
 
 const varName = (idx: number): string => {
   const letters = "abcdefghijklmnopqrstuvwxyz";
-  if (idx < 26) return letters[idx]!;
-  return letters[Math.floor(idx / 26) - 1]! + letters[idx % 26]!;
+  if (idx < 26) return letters[idx] ?? "a";
+  return (letters[Math.floor(idx / 26) - 1] ?? "a") + (letters[idx % 26] ?? "a");
 };
 
 const printTerm = (

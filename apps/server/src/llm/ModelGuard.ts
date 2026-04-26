@@ -8,14 +8,14 @@
  *      the entire model to be skipped from the benchmark output.
  */
 
-import { Duration, Effect, Schedule } from "effect"
-import { LanguageModel } from "effect/unstable/ai"
+import { Duration, Effect, Schedule } from "effect";
+import { LanguageModel } from "effect/unstable/ai";
 
 // ─── Errors ──────────────────────────────────────────────────────────────────
 
 /** Thrown when a single LLM call times out or errors. Retryable. */
 export class ModelCallError {
-  readonly _tag = "ModelCallError"
+  readonly _tag = "ModelCallError";
   constructor(
     readonly model: string,
     readonly attempt: number,
@@ -25,7 +25,7 @@ export class ModelCallError {
 
 /** Thrown when all retries are exhausted — model is excluded from benchmark. */
 export class ModelUnresponsiveError {
-  readonly _tag = "ModelUnresponsiveError"
+  readonly _tag = "ModelUnresponsiveError";
   constructor(
     readonly model: string,
     readonly attempts: number,
@@ -34,9 +34,9 @@ export class ModelUnresponsiveError {
 
 // ─── Config ───────────────────────────────────────────────────────────────────
 
-const CALL_TIMEOUT = Duration.seconds(180)
-const MAX_RETRIES = 3
-const BASE_BACKOFF = Duration.seconds(5)
+const CALL_TIMEOUT = Duration.seconds(180);
+const MAX_RETRIES = 3;
+const BASE_BACKOFF = Duration.seconds(5);
 
 // ─── guardedGenerate ─────────────────────────────────────────────────────────
 
@@ -49,7 +49,9 @@ export const guardedGenerate = Effect.fn("guardedGenerate")(function* (
   prompt: string,
   model: string,
 ) {
-  const attempt = (n: number): Effect.Effect<
+  const attempt = (
+    n: number,
+  ): Effect.Effect<
     string,
     ModelCallError | ModelUnresponsiveError,
     LanguageModel.LanguageModel
@@ -60,18 +62,18 @@ export const guardedGenerate = Effect.fn("guardedGenerate")(function* (
       Effect.mapError((e) => new ModelCallError(model, n, String(e))),
       Effect.catchTag("ModelCallError", (e) => {
         if (n >= MAX_RETRIES) {
-          return Effect.fail(new ModelUnresponsiveError(model, n))
+          return Effect.fail(new ModelUnresponsiveError(model, n));
         }
-        const backoff = Duration.times(BASE_BACKOFF, Math.pow(2, n - 1))
+        const backoff = Duration.times(BASE_BACKOFF, 2 ** (n - 1));
         return Effect.gen(function* () {
           yield* Effect.log(
             `[guard] ${model} attempt ${n}/${MAX_RETRIES} failed (${e.cause}) — retrying in ${Duration.toSeconds(backoff)}s`,
-          )
-          yield* Effect.sleep(backoff)
-          return yield* attempt(n + 1)
-        })
+          );
+          yield* Effect.sleep(backoff);
+          return yield* attempt(n + 1);
+        });
       }),
-    )
+    );
 
-  return yield* attempt(1)
-})
+  return yield* attempt(1);
+});

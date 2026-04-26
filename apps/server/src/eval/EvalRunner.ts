@@ -42,7 +42,7 @@ export const parseRankingsHtml = (html: string): ReadonlyArray<string> => {
   const seen = new Set<string>();
   const ordered: string[] = [];
   for (const match of html.matchAll(pattern)) {
-    const id = match[1]!;
+    const id = match[1] ?? "";
     if (!seen.has(id)) {
       seen.add(id);
       ordered.push(id);
