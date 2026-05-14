@@ -1,50 +1,52 @@
 {
   "rankings": [
     {
-      "model": "nvidia/nemotron-3-super-120b-a12b:free/rlm",
-      "right": 2,
+      "model": "nvidia/nemotron-3-super-120b-a12b:free",
+      "right": 3,
       "total": 6,
-      "pct": "33.3",
-      "avgTime": 45,
-      "timestamp": "2026y05m14d.19h57m35s",
+      "pct": "50.0",
+      "avgTime": 30.5,
+      "timestamp": "2026y05m14d.20h54m31s",
       "tasks": {
         "clst_map": true,
         "clst_rev": false,
         "cnat_add": true,
-        "cnat_mul": false,
+        "cnat_mul": true,
         "sbin_add": false,
         "snat_add": false
       },
       "taskBits": {
         "clst_map": 58,
-        "cnat_add": 33
+        "cnat_add": 33,
+        "cnat_mul": 28
+      },
+      "taskRefs": {},
+      "pricePerMOutputTokens": 0
+    },
+    {
+      "model": "nvidia/nemotron-3-super-120b-a12b:free/rlm",
+      "right": 2,
+      "total": 6,
+      "pct": "33.3",
+      "avgTime": 28.7,
+      "timestamp": "2026y05m14d.20h57m23s",
+      "tasks": {
+        "clst_map": false,
+        "clst_rev": false,
+        "cnat_add": true,
+        "cnat_mul": true,
+        "sbin_add": false,
+        "snat_add": false
+      },
+      "taskBits": {
+        "cnat_add": 33,
+        "cnat_mul": 28
       },
       "taskRefs": {},
       "pricePerMOutputTokens": 0,
       "rlm": true,
       "rlmDepth": 3,
-      "rlmAttempts": 16
-    },
-    {
-      "model": "nvidia/nemotron-3-super-120b-a12b:free",
-      "right": 1,
-      "total": 6,
-      "pct": "16.7",
-      "avgTime": 24.9,
-      "timestamp": "2026y05m14d.19h53m05s",
-      "tasks": {
-        "clst_map": false,
-        "clst_rev": false,
-        "cnat_add": true,
-        "cnat_mul": false,
-        "sbin_add": false,
-        "snat_add": false
-      },
-      "taskBits": {
-        "cnat_add": 33
-      },
-      "taskRefs": {},
-      "pricePerMOutputTokens": 0
+      "rlmAttempts": 15
     },
     {
       "model": "minimax/minimax-m2.5:free",
@@ -2637,5 +2639,5 @@
       "name": "N-Tuples"
     }
   ],
-  "generatedAt": "2026-05-14T19:57:35.151Z"
+  "generatedAt": "2026-05-14T20:57:23.884Z"
 }
