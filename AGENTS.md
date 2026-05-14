@@ -51,11 +51,21 @@ wait for an explicit "commit", "push", or "save this" instruction.
 - **Error handling**: Use Effect error channel; `Effect.catch` not `catchAll`; never try/catch inside `Effect.gen`
 - **No mutations**: no `let` reassignment inside `Effect.gen`; no `for` loops — use `Effect.forEach`
 
-## Skills — Mandatory Pre-Read
+## Skills — Mandatory Pre-Read (All Agents)
 
-**Before writing any Effect or React code, load the relevant skill file.**
-They contain confirmed Effect 4 API patterns that differ from Effect 3 and from
-LLM training data. Skipping causes type errors and regressions.
+**Every agent (coder, reviewer, test_engineer, sme) MUST load the relevant skill
+files before starting work.** These files contain confirmed Effect 4 API
+patterns that differ from Effect 3 and from LLM training data. Skipping causes
+type errors, regressions, and wasted reviewer cycles.
+
+**Agent compliance:**
+- `coder` → Load skills for the domain being implemented (Effect, React, etc.)
+- `reviewer` → Load skills to verify patterns are followed correctly
+- `test_engineer` → Load testing skills for proper test structure
+- `sme` → Load domain skills before giving advice
+
+**How to load:** Use the `Read` tool to load the skill file, or include the
+skill path in delegation prompts via `SKILLS:` field.
 
 | Task                        | Skill file                                                              |
 | --------------------------- | ----------------------------------------------------------------------- |
@@ -100,8 +110,8 @@ const buildPayload = Effect.fnUntraced(function* (id: string) {
   return yield* loadData(id)
 })
 
-// Service definition — ServiceMap.Service (Context not exported in beta.41+)
-export class MyService extends ServiceMap.Service<MyService, {
+// Service definition — Context.Service (NOT ServiceMap.Service — deprecated in future betas)
+export class MyService extends Context.Service<MyService, {
   method(): Effect.Effect<Result, MyError>
 }>()("myapp/MyService") {
   static readonly layer = Layer.effect(MyService, Effect.gen(function* () {
@@ -111,7 +121,7 @@ export class MyService extends ServiceMap.Service<MyService, {
 ```
 
 Key Effect 4 rules:
-- `ServiceMap.Service` — service definition (`Context` not exported in beta.41+)
+- `Context.Service` — service definition (NOT `ServiceMap.Service` — deprecated in future betas)
 - `Effect.fn("name")(fn)` — all exported named functions
 - `Effect.fnUntraced(fn)` — internal/private helpers
 - `Effect.catch` — catches all typed errors (`catchAll` does not exist)
