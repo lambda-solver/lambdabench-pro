@@ -128,9 +128,9 @@ describe("RecursiveChunker rule metadata", () => {
 
           expect(chunks.length).toBeGreaterThan(0);
           for (const chunk of chunks) {
-            expect(chunk.metadata?.recursiveRuleLevel).toBe(0);
-            expect(chunk.metadata?.recursiveRuleType).toBe("delimiter");
-            expect(chunk.metadata?.recursiveDelimiter).toBe("|");
+            expect(chunk.metadata?.["recursiveRuleLevel"]).toBe(0);
+            expect(chunk.metadata?.["recursiveRuleType"]).toBe("delimiter");
+            expect(chunk.metadata?.["recursiveDelimiter"]).toBe("|");
           }
         }),
     );
@@ -153,8 +153,8 @@ describe("RecursiveChunker rule metadata", () => {
 
           expect(chunks.length).toBeGreaterThan(0);
           for (const chunk of chunks) {
-            expect(chunk.metadata?.recursiveRuleLevel).toBe(0);
-            expect(chunk.metadata?.recursiveRuleType).toBe("whitespace");
+            expect(chunk.metadata?.["recursiveRuleLevel"]).toBe(0);
+            expect(chunk.metadata?.["recursiveRuleType"]).toBe("whitespace");
           }
         }),
     );

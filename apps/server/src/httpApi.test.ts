@@ -178,11 +178,11 @@ describe("httpApi", () => {
 
       const body = yield* decodeJsonBody(response);
       const json = body as Record<string, unknown>;
-      strictEqual(json.status, "ok");
-      strictEqual(json.version, "1.0.0");
-      strictEqual(json.db, "connected");
-      assertTrue(typeof json.uptimeSeconds === "number");
-      assertTrue((json.uptimeSeconds as number) >= 0);
+      strictEqual(json["status"], "ok");
+      strictEqual(json["version"], "1.0.0");
+      strictEqual(json["db"], "connected");
+      assertTrue(typeof json["uptimeSeconds"] === "number");
+      assertTrue((json["uptimeSeconds"] as number) >= 0);
     }),
   );
 
@@ -205,12 +205,12 @@ describe("httpApi", () => {
 
       const body = yield* decodeJsonBody(response);
       const json = body as Record<string, unknown>;
-      strictEqual(json.taskId, "test-task");
-      strictEqual(json.model, "test-model");
-      strictEqual(json.variant, "standard");
-      strictEqual(json.pass, true);
-      strictEqual(json.bits, 42);
-      strictEqual(json.score, 0.95);
+      strictEqual(json["taskId"], "test-task");
+      strictEqual(json["model"], "test-model");
+      strictEqual(json["variant"], "standard");
+      strictEqual(json["pass"], true);
+      strictEqual(json["bits"], 42);
+      strictEqual(json["score"], 0.95);
     }),
   );
 
@@ -233,9 +233,9 @@ describe("httpApi", () => {
 
       const body = yield* decodeJsonBody(response);
       const json = body as Record<string, unknown>;
-      strictEqual(json.id, "job-1");
-      strictEqual(json.status, "queued");
-      strictEqual(json.totalTasks, 1);
+      strictEqual(json["id"], "job-1");
+      strictEqual(json["status"], "queued");
+      strictEqual(json["totalTasks"], 1);
     }),
   );
 
@@ -283,7 +283,7 @@ describe("httpApi", () => {
         strictEqual(knownResponse.status, 200);
         const knownBody = yield* decodeJsonBody(knownResponse);
         const knownJson = knownBody as Record<string, unknown>;
-        strictEqual(knownJson.id, "known-job");
+        strictEqual(knownJson["id"], "known-job");
 
         const unknownResponse = yield* runRequest(
           layer,
@@ -345,8 +345,8 @@ describe("httpApi", () => {
 
       const body = yield* decodeJsonBody(response);
       const json = body as Record<string, unknown>;
-      assertTrue(Array.isArray(json.rankings));
-      const rankings = json.rankings as Array<unknown>;
+      assertTrue(Array.isArray(json["rankings"]));
+      const rankings = json["rankings"] as Array<unknown>;
       strictEqual(rankings.length, 1);
     }),
   );
@@ -409,7 +409,7 @@ describe("httpApi", () => {
         strictEqual(knownResponse.status, 200);
         const knownBody = yield* decodeJsonBody(knownResponse);
         const knownJson = knownBody as Record<string, unknown>;
-        strictEqual(knownJson.taskId, "task-1");
+        strictEqual(knownJson["taskId"], "task-1");
 
         const unknownResponse = yield* runRequest(
           layer,
@@ -455,7 +455,7 @@ describe("httpApi", () => {
       const json = body as Array<unknown>;
       strictEqual(json.length, 1);
       const task = json[0] as Record<string, unknown>;
-      strictEqual(task.id, "task-1");
+      strictEqual(task["id"], "task-1");
     }),
   );
 
@@ -497,7 +497,7 @@ describe("httpApi", () => {
         strictEqual(knownResponse.status, 200);
         const knownBody = yield* decodeJsonBody(knownResponse);
         const knownJson = knownBody as Record<string, unknown>;
-        strictEqual(knownJson.id, "task-1");
+        strictEqual(knownJson["id"], "task-1");
 
         const unknownResponse = yield* runRequest(
           layer,

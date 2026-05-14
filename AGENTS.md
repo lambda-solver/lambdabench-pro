@@ -40,6 +40,21 @@
 every file change. Completing a task does not imply the user wants a commit —
 wait for an explicit "commit", "push", or "save this" instruction.
 
+**Reference:** For the full Git workflow, branching strategy, and CI interaction
+patterns, see the [Git skill](.opencode/skills/git/SKILL.md).
+
+**Pre-commit checklist:**
+- `bun lint` must pass (Biome lint + format)
+- `bun run type-check` must pass (TypeScript type check)
+
+**Push rejections from benchmark workflow:**
+The automated benchmark workflow commits `results.json` directly to `main`. If
+your push is rejected because the remote has new commits, rebase and retry:
+
+```bash
+git pull origin main --rebase && git push origin main
+```
+
 ## Code Style
 
 - **Formatting**: Spaces (not tabs), double quotes for strings
@@ -88,6 +103,7 @@ skill path in delegation prompts via `SKILLS:` field.
 | Vitest patterns             | `.opencode/skills/effect-ts/testing/02-vitest-patterns/SKILL.md`        |
 | Property-based testing      | `.opencode/skills/effect-ts/testing/03-property-testing/SKILL.md`       |
 | Observability               | `.opencode/skills/effect-ts/patterns/04-observability/SKILL.md`         |
+| Git / CI workflow           | `.opencode/skills/git/SKILL.md`                                         |
 | React FP style              | `.opencode/skills/react/patterns/01-fp-style/SKILL.md`                  |
 
 Use the `Read` tool to load each file before starting implementation.

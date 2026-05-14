@@ -63,12 +63,12 @@ describe("TableChunker", () => {
           expect(chunks.length).toBe(2);
           for (const chunk of chunks) {
             expect(chunk.metadata).toBeDefined();
-            expect(chunk.metadata?.isTable).toBe(true);
-            expect(chunk.metadata?.tableFormat).toBe("markdown");
-            expect(chunk.metadata?.tableMode).toBe("row");
-            expect(chunk.metadata?.tableRowCount).toBe(2);
-            expect(chunk.metadata?.tableHasHeader).toBe(true);
-            expect(chunk.metadata?.tableColumns).toEqual(["name", "score"]);
+            expect(chunk.metadata?.["isTable"]).toBe(true);
+            expect(chunk.metadata?.["tableFormat"]).toBe("markdown");
+            expect(chunk.metadata?.["tableMode"]).toBe("row");
+            expect(chunk.metadata?.["tableRowCount"]).toBe(2);
+            expect(chunk.metadata?.["tableHasHeader"]).toBe(true);
+            expect(chunk.metadata?.["tableColumns"]).toEqual(["name", "score"]);
           }
         }),
     );
