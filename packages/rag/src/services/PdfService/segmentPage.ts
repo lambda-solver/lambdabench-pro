@@ -79,8 +79,8 @@ const isPdfTextItem = (item: unknown): item is PdfTextItem =>
   isRecord(item) &&
   "str" in item &&
   "transform" in item &&
-  Array.isArray(item["transform"]) &&
-  item["transform"].length >= 6;
+  Array.isArray(item.transform) &&
+  item.transform.length >= 6;
 
 const toPositionedPdfTextItem = (
   item: unknown,

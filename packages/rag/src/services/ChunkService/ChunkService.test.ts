@@ -207,7 +207,7 @@ Final summary paragraph.
           chunks.some(
             (chunk, index) =>
               chunk.pageNumber === 1 &&
-              getMetadata(index)?.["pdfBlockType"] === "paragraph" &&
+              getMetadata(index)?.pdfBlockType === "paragraph" &&
               chunk.text.includes("Executive summary before the table."),
           ),
         ).toBe(true);
@@ -216,8 +216,8 @@ Final summary paragraph.
           chunks.some(
             (chunk, index) =>
               chunk.pageNumber === 1 &&
-              getMetadata(index)?.["pdfBlockType"] === "table" &&
-              getMetadata(index)?.["chunkStrategy"] === "table" &&
+              getMetadata(index)?.pdfBlockType === "table" &&
+              getMetadata(index)?.chunkStrategy === "table" &&
               chunk.text.includes("| metric | score |"),
           ),
         ).toBe(true);
@@ -226,7 +226,7 @@ Final summary paragraph.
           chunks.some(
             (chunk, index) =>
               chunk.pageNumber === 2 &&
-              getMetadata(index)?.["pdfBlockType"] === "paragraph" &&
+              getMetadata(index)?.pdfBlockType === "paragraph" &&
               chunk.text.includes("Follow-up paragraph after the table."),
           ),
         ).toBe(true);

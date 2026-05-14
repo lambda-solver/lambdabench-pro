@@ -159,7 +159,7 @@ describe("mcp", () => {
   it.effect("EvalSingleTool has correct name and valid schemas", () =>
     Effect.sync(() => {
       const tools = (LambenchToolkit as AnyToolkit).tools;
-      const tool = tools["lambench_eval_single"];
+      const tool = tools.lambench_eval_single;
 
       if (!tool) throw new Error("lambench_eval_single tool missing");
       strictEqual(tool.name, "lambench_eval_single");
@@ -171,7 +171,7 @@ describe("mcp", () => {
   it.effect("ListTasksTool has correct name and valid schemas", () =>
     Effect.sync(() => {
       const tools = (LambenchToolkit as AnyToolkit).tools;
-      const tool = tools["lambench_list_tasks"];
+      const tool = tools.lambench_list_tasks;
 
       if (!tool) throw new Error("lambench_list_tasks tool missing");
       strictEqual(tool.name, "lambench_list_tasks");
@@ -183,7 +183,7 @@ describe("mcp", () => {
   it.effect("ListResultsTool has correct name and valid schemas", () =>
     Effect.sync(() => {
       const tools = (LambenchToolkit as AnyToolkit).tools;
-      const tool = tools["lambench_list_results"];
+      const tool = tools.lambench_list_results;
 
       if (!tool) throw new Error("lambench_list_results tool missing");
       strictEqual(tool.name, "lambench_list_results");
@@ -195,7 +195,7 @@ describe("mcp", () => {
   it.effect("GetTaskTool has correct name and valid schemas", () =>
     Effect.sync(() => {
       const tools = (LambenchToolkit as AnyToolkit).tools;
-      const tool = tools["lambench_get_task"];
+      const tool = tools.lambench_get_task;
 
       if (!tool) throw new Error("lambench_get_task tool missing");
       strictEqual(tool.name, "lambench_get_task");
