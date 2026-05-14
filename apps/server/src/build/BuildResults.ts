@@ -227,7 +227,7 @@ export const build = Effect.fn("build")(function* (topModelsPath?: string) {
       yield* Effect.log(`No res/ data found — preserving ${existing.length} existing rankings`);
       const data: BenchmarkData = { rankings: existing as Ranking[], tasks, categories, generatedAt: new Date().toISOString() };
       yield* fs.makeDirectory(`${REPO_ROOT}/apps/client/public/data`, { recursive: true });
-      yield* fs.writeFileString(OUT_FILE, JSON.stringify(data, null, 2));
+      yield* fs.writeFileString(OUT_FILE, JSON.stringify(data, null, 2) + "\n");
       yield* Effect.log(`Written ${existing.length} models · ${tasks.length} tasks → ${OUT_FILE}`);
       return;
     }
@@ -270,7 +270,7 @@ export const build = Effect.fn("build")(function* (topModelsPath?: string) {
   };
 
   yield* fs.makeDirectory(`${REPO_ROOT}/apps/client/public/data`, { recursive: true });
-  yield* fs.writeFileString(OUT_FILE, JSON.stringify(data, null, 2));
+  yield* fs.writeFileString(OUT_FILE, JSON.stringify(data, null, 2) + "\n");
 
   yield* Effect.log(`Written ${rankings.length} models · ${tasks.length} tasks → ${OUT_FILE}`);
   yield* Effect.forEach(rankings, r =>
