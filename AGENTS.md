@@ -100,7 +100,7 @@ const buildPayload = Effect.fnUntraced(function* (id: string) {
   return yield* loadData(id)
 })
 
-// Service definition — Context.Service (NOT ServiceMap.Service)
+// Service definition — ServiceMap.Service (Context not exported in beta.41+)
 export class MyService extends ServiceMap.Service<MyService, {
   method(): Effect.Effect<Result, MyError>
 }>()("myapp/MyService") {
@@ -118,7 +118,7 @@ Key Effect 4 rules:
 - `Effect.suspend(() => loop(...))` — tail recursion (`Effect.iterate` does not exist)
 - `Effect.forEach(items, fn, { concurrency })` — never `for` loops inside `Effect.gen`
 - `process.env["KEY"]` — index signature access required
-- `Schema.decode(schema)(input)` — decode unknown values
+- `Schema.decodeUnknownEffect(schema)(input)` — decode unknown values
 - HTTP headers are **lowercased** by Effect: `headers["authorization"]` not `headers["Authorization"]`
 
 ## Structure
@@ -127,7 +127,7 @@ Key Effect 4 rules:
 | ----------------- | --------------------------------------------- | --------------------------- |
 | `apps/client`     | React 19, Effect Atom, Tailwind, Vite         | `apps/client/AGENTS.md`     |
 | `apps/server`     | Bun, Effect Platform, `@effect/platform-bun`  | `apps/server/AGENTS.md`     |
-| `apps/server-mcp` | Effect MCP Server                             | `apps/server-mcp/AGENTS.md` |
+| `apps/server` (src/mcp.ts) | Effect MCP Server (stdio)            | Part of server workspace  |
 | `packages/domain` | Effect Schema — no platform imports           | `packages/domain/AGENTS.md` |
 
 ## Reference Repos — Read Only
