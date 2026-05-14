@@ -42,7 +42,7 @@ LamBench models its domain around the benchmark lifecycle, from task definitions
 - `BatchJob` — Async batch evaluation state machine (`queued` → `running` → `completed`/`failed`)
 - `ModelConfig` — Model metadata with provider, pricing, and active flag
 
-Schema patterns in LamBench use `Schema.Struct` with `Schema.Literals` for discriminated unions, `Schema.optional` for nullable fields, and `Schema.withDecodingDefaultKey` for request payloads that carry defaults. Types are exported using the `typeof Schema.Type` convention.
+Schema patterns in LamBench use `Schema.Struct` with `Schema.Literals` for discriminated unions, `Schema.optional` for nullable fields, and `Schema.withDecodingDefaultKey` for request payloads that carry defaults. Types are exported using the `Schema.Schema.Type<typeof X>` convention.
 
 ```typescript
 export const EvalResult = Schema.Struct({
@@ -370,7 +370,7 @@ BEGIN
 END;
 ```
 
-Motel uses three triggers per FTS table (insert, delete, update) to keep the inverted index synchronized with the normalized attribute table.
+Motel uses three triggers on the `span_attr_fts` external-content FTS table (insert, delete, update) to keep the inverted index synchronized with the normalized attribute table.
 
 **Schema migration strategy**: Runtime ALTER TABLE with try/catch for additive changes:
 
@@ -493,7 +493,7 @@ const EvalGroupLive = HttpApiBuilder.group(Api, "eval", (handlers) =>
 
 **Endpoint count**: 10 (2 health, 3 eval, 2 results, 2 tasks, 2 models).
 
-**OpenAPI**: Not yet annotated — the `Api` definition lacks `OpenApi.Title`, `OpenApi.Description`, and per-endpoint annotations.
+**OpenAPI**: Auto-generated at `/openapi.json` via `HttpApiBuilder.layer(Api, { openapiPath: "/openapi.json" })`. Basic annotations can be added per-endpoint as the API matures.
 
 **Error handling**: All handlers wrap in `Effect.match` returning `HttpServerResponse.jsonUnsafe` with 500/404 status codes. No typed error schemas.
 
@@ -550,12 +550,12 @@ export const McpClient = Context.Service<
 |---|---|---|---|
 | **API Style** | Effect `HttpApi` groups with `HttpApiBuilder` | Effect `HttpApi` with extensive OpenApi annotations | None — programmatic only |
 | **Endpoint Count** | 10 | ~30 | 0 |
-| **Transport** | HTTP (planned: BunHttpServer) | HTTP (BunHttpServer), OTLP HTTP, MCP stdio | MCP over HTTP, stdio, internal Effect channels |
+| **Transport** | HTTP (BunHttpServer on port 9000) | HTTP (BunHttpServer), OTLP HTTP, MCP stdio | MCP over HTTP, stdio, internal Effect channels |
 | **OpenAPI** | Not annotated | Fully annotated — title, version, descriptions, parameter docs | N/A |
 | **Query Parsing** | Path params only | Custom lookback, limit, cursor, attribute filter parsers | N/A |
 | **Pagination** | None | Cursor-based with base64url encoding, meta object with `nextCursor` | N/A |
-| **Static Files** | Not yet implemented | `HttpStaticServer.layer` with SPA fallback | N/A |
-| **Middleware** | None | `HttpMiddleware.tracer` with per-request OTel spans; OTLP paths excluded from tracing | N/A |
+| **Static Files** | `HttpStaticServer.layer` with SPA fallback (`../../client/dist`) | `HttpStaticServer.layer` with SPA fallback | N/A |
+| **Middleware** | `HttpMiddleware.tracer` with per-request spans | `HttpMiddleware.tracer` with per-request OTel spans; OTLP paths excluded from tracing | N/A |
 
 ---
 
@@ -796,7 +796,7 @@ Motel uses Vitest with three distinct test categories:
 
 ### 8.3 Clanka Testing
 
-Clanka uses Vitest with property-based tests via `fast-check`:
+Clanka uses Vitest with standard example-based tests:
 
 **Test coverage** (`reference/clanka/src/*.test.ts`):
 
@@ -810,19 +810,19 @@ Clanka uses Vitest with property-based tests via `fast-check`:
 - `CodeChunker.test.ts` — Code chunking for vector search
 - `CopilotAuth.test.ts` / `CodexAuth.test.ts` — Authentication flows
 
-Clanka's property-based testing generates random inputs for patch parsing and script extraction, catching edge cases that example-based tests miss.
+Clanka's tests use concrete examples for patch parsing, script extraction, and other logic, covering typical and edge cases directly.
 
 ### 8.4 Testing Comparison Table
 
 | Dimension | LamBench Pro | Motel | Clanka |
 |---|---|---|---|
-| **Framework** | Vitest + `@effect/vitest` | Vitest | Vitest + `fast-check` |
-| **Test Types** | Unit tests for services and eval logic | Unit, UI logic, end-to-end OTLP, TUI regression | Unit, property-based |
+| **Framework** | Vitest + `@effect/vitest` | Vitest | Vitest |
+| **Test Types** | Unit tests for services and eval logic | Unit, UI logic, end-to-end OTLP, TUI regression | Unit, example-based |
 | **Service Mocking** | `Layer.succeed` with stub stores | `Layer.mock` for readonly store variants | `Layer.mock` for `ExaSearch`, `WebToMarkdown` |
 | **Co-location** | Yes (`*.test.ts` alongside source) | Yes (`*.test.ts` alongside source) | Yes (`*.test.ts` alongside source) |
-| **Property-Based Tests** | No | No | Yes — patch parsing, script extraction |
-| **End-to-End Tests** | No (planned) | Yes — `telemetry.test.ts` with real OTLP payloads | No |
-| **UI Tests** | No (Playwright planned for client) | Yes — TUI regression tests with `tuistory` | No |
+| **Property-Based Tests** | No | No | No |
+| **End-to-End Tests** | Yes — `httpApi.test.ts` with 32 integration tests | Yes — `telemetry.test.ts` with real OTLP payloads | No |
+| **UI Tests** | No (Storybook planned for client) | Yes — TUI regression tests with `tuistory` | No |
 | **Coverage Focus** | Service CRUD, eval pipeline, λ-RLM | SQLite persistence, query correctness, TUI navigation | Agent execution, patch application, vector search |
 
 ---
@@ -988,7 +988,7 @@ Based on the comparative analysis, the following recommendations are proposed fo
 **Specific actions**:
 - Spawn a dedicated worker for SQLite writes during heavy batch evaluations.
 - Keep the main thread free for HTTP request handling and TUI responsiveness.
-- Use `Effect.unsafeFork` or `Effect.forkDaemon` for fire-and-forget ingest.
+- Use `Effect.runFork` or `Effect.forkDaemon` for fire-and-forget ingest.
 
 **Files to study**: `reference/motel/src/services/AsyncIngest.ts`, `reference/motel/src/services/telemetryWorker.ts`
 

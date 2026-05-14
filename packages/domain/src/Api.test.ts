@@ -20,6 +20,7 @@ describe("SingleEvalRequest schema", () => {
       provider: "opencode-go",
       maxTokens: 2048,
       rlmMaxDepth: 5,
+      mode: "direct",
     });
   });
 
@@ -36,6 +37,7 @@ describe("SingleEvalRequest schema", () => {
       provider: "openrouter",
       maxTokens: 4096,
       rlmMaxDepth: 3,
+      mode: "direct",
     });
   });
 
@@ -72,6 +74,7 @@ describe("BatchEvalRequest schema", () => {
       tasks: ["cnat_add", "bool_and"],
       variant: "standard",
       concurrency: 4,
+      mode: "both",
     });
   });
 
@@ -85,6 +88,7 @@ describe("BatchEvalRequest schema", () => {
       tasks: [],
       variant: "both",
       concurrency: 2,
+      mode: "both",
     });
   });
 });

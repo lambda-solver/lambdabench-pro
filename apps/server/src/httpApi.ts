@@ -2,6 +2,7 @@ import { Api } from "@repo/domain/Api";
 import { Effect, Layer } from "effect";
 import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
 import { HttpApiBuilder } from "effect/unstable/httpapi";
+import { makeOpenRouterLayer } from "./llm/OpenRouterClient.js";
 import { BatchService } from "./services/BatchService.js";
 import { EvalService } from "./services/EvalService.js";
 import { ResultStore } from "./services/ResultStore.js";
@@ -26,8 +27,11 @@ const EvalGroupLive = HttpApiBuilder.group(Api, "eval", (handlers) =>
   handlers
     .handle("single", ({ payload }) =>
       Effect.gen(function* () {
+        // Mode is accepted but only "direct" is fully implemented; "agent" mode is Phase 6
         const evalService = yield* EvalService;
-        return yield* evalService.evaluateSingle(payload);
+        return yield* evalService
+          .evaluateSingle(payload)
+          .pipe(Effect.provide(makeOpenRouterLayer(payload.model)));
       }).pipe(
         Effect.match({
           onFailure: (error) =>
@@ -41,6 +45,7 @@ const EvalGroupLive = HttpApiBuilder.group(Api, "eval", (handlers) =>
     )
     .handle("batch", ({ payload }) =>
       Effect.gen(function* () {
+        // Mode is accepted but only "direct" is fully implemented; "agent" mode is Phase 6
         const batchService = yield* BatchService;
         const job = yield* batchService.createBatchJob(payload);
         yield* batchService.runBatchJob(job.id).pipe(Effect.forkChild);
@@ -187,7 +192,12 @@ const TasksGroupLive = HttpApiBuilder.group(Api, "tasks", (handlers) =>
           categoryName: t.categoryName,
           description: t.description,
           testCount: t.testCount,
-          tests: (t.tests as Array<{ readonly input: string; readonly expected: string }>)
+          tests: (
+            t.tests as Array<{
+              readonly input: string;
+              readonly expected: string;
+            }>
+          )
             .slice(0, 3)
             .map((test) => ({
               input: test.input,
@@ -221,7 +231,12 @@ const TasksGroupLive = HttpApiBuilder.group(Api, "tasks", (handlers) =>
           categoryName: task.categoryName,
           description: task.description,
           testCount: task.testCount,
-          tests: (task.tests as Array<{ readonly input: string; readonly expected: string }>)
+          tests: (
+            task.tests as Array<{
+              readonly input: string;
+              readonly expected: string;
+            }>
+          )
             .slice(0, 3)
             .map((test) => ({
               input: test.input,
@@ -267,7 +282,7 @@ const ModelsGroupLive = HttpApiBuilder.group(Api, "models", (handlers) =>
         }),
       ),
     )
-    .handle("test", ({ payload }) =>
+    .handle("test", ({ payload: _payload }) =>
       Effect.succeed({
         latencyMs: 0,
         ok: true,

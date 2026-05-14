@@ -2,7 +2,7 @@
 
 > **Version:** 1.0  
 > **Date:** 2026-04-28  
-> **Status:** Draft — awaiting implementation  
+> **Status:** Phase 1 & 2 implemented; Phases 3–6 pending  
 > **Scope:** Full architectural refactor from static-file CLI to motel-inspired local server + SQLite + HTTP API + interactive UI
 
 ---
@@ -123,11 +123,11 @@ graph TB
         CLI -->|tasks| API_CLIENT
     end
 
-    subgraph "MCP Layer"
+    subgraph "MCP Layer (Phase 3)"
         MCP[mcp.ts] --> API_CLIENT
     end
 
-    subgraph "HTTP API Layer (src/httpApi.ts)"
+    subgraph "HTTP API Layer (src/httpApi.ts) — Phase 2"
         API_CLIENT[MotelClient.ts] --> ROUTER
         ROUTER[localServer.ts] --> EVAL_ENDPOINT
         ROUTER --> RESULTS_ENDPOINT
@@ -331,9 +331,10 @@ export const SingleEvalRequest = Schema.Struct({
   model: Schema.String,          // model ID or "local"
   task: Schema.String,           // task ID, e.g. "snat_add"
   variant: Schema.Literal("standard", "rlm").pipe(Schema.optionalWith({ default: () => "standard" })),
-  provider: Schema.Literal("openrouter", "localchat").pipe(Schema.optionalWith({ default: () => "openrouter" })),
+  provider: Schema.Literal("openrouter", "opencode-go").pipe(Schema.optionalWith({ default: () => "openrouter" })),
   maxTokens: Schema.Number.pipe(Schema.optionalWith({ default: () => 4096 })),
   rlmMaxDepth: Schema.Number.pipe(Schema.optionalWith({ default: () => 3 })),
+  mode: Schema.Literal("direct", "agent").pipe(Schema.optionalWith({ default: () => "direct" })),
 });
 
 export const EvalResult = Schema.Struct({
@@ -354,6 +355,7 @@ export const BatchEvalRequest = Schema.Struct({
   tasks: Schema.Array(Schema.String).pipe(Schema.optionalWith({ default: () => [] })), // empty = all
   variant: Schema.Literal("standard", "rlm", "both").pipe(Schema.optionalWith({ default: () => "both" })),
   concurrency: Schema.Number.pipe(Schema.optionalWith({ default: () => 2 })),
+  mode: Schema.Literal("direct", "agent", "both").pipe(Schema.optionalWith({ default: () => "both" })),
 });
 
 export const BatchJob = Schema.Struct({
@@ -379,10 +381,10 @@ export const HealthStatus = Schema.Struct({
 
 ```bash
 # 1. Health check
-curl http://localhost:27686/api/health
+curl http://localhost:9000/api/health
 
 # 2. Evaluate a single task (fast iteration)
-curl -X POST http://localhost:27686/api/eval/single \
+curl -X POST http://localhost:9000/api/eval/single \
   -H "Content-Type: application/json" \
   -d '{
     "model": "minimax/minimax-m2.5:free",
@@ -392,17 +394,17 @@ curl -X POST http://localhost:27686/api/eval/single \
   }'
 
 # 3. Evaluate using the local OpenCode chat
-curl -X POST http://localhost:27686/api/eval/single \
+curl -X POST http://localhost:9000/api/eval/single \
   -H "Content-Type: application/json" \
   -d '{
     "model": "local",
     "task": "snat_add",
     "variant": "standard",
-    "provider": "localchat"
+    "provider": "opencode-go"
   }'
 
 # 4. Start a full benchmark
-curl -X POST http://localhost:27686/api/eval/batch \
+curl -X POST http://localhost:9000/api/eval/batch \
   -H "Content-Type: application/json" \
   -d '{
     "models": ["google/gemini-2.5-pro", "minimax/minimax-m2.5:free"],
@@ -412,16 +414,16 @@ curl -X POST http://localhost:27686/api/eval/batch \
   }'
 
 # 5. Poll batch status
-curl http://localhost:27686/api/eval/status/job_abc123
+curl http://localhost:9000/api/eval/status/job_abc123
 
 # 6. Get leaderboard data
-curl "http://localhost:27686/api/results?sort=intelligence"
+curl "http://localhost:9000/api/results?sort=intelligence"
 
 # 7. List all tasks
-curl http://localhost:27686/api/tasks
+curl http://localhost:9000/api/tasks
 
 # 8. Get a specific task with its reference solution
-curl http://localhost:27686/api/tasks/snat_add
+curl http://localhost:9000/api/tasks/snat_add
 ```
 
 ---
@@ -715,12 +717,16 @@ This creates a **human-in-the-loop** fast iteration path: the user can iterate o
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `LAMBENCH_PORT` | `27686` | HTTP API port |
-| `LAMBENCH_DB_PATH` | `.lambench-data/results.sqlite` | SQLite database path |
+| `LAMBENCH_PORT` | `9000` | HTTP API port |
+| `LAMBENCH_DB_PATH` | `.lambench-data/benchmark.sqlite` | SQLite database path |
 | `OPENROUTER_API_KEY` | — | API key for OpenRouter |
-| `LOCALCHAT_URL` | `http://localhost:3001/v1/chat` | Local chat endpoint |
-| `LAMBENCH_RETENTION_DAYS` | `90` | Result retention in days |
-| `LAMBENCH_LOG_LEVEL` | `INFO` | Effect log level |
+| `LLM_MODEL` | `minimax/minimax-m2.5:free` | Model to evaluate |
+| `RLM_MAX_DEPTH` | `3` | λ-RLM self-correction iterations |
+| `DEV_MODE` | `false` | Skip live fetch, use mock data |
+| `EVAL_CONCURRENCY` | `4` | Concurrent eval tasks |
+| `BATCH_CONCURRENCY` | `2` | Concurrent batch jobs |
+| `RETENTION_DAYS` | `90` | Result retention in days |
+| `MAX_DB_SIZE_MB` | `1024` | Size-based retention cap |
 
 ### 10.2 Config File (`lambench.config.json`)
 
@@ -748,11 +754,13 @@ This creates a **human-in-the-loop** fast iteration path: the user can iterate o
 - [ ] Create `LamConfig.ts` (env + file config)
 
 ### Phase 2 — HTTP API + Local Server
-- [ ] Define `httpApi.ts` with all endpoints
-- [ ] Implement `localServer.ts` (Bun HTTP router)
-- [ ] Implement `runtime.ts` (ManagedRuntime)
-- [ ] Wire services into API handlers
-- [ ] Add OpenAPI generation
+- [x] Define `httpApi.ts` with all endpoints
+- [x] Implement `localServer.ts` (Bun HTTP router)
+- [x] Implement `runtime.ts` (ManagedRuntime)
+- [x] Wire services into API handlers
+- [x] Add OpenAPI generation
+- [x] Add empty-string `dbPath` validation to prevent silent in-memory DB
+- [x] Add comprehensive integration tests (32 tests passing)
 
 ### Phase 3 — CLI + MCP
 - [ ] Create `cli.ts` with commands (`eval`, `server`, `status`, `results`)

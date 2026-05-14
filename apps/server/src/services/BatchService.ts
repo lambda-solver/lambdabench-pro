@@ -59,6 +59,7 @@ const buildRequests = (
     provider: "openrouter" as const,
     maxTokens: 4096,
     rlmMaxDepth: 3,
+    mode: "direct" as const,
   };
   if (variant === "both") {
     return [

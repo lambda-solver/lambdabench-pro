@@ -27,11 +27,29 @@ A lambda calculus benchmark leaderboard for AI models. Evaluates the top OpenRou
 ```
 .
 ├── apps/
-│   └── client/                  # React leaderboard UI (Vite + Effect Atom)
-│       └── public/data/
-│           └── results.json     # Committed benchmark results (seed data included)
+│   ├── client/                  # React leaderboard UI (Vite + Effect Atom)
+│   │   └── public/data/
+│   │       └── results.json     # Committed benchmark results (seed data included)
+│   └── server/                  # Effect Platform HTTP API + CLI + MCP
+│       ├── src/
+│       │   ├── index.ts         # Entry point (server / cli / mcp modes)
+│       │   ├── localServer.ts   # Bun HTTP server with static SPA serving
+│       │   ├── httpApi.ts       # Typed REST API (HttpApiBuilder)
+│       │   ├── cli.ts           # CLI client for the API
+│       │   ├── mcp.ts           # MCP server for AI agent integration
+│       │   ├── runtime.ts       # Service layer composition
+│       │   ├── client/
+│       │   │   └── LamBenchClient.ts  # Typed HTTP client service
+│       │   ├── services/
+│       │   │   ├── ResultStore.ts     # SQLite CRUD + retention (bun:sqlite)
+│       │   │   ├── TaskService.ts     # Load .tsk/.lam files into DB
+│       │   │   ├── EvalService.ts     # Single evaluation orchestration
+│       │   │   ├── BatchService.ts    # Batch job creation + execution
+│       │   │   └── LamConfig.ts       # Environment configuration
+│       │   └── ...
+│       └── package.json
 ├── packages/
-│   └── domain/                  # Shared Effect Schema types (BenchmarkData, Ranking, etc.)
+│   └── domain/                  # Shared Effect Schema types (BenchmarkData, Ranking, Api, etc.)
 ├── reference/
 │   └── lambench/                # Benchmark runner (standalone Bun scripts)
 │       ├── src/
@@ -53,13 +71,19 @@ A lambda calculus benchmark leaderboard for AI models. Evaluates the top OpenRou
 # Install monorepo dependencies
 bun install
 
-# Start the leaderboard UI (port 3000)
-bun dev --filter=client
+# Start the full stack (client:3000 + server:9000)
+bun dev
+
+# Or start individually
+bun dev --filter=client   # UI only (port 3000)
+bun dev --filter=server   # API server only (port 9000)
 ```
 
 Open http://localhost:3000 — the UI loads from the committed `results.json` seed data, no API key needed.
 
 ## Running the Benchmark Locally
+
+### Legacy standalone runner
 
 ```bash
 cd reference/lambench
@@ -75,14 +99,127 @@ bun src/check.ts             # Evaluate model outputs
 bun scripts/build-results.ts # Write results.json
 ```
 
+### Server + API (recommended)
+
+```bash
+# Start the API server
+bun dev --filter=server
+
+# In another terminal, use the CLI
+bun apps/server/src/index.ts cli eval single minimax/minimax-m2.5:free task-id
+bun apps/server/src/index.ts cli eval batch model1 model2 --tasks=task1,task2
+bun apps/server/src/index.ts cli results
+bun apps/server/src/index.ts cli tasks
+```
+
 ### Environment Variables
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `DEV_MODE` | `true` | Skip live fetch, use mock models — no API key needed |
-| `OPENROUTER_API_KEY` | — | Required for real runs (`DEV_MODE=false`) |
+| `OPENROUTER_API_KEY` | — | Required for all LLM calls |
 | `TOP_MODELS` | — | Comma-separated model IDs to override auto-fetch |
 | `VITE_BASE_URL` | `/` | Base path for the client (set to `/lambdabench-pro/` for Pages) |
+| `LAMBENCH_PORT` | `9000` | API server port |
+| `LAMBENCH_DB_PATH` | `.lambench-data/benchmark.sqlite` | SQLite database path |
+| `LAMBENCH_API_URL` | `http://127.0.0.1:9000` | Base URL for CLI client |
+
+## HTTP API
+
+The server exposes a typed REST API built with Effect `HttpApiBuilder`. OpenAPI spec is available at `http://localhost:9000/openapi.json`.
+
+### Endpoints
+
+| Group | Method | Path | Description |
+|-------|--------|------|-------------|
+| health | GET | `/api/health` | Server status, version, uptime |
+| eval | POST | `/api/eval/single` | Run a single evaluation |
+| eval | POST | `/api/eval/batch` | Create a batch evaluation job |
+| eval | GET | `/api/eval/status/:jobId` | Get batch job status |
+| results | GET | `/api/results` | List rankings |
+| results | GET | `/api/results/:runId` | Result detail by run ID |
+| tasks | GET | `/api/tasks` | List all tasks |
+| tasks | GET | `/api/tasks/:taskId` | Task detail by ID |
+| models | GET | `/api/models` | List active model configs |
+| models | POST | `/api/models/test` | Test a model connection |
+
+### Example: Single Evaluation
+
+```bash
+curl -X POST http://localhost:9000/api/eval/single \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "minimax/minimax-m2.5:free",
+    "task": "church-numeral-2",
+    "variant": "standard",
+    "provider": "openrouter",
+    "maxTokens": 4096,
+    "rlmMaxDepth": 3,
+    "mode": "direct"
+  }'
+```
+
+### Example: Batch Evaluation
+
+```bash
+curl -X POST http://localhost:9000/api/eval/batch \
+  -H "Content-Type: application/json" \
+  -d '{
+    "models": ["model-a", "model-b"],
+    "tasks": ["task-1", "task-2"],
+    "variant": "both",
+    "concurrency": 2,
+    "mode": "direct"
+  }'
+```
+
+## CLI
+
+The `cli.ts` module provides a command-line interface to the HTTP API via `LamBenchClient`.
+
+```bash
+bun apps/server/src/index.ts cli <command> [options]
+```
+
+### Commands
+
+| Command | Description |
+|---------|-------------|
+| `eval single <model> <task> [--variant=standard\|rlm] [--provider=openrouter\|opencode-go]` | Run single evaluation |
+| `eval batch <models...> [--tasks=<task1,task2>] [--variant=both\|standard\|rlm]` | Run batch evaluation |
+| `status <jobId>` | Check batch job status |
+| `results [--model=<model>] [--task=<task>] [--limit=<n>]` | List results with optional filters |
+| `tasks [--task=<taskId>]` | List tasks or get task detail |
+| `models` | List active model configs |
+| `server` | Print server start hint |
+| `gepa optimize <taskId>` | GEPA optimizer (placeholder) |
+
+### Example
+
+```bash
+bun apps/server/src/index.ts cli eval single minimax/minimax-m2.5:free church-numeral-2 --variant=standard
+bun apps/server/src/index.ts cli eval batch model1 model2 --tasks=task1,task2 --variant=both
+bun apps/server/src/index.ts cli results --limit=10
+```
+
+## MCP Server
+
+A Model Context Protocol (MCP) server is available for AI agent integration.
+
+```bash
+bun apps/server/src/index.ts mcp
+```
+
+### Available Tools
+
+| Tool | Description | Readonly |
+|------|-------------|----------|
+| `lambench_eval_single` | Run a single benchmark evaluation | No |
+| `lambench_list_tasks` | List all available tasks | Yes |
+| `lambench_list_results` | List results with optional filters | Yes |
+| `lambench_get_task` | Get full task details | Yes |
+| `lambench_list_prompt_versions` | List GEPA prompt versions | Yes |
+| `lambench_trigger_gepa` | Trigger GEPA optimization | No |
 
 ## CI / GitHub Pages
 
@@ -109,6 +246,8 @@ To set up in your own fork:
 | UI framework | React 19 + Vite 8 |
 | State management | Effect Atom (`@effect/atom-react`) |
 | Schema / validation | Effect Schema 4-beta |
+| HTTP API | Effect Platform (`@effect/platform-bun`, `HttpApiBuilder`) |
+| Database | SQLite via `bun:sqlite` (WAL mode) |
 | Styling | Tailwind CSS 4 + Solarized palette |
 | Monorepo | Turborepo |
 | Linting / formatting | Biome 2.4 |
@@ -119,9 +258,13 @@ To set up in your own fork:
 | Command | Description |
 |---------|-------------|
 | `bun install` | Install all dependencies |
+| `bun dev` | Start full stack (client:3000 + server:9000) |
 | `bun dev --filter=client` | Start UI dev server (port 3000, HMR) |
+| `bun dev --filter=server` | Start API server with watch mode (port 9000) |
 | `bun run build --filter=client` | Production build |
+| `bun run build --filter=server` | Compile server to `dist/` |
 | `bun test` | Run all tests (Vitest) |
+| `bun test --filter=server` | Run server tests only |
 | `bun lint` | Lint with Biome |
 | `bun format` | Format with Biome |
 | `bun run type-check` | TypeScript check across all packages |

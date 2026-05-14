@@ -1,6 +1,6 @@
 # LamBench Pro — Architecture & Domain Documentation
 
-> **Scope**: This document describes the core domain types, system architecture, component interactions, and main workflows of the LamBench Pro application. It covers both the existing implementation (Phase 1) and the planned server architecture (Phases 2–3). No implementation code is included — only structural diagrams and type descriptions.
+> **Scope**: This document describes the core domain types, system architecture, component interactions, and main workflows of the LamBench Pro application. It covers the implemented foundation (Phase 1), the HTTP API and local server (Phase 2), and planned future phases (Phases 3–6). No implementation code is included — only structural diagrams and type descriptions.
 
 ---
 
@@ -120,7 +120,7 @@ classDiagram
 
 ### 1.2 API Contract Domain (`packages/domain/src/Api.ts`)
 
-The HTTP API is defined schema-first using `effect/unstable/httpapi`. Every endpoint, request body, and response is typed via Effect Schema.
+The HTTP API is defined schema-first using `effect/unstable/httpapi`. Every endpoint, request body, and response is typed via Effect Schema. Auto-generated OpenAPI spec is available at `/openapi.json`.
 
 ```mermaid
 %%{init: {'theme': 'dark', 'themeVariables': { 
@@ -142,6 +142,7 @@ classDiagram
         +string provider (default: "openrouter")
         +number maxTokens (default: 4096)
         +number rlmMaxDepth (default: 3)
+        +string mode (default: "direct")
     }
 
     class BatchEvalRequest {
@@ -149,6 +150,7 @@ classDiagram
         +string[] tasks (default: [])
         +string variant (default: "both")
         +number concurrency (default: 2)
+        +string mode (default: "both")
     }
 
     class HealthStatus {
@@ -291,11 +293,11 @@ erDiagram
 flowchart TB
     subgraph Users["👤 Users"]
         DEV["Developer<br/>Runs benchmarks & views UI"]
-        AGENT["AI Agent<br/>Queries via MCP"]
+        AGENT["AI Agent<br/>Queries via MCP (Phase 3)"]
     end
 
     subgraph Core["🖥️ LamBench Pro"]
-        LB["Local Server<br/>SQLite + Effect Services"]
+        LB["Local Server<br/>SQLite + Effect Services + HTTP API"]
     end
 
     subgraph External["☁️ External Systems"]
@@ -303,8 +305,8 @@ flowchart TB
         OCG["OpenCode-Go<br/>User Session Provider"]
     end
 
-    DEV -->|"curl /api/eval/single<br/>Browse leaderboard"| LB
-    AGENT -->|"MCP tool calls"| LB
+    DEV -->|"curl /api/eval/single<br/>Browse leaderboard<br/>GET /api/results"| LB
+    AGENT -->|"MCP tool calls (planned)"| LB
     LB -->|"@effect/ai-openrouter"| OR
     LB -->|"Session credentials"| OCG
 
@@ -384,6 +386,13 @@ The server is built entirely with **Effect 4** service pattern (`ServiceMap.Serv
   'fontSize': '14px'
 }}}%%
 graph TB
+    subgraph "HTTP Layer (apps/server/src/)"
+        API["httpApi.ts\nEffect HttpApi + OpenAPI"]
+        LOC["localServer.ts\nBunHttpServer + static SPA"]
+        RUN["runtime.ts\nManagedRuntime + Layer composition"]
+        SRV["server.ts\nEntry point"]
+    end
+
     subgraph "Server Services (apps/server/src/services/)"
         RS["ResultStore\nSQLite CRUD + retention"]
         TS["TaskService\nLoad .tsk/.lam → cache in SQLite"]
@@ -420,6 +429,17 @@ graph TB
         IDX["index.ts\nCLI entry: eval | run | build"]
     end
 
+    API --> ES
+    API --> BS
+    API --> RS
+    API --> TS
+    LOC --> API
+    LOC --> RUN
+    SRV --> LOC
+    RUN --> BS
+    RUN --> ES
+    RUN --> TS
+    RUN --> RS
     ES --> CH
     ES --> LR
     ES --> RS
@@ -466,6 +486,12 @@ graph BT
         A["BunRuntime.runMain"]
         B["BunServices.layer\n(FileSystem, Path, etc.)"]
         C["BunHttpClient.layer"]
+        I["BunHttpServer.layer\n(port 9000, localhost)"]
+    end
+
+    subgraph "HTTP Stack"
+        J["HttpRouter.serve\n(ApiLayer + StaticLayer)"]
+        K["HttpMiddleware.tracer"]
     end
 
     subgraph "Application Layers"
@@ -478,6 +504,7 @@ graph BT
 
     A --> B
     A --> C
+    A --> I
     D --> B
     E --> D
     F --> E
@@ -486,6 +513,12 @@ graph BT
     G --> E
     G --> D
     H --> C
+    J --> K
+    J --> D
+    J --> E
+    J --> F
+    J --> G
+    I --> J
 ```
 
 ### 2.5 Client Architecture (React + Effect Atom)
@@ -618,7 +651,7 @@ erDiagram
 
 ### 3.1 Single Task Evaluation (Standard)
 
-A single `POST /api/eval/single` request with `variant: "standard"`. One LLM call per task.
+A single `POST /api/eval/single` request with `variant: "standard"`. One LLM call per task. The `mode` field is accepted in the request but only `"direct"` is fully implemented; `"agent"` mode is planned for Phase 6.
 
 ```mermaid
 %%{init: {'theme': 'dark', 'themeVariables': { 
@@ -634,7 +667,7 @@ A single `POST /api/eval/single` request with `variant: "standard"`. One LLM cal
 }}}%%
 sequenceDiagram
     actor User
-    participant HTTP as "HTTP API (planned)"
+    participant HTTP as "HTTP API (localServer.ts)"
     participant ES as "EvalService"
     participant TS as "TaskService"
     participant CH as "Check.ts"
@@ -689,7 +722,8 @@ sequenceDiagram
     participant MG as "ModelGuard"
     participant ORC as "OpenRouterClient"
 
-    User->>ES: POST /api/eval/single<br/>{variant:"rlm"}
+    User->>HTTP: POST /api/eval/single<br/>{variant:"rlm"}
+    HTTP->>ES: evaluateSingle(request)
     ES->>LR: rlmEval(task, refBits, config)
 
     rect rgb(15,35,65)
@@ -758,7 +792,7 @@ sequenceDiagram
 }}}%%
 sequenceDiagram
     actor User
-    participant HTTP as "HTTP API (planned)"
+    participant HTTP as "HTTP API (localServer.ts)"
     participant BS as "BatchService"
     participant ES as "EvalService"
     participant RS as "ResultStore"
@@ -924,6 +958,11 @@ flowchart TD
 ### Server (`apps/server/src/`)
 | File | Purpose |
 |------|---------|
+| `server.ts` | Server entry point — `BunRuntime.runMain(Layer.launch(ServerLive))` |
+| `localServer.ts` | BunHttpServer, router, static SPA fallback, middleware |
+| `httpApi.ts` | Typed Effect HTTP API with OpenAPI auto-generation (`/openapi.json`) |
+| `httpApi.test.ts` | Integration tests for all API endpoints (32 tests) |
+| `runtime.ts` | ManagedRuntime with Layer composition and `dbPath` validation |
 | `index.ts` | CLI entry point (eval / run / build commands) |
 | `services/ResultStore.ts` | SQLite persistence service (CRUD + retention) |
 | `services/TaskService.ts` | Load .tsk/.lam files, cache in SQLite |
@@ -956,4 +995,4 @@ flowchart TD
 
 ---
 
-*Document generated from codebase analysis. Covers Phase 1 (foundation services) and planned Phases 2–3 (HTTP API, local server, MCP, typed client).*
+*Document generated from codebase analysis. Covers Phase 1 (foundation services), Phase 2 (HTTP API + local server), and planned Phases 3–6 (MCP, provider refactor, web UI refresh, agent mode).*

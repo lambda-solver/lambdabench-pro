@@ -27,6 +27,9 @@ export const SingleEvalRequest = Schema.Struct({
   ),
   maxTokens: Schema.Number.pipe(Schema.withDecodingDefaultKey(() => 4096)),
   rlmMaxDepth: Schema.Number.pipe(Schema.withDecodingDefaultKey(() => 3)),
+  mode: Schema.Literals(["direct", "agent"]).pipe(
+    Schema.withDecodingDefaultKey(() => "direct"),
+  ),
 });
 export type SingleEvalRequest = Schema.Schema.Type<typeof SingleEvalRequest>;
 
@@ -39,6 +42,9 @@ export const BatchEvalRequest = Schema.Struct({
     Schema.withDecodingDefaultKey(() => "both"),
   ),
   concurrency: Schema.Number.pipe(Schema.withDecodingDefaultKey(() => 2)),
+  mode: Schema.Literals(["direct", "agent", "both"]).pipe(
+    Schema.withDecodingDefaultKey(() => "both"),
+  ),
 });
 export type BatchEvalRequest = Schema.Schema.Type<typeof BatchEvalRequest>;
 

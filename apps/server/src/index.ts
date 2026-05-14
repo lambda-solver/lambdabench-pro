@@ -6,6 +6,9 @@
  *   bun src/index.ts run            # run standard + λ-RLM eval → res/*.txt
  *   bun src/index.ts build          # build apps/client/public/data/results.json
  *   bun src/index.ts eval run build # full pipeline
+ *   bun src/index.ts server         # launch HTTP API server
+ *   bun src/index.ts cli <command>  # run CLI commands
+ *   bun src/index.ts mcp            # launch MCP server
  *
  * Config (bench.config.json — committed, edit to change benchmark settings):
  *   models       — model IDs to evaluate
@@ -120,8 +123,36 @@ const runCmd = (cmd: "eval" | "run" | "build") =>
   });
 
 const program = Effect.gen(function* () {
-  yield* Effect.forEach(parseArgs(), runCmd, { concurrency: 1 });
-  yield* Effect.log("[lambench] Done.");
+  const mode = process.argv[2];
+
+  if (mode === "server") {
+    const { ServerLive } = yield* Effect.tryPromise({
+      try: () => import("./localServer.js"),
+      catch: (e) => new Error(String(e)),
+    });
+    yield* ServerLive.pipe(Layer.launch);
+  } else if (mode === "cli") {
+    const { runCli } = yield* Effect.tryPromise({
+      try: () => import("./cli.js"),
+      catch: (e) => new Error(String(e)),
+    });
+    const { LamBenchClient } = yield* Effect.tryPromise({
+      try: () => import("./client/LamBenchClient.js"),
+      catch: (e) => new Error(String(e)),
+    });
+    const cliArgs = process.argv.slice(3);
+    const baseUrl = process.env["LAMBENCH_API_URL"] ?? "http://127.0.0.1:9000";
+    yield* runCli(cliArgs).pipe(Effect.provide(LamBenchClient.layer(baseUrl)));
+  } else if (mode === "mcp") {
+    const { ServerLayer } = yield* Effect.tryPromise({
+      try: () => import("./mcp.js"),
+      catch: (e) => new Error(String(e)),
+    });
+    yield* ServerLayer.pipe(Layer.launch);
+  } else {
+    yield* Effect.forEach(parseArgs(), runCmd, { concurrency: 1 });
+    yield* Effect.log("[lambench] Done.");
+  }
 });
 
 // LanguageModel is provided per-model inside runModelEval — not needed here.

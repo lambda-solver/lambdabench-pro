@@ -12,6 +12,7 @@ import {
 } from "@effect/vitest/utils";
 import { Effect, Layer } from "effect";
 import { afterAll, afterEach, beforeAll } from "vitest";
+import { ResultStoreLive } from "./ResultStore.js";
 import { TaskService, TaskServiceLive } from "./TaskService";
 
 const testDbPath = "apps/server/test-data/TaskService.test.db";
@@ -26,6 +27,20 @@ const cleanupDbFiles = () => {
 };
 
 const platformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
+
+const makeTestLayer = (dbPath: string) =>
+  TaskServiceLive.pipe(
+    Layer.provide(ResultStoreLive(dbPath)),
+    Layer.provide(platformLayer),
+  );
+
+const runWithTestLayer =
+  (dbPath: string) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>) =>
+    effect.pipe(
+      Effect.provide(makeTestLayer(dbPath)),
+      Effect.provide(platformLayer),
+    );
 
 describe("TaskService", () => {
   beforeAll(() => {
@@ -51,10 +66,7 @@ describe("TaskService", () => {
 
         const all = yield* svc.getAllTasks();
         strictEqual(all.length, 120);
-      }).pipe(
-        Effect.provide(TaskServiceLive(testDbPath)),
-        Effect.provide(platformLayer),
-      ),
+      }).pipe(runWithTestLayer(testDbPath)),
     15000,
   );
 
@@ -73,10 +85,7 @@ describe("TaskService", () => {
       assertInclude(task.description, "Add two Scott nats. Return A + B.");
       assertTrue(task.testCount > 0);
       strictEqual(task.tests.length, task.testCount);
-    }).pipe(
-      Effect.provide(TaskServiceLive(testDbPath)),
-      Effect.provide(platformLayer),
-    ),
+    }).pipe(runWithTestLayer(testDbPath)),
   );
 
   it.effect("getTask returns undefined for unknown task ID", () =>
@@ -86,10 +95,7 @@ describe("TaskService", () => {
 
       const task = yield* svc.getTask("nonexistent_task");
       strictEqual(task, undefined);
-    }).pipe(
-      Effect.provide(TaskServiceLive(testDbPath)),
-      Effect.provide(platformLayer),
-    ),
+    }).pipe(runWithTestLayer(testDbPath)),
   );
 
   // ─── getAllTasks ────────────────────────────────────────────────────────────
@@ -116,10 +122,7 @@ describe("TaskService", () => {
       assertDefined(first.description);
       assertDefined(first.tests);
       assertTrue(first.testCount >= 0);
-    }).pipe(
-      Effect.provide(TaskServiceLive(testDbPath)),
-      Effect.provide(platformLayer),
-    ),
+    }).pipe(runWithTestLayer(testDbPath)),
   );
 
   // ─── getTasksByCategory ─────────────────────────────────────────────────────
@@ -147,10 +150,7 @@ describe("TaskService", () => {
 
         const empty = yield* svc.getTasksByCategory("xyz");
         strictEqual(empty.length, 0);
-      }).pipe(
-        Effect.provide(TaskServiceLive(testDbPath)),
-        Effect.provide(platformLayer),
-      ),
+      }).pipe(runWithTestLayer(testDbPath)),
   );
 
   // ─── computeRefBits ─────────────────────────────────────────────────────────
@@ -164,10 +164,7 @@ describe("TaskService", () => {
         const bits = yield* svc.computeRefBits("cnat_add");
         assertDefined(bits);
         assertTrue(bits > 0);
-      }).pipe(
-        Effect.provide(TaskServiceLive(testDbPath)),
-        Effect.provide(platformLayer),
-      ),
+      }).pipe(runWithTestLayer(testDbPath)),
   );
 
   it.effect(
@@ -178,10 +175,7 @@ describe("TaskService", () => {
 
         const bits = yield* svc.computeRefBits("nonexistent_task");
         strictEqual(bits, undefined);
-      }).pipe(
-        Effect.provide(TaskServiceLive(testDbPath)),
-        Effect.provide(platformLayer),
-      ),
+      }).pipe(runWithTestLayer(testDbPath)),
   );
 
   // ─── Idempotency ────────────────────────────────────────────────────────────
@@ -196,9 +190,6 @@ describe("TaskService", () => {
 
         const all = yield* svc.getAllTasks();
         strictEqual(all.length, 120);
-      }).pipe(
-        Effect.provide(TaskServiceLive(testDbPath)),
-        Effect.provide(platformLayer),
-      ),
+      }).pipe(runWithTestLayer(testDbPath)),
   );
 });
