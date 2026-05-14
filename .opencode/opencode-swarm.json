@@ -1,13 +1,13 @@
 {
   "agents": {
-    "coder": { "model": "openrouter/moonshotai/kimi-k2.6" },
-    "reviewer": { "model": "openrouter/moonshotai/kimi-k2.6" },
-    "test_engineer": { "model": "openrouter/moonshotai/kimi-k2.6" },
-    "explorer": { "model": "openrouter/moonshotai/kimi-k2.6" },
-    "sme": { "model": "openrouter/moonshotai/kimi-k2.6" },
-    "critic": { "model": "openrouter/moonshotai/kimi-k2.6" },
-    "docs": { "model": "openrouter/moonshotai/kimi-k2.6" },
-    "designer": { "model": "openrouter/moonshotai/kimi-k2.6" }
+    "coder": { "model": "opencode-go/deepseek-v4-flash" },
+    "reviewer": { "model": "opencode-go/deepseek-v4-flash" },
+    "test_engineer": { "model": "opencode-go/deepseek-v4-flash" },
+    "explorer": { "model": "opencode-go/deepseek-v4-flash" },
+    "sme": { "model": "opencode-go/deepseek-v4-flash" },
+    "critic": { "model": "opencode-go/deepseek-v4-flash" },
+    "docs": { "model": "opencode-go/deepseek-v4-flash" },
+    "designer": { "model": "opencode-go/deepseek-v4-flash" }
   },
   "max_iterations": 5
 }

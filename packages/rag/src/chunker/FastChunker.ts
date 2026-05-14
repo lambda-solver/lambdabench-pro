@@ -1,5 +1,5 @@
 import { type Chunk, Chunker } from "@repo/domain/Chunk";
-import { Effect, Layer, Schema, ServiceMap } from "effect";
+import { Context, Effect, Layer, Schema } from "effect";
 import { isBlank } from "./utils";
 
 const FastChunkerConfigSchema = Schema.Struct({
@@ -7,7 +7,7 @@ const FastChunkerConfigSchema = Schema.Struct({
   delimiters: Schema.NonEmptyArray(Schema.String),
 });
 
-export const FastChunkerConfig = ServiceMap.Reference<
+export const FastChunkerConfig = Context.Reference<
   typeof FastChunkerConfigSchema.Type
 >("FastChunkerConfig", {
   defaultValue: () => ({
@@ -27,7 +27,10 @@ const isDelimiter = (
   delimiters: ReadonlyArray<string>,
 ): boolean => delimiters.includes(String.fromCharCode(byte));
 
-export class FastChunker extends ServiceMap.Service<Chunker>()("FastChunker", {
+export class FastChunker extends Context.Service<
+  FastChunker,
+  Chunker["Service"]
+>()("FastChunker", {
   make: Effect.gen(function* () {
     const config = yield* FastChunkerConfig;
     const { chunkSize, delimiters } = yield* Schema.decodeEffect(

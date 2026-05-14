@@ -170,10 +170,10 @@ The `AgentOutput` union composes 11 distinct tagged classes into a single `Schem
 
 ### 3.1 LamBench Service Layer
 
-LamBench defines services using `ServiceMap.Service` (the Effect 4 beta pattern):
+LamBench defines services using `Context.Service` (the stable Effect 4 pattern):
 
 ```typescript
-export class ResultStore extends ServiceMap.Service<
+export class ResultStore extends Context.Service<
   ResultStore,
   {
     insertResult(result: InsertResult): Effect.Effect<void, SqlError>;
@@ -301,7 +301,7 @@ export const AgentToolHandlers = AgentToolHandlersNoDeps.pipe(
 
 | Dimension | LamBench Pro | Motel | Clanka |
 |---|---|---|---|
-| **Service Definition** | `ServiceMap.Service` (beta pattern) | `Context.Service` (stable pattern) | `Context.Service` + `Context.Reference` |
+| **Service Definition** | `Context.Service` (stable pattern) | `Context.Service` (stable pattern) | `Context.Service` + `Context.Reference` |
 | **Layer Factory Style** | Factory functions accepting config (`dbPath`, `model`) | Pre-configured layers + options objects (`TelemetryStoreOptions`) | Direct `Layer.effect` with `Effect.gen` |
 | **Layer Depth** | Shallow (2–3 levels: `BatchServiceLive` → `EvalServiceLive` → `ResultStoreLive`) | Deep (4–5 levels: `ServerLive` → `ApiLayer` → `TelemetryGroupLive` → `TraceQueryServiceLive` → `TelemetryStoreReadonlyLive`) | Moderate (3–4 levels: `AgentToolHandlers` → `AgentToolHandlersNoDeps` → `ExaSearch.layer`) |
 | **DI Pattern** | Ad-hoc `Layer.provide` in HTTP handlers and `BatchService` | `ManagedRuntime` with separate `queryRuntime` and `storeRuntime` | `Layer.provide` in constructors; `Effect.provideService` for subagent model injection |
@@ -310,7 +310,8 @@ export const AgentToolHandlers = AgentToolHandlersNoDeps.pipe(
 
 ### 3.5 Key Observations
 
-- **Motel's readonly/writer split** is a critical pattern for SQLite concurrency. LamBench should adopt this if it ever serves reads and writes from different processes.
+- **All three projects now use `Context.Service`** — LamBench completed its migration from `ServiceMap.Service`, aligning with the stable Effect 4 pattern used by Motel and Clanka.
+- **Motel's readonly/writer split** is a critical pattern for SQLite concurrency. LamBench could adopt this if it ever serves reads and writes from different processes.
 - **Clanka's `Context.Reference`** is a lightweight alternative to full services for configuration. LamBench could use this for `BenchConfig` instead of passing config through layer factories.
 - **Motel's `ManagedRuntime`** provides a clean boundary between service construction and execution. LamBench currently lacks this, composing layers inline in HTTP handlers.
 

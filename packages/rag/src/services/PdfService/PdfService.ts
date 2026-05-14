@@ -1,4 +1,4 @@
-import { Data, Effect, Layer, Schema, ServiceMap } from "effect";
+import { Context, Data, Effect, Layer, Schema } from "effect";
 import { getDocumentProxy } from "unpdf";
 import { PdfDocument, type PdfPage } from "./PdfDocument";
 import { segmentPdfPage } from "./segmentPage";
@@ -8,7 +8,17 @@ export class PdfError extends Data.TaggedError("PdfError")<{
   cause: unknown;
 }> {}
 
-export class PdfService extends ServiceMap.Service<PdfService>()("PdfService", {
+export class PdfService extends Context.Service<
+  PdfService,
+  {
+    readonly analyze: (
+      buffer: Uint8Array,
+      options?: {
+        sourceName?: string;
+      },
+    ) => Effect.Effect<typeof PdfDocument.Type, PdfError | Schema.SchemaError>;
+  }
+>()("PdfService", {
   make: Effect.gen(function* () {
     const analyze = Effect.fn(function* (
       buffer: Uint8Array,

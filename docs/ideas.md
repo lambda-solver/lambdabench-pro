@@ -363,12 +363,12 @@ export const ExecutionTrace = Schema.Struct({
 
 ### 4.2 Service Layer Design
 
-Inspired by the existing `ServiceMap.Service` pattern in `apps/server/src/services/`:
+Inspired by the existing `Context.Service` pattern in `apps/server/src/services/`:
 
 #### `EvolutionService` — Orchestrates the Generational Loop
 
 ```typescript
-export class EvolutionService extends ServiceMap.Service<
+export class EvolutionService extends Context.Service<
   EvolutionService,
   {
     /** Initialize a new evolutionary run */
@@ -390,7 +390,7 @@ export class EvolutionService extends ServiceMap.Service<
 #### `GenomeCompiler` — Compiles Genome → Effect DAG
 
 ```typescript
-export class GenomeCompiler extends ServiceMap.Service<
+export class GenomeCompiler extends Context.Service<
   GenomeCompiler,
   {
     compile(genome: Genome): Effect.Effect<CompiledWorkflow, CompileError>;
@@ -405,7 +405,7 @@ export class GenomeCompiler extends ServiceMap.Service<
 #### `FitnessEvaluator` — Multi-Objective Fitness
 
 ```typescript
-export class FitnessEvaluator extends ServiceMap.Service<
+export class FitnessEvaluator extends Context.Service<
   FitnessEvaluator,
   {
     evaluate(
@@ -423,7 +423,7 @@ export class FitnessEvaluator extends ServiceMap.Service<
 #### `VariationOperator` — Crossover + Mutation
 
 ```typescript
-export class VariationOperator extends ServiceMap.Service<
+export class VariationOperator extends Context.Service<
   VariationOperator,
   {
     /** Combine two parent genomes into one or more offspring */
@@ -702,7 +702,7 @@ export const WorkflowGroup = HttpApiBuilder.group("WorkflowGroup", (g) =>
 
 | Library | Purpose |
 |---------|---------|
-| `effect` (core) | `Effect.gen`, `Effect.all`, `Effect.suspend`, `Effect.catch`, `ServiceMap.Service`, `Layer` |
+| `effect` (core) | `Effect.gen`, `Effect.all`, `Effect.suspend`, `Effect.catch`, `Context.Service`, `Layer` |
 | `@effect/platform-bun` | `BunRuntime`, `BunHttpServer`, `BunServices.layer` |
 | `@effect/ai-openrouter` | `LanguageModel` layer factory per-workflow-node |
 | `effect/unstable/workflow` | Durable execution for long-running evolutionary searches (optional) |

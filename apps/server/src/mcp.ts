@@ -16,7 +16,7 @@ const EvalSingleTool = Tool.make("lambench_eval_single", {
       description: "Provider to use",
     }),
     mode: Schema.Literals(["direct", "agent"])
-      .pipe(Schema.withDecodingDefaultKey(() => "direct"))
+      .pipe(Schema.withDecodingDefaultKey(Effect.succeed("direct" as const)))
       .annotate({ description: "Evaluation mode: direct or agent" }),
   }),
   success: Schema.Unknown,

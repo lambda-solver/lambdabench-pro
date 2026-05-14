@@ -1,4 +1,4 @@
-import { Schema } from "effect";
+import { Effect, Schema } from "effect";
 
 // ============================================================================
 // Task
@@ -134,6 +134,8 @@ export const ModelConfig = Schema.Struct({
   provider: Schema.Literals(["openrouter", "opencode-go"]),
   displayName: Schema.optional(Schema.String),
   pricePerMOutput: Schema.optional(Schema.Number),
-  isActive: Schema.Boolean.pipe(Schema.withDecodingDefaultKey(() => true)),
+  isActive: Schema.Boolean.pipe(
+    Schema.withDecodingDefaultKey(Effect.succeed(true)),
+  ),
 });
 export type ModelConfig = Schema.Schema.Type<typeof ModelConfig>;

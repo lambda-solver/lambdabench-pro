@@ -1,4 +1,4 @@
-import { Data, type Effect, Schema, ServiceMap } from "effect";
+import { Context, Data, type Effect, Schema } from "effect";
 
 export class ChunkError extends Data.TaggedError("ChunkError")<{
   message: string;
@@ -19,7 +19,7 @@ export const Chunk = Schema.Struct({
 
 export type Chunk = typeof Chunk.Type;
 
-export class Tokenizer extends ServiceMap.Service<
+export class Tokenizer extends Context.Service<
   Tokenizer,
   {
     encode: (text: string) => Effect.Effect<ReadonlyArray<number>>;
@@ -30,7 +30,7 @@ export class Tokenizer extends ServiceMap.Service<
   }
 >()("Tokenizer") {}
 
-export class Chunker extends ServiceMap.Service<
+export class Chunker extends Context.Service<
   Chunker,
   {
     readonly name: string;

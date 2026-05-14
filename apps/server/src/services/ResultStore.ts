@@ -1,7 +1,7 @@
 import { Database } from "bun:sqlite";
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
-import { Effect, Layer, ServiceMap } from "effect";
+import { Context, Effect, Layer } from "effect";
 
 // ─── Error ───────────────────────────────────────────────────────────────────
 
@@ -107,7 +107,7 @@ export interface DbModelConfig {
 
 // ─── Service ─────────────────────────────────────────────────────────────────
 
-export class ResultStore extends ServiceMap.Service<
+export class ResultStore extends Context.Service<
   ResultStore,
   {
     // Results

@@ -1,4 +1,4 @@
-import { Effect, type FileSystem, Layer, type Path, ServiceMap } from "effect";
+import { Context, Effect, type FileSystem, Layer, type Path } from "effect";
 import type * as PlatformError from "effect/PlatformError";
 import {
   type LamError,
@@ -32,7 +32,7 @@ const CATEGORY_NAMES: Record<string, string> = {
 
 // ─── Service Definition ───────────────────────────────────────────────────────
 
-export class TaskService extends ServiceMap.Service<
+export class TaskService extends Context.Service<
   TaskService,
   {
     loadAndCacheTasks(): Effect.Effect<

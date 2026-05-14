@@ -2,12 +2,12 @@ import type { BatchEvalRequest, SingleEvalRequest } from "@repo/domain/Api";
 import type { BatchJob, EvalResult } from "@repo/domain/Benchmark";
 import {
   type Config,
+  Context,
   Effect,
   type FileSystem,
   Layer,
   type Path,
   Ref,
-  ServiceMap,
 } from "effect";
 import { makeOpenRouterLayer } from "../llm/OpenRouterClient.js";
 import { EvalService } from "./EvalService.js";
@@ -22,7 +22,7 @@ import { TaskService } from "./TaskService.js";
 
 // ─── Service Definition ─────────────────────────────────────────────────────
 
-export class BatchService extends ServiceMap.Service<
+export class BatchService extends Context.Service<
   BatchService,
   {
     createBatchJob(

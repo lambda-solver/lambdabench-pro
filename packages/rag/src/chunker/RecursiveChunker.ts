@@ -4,7 +4,7 @@ import {
   Tokenizer,
   type TokenizerError,
 } from "@repo/domain/Chunk";
-import { Effect, Layer, Schema, ServiceMap } from "effect";
+import { Context, Effect, Layer, Schema } from "effect";
 import { WordTokenizerLive } from "../tokenizer/DelimTokenizer";
 import {
   buildDelimiterPattern,
@@ -38,7 +38,7 @@ const RecursiveChunkerConfigSchema = Schema.Struct({
   rules: Schema.NonEmptyArray(RecursiveRuleSchema),
 });
 
-export const RecursiveChunkerConfig = ServiceMap.Reference<
+export const RecursiveChunkerConfig = Context.Reference<
   typeof RecursiveChunkerConfigSchema.Type
 >("RecursiveChunkerConfig", {
   defaultValue: () => ({
@@ -146,131 +146,129 @@ const toChunk = (
   ...(metadata ? { metadata } : {}),
 });
 
-export class RecursiveChunker extends ServiceMap.Service<Chunker>()(
-  "RecursiveChunker",
-  {
-    make: Effect.gen(function* () {
-      const tokenizer = yield* Tokenizer;
-      const config = yield* RecursiveChunkerConfig;
-      const { chunkSize, minCharactersPerChunk, rules } =
-        yield* Schema.decodeEffect(RecursiveChunkerConfigSchema)(config);
+export class RecursiveChunker extends Context.Service<
+  RecursiveChunker,
+  Chunker["Service"]
+>()("RecursiveChunker", {
+  make: Effect.gen(function* () {
+    const tokenizer = yield* Tokenizer;
+    const config = yield* RecursiveChunkerConfig;
+    const { chunkSize, minCharactersPerChunk, rules } =
+      yield* Schema.decodeEffect(RecursiveChunkerConfigSchema)(config);
 
-      const tokenFallback = Effect.fn(function* (
-        text: string,
-        startOffset: number,
-      ) {
-        const encoded = yield* tokenizer.encode(text);
-        if (encoded.length === 0) return [];
-        const chunks: Array<Chunk> = [];
-        let currentOffset = startOffset;
-        for (let i = 0; i < encoded.length; i += chunkSize) {
-          const group = encoded.slice(i, i + chunkSize);
-          const chunkText = yield* tokenizer.decode(group);
-          chunks.push(
-            toChunk(chunkText, currentOffset, group.length, {
-              recursiveRuleLevel: -1,
-              recursiveRuleType: "tokenFallback",
-            }),
-          );
-          currentOffset += chunkText.length;
-        }
-        return chunks;
-      });
+    const tokenFallback = Effect.fn(function* (
+      text: string,
+      startOffset: number,
+    ) {
+      const encoded = yield* tokenizer.encode(text);
+      if (encoded.length === 0) return [];
+      const chunks: Array<Chunk> = [];
+      let currentOffset = startOffset;
+      for (let i = 0; i < encoded.length; i += chunkSize) {
+        const group = encoded.slice(i, i + chunkSize);
+        const chunkText = yield* tokenizer.decode(group);
+        chunks.push(
+          toChunk(chunkText, currentOffset, group.length, {
+            recursiveRuleLevel: -1,
+            recursiveRuleType: "tokenFallback",
+          }),
+        );
+        currentOffset += chunkText.length;
+      }
+      return chunks;
+    });
 
-      const recursiveChunk: (
-        text: string,
-        level: number,
-        startOffset: number,
-      ) => Effect.Effect<Array<Chunk>, Schema.SchemaError | TokenizerError> = (
-        text,
-        level,
-        startOffset,
-      ) =>
-        Effect.gen(function* () {
-          if (text.length === 0) return [];
-          if (level >= rules.length) {
-            const tokenCount = yield* tokenizer.countTokens(text);
-            if (tokenCount > chunkSize) {
-              return yield* tokenFallback(text, startOffset);
-            }
-            return [
-              toChunk(text, startOffset, tokenCount, {
-                recursiveRuleLevel: -1,
-                recursiveRuleType: "endOfRules",
-              }),
-            ];
-          }
-          const rule = rules[level];
-          if (rule === undefined) {
-            const tokenCount = yield* tokenizer.countTokens(text);
-            if (tokenCount > chunkSize) {
-              return yield* tokenFallback(text, startOffset);
-            }
-            return [
-              toChunk(text, startOffset, tokenCount, {
-                recursiveRuleLevel: -1,
-                recursiveRuleType: "missingRule",
-              }),
-            ];
-          }
-          if (!rule.delimiters && !rule.whitespace) {
+    const recursiveChunk: (
+      text: string,
+      level: number,
+      startOffset: number,
+    ) => Effect.Effect<Array<Chunk>, Schema.SchemaError | TokenizerError> = (
+      text,
+      level,
+      startOffset,
+    ) =>
+      Effect.gen(function* () {
+        if (text.length === 0) return [];
+        if (level >= rules.length) {
+          const tokenCount = yield* tokenizer.countTokens(text);
+          if (tokenCount > chunkSize) {
             return yield* tokenFallback(text, startOffset);
           }
-          const splits = splitByRule(text, rule, minCharactersPerChunk);
-          if (splits.length === 0) return [];
-          const tokenCounts = yield* Effect.forEach(splits, (split) =>
-            tokenizer.countTokens(split),
-          );
-          const { mergedSplits, mergedTokenCounts } = mergeSplits(
-            splits,
-            tokenCounts,
-            chunkSize,
-          );
-          const ruleType = rule.delimiters
-            ? "delimiter"
-            : rule.whitespace
-              ? "whitespace"
-              : "fallback";
-          const ruleDelims = rule.delimiters?.join("|");
-          const out: Array<Chunk> = [];
-          let currentOffset = startOffset;
-          for (let i = 0; i < mergedSplits.length; i++) {
-            const split = mergedSplits[i] ?? "";
-            const tokenCount = mergedTokenCounts[i] ?? 0;
-            if (tokenCount > chunkSize) {
-              const nested = yield* recursiveChunk(
-                split,
-                level + 1,
-                currentOffset,
-              );
-              out.push(...nested);
-            } else {
-              out.push(
-                toChunk(split, currentOffset, tokenCount, {
-                  recursiveRuleLevel: level,
-                  recursiveRuleType: ruleType,
-                  ...(ruleDelims ? { recursiveDelimiter: ruleDelims } : {}),
-                }),
-              );
-            }
-            currentOffset += split.length;
+          return [
+            toChunk(text, startOffset, tokenCount, {
+              recursiveRuleLevel: -1,
+              recursiveRuleType: "endOfRules",
+            }),
+          ];
+        }
+        const rule = rules[level];
+        if (rule === undefined) {
+          const tokenCount = yield* tokenizer.countTokens(text);
+          if (tokenCount > chunkSize) {
+            return yield* tokenFallback(text, startOffset);
           }
-          return out;
-        });
-
-      const chunk = Effect.fn("RecursiveChunker.chunk")(function* (
-        text: string,
-      ) {
-        if (isBlank(text)) return [];
-        return yield* recursiveChunk(text, 0, 0);
+          return [
+            toChunk(text, startOffset, tokenCount, {
+              recursiveRuleLevel: -1,
+              recursiveRuleType: "missingRule",
+            }),
+          ];
+        }
+        if (!rule.delimiters && !rule.whitespace) {
+          return yield* tokenFallback(text, startOffset);
+        }
+        const splits = splitByRule(text, rule, minCharactersPerChunk);
+        if (splits.length === 0) return [];
+        const tokenCounts = yield* Effect.forEach(splits, (split) =>
+          tokenizer.countTokens(split),
+        );
+        const { mergedSplits, mergedTokenCounts } = mergeSplits(
+          splits,
+          tokenCounts,
+          chunkSize,
+        );
+        const ruleType = rule.delimiters
+          ? "delimiter"
+          : rule.whitespace
+            ? "whitespace"
+            : "fallback";
+        const ruleDelims = rule.delimiters?.join("|");
+        const out: Array<Chunk> = [];
+        let currentOffset = startOffset;
+        for (let i = 0; i < mergedSplits.length; i++) {
+          const split = mergedSplits[i] ?? "";
+          const tokenCount = mergedTokenCounts[i] ?? 0;
+          if (tokenCount > chunkSize) {
+            const nested = yield* recursiveChunk(
+              split,
+              level + 1,
+              currentOffset,
+            );
+            out.push(...nested);
+          } else {
+            out.push(
+              toChunk(split, currentOffset, tokenCount, {
+                recursiveRuleLevel: level,
+                recursiveRuleType: ruleType,
+                ...(ruleDelims ? { recursiveDelimiter: ruleDelims } : {}),
+              }),
+            );
+          }
+          currentOffset += split.length;
+        }
+        return out;
       });
-      return {
-        name: "recursive",
-        chunk,
-      };
-    }),
-  },
-) {}
+
+    const chunk = Effect.fn("RecursiveChunker.chunk")(function* (text: string) {
+      if (isBlank(text)) return [];
+      return yield* recursiveChunk(text, 0, 0);
+    });
+    return {
+      name: "recursive",
+      chunk,
+    };
+  }),
+}) {}
 
 export const RecursiveChunkerLive = Layer.effect(Chunker)(
   RecursiveChunker.make,

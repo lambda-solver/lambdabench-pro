@@ -29,7 +29,7 @@
 | --------- | --------------------------------------------------------------- |
 | Runtime   | Bun 1.2+                                                        |
 | Language  | TypeScript 5.9                                                  |
-| Effect    | `effect@4.0.0-beta.41`, `@effect/platform-bun`, `@effect/platform-browser`, `@effect/atom-react` |
+| Effect    | `effect@4.0.0-beta.52`, `@effect/platform-bun`, `@effect/platform-browser`, `@effect/atom-react` |
 | UI        | React 19, Vite 8, Tailwind CSS 4                                |
 | Testing   | Vitest 4, `@effect/vitest`                                      |
 | Linting   | Biome 2.4                                                       |
@@ -62,7 +62,7 @@ git pull origin main --rebase && git push origin main
 - **Types**: Effect Schema for validation; `typeof Schema.Type` for inline
   types, `Schema.Schema.Type<typeof T>` for exports
 - **Naming**: camelCase variables/functions, PascalCase types/classes/React components
-- **Effect patterns**: `Effect.fn` for all named exported functions; `Effect.fnUntraced` for internal helpers; `ServiceMap.Service` for all service definitions; `Layer` composition for DI
+- **Effect patterns**: `Effect.fn` for all named exported functions; `Effect.fnUntraced` for internal helpers; `Context.Service` for all service definitions; `Layer` composition for DI
 - **Error handling**: Use Effect error channel; `Effect.catch` not `catchAll`; never try/catch inside `Effect.gen`
 - **No mutations**: no `let` reassignment inside `Effect.gen`; no `for` loops — use `Effect.forEach`
 
@@ -131,7 +131,7 @@ grep -r "Toolkit.make" reference/effect-smol/packages/effect/test/ --include="*.
 **Key patterns from references:**
 - **Mock services**: Use `Layer.succeed(ServiceTag, { method: () => Effect.succeed(...) })` — NEVER wrap mock methods in `Effect.fnUntraced` unless they contain `yield*`
 - **Toolkit tests**: Access tools via `(toolkit as Toolkit.Any).tools["tool_name"]` or use `toolkit.toLayer(...)`
-- **Service definition**: `Context.Service` (or `ServiceMap.Service.Any`) for service definitions
+- **Service definition**: `Context.Service` for service definitions
 - **HTTP API**: `HttpApiBuilder.group` with `Layer.provide` composition
 
 ## Effect Essentials (quick reference)

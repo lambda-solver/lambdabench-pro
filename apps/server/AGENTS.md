@@ -132,7 +132,7 @@ export const makeServicesLayer = (dbPath: string) => {
 ### Typed HTTP client service
 
 ```typescript
-export class LamBenchClient extends ServiceMap.Service<LamBenchClient, {
+export class LamBenchClient extends Context.Service<LamBenchClient, {
   health(): Effect.Effect<HealthStatus, ApiError>;
   evalSingle(request: SingleEvalRequest): Effect.Effect<EvalResult, ApiError>;
   // ...
@@ -192,7 +192,7 @@ const TestLayer = ApiLayer.pipe(
 - Use `ChildProcess` (from `effect/unstable/process`) for subprocess execution
 - Use `BunHttpClient` for outbound HTTP
 - Use `BunRuntime.runMain` as the single entry point — never `Effect.runPromise` directly
-- Use `ServiceMap.Service` for service definitions (not `Context.Service` in beta.41+)
+- Use `Context.Service` for service definitions
 - Use `Effect.fn("Name")(fn)` for all exported named functions
 - Use `Effect.fnUntraced(fn)` for internal/private helpers
 - HTTP headers are **lowercased** by Effect: `headers["authorization"]` not `headers["Authorization"]`

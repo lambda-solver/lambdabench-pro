@@ -1,4 +1,4 @@
-import { Schema } from "effect";
+import { Effect, Schema } from "effect";
 import {
   HttpApi,
   HttpApiEndpoint,
@@ -20,15 +20,19 @@ export const SingleEvalRequest = Schema.Struct({
   model: Schema.String,
   task: Schema.String,
   variant: Schema.Literals(["standard", "rlm"]).pipe(
-    Schema.withDecodingDefaultKey(() => "standard"),
+    Schema.withDecodingDefaultKey(Effect.succeed("standard" as const)),
   ),
   provider: Schema.Literals(["openrouter", "opencode-go"]).pipe(
-    Schema.withDecodingDefaultKey(() => "openrouter"),
+    Schema.withDecodingDefaultKey(Effect.succeed("openrouter" as const)),
   ),
-  maxTokens: Schema.Number.pipe(Schema.withDecodingDefaultKey(() => 4096)),
-  rlmMaxDepth: Schema.Number.pipe(Schema.withDecodingDefaultKey(() => 3)),
+  maxTokens: Schema.Number.pipe(
+    Schema.withDecodingDefaultKey(Effect.succeed(4096)),
+  ),
+  rlmMaxDepth: Schema.Number.pipe(
+    Schema.withDecodingDefaultKey(Effect.succeed(3)),
+  ),
   mode: Schema.Literals(["direct", "agent"]).pipe(
-    Schema.withDecodingDefaultKey(() => "direct"),
+    Schema.withDecodingDefaultKey(Effect.succeed("direct" as const)),
   ),
 });
 export type SingleEvalRequest = Schema.Schema.Type<typeof SingleEvalRequest>;
@@ -36,14 +40,16 @@ export type SingleEvalRequest = Schema.Schema.Type<typeof SingleEvalRequest>;
 export const BatchEvalRequest = Schema.Struct({
   models: Schema.Array(Schema.String),
   tasks: Schema.Array(Schema.String).pipe(
-    Schema.withDecodingDefaultKey(() => []),
+    Schema.withDecodingDefaultKey(Effect.succeed([] as const)),
   ),
   variant: Schema.Literals(["standard", "rlm", "both"]).pipe(
-    Schema.withDecodingDefaultKey(() => "both"),
+    Schema.withDecodingDefaultKey(Effect.succeed("both" as const)),
   ),
-  concurrency: Schema.Number.pipe(Schema.withDecodingDefaultKey(() => 2)),
+  concurrency: Schema.Number.pipe(
+    Schema.withDecodingDefaultKey(Effect.succeed(2)),
+  ),
   mode: Schema.Literals(["direct", "agent", "both"]).pipe(
-    Schema.withDecodingDefaultKey(() => "both"),
+    Schema.withDecodingDefaultKey(Effect.succeed("both" as const)),
   ),
 });
 export type BatchEvalRequest = Schema.Schema.Type<typeof BatchEvalRequest>;

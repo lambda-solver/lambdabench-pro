@@ -4,7 +4,7 @@ import {
   Tokenizer,
   type TokenizerError,
 } from "@repo/domain/Chunk";
-import { Effect, Layer, Schema, ServiceMap } from "effect";
+import { Context, Effect, Layer, Schema } from "effect";
 import { WordTokenizerLive } from "../tokenizer/DelimTokenizer";
 import { isBlank, splitLines } from "./utils";
 
@@ -205,7 +205,7 @@ const TableChunkerConfigSchema = Schema.Struct({
 
 export type TableChunkerConfig = typeof TableChunkerConfigSchema.Type;
 
-export const TableChunkerConfig = ServiceMap.Reference<TableChunkerConfig>(
+export const TableChunkerConfig = Context.Reference<TableChunkerConfig>(
   "TableChunkerConfig",
   {
     defaultValue: () => ({
@@ -216,153 +216,145 @@ export const TableChunkerConfig = ServiceMap.Reference<TableChunkerConfig>(
   },
 );
 
-export class TableChunker extends ServiceMap.Service<Chunker>()(
-  "TableChunker",
-  {
-    make: Effect.gen(function* () {
-      const tokenizer = yield* Tokenizer;
-      const config = yield* TableChunkerConfig;
-      const { chunkSize, format, mode } = yield* Schema.decodeEffect(
-        TableChunkerConfigSchema,
-      )(config);
+export class TableChunker extends Context.Service<
+  TableChunker,
+  Chunker["Service"]
+>()("TableChunker", {
+  make: Effect.gen(function* () {
+    const tokenizer = yield* Tokenizer;
+    const config = yield* TableChunkerConfig;
+    const { chunkSize, format, mode } = yield* Schema.decodeEffect(
+      TableChunkerConfigSchema,
+    )(config);
 
-      const toTokenModeChunks = (
-        table: ParsedTable,
-        chunkSize: number,
-        format: Exclude<typeof TableFormat.Type, "auto">,
-      ): Effect.Effect<Array<Chunk>, TokenizerError> =>
-        Effect.gen(function* () {
-          const header = yield* tokenizer.countTokens(table.header);
-          const footer =
-            table.footer.length > 0
-              ? yield* tokenizer.countTokens(table.footer)
-              : 0;
+    const toTokenModeChunks = (
+      table: ParsedTable,
+      chunkSize: number,
+      format: Exclude<typeof TableFormat.Type, "auto">,
+    ): Effect.Effect<Array<Chunk>, TokenizerError> =>
+      Effect.gen(function* () {
+        const header = yield* tokenizer.countTokens(table.header);
+        const footer =
+          table.footer.length > 0
+            ? yield* tokenizer.countTokens(table.footer)
+            : 0;
 
-          const baseTokens = header + footer;
-          const chunks: Chunk[] = [];
-          let currentRows: RowSlice[] = [];
-          let currentTokens = 0;
+        const baseTokens = header + footer;
+        const chunks: Chunk[] = [];
+        let currentRows: RowSlice[] = [];
+        let currentTokens = 0;
 
-          const flushCurrent = Effect.fn(function* () {
-            if (currentRows.length === 0) return;
-            const first = currentRows[0];
-            const last = currentRows[currentRows.length - 1];
-            if (!first || !last) return;
-            const tableHasHeader = table.header.trim().length > 0;
-            const chunkText =
-              table.header +
-              currentRows.map((row) => row.text).join("") +
-              table.footer;
-            chunks.push({
-              text: chunkText,
-              startIdx: first.startIdx,
-              endIdx: last.endIdx,
-              tokenCount: baseTokens + currentTokens,
-              metadata: {
-                isTable: true,
-                tableFormat: format,
-                tableMode: mode,
-                tableRowStart: first.rowIndex,
-                tableRowEnd: last.rowIndex,
-                tableRowCount: currentRows.length,
-                tableHasHeader,
-                ...(table.headerColumns.length > 0
-                  ? { tableColumns: table.headerColumns }
-                  : {}),
-              },
-            });
-            currentRows = [];
-            currentTokens = 0;
+        const flushCurrent = Effect.fn(function* () {
+          if (currentRows.length === 0) return;
+          const first = currentRows[0];
+          const last = currentRows[currentRows.length - 1];
+          if (!first || !last) return;
+          const tableHasHeader = table.header.trim().length > 0;
+          const chunkText =
+            table.header +
+            currentRows.map((row) => row.text).join("") +
+            table.footer;
+          chunks.push({
+            text: chunkText,
+            startIdx: first.startIdx,
+            endIdx: last.endIdx,
+            tokenCount: baseTokens + currentTokens,
+            metadata: {
+              isTable: true,
+              tableFormat: format,
+              tableMode: mode,
+              tableRowStart: first.rowIndex,
+              tableRowEnd: last.rowIndex,
+              tableRowCount: currentRows.length,
+              tableHasHeader,
+              ...(table.headerColumns.length > 0
+                ? { tableColumns: table.headerColumns }
+                : {}),
+            },
           });
-
-          for (const row of table.rows) {
-            const rowTokens = yield* tokenizer.countTokens(row.text);
-            const wouldExceed =
-              baseTokens + currentTokens + rowTokens > chunkSize;
-            // If current chunk already has rows and next row would exceed budget, flush.
-            if (wouldExceed && currentRows.length > 0) {
-              yield* flushCurrent();
-            }
-            // Always add at least one row, even if it alone exceeds chunk size.
-            currentRows.push(row);
-            currentTokens += rowTokens;
-          }
-          yield* flushCurrent();
-          return chunks;
+          currentRows = [];
+          currentTokens = 0;
         });
 
-      const chunk = Effect.fn("TableChunker.chunk")(function* (input: string) {
-        if (isBlank(input)) return [];
-        const narrowFormat = detectFormat(input, format);
-        const parsed =
-          narrowFormat === "markdown"
-            ? splitMarkdownTable(input)
-            : splitHtmlTable(input);
-        if (!parsed) return [];
-        switch (narrowFormat) {
-          case "html": {
-            switch (mode) {
-              case "row": {
-                const rowGroups = chunkRowsBySize(parsed.rows, chunkSize);
-                return rowGroups.flatMap((rows) => {
-                  const built = toRowModeChunk(
-                    {
-                      header: parsed.header,
-                      headerColumns: parsed.headerColumns,
-                      rows,
-                      footer: parsed.footer,
-                    },
-                    narrowFormat,
-                    mode,
-                  );
-                  return built ? [built] : [];
-                });
-              }
-              case "token": {
-                return yield* toTokenModeChunks(
-                  parsed,
-                  chunkSize,
-                  narrowFormat,
-                );
-              }
-              default:
-                return [];
-            }
+        for (const row of table.rows) {
+          const rowTokens = yield* tokenizer.countTokens(row.text);
+          const wouldExceed =
+            baseTokens + currentTokens + rowTokens > chunkSize;
+          // If current chunk already has rows and next row would exceed budget, flush.
+          if (wouldExceed && currentRows.length > 0) {
+            yield* flushCurrent();
           }
-          case "markdown": {
-            switch (mode) {
-              case "row": {
-                const rowGroups = chunkRowsBySize(parsed.rows, chunkSize);
-                return rowGroups.flatMap((rows) => {
-                  const build = toRowModeChunk(
-                    {
-                      header: parsed.header,
-                      headerColumns: parsed.headerColumns,
-                      rows,
-                      footer: parsed.footer,
-                    },
-                    narrowFormat,
-                    mode,
-                  );
-                  return build ? [build] : [];
-                });
-              }
-              case "token": {
-                return yield* toTokenModeChunks(
-                  parsed,
-                  chunkSize,
+          // Always add at least one row, even if it alone exceeds chunk size.
+          currentRows.push(row);
+          currentTokens += rowTokens;
+        }
+        yield* flushCurrent();
+        return chunks;
+      });
+
+    const chunk = Effect.fn("TableChunker.chunk")(function* (input: string) {
+      if (isBlank(input)) return [];
+      const narrowFormat = detectFormat(input, format);
+      const parsed =
+        narrowFormat === "markdown"
+          ? splitMarkdownTable(input)
+          : splitHtmlTable(input);
+      if (!parsed) return [];
+      switch (narrowFormat) {
+        case "html": {
+          switch (mode) {
+            case "row": {
+              const rowGroups = chunkRowsBySize(parsed.rows, chunkSize);
+              return rowGroups.flatMap((rows) => {
+                const built = toRowModeChunk(
+                  {
+                    header: parsed.header,
+                    headerColumns: parsed.headerColumns,
+                    rows,
+                    footer: parsed.footer,
+                  },
                   narrowFormat,
+                  mode,
                 );
-              }
+                return built ? [built] : [];
+              });
+            }
+            case "token": {
+              return yield* toTokenModeChunks(parsed, chunkSize, narrowFormat);
+            }
+            default:
+              return [];
+          }
+        }
+        case "markdown": {
+          switch (mode) {
+            case "row": {
+              const rowGroups = chunkRowsBySize(parsed.rows, chunkSize);
+              return rowGroups.flatMap((rows) => {
+                const build = toRowModeChunk(
+                  {
+                    header: parsed.header,
+                    headerColumns: parsed.headerColumns,
+                    rows,
+                    footer: parsed.footer,
+                  },
+                  narrowFormat,
+                  mode,
+                );
+                return build ? [build] : [];
+              });
+            }
+            case "token": {
+              return yield* toTokenModeChunks(parsed, chunkSize, narrowFormat);
             }
           }
         }
-      });
+      }
+    });
 
-      return { chunk, name: "table" };
-    }),
-  },
-) {}
+    return { chunk, name: "table" };
+  }),
+}) {}
 
 export const TableChunkerLive = Layer.effect(Chunker)(TableChunker.make).pipe(
   Layer.provide(WordTokenizerLive),

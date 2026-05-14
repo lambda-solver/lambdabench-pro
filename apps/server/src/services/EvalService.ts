@@ -1,6 +1,6 @@
 import type { SingleEvalRequest } from "@repo/domain/Api";
 import type { EvalResult } from "@repo/domain/Benchmark";
-import { Effect, type FileSystem, Layer, type Path, ServiceMap } from "effect";
+import { Context, Effect, type FileSystem, Layer, type Path } from "effect";
 import type { LanguageModel } from "effect/unstable/ai";
 import { runTaskWithLlm, type Task } from "../check/Check.js";
 import type { ModelUnresponsiveError } from "../llm/ModelGuard.js";
@@ -10,7 +10,7 @@ import { TaskService } from "./TaskService.js";
 
 // ─── Service Definition ───────────────────────────────────────────────────────
 
-export class EvalService extends ServiceMap.Service<
+export class EvalService extends Context.Service<
   EvalService,
   {
     evaluateSingle(

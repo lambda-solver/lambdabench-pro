@@ -14,7 +14,7 @@
 
 ## 1. Core Domain Types (Schema)
 
-The domain is defined in `packages/domain/src/Benchmark.ts` and `packages/domain/src/Api.ts` using **Effect Schema** (Effect 4 beta.41). All types are pure data — no runtime behaviour, no I/O.
+The domain is defined in `packages/domain/src/Benchmark.ts` and `packages/domain/src/Api.ts` using **Effect Schema** (Effect 4 beta.52). All types are pure data — no runtime behaviour, no I/O.
 
 ### 1.1 Benchmark Domain (`packages/domain/src/Benchmark.ts`)
 
@@ -371,7 +371,7 @@ graph TB
 
 ### 2.3 Server Architecture — Effect Service Layers
 
-The server is built entirely with **Effect 4** service pattern (`ServiceMap.Service`, `Layer.effect`, `Effect.fn`). Every external dependency (DB, filesystem, HTTP, LLM) is injected via Layer composition.
+The server is built entirely with **Effect 4** service pattern (`Context.Service`, `Layer.effect`, `Effect.fn`). Every external dependency (DB, filesystem, HTTP, LLM) is injected via Layer composition.
 
 ```mermaid
 %%{init: {'theme': 'dark', 'themeVariables': { 

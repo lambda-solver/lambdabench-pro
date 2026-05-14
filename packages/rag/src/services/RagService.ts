@@ -1,6 +1,6 @@
 import type { Metadata, Where, WhereDocument } from "chromadb";
-import { Data, Effect, Layer, ServiceMap } from "effect";
-import { ChromaService } from "./ChromaService";
+import { Context, Data, Effect, Layer } from "effect";
+import { type ChromaError, ChromaService } from "./ChromaService";
 
 export class RagError extends Data.TaggedError("RagError")<{
   message: string;
@@ -44,7 +44,53 @@ const normalizeHits = (result: {
   }));
 };
 
-export class RagService extends ServiceMap.Service<RagService>()("RagService", {
+export class RagService extends Context.Service<
+  RagService,
+  {
+    readonly ingest: (
+      input: Readonly<{
+        collection: string;
+        ids: Array<string>;
+        documents: Array<string>;
+        embeddings?: Array<Array<number>>;
+        metadatas?: Metadata[];
+      }>,
+    ) => Effect.Effect<{ readonly count: number }, ChromaError | RagError>;
+    readonly retrieve: (
+      input: Readonly<{
+        collection: string;
+        queries?: Array<string>;
+        embedding?: Array<number>;
+        topK: number;
+        where?: Where;
+        whereDocument?: WhereDocument;
+      }>,
+    ) => Effect.Effect<
+      { readonly hits: Array<RagHit> },
+      ChromaError | RagError
+    >;
+    readonly listDocuments: (input: {
+      collection: string;
+      query?: string;
+      limit?: number;
+    }) => Effect.Effect<
+      {
+        readonly documents: Array<{
+          id: string | null;
+          document: string | null;
+          metadata: Record<string, unknown> | null;
+        }>;
+      },
+      ChromaError | RagError
+    >;
+    readonly deleteCollection: (input: {
+      collection: string;
+    }) => Effect.Effect<
+      { readonly collection: string },
+      ChromaError | RagError
+    >;
+  }
+>()("RagService", {
   make: Effect.gen(function* () {
     const chroma = yield* ChromaService;
 

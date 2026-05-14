@@ -12,7 +12,7 @@ import {
   EvalResult,
   ModelConfig,
 } from "@repo/domain/Benchmark";
-import { Effect, Layer, Schema, ServiceMap } from "effect";
+import { Context, Effect, Layer, Schema } from "effect";
 import {
   FetchHttpClient,
   HttpClient,
@@ -26,7 +26,7 @@ export class ApiError {
   constructor(readonly cause: unknown) {}
 }
 
-export class LamBenchClient extends ServiceMap.Service<
+export class LamBenchClient extends Context.Service<
   LamBenchClient,
   {
     health(): Effect.Effect<HealthStatus, ApiError>;

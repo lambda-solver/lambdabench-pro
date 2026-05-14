@@ -1,5 +1,5 @@
 import { type Chunk, Chunker, Tokenizer } from "@repo/domain/Chunk";
-import { Effect, Layer, Schema, ServiceMap } from "effect";
+import { Context, Effect, Layer, Schema } from "effect";
 import { WordTokenizerLive } from "../tokenizer/DelimTokenizer";
 import {
   buildDelimiterPattern,
@@ -24,7 +24,7 @@ const SentenceChunkerConfigSchema = Schema.Struct({
   ),
 );
 
-export const SentenceChunkerConfig = ServiceMap.Reference<
+export const SentenceChunkerConfig = Context.Reference<
   typeof SentenceChunkerConfigSchema.Type
 >("SentenceChunkerConfig", {
   defaultValue: () => ({
@@ -147,70 +147,68 @@ const nextStartFromOverlap = (
   return nextStart <= currentStart ? currentStart + 1 : nextStart;
 };
 
-export class SentenceChunker extends ServiceMap.Service<Chunker>()(
-  "SentenceChunker",
-  {
-    make: Effect.gen(function* () {
-      const tokenizer = yield* Tokenizer;
-      const config = yield* SentenceChunkerConfig;
+export class SentenceChunker extends Context.Service<
+  SentenceChunker,
+  Chunker["Service"]
+>()("SentenceChunker", {
+  make: Effect.gen(function* () {
+    const tokenizer = yield* Tokenizer;
+    const config = yield* SentenceChunkerConfig;
 
-      const { chunkSize, chunkOverlap, delimiters, includeDelim } =
-        yield* Schema.decodeEffect(SentenceChunkerConfigSchema)(config);
+    const { chunkSize, chunkOverlap, delimiters, includeDelim } =
+      yield* Schema.decodeEffect(SentenceChunkerConfigSchema)(config);
 
-      const chunk = Effect.fn("SentenceChunker.chunk")(function* (
-        text: string,
-      ) {
-        if (isBlank(text)) {
-          return [];
+    const chunk = Effect.fn("SentenceChunker.chunk")(function* (text: string) {
+      if (isBlank(text)) {
+        return [];
+      }
+
+      const sentenceSpans = splitSentences(text, delimiters, includeDelim);
+
+      if (sentenceSpans.length === 0) {
+        return [];
+      }
+
+      const sentences = yield* Effect.forEach(sentenceSpans, (sentence) =>
+        Effect.map(tokenizer.countTokens(sentence.text), (tokenCount) => ({
+          ...sentence,
+          tokenCount,
+        })),
+      );
+
+      if (sentences.length === 0) {
+        return [];
+      }
+
+      const chunks: Array<Chunk> = [];
+      let startIdx = 0;
+
+      while (startIdx < sentences.length) {
+        const window = windowFrom(sentences, startIdx, chunkSize);
+        const chunk = toChunk(sentences, window);
+
+        if (chunk === null) {
+          break;
         }
 
-        const sentenceSpans = splitSentences(text, delimiters, includeDelim);
-
-        if (sentenceSpans.length === 0) {
-          return [];
-        }
-
-        const sentences = yield* Effect.forEach(sentenceSpans, (sentence) =>
-          Effect.map(tokenizer.countTokens(sentence.text), (tokenCount) => ({
-            ...sentence,
-            tokenCount,
-          })),
+        chunks.push(chunk);
+        startIdx = nextStartFromOverlap(
+          sentences,
+          startIdx,
+          window.endExclusive,
+          chunkOverlap,
         );
+      }
 
-        if (sentences.length === 0) {
-          return [];
-        }
+      return chunks;
+    });
 
-        const chunks: Array<Chunk> = [];
-        let startIdx = 0;
-
-        while (startIdx < sentences.length) {
-          const window = windowFrom(sentences, startIdx, chunkSize);
-          const chunk = toChunk(sentences, window);
-
-          if (chunk === null) {
-            break;
-          }
-
-          chunks.push(chunk);
-          startIdx = nextStartFromOverlap(
-            sentences,
-            startIdx,
-            window.endExclusive,
-            chunkOverlap,
-          );
-        }
-
-        return chunks;
-      });
-
-      return {
-        chunk,
-        name: "sentence",
-      };
-    }),
-  },
-) {}
+    return {
+      chunk,
+      name: "sentence",
+    };
+  }),
+}) {}
 
 export const SentenceChunkerLive = Layer.effect(Chunker)(
   SentenceChunker.make,
