@@ -29,12 +29,12 @@ function makeData(
 describe("ValuePanel", () => {
   test("renders the Value heading", async () => {
     const { getByText } = await render(<ValuePanel data={makeData([{}])} />);
-    await expect.element(getByText("Value")).toBeVisible();
+    await expect.element(getByText("Value", { exact: true })).toBeVisible();
   });
 
   test("renders the table header columns", async () => {
     const { getByText } = await render(<ValuePanel data={makeData([{}])} />);
-    await expect.element(getByText(/Pass\$/)).toBeVisible();
+    await expect.element(getByText("Pass/$")).toBeVisible();
   });
 
   test("shows model name (org/ prefix stripped)", async () => {

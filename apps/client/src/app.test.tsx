@@ -46,6 +46,7 @@ vi.mock("@effect/atom-react", () => ({
 
 vi.mock("@/lib/atoms/benchmark-atom", () => ({
   benchmarkAtom: Symbol("benchmarkAtom"),
+  computeValueEntries: (_data: BenchmarkData) => [],
 }));
 
 // ─── Tests ───────────────────────────────────────────────────────────────────
