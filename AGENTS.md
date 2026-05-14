@@ -19,7 +19,9 @@
 | `bun biome check src/ --write`                 | Auto-fix lint + format in current package |
 | `bun run test`                                 | Run all tests via turbo (Vitest)          |
 | `bun run test --filter=server`                 | Run server tests only                     |
-| `bun test --filter=server -- src/file.test.ts` | Run single test file                      |
+| `bun test --filter=server -- src/file.test.ts` | Run single test file                     |
+| `bun src/index.ts server > logs/server.log 2>&1 &` | Start server in background (logs/)  |
+| `lsof -ti:9000 | xargs kill -9`                    | Kill process on port 9000           |
 
 ## Tech Stack
 
@@ -144,6 +146,24 @@ If `reference/effect-smol/` is missing (git-ignored), clone it:
 
 ```bash
 git clone https://github.com/Effect-TS/effect-smol.git reference/effect-smol
+```
+
+## Running in Background
+
+See skill `.opencode/skills/effect-ts/platform/04-build-output/SKILL.md` for:
+- How to run Bun processes in the background
+- Build output directories (`apps/server/dist/`, `apps/client/dist/`)
+- Log directory: `logs/` (project root)
+
+```bash
+# Start server in background, output to logs/
+bun src/index.ts server > logs/server.log 2>&1 &
+
+# Check if running
+curl -s http://127.0.0.1:9000/api/health
+
+# View logs
+tail -f logs/server.log
 ```
 
 ---
