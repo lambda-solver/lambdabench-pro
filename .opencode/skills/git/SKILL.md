@@ -1,22 +1,30 @@
 # Git Workflow Skill
 
-## Pre-Commit Checklist
+## Pre-Commit Checklist (MUST PASS)
 
-Before every commit and push, ALL Biome checks must pass:
+**⚠️ CRITICAL: Do NOT commit or push until ALL of the following pass locally.**
+**Pushing code that fails CI blocks the entire team and wastes compute credits.**
+
+Run these commands in order and verify each exits with code 0:
 
 ```bash
-# 1. Run linter (must show 0 errors)
-bun lint
-
-# 2. Run format check (must show no fixes needed)
-bun format:check
-
-# 3. Run type check
+# 1. TypeScript type check (catches type errors before they reach CI)
 bun run type-check
 
-# 4. Run tests (at least for modified packages)
+# 2. Biome format + lint (catches style and correctness issues)
+bun format:check
+
+# 3. Build verification (catches bundling and import errors)
+bun run build
+
+# 4. Tests for modified packages (catches regressions)
 bun run test --filter=server
 ```
+
+If ANY command fails:
+- Fix the issue locally
+- Re-run the failing command until it passes
+- Only then proceed to commit
 
 ## Commit and Push
 
