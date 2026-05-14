@@ -8,17 +8,28 @@
 Run these commands in order and verify each exits with code 0:
 
 ```bash
-# 1. TypeScript type check (catches type errors before they reach CI)
+# 1. Biome lint (fastest gate — catches correctness issues first)
+bun lint
+
+# 2. TypeScript type check (catches type errors before they reach CI)
+#    Use --filter=<workspace> to check only modified packages for speed
 bun run type-check
 
-# 2. Biome format + lint (catches style and correctness issues)
+# 3. Biome full check — lint + format + imports + more
+#    This is the gate CI uses. It is stricter than `bun lint` alone.
 bun format:check
 
-# 3. Build verification (catches bundling and import errors)
+# 4. Build verification (catches bundling and import errors)
 bun run build
 
-# 4. Tests for modified packages (catches regressions)
-bun run test --filter=server
+# 5. Tests for modified packages (catches regressions)
+#    Run all packages if shared code changed:
+bun run test
+#    Or filter to specific workspaces:
+#    bun run test --filter=server
+#    bun run test --filter=client
+#    bun run test --filter=@repo/rag
+#    bun run test --filter=@repo/domain
 ```
 
 If ANY command fails:
@@ -67,8 +78,8 @@ git pull origin main --rebase
 
 # Make changes...
 
-# Run checks
-bun lint && bun format:check
+# Run full pre-commit checklist
+bun lint && bun run type-check && bun format:check && bun run build && bun run test
 
 # Commit and push
 git add -A && git commit -m "..." && git push origin main
@@ -91,6 +102,22 @@ printf '\n' >> apps/client/public/data/results.json
 git add apps/client/public/data/results.json
 ```
 
+## Lint vs Format: What's the Difference?
+
+Our project uses **Biome** (not ESLint/Prettier). Two commands sound similar but do different things:
+
+| Command | Script | What it does | Speed |
+|---------|--------|-------------|-------|
+| `bun lint` | `biome lint .` | Runs **only** lint rules (correctness, complexity, style, suspicious, performance) | Fast |
+| `bun format:check` | `biome check .` | Runs **everything**: lint + format + organize imports + `noUnusedImports` + all other checks | Slower |
+
+**When to use each:**
+- `bun lint` — Quick check during development. Catches the most common issues fast.
+- `bun format:check` — The **real CI gate**. This is what GitHub Actions runs. It catches formatting mistakes, unused imports, and import sorting issues that `bun lint` misses.
+- `bun format` (alias `bun biome check --write .`) — Auto-fixes both lint and format issues. Run this if `bun format:check` fails.
+
+**Why run both?** `bun lint` is fast feedback during development. `bun format:check` is the comprehensive gate that matches CI. Running both ensures nothing slips through.
+
 ## Biome Lint Rules (Enforced in CI)
 
 | Rule | What it means | Pattern to use |
@@ -101,6 +128,20 @@ git add apps/client/public/data/results.json
 | `useYield` | Only use `yield*` inside generators | Plain arrows for simple mocks |
 
 Note: `useLiteralKeys` infos on `Record<string, unknown>` bracket access are acceptable and do not fail CI.
+
+## How Reference Projects Do It
+
+| Project | Linter | Formatter | Type Check | Test Runner |
+|---------|--------|-----------|------------|-------------|
+| **Clanka** | `oxlint` | `prettier` | `pnpm tsc -b` | `vitest run` |
+| **Motel** | (none) | (none) | `tsc --noEmit` | `bun test` |
+| **Hazel** | `oxlint` | `oxfmt` | `turbo build typecheck` | `vitest run` |
+| **This project** | `biome lint` | `biome check` | `turbo run type-check` | `vitest run` |
+
+**Key differences:**
+- Biome is an all-in-one tool (lint + format + imports) — replaces ESLint + Prettier + import plugins
+- `oxlint`/`oxfmt` are faster but separate tools from the oxlint project
+- Motel has minimal tooling (only typecheck) because it's a focused CLI tool
 
 ## Important Files
 
