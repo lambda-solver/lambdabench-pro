@@ -6,6 +6,10 @@ export default defineProject({
   resolve: {
     alias: {
       bun: path.resolve(import.meta.dirname, "test/stubs/bun.ts"),
+      "bun:sqlite": path.resolve(
+        import.meta.dirname,
+        "test/stubs/bun-sqlite.ts",
+      ),
     },
   },
   test: {

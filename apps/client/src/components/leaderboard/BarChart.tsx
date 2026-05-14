@@ -21,7 +21,12 @@ interface BarChartProps {
  *
  * ≥70% → green, ≥45% → blue, ≥20% → yellow, else → red.
  */
-export function BarChart({ pct, width = 28, fluid = false, className }: BarChartProps) {
+export function BarChart({
+  pct,
+  width = 28,
+  fluid = false,
+  className,
+}: BarChartProps) {
   const color =
     pct >= 70
       ? "var(--sol-green)"

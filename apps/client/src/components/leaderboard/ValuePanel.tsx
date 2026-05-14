@@ -1,6 +1,6 @@
 import type { BenchmarkData } from "@repo/domain/Benchmark";
-import { fmtModel } from "@/lib/fmt";
 import { computeValueEntries } from "@/lib/atoms/benchmark-atom";
+import { fmtModel } from "@/lib/fmt";
 import { TildeLine, VimLine } from "./VimLine";
 
 interface ValuePanelProps {
@@ -60,20 +60,31 @@ export function ValuePanel({ data }: ValuePanelProps) {
 
       {entries.map((e) => (
         <VimLine key={e.model} n={n++}>
-          <div className="grid" style={{ gridTemplateColumns, columnGap: gridGap }}>
+          <div
+            className="grid"
+            style={{ gridTemplateColumns, columnGap: gridGap }}
+          >
             <span className="text-[var(--sol-blue)]">{fmtModel(e.model)}</span>
             <span className="text-[var(--sol-magenta)]">
               {`${e.passRate.toFixed(1)}%`}
             </span>
             <span
-              className={e.pricePerMOutput > 0 ? "text-[var(--sol-cyan)]" : "text-[var(--sol-base1)]"}
+              className={
+                e.pricePerMOutput > 0
+                  ? "text-[var(--sol-cyan)]"
+                  : "text-[var(--sol-base1)]"
+              }
             >
               {e.pricePerMOutput > 0
                 ? `$${e.pricePerMOutput.toFixed(2)}`
                 : "N/A"}
             </span>
             <span
-              className={e.pricePerMOutput > 0 ? "text-[var(--sol-green)]" : "text-[var(--sol-base1)]"}
+              className={
+                e.pricePerMOutput > 0
+                  ? "text-[var(--sol-green)]"
+                  : "text-[var(--sol-base1)]"
+              }
             >
               {e.pricePerMOutput > 0 ? e.passPerDollar.toFixed(3) : "—"}
             </span>

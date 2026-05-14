@@ -19,8 +19,14 @@ export function SpeedPanel({ data }: SpeedPanelProps) {
   const sorted = Arr.sort(entries, byTPMDesc);
   const maxTPM = sorted.length > 0 ? (sorted[0]?.tpm ?? 1) : 1;
   const maxName = Math.max(...sorted.map((e) => fmtModel(e.model).length), 10);
-  const statWidth = Math.max(...sorted.map((e) => `${e.tpm.toFixed(2)}/min`.length), 8);
-  const labelWidth = Math.max(...sorted.map((e) => `(${e.avgTime.toFixed(0)}s avg)`.length), 8);
+  const statWidth = Math.max(
+    ...sorted.map((e) => `${e.tpm.toFixed(2)}/min`.length),
+    8,
+  );
+  const labelWidth = Math.max(
+    ...sorted.map((e) => `(${e.avgTime.toFixed(0)}s avg)`.length),
+    8,
+  );
 
   let n = 1;
 
@@ -30,13 +36,17 @@ export function SpeedPanel({ data }: SpeedPanelProps) {
       <VimLine n={n++}>
         <span className="font-bold text-[var(--sol-yellow)]">LamBench</span>
         {"  "}
-        <span className="text-[var(--sol-base1)]">-- Lambda Calculus Benchmark for AI</span>
+        <span className="text-[var(--sol-base1)]">
+          -- Lambda Calculus Benchmark for AI
+        </span>
       </VimLine>
       <VimLine n={n++} />
       <VimLine n={n++}>
         <span className="font-bold text-[var(--sol-orange)]">Speed</span>
         {"  "}
-        <span className="text-[var(--sol-base1)]">-- tasks solved per minute (higher = faster)</span>
+        <span className="text-[var(--sol-base1)]">
+          -- tasks solved per minute (higher = faster)
+        </span>
       </VimLine>
       <VimLine n={n++} />
 

@@ -91,3 +91,49 @@ export const ValueEntry = Schema.Struct({
   passPerDollar: Schema.Number,
 });
 export type ValueEntry = Schema.Schema.Type<typeof ValueEntry>;
+
+// ============================================================================
+// EvalResult
+// ============================================================================
+
+export const EvalResult = Schema.Struct({
+  taskId: Schema.String,
+  model: Schema.String,
+  variant: Schema.Literals(["standard", "rlm", "both"]),
+  pass: Schema.Boolean,
+  bits: Schema.Number,
+  score: Schema.Number,
+  errors: Schema.Array(Schema.String),
+  elapsedMs: Schema.Number,
+  submission: Schema.String,
+  timestamp: Schema.String,
+});
+export type EvalResult = Schema.Schema.Type<typeof EvalResult>;
+
+// ============================================================================
+// BatchJob
+// ============================================================================
+
+export const BatchJob = Schema.Struct({
+  id: Schema.String,
+  status: Schema.Literals(["queued", "running", "completed", "failed"]),
+  createdAt: Schema.String,
+  completedAt: Schema.optional(Schema.String),
+  totalTasks: Schema.Number,
+  completedTasks: Schema.Number,
+  results: Schema.Array(EvalResult),
+});
+export type BatchJob = Schema.Schema.Type<typeof BatchJob>;
+
+// ============================================================================
+// ModelConfig
+// ============================================================================
+
+export const ModelConfig = Schema.Struct({
+  id: Schema.String,
+  provider: Schema.Literals(["openrouter", "opencode-go"]),
+  displayName: Schema.optional(Schema.String),
+  pricePerMOutput: Schema.optional(Schema.Number),
+  isActive: Schema.Boolean.pipe(Schema.withDecodingDefaultKey(() => true)),
+});
+export type ModelConfig = Schema.Schema.Type<typeof ModelConfig>;

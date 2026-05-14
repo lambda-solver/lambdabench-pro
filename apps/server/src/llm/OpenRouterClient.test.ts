@@ -8,10 +8,10 @@
 
 import { describe, it } from "@effect/vitest";
 import { assertTrue, strictEqual } from "@effect/vitest/utils";
-import { expect, it as vitestIt } from "vitest";
 import { Effect, Layer, Ref } from "effect";
 import { LanguageModel } from "effect/unstable/ai";
 import { FetchHttpClient } from "effect/unstable/http";
+import { expect, it as vitestIt } from "vitest";
 import { configLayer } from "../test/effect-helpers";
 import { LlmError, makeOpenRouterLayer } from "./OpenRouterClient";
 

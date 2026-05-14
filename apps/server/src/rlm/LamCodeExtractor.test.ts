@@ -28,8 +28,7 @@ describe("extractLamCode", () => {
   });
 
   it("includes helper @defs before @main", () => {
-    const raw =
-      "Here:\n@add = λa.λb.λf.λx.a(f)(b(f)(x))\n@main = @add\nDone.";
+    const raw = "Here:\n@add = λa.λb.λf.λx.a(f)(b(f)(x))\n@main = @add\nDone.";
     const result = extractLamCode(raw);
     expect(result).toContain("@add");
     expect(result).toContain("@main");

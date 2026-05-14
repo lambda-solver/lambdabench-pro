@@ -315,7 +315,9 @@ export const normalize = (term: Term, book: Book, steps = { n: 0 }): Term => {
 const varName = (idx: number): string => {
   const letters = "abcdefghijklmnopqrstuvwxyz";
   if (idx < 26) return letters[idx] ?? "a";
-  return (letters[Math.floor(idx / 26) - 1] ?? "a") + (letters[idx % 26] ?? "a");
+  return (
+    (letters[Math.floor(idx / 26) - 1] ?? "a") + (letters[idx % 26] ?? "a")
+  );
 };
 
 const printTerm = (

@@ -2,8 +2,7 @@
  * LlmPrompts.test.ts — Pure unit tests, no Effect runtime needed.
  */
 
-import { describe, it } from "vitest";
-import { expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import type { Task } from "../check/Check";
 import {
   buildRetryPrompt,
@@ -64,9 +63,9 @@ describe("buildRetryPrompt", () => {
   });
 
   it("still includes task description", () => {
-    expect(
-      buildRetryPrompt(task, "@main = λa.λb.a", []),
-    ).toContain("Add two Church nats");
+    expect(buildRetryPrompt(task, "@main = λa.λb.a", [])).toContain(
+      "Add two Church nats",
+    );
   });
 });
 

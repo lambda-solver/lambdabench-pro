@@ -1,59 +1,134 @@
 {
   "schema_version": "1.0.0",
-  "title": "Migrate OpenRouterClient to @effect/ai-openai SDK",
-  "swarm": "openrouter-sdk-migration",
+  "title": "LamBench Pro — Motel-Inspired Server Refactor",
+  "swarm": "default",
   "current_phase": 1,
   "phases": [
     {
       "id": 1,
-      "name": "Replace OpenRouterClient with @effect/ai-openai",
-      "status": "pending",
+      "name": "Foundation — Adapt Motel SQLite + Core Services",
+      "status": "complete",
       "tasks": [
         {
           "id": "1.1",
           "phase": 1,
-          "status": "pending",
-          "size": "medium",
-          "description": "Rewrite apps/server/src/llm/OpenRouterClient.ts to be a thin layer factory: export OpenRouterClient as a Layer.Layer<LanguageModel.LanguageModel, never, HttpClient.HttpClient> that composes OpenAiClient.layer({ apiUrl: 'https://openrouter.ai/api/v1', apiKey: Redacted.make(process.env[\"OPENROUTER_API_KEY\"] ?? \"\") }) with OpenAiLanguageModel.layer({ model }). The model argument must be passed in at construction time. Keep LlmError and ChatMessage exported for use in the absorb boundaries in LambdaRlm and Check. Remove the complete() service method entirely — callers will use LanguageModel.generateText directly.",
+          "status": "completed",
+          "size": "large",
+          "description": "Create ResultStore.ts adapting motel's TelemetryStore.ts patterns (bun:sqlite, WAL mode, CRUD, retention, Context.Service)",
           "depends": [],
-          "acceptance": "TypeScript compiles; OpenRouterClient.ts no longer uses HttpClientRequest.post; it exports a layer factory function makeOpenRouterLayer(modelId) returning Layer<LanguageModel, never, HttpClient>.",
           "files_touched": []
         },
         {
           "id": "1.2",
           "phase": 1,
-          "status": "pending",
+          "status": "completed",
+          "size": "medium",
+          "description": "Add ResultStore unit tests for CRUD, retention, and WAL mode behaviour",
+          "depends": [
+            "1.1"
+          ],
+          "files_touched": []
+        },
+        {
+          "id": "1.3",
+          "phase": 1,
+          "status": "completed",
+          "size": "medium",
+          "description": "Create TaskService.ts that loads .tsk and .lam files from disk and caches them in SQLite tasks table",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "1.4",
+          "phase": 1,
+          "status": "completed",
           "size": "small",
-          "description": "Update apps/server/src/index.ts appLayer: call makeOpenRouterLayer(process.env[\"LLM_MODEL\"] ?? \"minimax/minimax-m2.5:free\") to get the LanguageModel layer. Compose it with BunServices and BunHttpClient in Layer.mergeAll. Remove the old OpenRouterClient.layer reference.",
-          "depends": ["1.1"],
-          "acceptance": "bun run type-check passes; appLayer provides LanguageModel service; no reference to old OpenRouterClient service.",
+          "description": "Add TaskService unit tests for task loading, parsing, and ref_bits computation",
+          "depends": [
+            "1.3"
+          ],
+          "files_touched": []
+        },
+        {
+          "id": "1.5",
+          "phase": 1,
+          "status": "completed",
+          "size": "small",
+          "description": "Create LamConfig.ts adapting motel's config.ts pattern (env var parsing, defaults, parsePositiveInt)",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "1.6",
+          "phase": 1,
+          "status": "completed",
+          "size": "large",
+          "description": "Create EvalService.ts that orchestrates single-task evaluation using existing Check.ts and Lamb.ts",
+          "depends": [
+            "1.1",
+            "1.3",
+            "1.9"
+          ],
+          "files_touched": []
+        },
+        {
+          "id": "1.7",
+          "phase": 1,
+          "status": "completed",
+          "size": "large",
+          "description": "Create BatchService.ts for batch job orchestration: create job, run evaluations concurrently, update status, allow status polling and resumption on restart",
+          "depends": [
+            "1.1",
+            "1.6",
+            "1.9"
+          ],
+          "files_touched": []
+        },
+        {
+          "id": "1.8",
+          "phase": 1,
+          "status": "completed",
+          "size": "medium",
+          "description": "Add BatchService unit tests for job lifecycle, concurrent execution, and resumption logic",
+          "depends": [
+            "1.7"
+          ],
+          "files_touched": []
+        },
+        {
+          "id": "1.9",
+          "phase": 1,
+          "status": "completed",
+          "size": "medium",
+          "description": "Update packages/domain/src/Api.ts and Benchmark.ts with shared schemas for EvalResult, BatchJob, ModelConfig, and HttpApi groups needed by server, client, and typed client",
+          "depends": [],
           "files_touched": []
         }
       ]
     },
     {
       "id": 2,
-      "name": "Wire LanguageModel into LambdaRlm and Check",
-      "status": "pending",
+      "name": "HTTP API + Local Server — Adapt Motel Patterns",
+      "status": "in_progress",
       "tasks": [
         {
           "id": "2.1",
           "phase": 2,
-          "status": "pending",
-          "size": "medium",
-          "description": "Update apps/server/src/rlm/LambdaRlm.ts: replace every (yield* OpenRouterClient).complete(modelId, messages) call with yield* LanguageModel.generateText({ prompt: messages[0]!.content }).pipe(Effect.map(r => r.text)). For multi-turn messages, use Prompt.make(messages) as the prompt input. Remove the modelId field from LambdaRlmConfig — model is now baked into the layer. Keep the absorbToCheckResult boundary unchanged (it catches unknown, so AiError is absorbed correctly). Update PhiEffect service requirements: replace OpenRouterClient with LanguageModel.LanguageModel.",
-          "depends": ["1.1"],
-          "acceptance": "TypeScript compiles; LambdaRlm.ts imports LanguageModel from effect/unstable/ai; no reference to OpenRouterClient service; PhiEffect uses LanguageModel in requirement channel.",
+          "status": "in_progress",
+          "size": "large",
+          "description": "Create httpApi.ts adapting motel's httpApi.ts pattern (OpenApi annotations, HttpApiGroup, HttpApiEndpoint) for Lambench endpoints",
+          "depends": [
+            "1.9"
+          ],
           "files_touched": []
         },
         {
           "id": "2.2",
           "phase": 2,
           "status": "pending",
-          "size": "medium",
-          "description": "Update apps/server/src/check/Check.ts runTaskWithLlm: remove the modelId parameter. Replace (yield* OpenRouterClient).complete(modelId, [...]) with yield* LanguageModel.generateText({ prompt: buildSolvePrompt(task) }).pipe(Effect.map(r => r.text)). The AiError is caught at the existing Effect.catch boundary and replaced with the fallback lambda expression string. Update runAllTasksForModel signature to remove modelId param; update its call sites in ModelEvalRunner.",
-          "depends": ["1.1"],
-          "acceptance": "TypeScript compiles; runTaskWithLlm and runAllTasksForModel no longer accept modelId; LanguageModel is in the requirement channel of both functions.",
+          "size": "large",
+          "description": "Create localServer.ts adapting motel's localServer.ts pattern (BunHttpServer, router, static SPA serve, query param parsing)",
+          "depends": [],
           "files_touched": []
         },
         {
@@ -61,16 +136,69 @@
           "phase": 2,
           "status": "pending",
           "size": "medium",
-          "description": "Update apps/server/src/eval/ModelEvalRunner.ts: inside runModelEval, build a per-model LanguageModel layer with makeOpenRouterLayer(model.modelId) and provide it to the runAllTasksForModel and runRlmForAllTasks calls via Effect.provide. Remove modelId threading from runRlmForAllTasks. This is the correct Effect pattern: compose a fresh layer per evaluation run rather than passing modelId as a parameter.",
-          "depends": ["2.1", "2.2"],
-          "acceptance": "TypeScript compiles; runModelEval creates makeOpenRouterLayer(model.modelId) and provides it; no modelId param flows through Check or RLM call chains.",
+          "description": "Create runtime.ts adapting motel's runtime.ts pattern (ManagedRuntime, Layer composition for all services)",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "2.4",
+          "phase": 2,
+          "status": "pending",
+          "size": "medium",
+          "description": "Wire httpApi handlers into localServer.ts using the runtime",
+          "depends": [
+            "2.1",
+            "2.2",
+            "2.3"
+          ],
+          "files_touched": []
+        },
+        {
+          "id": "2.5",
+          "phase": 2,
+          "status": "pending",
+          "size": "medium",
+          "description": "Add handler integration tests for health, eval/single, eval/batch, results, and tasks endpoints",
+          "depends": [
+            "2.4"
+          ],
+          "files_touched": []
+        },
+        {
+          "id": "2.6",
+          "phase": 2,
+          "status": "pending",
+          "size": "large",
+          "description": "Document Motel architecture in reference/motel/docs/architecture-and-domain.md (domain types, services, HTTP API, MCP, workflows)",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "2.7",
+          "phase": 2,
+          "status": "pending",
+          "size": "large",
+          "description": "Document Clanka architecture in reference/clanka/docs/architecture-and-domain.md (domain types, agent executor, tools, MCP client, workflows)",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "2.8",
+          "phase": 2,
+          "status": "pending",
+          "size": "large",
+          "description": "Create comprehensive comparison document analyzing LamBench, Motel, and Clanka architectures with evaluation and recommendations",
+          "depends": [
+            "2.6",
+            "2.7"
+          ],
           "files_touched": []
         }
       ]
     },
     {
       "id": 3,
-      "name": "Update tests",
+      "name": "CLI + MCP + Typed Client — Adapt Motel Patterns",
       "status": "pending",
       "tasks": [
         {
@@ -78,15 +206,193 @@
           "phase": 3,
           "status": "pending",
           "size": "medium",
-          "description": "Rewrite apps/server/src/llm/OpenRouterClient.test.ts: the old tests intercepted raw HTTP via mockHttpLayer. Replace with a mock LanguageModel layer: Layer.succeed(LanguageModel.LanguageModel, { generateText: () => Effect.succeed(mockResponse), generateObject: ..., streamText: ... }). Test that makeOpenRouterLayer(modelId) returns a Layer<LanguageModel>. Add an integration-style test (skipped by default) that actually calls OpenRouter with OPENROUTER_API_KEY from env.",
-          "depends": ["1.1"],
-          "acceptance": "bun test --filter=server -- src/llm/OpenRouterClient.test.ts: all tests pass.",
+          "description": "Create MotelClient.ts typed HTTP client generated from httpApi.ts using AtomHttpApi or Effect HTTP client",
+          "depends": [
+            "2.1"
+          ],
+          "files_touched": []
+        },
+        {
+          "id": "3.2",
+          "phase": 3,
+          "status": "pending",
+          "size": "large",
+          "description": "Create cli.ts adapting motel's cli.ts pattern (command routing, JSON output, typed client usage)",
+          "depends": [
+            "1.5",
+            "3.1"
+          ],
+          "files_touched": []
+        },
+        {
+          "id": "3.3",
+          "phase": 3,
+          "status": "pending",
+          "size": "medium",
+          "description": "Create mcp.ts adapting motel's mcp.ts pattern (McpServer.layerStdio, Toolkit.make, tool handlers)",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "3.4",
+          "phase": 3,
+          "status": "pending",
+          "size": "small",
+          "description": "Add MCP tool invocation tests verifying each tool returns correct schema",
+          "depends": [
+            "3.3"
+          ],
+          "files_touched": []
+        },
+        {
+          "id": "3.5",
+          "phase": 3,
+          "status": "pending",
+          "size": "small",
+          "description": "Update index.ts argv-to-mode switch to route between CLI commands and server mode",
+          "depends": [
+            "3.2"
+          ],
+          "files_touched": []
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Provider Refactor",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "4.1",
+          "phase": 4,
+          "status": "pending",
+          "size": "medium",
+          "description": "Create LlmService domain service and OpenRouterLlmService backing service using @effect/ai-openrouter",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "4.2",
+          "phase": 4,
+          "status": "pending",
+          "size": "medium",
+          "description": "Create OpenCodeGoLlmService backing service that uses user's opencode-go credentials",
+          "depends": [
+            "4.1"
+          ],
+          "files_touched": []
+        },
+        {
+          "id": "4.3",
+          "phase": 4,
+          "status": "pending",
+          "size": "medium",
+          "description": "Refactor ModelGuard.ts to accept LlmService instead of direct OpenRouterClient calls",
+          "depends": [
+            "4.1"
+          ],
+          "files_touched": []
+        },
+        {
+          "id": "4.4",
+          "phase": 4,
+          "status": "pending",
+          "size": "medium",
+          "description": "Refactor Check.ts to accept LlmService via ModelGuard instead of direct OpenRouterClient calls",
+          "depends": [
+            "4.3"
+          ],
+          "files_touched": []
+        },
+        {
+          "id": "4.5",
+          "phase": 4,
+          "status": "pending",
+          "size": "medium",
+          "description": "Refactor LambdaRlm.ts to accept LlmService via ModelGuard instead of direct OpenRouterClient calls",
+          "depends": [
+            "4.4"
+          ],
+          "files_touched": []
+        },
+        {
+          "id": "4.6",
+          "phase": 4,
+          "status": "pending",
+          "size": "medium",
+          "description": "Run full server test suite after provider refactor to confirm zero regressions in Lamb.ts, Check.ts, and LambdaRlm.ts",
+          "depends": [
+            "4.5"
+          ],
+          "files_touched": []
+        },
+        {
+          "id": "4.7",
+          "phase": 4,
+          "status": "pending",
+          "size": "medium",
+          "description": "Update ModelEvalRunner.ts and EvalService.ts to use LlmService-based evaluation",
+          "depends": [
+            "4.2",
+            "4.6"
+          ],
+          "files_touched": []
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Web UI Refresh",
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "5.1",
+          "phase": 5,
+          "status": "pending",
+          "size": "medium",
+          "description": "Update benchmark-atom.ts to fetch from /api/results via AtomHttpApi instead of static results.json",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "5.2",
+          "phase": 5,
+          "status": "pending",
+          "size": "small",
+          "description": "Create API client layer in client (api.ts) for tasks and results endpoints",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "5.3",
+          "phase": 5,
+          "status": "pending",
+          "size": "medium",
+          "description": "Ensure Solarized theme, VimLine, BarChart, and all 6 panels render identically with live data",
+          "depends": [],
+          "files_touched": []
+        },
+        {
+          "id": "5.4",
+          "phase": 5,
+          "status": "pending",
+          "size": "small",
+          "description": "Update client build to support both local server proxy and static export for GitHub Pages",
+          "depends": [
+            "5.1"
+          ],
           "files_touched": []
         }
       ]
     }
   ],
   "migration_status": "native",
-  "specMtime": "2026-04-24T19:10:22.285Z",
-  "specHash": "db3966c86d39db2a25b4cfa03b3cdda94530ebbc1f5d924ee889f22702eccf43"
+  "specMtime": "2026-04-28T20:23:56.246Z",
+  "specHash": "46b589a2d0e1cf9a2fcc95abfd4ed7e5aafebcf31e91fea05338ded6f2cf9925",
+  "execution_profile": {
+    "parallelization_enabled": true,
+    "max_concurrent_tasks": 2,
+    "council_parallel": false,
+    "locked": true
+  }
 }

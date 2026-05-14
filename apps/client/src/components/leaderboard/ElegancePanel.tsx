@@ -19,7 +19,10 @@ function fmtShorter(v: number): string {
   return v >= 0 ? `+${v.toFixed(1)}%` : `\u2212${Math.abs(v).toFixed(1)}%`;
 }
 
-function computeElegance(data: BenchmarkData): { entries: EleganceEntry[]; mean: number } {
+function computeElegance(data: BenchmarkData): {
+  entries: EleganceEntry[];
+  mean: number;
+} {
   const refs: Record<string, number> = {};
   for (const r of data.rankings) {
     for (const [tid, bits] of Object.entries(r.taskRefs)) {
@@ -33,16 +36,28 @@ function computeElegance(data: BenchmarkData): { entries: EleganceEntry[]; mean:
     for (const t of data.tasks) {
       const ref = refs[t.id];
       const bits = r.taskBits[t.id];
-      if (r.tasks[t.id] && ref !== undefined && bits !== undefined && bits > 0) {
+      if (
+        r.tasks[t.id] &&
+        ref !== undefined &&
+        bits !== undefined &&
+        bits > 0
+      ) {
         sum += 1 - bits / ref;
         passing++;
       }
     }
-    return { model: r.model, shorter: passing ? (sum / passing) * 100 : 0, passing, delta: 0 };
+    return {
+      model: r.model,
+      shorter: passing ? (sum / passing) * 100 : 0,
+      passing,
+      delta: 0,
+    };
   });
 
   const scored = entries.filter((e) => e.passing > 0);
-  const mean = scored.length ? scored.reduce((s, e) => s + e.shorter, 0) / scored.length : 0;
+  const mean = scored.length
+    ? scored.reduce((s, e) => s + e.shorter, 0) / scored.length
+    : 0;
   for (const e of entries) {
     e.delta = e.passing > 0 ? e.shorter - mean : 0;
   }
@@ -60,8 +75,14 @@ export function ElegancePanel({ data }: ElegancePanelProps) {
   const { entries, mean } = computeElegance(data);
   const sorted = Arr.sort(entries, byEleganceDesc);
   const maxName = Math.max(...sorted.map((e) => fmtModel(e.model).length), 10);
-  const statWidth = Math.max(...sorted.map((e) => (e.passing ? fmtShorter(e.shorter).length : 1)), 4);
-  const labelWidth = Math.max(...sorted.map((e) => `(${e.passing}/${data.tasks.length})`.length), 6);
+  const statWidth = Math.max(
+    ...sorted.map((e) => (e.passing ? fmtShorter(e.shorter).length : 1)),
+    4,
+  );
+  const labelWidth = Math.max(
+    ...sorted.map((e) => `(${e.passing}/${data.tasks.length})`.length),
+    6,
+  );
   const barLo = -40;
   const barHi = 30;
 
@@ -73,7 +94,9 @@ export function ElegancePanel({ data }: ElegancePanelProps) {
       <VimLine n={n++}>
         <span className="font-bold text-[var(--sol-yellow)]">LamBench</span>
         {"  "}
-        <span className="text-[var(--sol-base1)]">-- Lambda Calculus Benchmark for AI</span>
+        <span className="text-[var(--sol-base1)]">
+          -- Lambda Calculus Benchmark for AI
+        </span>
       </VimLine>
       <VimLine n={n++} />
       <VimLine n={n++}>
@@ -87,7 +110,10 @@ export function ElegancePanel({ data }: ElegancePanelProps) {
 
       {sorted.map((e) => {
         const barPct = e.passing
-          ? Math.max(0, Math.min(100, ((e.shorter - barLo) * 100) / (barHi - barLo)))
+          ? Math.max(
+              0,
+              Math.min(100, ((e.shorter - barLo) * 100) / (barHi - barLo)),
+            )
           : 0;
         return (
           <VimLine key={e.model} n={n++}>
@@ -107,7 +133,9 @@ export function ElegancePanel({ data }: ElegancePanelProps) {
       <VimLine n={n++}>
         <span className="text-[var(--sol-base1)]">{"-- mean: "}</span>
         <span className="text-[var(--sol-magenta)]">{fmtShorter(mean)}</span>
-        <span className="text-[var(--sol-base1)]">{"  shorter than reference"}</span>
+        <span className="text-[var(--sol-base1)]">
+          {"  shorter than reference"}
+        </span>
       </VimLine>
       {Array.from({ length: 8 }).map((_, i) => (
         <TildeLine key={`tilde-${i}`} />

@@ -53,7 +53,14 @@ describe("plan — large input (requires splitting)", () => {
   });
 
   it("accuracy constraint bumps kStar when aLeaf/aCompose are low", () => {
-    const unconstrained = plan(TaskType.GENERAL, 500_000, 100_000, 0.8, 0.95, 0.9);
+    const unconstrained = plan(
+      TaskType.GENERAL,
+      500_000,
+      100_000,
+      0.8,
+      0.95,
+      0.9,
+    );
     const constrained = plan(TaskType.GENERAL, 500_000, 100_000, 0.8, 0.5, 0.5);
     expect(constrained.kStar).toBeGreaterThanOrEqual(unconstrained.kStar);
   });
