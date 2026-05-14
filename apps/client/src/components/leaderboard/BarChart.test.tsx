@@ -7,8 +7,20 @@ import { BarChart } from "./BarChart";
  * The BarChart renders two spans: filled (colored) + empty (base1).
  */
 async function getFilledSpan(container: HTMLElement) {
-  const spans = container.querySelectorAll("span span");
+  // The BarChart renders: <span class="color"> <span>filled</span> <span>empty</span> </span>
+  // spans[0] = outer span with color class
+  // spans[1] = inner filled span
+  // spans[2] = inner empty span
+  const spans = container.querySelectorAll("span");
   return spans[0] as HTMLElement | undefined;
+}
+
+async function getInnerSpans(container: HTMLElement) {
+  const spans = container.querySelectorAll("span");
+  return {
+    filled: spans[1] as HTMLElement | undefined,
+    empty: spans[2] as HTMLElement | undefined,
+  };
 }
 
 describe("BarChart color thresholds", () => {
@@ -40,7 +52,8 @@ describe("BarChart color thresholds", () => {
     const { container } = await render(<BarChart pct={0} width={10} />);
     const filled = await getFilledSpan(container);
     expect(filled?.className).toContain("text-[var(--sol-red)]");
-    expect(filled?.textContent).toBe(""); // 0 filled blocks
+    const { filled: innerFilled } = await getInnerSpans(container);
+    expect(innerFilled?.textContent).toBe(""); // 0 filled blocks
   });
 
   test("pct = 100 fills entire bar", async () => {
@@ -51,9 +64,9 @@ describe("BarChart color thresholds", () => {
 
   test("respects custom width", async () => {
     const { container } = await render(<BarChart pct={50} width={20} />);
-    const spans = container.querySelectorAll("span span");
-    const filled = spans[0]?.textContent ?? "";
-    const empty = spans[1]?.textContent ?? "";
-    expect(filled.length + empty.length).toBe(20);
+    const { filled, empty } = await getInnerSpans(container);
+    const filledText = filled?.textContent ?? "";
+    const emptyText = empty?.textContent ?? "";
+    expect(filledText.length + emptyText.length).toBe(20);
   });
 });

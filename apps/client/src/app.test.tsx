@@ -55,18 +55,18 @@ describe("App (leaderboard)", () => {
   test("renders without crashing", async () => {
     const { getByText } = await render(<App />);
     // TabLine is always visible
-    await expect.element(getByText("intelligence")).toBeVisible();
+    await expect.element(getByText(":intelligence")).toBeVisible();
   });
 
   test("shows all 6 tabs", async () => {
     const { getByText } = await render(<App />);
     for (const tab of [
-      "intelligence",
-      "speed",
-      "elegance",
-      "value",
-      "problems",
-      "matrix",
+      ":intelligence",
+      ":speed",
+      ":elegance",
+      ":value",
+      ":problems",
+      ":matrix",
     ]) {
       await expect.element(getByText(tab)).toBeVisible();
     }

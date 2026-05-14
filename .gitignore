@@ -15,6 +15,14 @@ node_modules
 # Testing
 coverage
 .vitest-attachments/
+__screenshots__/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+__screenshots__/
 
 # Playwright
 /test-results/
@@ -49,6 +57,8 @@ tsconfig.tsbuildinfo
 
 # References
 .reference
+reference/clanka/
+reference/motel/
 
 # Swarm orchestration (local only)
 .swarm
