@@ -1,5 +1,19 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
+const clearEnvVars = () => {
+  vi.stubEnv("LAMBENCH_PORT", undefined);
+  vi.stubEnv("LAMBENCH_DB_PATH", undefined);
+  vi.stubEnv("OPENROUTER_API_KEY", undefined);
+  vi.stubEnv("DEV_MODE", undefined);
+  vi.stubEnv("TOP_MODELS", undefined);
+  vi.stubEnv("LLM_MODEL", undefined);
+  vi.stubEnv("RLM_MAX_DEPTH", undefined);
+  vi.stubEnv("EVAL_CONCURRENCY", undefined);
+  vi.stubEnv("BATCH_CONCURRENCY", undefined);
+  vi.stubEnv("RETENTION_DAYS", undefined);
+  vi.stubEnv("MAX_DB_SIZE_MB", undefined);
+};
+
 describe("parsePositiveInt", () => {
   test("returns default when value is undefined", async () => {
     const { parsePositiveInt } = await import("./LamConfig");
@@ -40,17 +54,7 @@ describe("parsePositiveInt", () => {
 
 describe("loadConfig", () => {
   beforeEach(() => {
-    delete process.env["LAMBENCH_PORT"];
-    delete process.env["LAMBENCH_DB_PATH"];
-    delete process.env["OPENROUTER_API_KEY"];
-    delete process.env["DEV_MODE"];
-    delete process.env["TOP_MODELS"];
-    delete process.env["LLM_MODEL"];
-    delete process.env["RLM_MAX_DEPTH"];
-    delete process.env["EVAL_CONCURRENCY"];
-    delete process.env["BATCH_CONCURRENCY"];
-    delete process.env["RETENTION_DAYS"];
-    delete process.env["MAX_DB_SIZE_MB"];
+    clearEnvVars();
     vi.resetModules();
   });
 
@@ -132,17 +136,7 @@ describe("loadConfig", () => {
 
   test("parseBoolean handles true-like strings for DEV_MODE", async () => {
     for (const val of ["1", "true", "yes", "on", "TRUE", "Yes", "ON"]) {
-      delete process.env["LAMBENCH_PORT"];
-      delete process.env["LAMBENCH_DB_PATH"];
-      delete process.env["OPENROUTER_API_KEY"];
-      delete process.env["DEV_MODE"];
-      delete process.env["TOP_MODELS"];
-      delete process.env["LLM_MODEL"];
-      delete process.env["RLM_MAX_DEPTH"];
-      delete process.env["EVAL_CONCURRENCY"];
-      delete process.env["BATCH_CONCURRENCY"];
-      delete process.env["RETENTION_DAYS"];
-      delete process.env["MAX_DB_SIZE_MB"];
+      clearEnvVars();
       vi.resetModules();
       vi.stubEnv("DEV_MODE", val);
       const { loadConfig } = await import("./LamConfig");
@@ -152,17 +146,7 @@ describe("loadConfig", () => {
 
   test("parseBoolean handles false-like strings for DEV_MODE", async () => {
     for (const val of ["0", "false", "no", "off", "FALSE", "No", "OFF"]) {
-      delete process.env["LAMBENCH_PORT"];
-      delete process.env["LAMBENCH_DB_PATH"];
-      delete process.env["OPENROUTER_API_KEY"];
-      delete process.env["DEV_MODE"];
-      delete process.env["TOP_MODELS"];
-      delete process.env["LLM_MODEL"];
-      delete process.env["RLM_MAX_DEPTH"];
-      delete process.env["EVAL_CONCURRENCY"];
-      delete process.env["BATCH_CONCURRENCY"];
-      delete process.env["RETENTION_DAYS"];
-      delete process.env["MAX_DB_SIZE_MB"];
+      clearEnvVars();
       vi.resetModules();
       vi.stubEnv("DEV_MODE", val);
       const { loadConfig } = await import("./LamConfig");
@@ -172,17 +156,7 @@ describe("loadConfig", () => {
 
   test("parseBoolean handles empty/undefined DEV_MODE with default", async () => {
     for (const val of [undefined, "", "   "]) {
-      delete process.env["LAMBENCH_PORT"];
-      delete process.env["LAMBENCH_DB_PATH"];
-      delete process.env["OPENROUTER_API_KEY"];
-      delete process.env["DEV_MODE"];
-      delete process.env["TOP_MODELS"];
-      delete process.env["LLM_MODEL"];
-      delete process.env["RLM_MAX_DEPTH"];
-      delete process.env["EVAL_CONCURRENCY"];
-      delete process.env["BATCH_CONCURRENCY"];
-      delete process.env["RETENTION_DAYS"];
-      delete process.env["MAX_DB_SIZE_MB"];
+      clearEnvVars();
       vi.resetModules();
       if (val !== undefined) vi.stubEnv("DEV_MODE", val);
       const { loadConfig } = await import("./LamConfig");
@@ -193,17 +167,7 @@ describe("loadConfig", () => {
 
 describe("config proxy", () => {
   beforeEach(() => {
-    delete process.env["LAMBENCH_PORT"];
-    delete process.env["LAMBENCH_DB_PATH"];
-    delete process.env["OPENROUTER_API_KEY"];
-    delete process.env["DEV_MODE"];
-    delete process.env["TOP_MODELS"];
-    delete process.env["LLM_MODEL"];
-    delete process.env["RLM_MAX_DEPTH"];
-    delete process.env["EVAL_CONCURRENCY"];
-    delete process.env["BATCH_CONCURRENCY"];
-    delete process.env["RETENTION_DAYS"];
-    delete process.env["MAX_DB_SIZE_MB"];
+    clearEnvVars();
     vi.resetModules();
   });
 

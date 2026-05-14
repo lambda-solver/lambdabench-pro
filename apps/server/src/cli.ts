@@ -185,7 +185,7 @@ export const runCli = Effect.fn("runCli")(function* (args: readonly string[]) {
   }
 });
 
-const baseUrl = process.env["LAMBENCH_API_URL"] ?? "http://127.0.0.1:9000";
+const baseUrl = process.env.LAMBENCH_API_URL ?? "http://127.0.0.1:9000";
 
 if (import.meta.main) {
   BunRuntime.runMain(

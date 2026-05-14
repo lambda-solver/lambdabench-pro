@@ -30,7 +30,6 @@ import {
   buildTaskDetectionProbe,
 } from "../llm/LlmPrompts";
 import { guardedGenerate, ModelUnresponsiveError } from "../llm/ModelGuard";
-import { LlmError } from "../llm/OpenRouterClient";
 import { type LambdaPlan, parseTaskType, plan, splitText } from "./LambdaPlan";
 import { extractLamCode } from "./LamCodeExtractor";
 
@@ -102,8 +101,20 @@ type PhiEffect = Effect.Effect<
  */
 const selectBest = (results: ReadonlyArray<LlmCheckResult>): LlmCheckResult => {
   const passing = results.filter((r) => r.pass);
-  if (passing.length > 0) return passing[0]!;
-  return [...results].sort((a, b) => a.errors.length - b.errors.length)[0]!;
+  const firstPassing = passing[0];
+  if (firstPassing !== undefined) return firstPassing;
+  const sorted = [...results].sort((a, b) => a.errors.length - b.errors.length);
+  const firstSorted = sorted[0];
+  if (firstSorted !== undefined) return firstSorted;
+  return {
+    id: "unknown",
+    pass: false,
+    bits: 0,
+    score: 0,
+    errors: ["no results available"],
+    attempts: 0,
+    depth: 0,
+  };
 };
 
 // ─── Internal: absorbToCheckResult ───────────────────────────────────────────
@@ -159,9 +170,10 @@ type LeafInput = {
  */
 const leafCall = Effect.fn("leafCall")(function* (input: LeafInput) {
   const isRetry = input.priorAttempt !== undefined;
-  const prompt = isRetry
-    ? buildRetryPrompt(input.task, input.priorAttempt!, input.priorErrors)
-    : buildSolvePrompt(input.task);
+  const prompt =
+    input.priorAttempt !== undefined
+      ? buildRetryPrompt(input.task, input.priorAttempt, input.priorErrors)
+      : buildSolvePrompt(input.task);
 
   yield* Effect.log(
     `[λ-RLM] ${input.task.id}${isRetry ? " retry" : ""} → prompt (${prompt.length} chars): ${prompt.slice(0, 80).replace(/\n/g, " ")}…`,

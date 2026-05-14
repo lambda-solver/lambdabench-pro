@@ -15,7 +15,6 @@ import {
   OpenRouterLanguageModel,
 } from "@effect/ai-openrouter";
 import { Config, Layer } from "effect";
-import type { LanguageModel } from "effect/unstable/ai";
 import { FetchHttpClient } from "effect/unstable/http";
 
 // ─── Re-exports used by absorb boundaries in LambdaRlm and Check ─────────────

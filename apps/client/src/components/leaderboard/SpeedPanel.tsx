@@ -72,9 +72,14 @@ export function SpeedPanel({ data }: SpeedPanelProps) {
           -- Wall-clock time per passing task (model + interpreter)
         </span>
       </VimLine>
-      {Array.from({ length: 8 }).map((_, i) => (
-        <TildeLine key={`tilde-${i}`} />
-      ))}
+      <TildeLine />
+      <TildeLine />
+      <TildeLine />
+      <TildeLine />
+      <TildeLine />
+      <TildeLine />
+      <TildeLine />
+      <TildeLine />
     </div>
   );
 }

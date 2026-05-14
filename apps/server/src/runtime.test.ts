@@ -52,7 +52,7 @@ describe("runtime", () => {
   // ─── Existence & shape ──────────────────────────────────────────────────────
 
   it.effect("serverRuntime is a ManagedRuntime", () =>
-    Effect.gen(function* () {
+    Effect.sync(() => {
       assertDefined(serverRuntime);
       assertTrue(serverRuntime !== null && typeof serverRuntime === "object");
       // ManagedRuntime has runPromise / runSync methods
@@ -62,7 +62,7 @@ describe("runtime", () => {
   );
 
   it.effect("ServicesLive is a Layer", () =>
-    Effect.gen(function* () {
+    Effect.sync(() => {
       assertDefined(ServicesLive);
       assertTrue(ServicesLive !== null && typeof ServicesLive === "object");
       // Layer has pipe method
@@ -113,10 +113,10 @@ describe("runtime", () => {
         }).pipe(Effect.provide(layer));
 
         strictEqual(result.length, 1);
-        strictEqual(result[0]!.runId, "run-1");
-        strictEqual(result[0]!.taskId, "task-1");
-        strictEqual(result[0]!.model, "gpt-4");
-        strictEqual(result[0]!.pass, true);
+        strictEqual(result[0]?.runId, "run-1");
+        strictEqual(result[0]?.taskId, "task-1");
+        strictEqual(result[0]?.model, "gpt-4");
+        strictEqual(result[0]?.pass, true);
       }),
   );
 
@@ -161,7 +161,7 @@ describe("runtime", () => {
         }).pipe(Effect.provide(layerA));
 
         strictEqual(resultsA.length, 1);
-        strictEqual(resultsA[0]!.taskId, "task-a");
+        strictEqual(resultsA[0]?.taskId, "task-a");
       }),
   );
 
@@ -197,8 +197,8 @@ describe("runtime", () => {
       );
 
       strictEqual(result.length, 1);
-      strictEqual(result[0]!.runId, "run-runtime");
-      strictEqual(result[0]!.pass, false);
+      strictEqual(result[0]?.runId, "run-runtime");
+      strictEqual(result[0]?.pass, false);
     }),
   );
 
@@ -206,8 +206,8 @@ describe("runtime", () => {
     "makeRuntime with different paths creates independent runtimes",
     () =>
       Effect.gen(function* () {
-        const runtimeA = makeRuntime(testDbPathA);
-        const runtimeB = makeRuntime(testDbPathB);
+        const _runtimeA = makeRuntime(testDbPathA);
+        const _runtimeB = makeRuntime(testDbPathB);
 
         // Use runtimeA to insert
         const effectA = Effect.gen(function* () {

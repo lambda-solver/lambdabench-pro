@@ -20,6 +20,8 @@ jobs:
   run-benchmark:
     name: "Run Benchmark"
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     if: ${{ true }}
     steps:
       - name: Checkout code
@@ -55,6 +57,10 @@ jobs:
     needs: [run-benchmark]
     if: ${{ always() && (needs.run-benchmark.result == 'success' || needs.run-benchmark.result == 'skipped') }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -79,7 +85,7 @@ jobs:
           VITE_BASE_URL: /${{ github.event.repository.name }}/
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: apps/client/dist
 

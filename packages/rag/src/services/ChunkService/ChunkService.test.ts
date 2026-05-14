@@ -81,6 +81,19 @@ const pdfFixture: PdfDocument = {
   ],
 };
 
+const pdfChunkServiceLayer = Layer.effect(ChunkService, ChunkService.make).pipe(
+  Layer.provideMerge(
+    Layer.mergeAll(
+      Layer.succeed(PdfService, { analyze: () => Effect.succeed(pdfFixture) }),
+      Layer.effect(FastChunker, FastChunker.make),
+      Layer.effect(SentenceChunker, SentenceChunker.make),
+      Layer.effect(TokenChunker, TokenChunker.make),
+      Layer.effect(RecursiveChunker, RecursiveChunker.make),
+      Layer.effect(TableChunker, TableChunker.make),
+    ).pipe(Layer.provide(CharacterTokenizerLive)),
+  ),
+);
+
 describe("ChunkService table strategy routing", () => {
   it.effect("routes markdown table content to table chunker behavior", () =>
     Effect.gen(function* () {
@@ -176,68 +189,48 @@ Final summary paragraph.
     }).pipe(Effect.provide(ChunkService.Default)),
   );
 
-  it.effect("chunks pdf page segments with table metadata preserved", () =>
-    Effect.gen(function* () {
-      const service = yield* ChunkService;
-      const chunks = yield* service
-        .chunkFile("report.pdf", new Uint8Array([1, 2, 3]))
-        .pipe(
-          Effect.provide(
-            Layer.succeed(PdfService, {
-              analyze: () => Effect.succeed(pdfFixture),
-            }),
-          ),
+  it.layer(pdfChunkServiceLayer)((it) => {
+    it.effect("chunks pdf page segments with table metadata preserved", () =>
+      Effect.gen(function* () {
+        const service = yield* ChunkService;
+        const chunks = yield* service.chunkFile(
+          "report.pdf",
+          new Uint8Array([1, 2, 3]),
         );
 
-      const getMetadata = (index: number) =>
-        chunks[index]?.metadata as Record<string, unknown> | undefined;
+        const getMetadata = (index: number) =>
+          chunks[index]?.metadata as Record<string, unknown> | undefined;
 
-      expect(chunks.length).toBeGreaterThan(1);
+        expect(chunks.length).toBeGreaterThan(1);
 
-      expect(
-        chunks.some(
-          (chunk, index) =>
-            chunk.pageNumber === 1 &&
-            getMetadata(index)?.["pdfBlockType"] === "paragraph" &&
-            chunk.text.includes("Executive summary before the table."),
-        ),
-      ).toBe(true);
-
-      expect(
-        chunks.some(
-          (chunk, index) =>
-            chunk.pageNumber === 1 &&
-            getMetadata(index)?.["pdfBlockType"] === "table" &&
-            getMetadata(index)?.["chunkStrategy"] === "table" &&
-            chunk.text.includes("| metric | score |"),
-        ),
-      ).toBe(true);
-
-      expect(
-        chunks.some(
-          (chunk, index) =>
-            chunk.pageNumber === 2 &&
-            getMetadata(index)?.["pdfBlockType"] === "paragraph" &&
-            chunk.text.includes("Follow-up paragraph after the table."),
-        ),
-      ).toBe(true);
-    }).pipe(
-      Effect.provide(
-        Layer.effect(ChunkService, ChunkService.make).pipe(
-          Layer.provideMerge(
-            Layer.mergeAll(
-              Layer.succeed(PdfService, {
-                analyze: () => Effect.succeed(pdfFixture),
-              }),
-              Layer.effect(FastChunker, FastChunker.make),
-              Layer.effect(SentenceChunker, SentenceChunker.make),
-              Layer.effect(TokenChunker, TokenChunker.make),
-              Layer.effect(RecursiveChunker, RecursiveChunker.make),
-              Layer.effect(TableChunker, TableChunker.make),
-            ).pipe(Layer.provide(CharacterTokenizerLive)),
+        expect(
+          chunks.some(
+            (chunk, index) =>
+              chunk.pageNumber === 1 &&
+              getMetadata(index)?.["pdfBlockType"] === "paragraph" &&
+              chunk.text.includes("Executive summary before the table."),
           ),
-        ),
-      ) as any,
-    ),
-  );
+        ).toBe(true);
+
+        expect(
+          chunks.some(
+            (chunk, index) =>
+              chunk.pageNumber === 1 &&
+              getMetadata(index)?.["pdfBlockType"] === "table" &&
+              getMetadata(index)?.["chunkStrategy"] === "table" &&
+              chunk.text.includes("| metric | score |"),
+          ),
+        ).toBe(true);
+
+        expect(
+          chunks.some(
+            (chunk, index) =>
+              chunk.pageNumber === 2 &&
+              getMetadata(index)?.["pdfBlockType"] === "paragraph" &&
+              chunk.text.includes("Follow-up paragraph after the table."),
+          ),
+        ).toBe(true);
+      }),
+    );
+  });
 });

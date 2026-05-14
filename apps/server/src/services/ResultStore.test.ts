@@ -9,7 +9,7 @@ import {
   deepStrictEqual,
   strictEqual,
 } from "@effect/vitest/utils";
-import { Effect, Layer } from "effect";
+import { Effect } from "effect";
 import { afterAll, afterEach, beforeAll } from "vitest";
 import { ResultStore, ResultStoreLive, SqlError } from "./ResultStore";
 
@@ -81,19 +81,19 @@ describe("ResultStore", () => {
 
       const results = yield* store.getResultsByRunId("run-1");
       strictEqual(results.length, 1);
-      strictEqual(results[0]!.runId, "run-1");
-      strictEqual(results[0]!.taskId, "task-1");
-      strictEqual(results[0]!.model, "gpt-4");
-      strictEqual(results[0]!.variant, "default");
-      strictEqual(results[0]!.provider, "openai");
-      strictEqual(results[0]!.pass, true);
-      strictEqual(results[0]!.bits, 4);
-      strictEqual(results[0]!.score, 0.95);
-      deepStrictEqual(results[0]!.errors, ["err1"]);
-      strictEqual(results[0]!.submission, "sub-1");
-      strictEqual(results[0]!.elapsedMs, 1234);
-      strictEqual(results[0]!.timestamp, "2025-01-01T00:00:00Z");
-      assertDefined(results[0]!.id);
+      strictEqual(results[0]?.runId, "run-1");
+      strictEqual(results[0]?.taskId, "task-1");
+      strictEqual(results[0]?.model, "gpt-4");
+      strictEqual(results[0]?.variant, "default");
+      strictEqual(results[0]?.provider, "openai");
+      strictEqual(results[0]?.pass, true);
+      strictEqual(results[0]?.bits, 4);
+      strictEqual(results[0]?.score, 0.95);
+      deepStrictEqual(results[0]?.errors, ["err1"]);
+      strictEqual(results[0]?.submission, "sub-1");
+      strictEqual(results[0]?.elapsedMs, 1234);
+      strictEqual(results[0]?.timestamp, "2025-01-01T00:00:00Z");
+      assertDefined(results[0]?.id);
     }).pipe(Effect.provide(ResultStoreLive(testDbPath))),
   );
 
@@ -127,8 +127,8 @@ describe("ResultStore", () => {
 
       const results = yield* store.getResultsByJobId("job-1");
       strictEqual(results.length, 2);
-      strictEqual(results[0]!.runId, "run-3");
-      strictEqual(results[1]!.runId, "run-2");
+      strictEqual(results[0]?.runId, "run-3");
+      strictEqual(results[1]?.runId, "run-2");
     }).pipe(Effect.provide(ResultStoreLive(testDbPath))),
   );
 
@@ -203,8 +203,8 @@ describe("ResultStore", () => {
 
       const all = yield* store.getAllTasks();
       strictEqual(all.length, 2);
-      strictEqual(all[0]!.id, "task-1");
-      strictEqual(all[1]!.id, "task-2");
+      strictEqual(all[0]?.id, "task-1");
+      strictEqual(all[1]?.id, "task-2");
     }).pipe(Effect.provide(ResultStoreLive(testDbPath))),
   );
 
@@ -232,11 +232,11 @@ describe("ResultStore", () => {
 
       const active = yield* store.getActiveModelConfigs();
       strictEqual(active.length, 1);
-      strictEqual(active[0]!.id, "gpt-4");
-      strictEqual(active[0]!.provider, "openai");
-      strictEqual(active[0]!.displayName, "GPT-4");
-      strictEqual(active[0]!.pricePerMOutput, 30);
-      strictEqual(active[0]!.isActive, true);
+      strictEqual(active[0]?.id, "gpt-4");
+      strictEqual(active[0]?.provider, "openai");
+      strictEqual(active[0]?.displayName, "GPT-4");
+      strictEqual(active[0]?.pricePerMOutput, 30);
+      strictEqual(active[0]?.isActive, true);
     }).pipe(Effect.provide(ResultStoreLive(testDbPath))),
   );
 
@@ -327,7 +327,7 @@ describe("ResultStore", () => {
 
       const running = yield* store.getJobsByStatus("running");
       strictEqual(running.length, 1);
-      strictEqual(running[0]!.id, "job-running-1");
+      strictEqual(running[0]?.id, "job-running-1");
     }).pipe(Effect.provide(ResultStoreLive(testDbPath))),
   );
 
@@ -371,7 +371,7 @@ describe("ResultStore", () => {
 
       const logicTasks = yield* store.getTasksByCategory("logic");
       strictEqual(logicTasks.length, 1);
-      strictEqual(logicTasks[0]!.id, "task-logic-1");
+      strictEqual(logicTasks[0]?.id, "task-logic-1");
     }).pipe(Effect.provide(ResultStoreLive(testDbPath))),
   );
 

@@ -20,73 +20,74 @@ vi.doMock("@effect/platform-bun", async () => {
 });
 
 vi.doMock("./client/LamBenchClient.js", async () => {
+  const { LamBenchClient, ApiError } = await import(
+    "./client/LamBenchClient.js"
+  );
   const { Effect, Layer } = await import("effect");
-  const { ServiceMap } = await import("effect");
 
-  const Base = (ServiceMap.Service as any)()("app/MockLamBenchClient");
-
-  class MockLamBenchClient extends Base {
-    static readonly layer = () =>
+  class MockLamBenchClient extends LamBenchClient {
+    static override readonly layer = () =>
       Layer.succeed(
-        MockLamBenchClient,
-        MockLamBenchClient.of({
-          health: Effect.fnUntraced(function* () {
-            return {
+        LamBenchClient,
+        LamBenchClient.of({
+          health: () =>
+            Effect.succeed({
               status: "ok" as const,
               version: "1.0.0",
               db: "connected" as const,
               uptimeSeconds: 0,
-            };
-          }),
-          evalSingle: Effect.fnUntraced(function* (request: unknown) {
+            }),
+
+          evalSingle: (request: unknown) => {
             const req = request as {
               task: string;
               model: string;
               variant: string;
             };
-            return {
+            return Effect.succeed({
               taskId: req.task,
               model: req.model,
-              variant: req.variant,
+              variant: req.variant as "standard" | "rlm" | "both",
               pass: true,
               bits: 42,
               score: 0.95,
-              errors: [],
+              errors: [] as readonly string[],
               elapsedMs: 100,
               submission: "answer",
               timestamp: new Date().toISOString(),
-            };
-          }),
-          evalBatch: Effect.fnUntraced(function* () {
-            return {
+            });
+          },
+
+          evalBatch: () =>
+            Effect.succeed({
               id: "job-1",
               status: "queued" as const,
               totalTasks: 1,
               completedTasks: 0,
               createdAt: new Date().toISOString(),
               results: [],
-            };
-          }),
-          evalStatus: Effect.fnUntraced(function* () {
-            return {
+            }),
+
+          evalStatus: () =>
+            Effect.succeed({
               id: "job-1",
               status: "queued" as const,
               totalTasks: 1,
               completedTasks: 0,
               createdAt: new Date().toISOString(),
               results: [],
-            };
-          }),
-          results: Effect.fnUntraced(function* () {
-            return {
+            }),
+
+          results: () =>
+            Effect.succeed({
               rankings: [],
               tasks: [],
               categories: [],
               generatedAt: new Date().toISOString(),
-            };
-          }),
-          resultDetail: Effect.fnUntraced(function* () {
-            return {
+            }),
+
+          resultDetail: () =>
+            Effect.succeed({
               taskId: "task-1",
               model: "model-a",
               variant: "standard" as const,
@@ -97,38 +98,27 @@ vi.doMock("./client/LamBenchClient.js", async () => {
               elapsedMs: 100,
               submission: "",
               timestamp: new Date().toISOString(),
-            };
-          }),
-          tasks: Effect.fnUntraced(function* () {
-            return [];
-          }),
-          taskDetail: Effect.fnUntraced(function* () {
-            return {
+            }),
+
+          tasks: () => Effect.succeed([]),
+          taskDetail: () =>
+            Effect.succeed({
               id: "task-1",
               category: "algo",
               categoryName: "Algorithms",
               description: "Test task",
               testCount: 1,
               tests: [],
-            };
-          }),
-          models: Effect.fnUntraced(function* () {
-            return [];
-          }),
-          testModel: Effect.fnUntraced(function* () {
-            return {
-              status: "ok" as const,
-              model: "test-model",
-              provider: "openrouter" as const,
-            };
-          }),
+            }),
+
+          models: () => Effect.succeed([]),
+          testModel: () =>
+            Effect.succeed({
+              ok: true,
+              latencyMs: 0,
+            }),
         }),
       );
-  }
-
-  class ApiError {
-    readonly _tag = "ApiError" as const;
-    constructor(readonly cause: unknown) {}
   }
 
   return { LamBenchClient: MockLamBenchClient, ApiError };
@@ -152,7 +142,7 @@ describe("mcp", () => {
   );
 
   it.effect("LambenchToolkit contains all expected tools", () =>
-    Effect.gen(function* () {
+    Effect.sync(() => {
       const tools = (LambenchToolkit as AnyToolkit).tools;
       const toolNames = Object.keys(tools);
 
@@ -167,11 +157,11 @@ describe("mcp", () => {
   );
 
   it.effect("EvalSingleTool has correct name and valid schemas", () =>
-    Effect.gen(function* () {
-      const tool = (LambenchToolkit as AnyToolkit).tools[
-        "lambench_eval_single"
-      ]!;
+    Effect.sync(() => {
+      const tools = (LambenchToolkit as AnyToolkit).tools;
+      const tool = tools["lambench_eval_single"];
 
+      if (!tool) throw new Error("lambench_eval_single tool missing");
       strictEqual(tool.name, "lambench_eval_single");
       assertTrue(Schema.isSchema(tool.parametersSchema));
       assertTrue(Schema.isSchema(tool.successSchema));
@@ -179,11 +169,11 @@ describe("mcp", () => {
   );
 
   it.effect("ListTasksTool has correct name and valid schemas", () =>
-    Effect.gen(function* () {
-      const tool = (LambenchToolkit as AnyToolkit).tools[
-        "lambench_list_tasks"
-      ]!;
+    Effect.sync(() => {
+      const tools = (LambenchToolkit as AnyToolkit).tools;
+      const tool = tools["lambench_list_tasks"];
 
+      if (!tool) throw new Error("lambench_list_tasks tool missing");
       strictEqual(tool.name, "lambench_list_tasks");
       assertTrue(Schema.isSchema(tool.parametersSchema));
       assertTrue(Schema.isSchema(tool.successSchema));
@@ -191,11 +181,11 @@ describe("mcp", () => {
   );
 
   it.effect("ListResultsTool has correct name and valid schemas", () =>
-    Effect.gen(function* () {
-      const tool = (LambenchToolkit as AnyToolkit).tools[
-        "lambench_list_results"
-      ]!;
+    Effect.sync(() => {
+      const tools = (LambenchToolkit as AnyToolkit).tools;
+      const tool = tools["lambench_list_results"];
 
+      if (!tool) throw new Error("lambench_list_results tool missing");
       strictEqual(tool.name, "lambench_list_results");
       assertTrue(Schema.isSchema(tool.parametersSchema));
       assertTrue(Schema.isSchema(tool.successSchema));
@@ -203,9 +193,11 @@ describe("mcp", () => {
   );
 
   it.effect("GetTaskTool has correct name and valid schemas", () =>
-    Effect.gen(function* () {
-      const tool = (LambenchToolkit as AnyToolkit).tools["lambench_get_task"]!;
+    Effect.sync(() => {
+      const tools = (LambenchToolkit as AnyToolkit).tools;
+      const tool = tools["lambench_get_task"];
 
+      if (!tool) throw new Error("lambench_get_task tool missing");
       strictEqual(tool.name, "lambench_get_task");
       assertTrue(Schema.isSchema(tool.parametersSchema));
       assertTrue(Schema.isSchema(tool.successSchema));

@@ -83,7 +83,7 @@ export const writeResultFile = Effect.fn("writeResultFile")(function* (
     return `- ${r.id}: ${score} ${status} time=${time}s${bits}`;
   });
 
-  const content = [...headerLines, ...taskLines].join("\n") + "\n";
+  const content = `${[...headerLines, ...taskLines].join("\n")}\n`;
 
   yield* fs.writeFileString(filePath, content);
   yield* Effect.log(`[RunWriter] Written ${right}/${total} → ${filePath}`);

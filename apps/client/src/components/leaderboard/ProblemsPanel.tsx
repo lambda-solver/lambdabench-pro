@@ -91,9 +91,11 @@ export function ProblemsPanel({ data, onTaskClick }: ProblemsPanelProps) {
         );
       })}
 
-      {Array.from({ length: 5 }).map((_, i) => (
-        <TildeLine key={`tilde-${i}`} />
-      ))}
+      <TildeLine />
+      <TildeLine />
+      <TildeLine />
+      <TildeLine />
+      <TildeLine />
     </div>
   );
 }

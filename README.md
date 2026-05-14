@@ -271,6 +271,74 @@ To set up in your own fork:
 
 > **Tip:** Run `bun dev --filter=client` in a separate terminal while using OpenCode. Vite's HMR picks up every file save and updates the browser in ~100 ms.
 
+## Contributing Guidelines
+
+### Lint Rules (Enforced in CI)
+
+The following Biome rules are enforced at error level. Code must pass `bun lint` before merging:
+
+| Rule | What it means | Pattern to use |
+|------|---------------|----------------|
+| `noArrayIndexKey` | Never use `key={i}` in React `.map()` | Use content-based keys (`key={item.id}`) or inline static arrays |
+| `useLiteralKeys` | Prefer dot notation for known properties | `obj.field` for known keys; `obj["dynamic"]` only for `Record<string, …>` index access |
+| `noExplicitAny` | Ban the `any` type | Use `unknown` + `as unknown as T` for necessary coercion |
+| `useYield` | Only use `yield*` inside generators | Simple mock returns should be plain arrows, not `Effect.fnUntraced(function* () { … })` |
+
+### Type-Safe Environment Variables
+
+Declare known env vars in a global `NodeJS.ProcessEnv` augmentation so TypeScript validates access and Biome's `useLiteralKeys` rule accepts dot notation:
+
+```typescript
+declare global {
+  namespace NodeJS {
+    interface ProcessEnv {
+      readonly OPENROUTER_API_KEY?: string;
+      readonly LAMBENCH_PORT?: string;
+      readonly DEV_MODE?: string;
+    }
+  }
+}
+
+// Now dot notation is type-safe and lint-clean:
+const apiKey = process.env.OPENROUTER_API_KEY;
+```
+
+### Testing with Effect
+
+Use `it.layer()` for shared test dependencies instead of repeating `.pipe(Effect.provide(...))`:
+
+```typescript
+const myLayer = Layer.effect(MyService, MyService.make);
+
+describe("MyService", () => {
+  it.layer(myLayer)((it) => {
+    it.effect("does something", () =>
+      Effect.gen(function* () {
+        const service = yield* MyService;
+        // ...
+      }),
+    );
+  });
+});
+```
+
+### Mock Services in Tests
+
+Use plain arrow functions returning Effects. Only use `Effect.fnUntraced` when the mock contains `yield*`:
+
+```typescript
+// GOOD — plain arrow returning Effect
+const mockService = Layer.succeed(
+  MyService,
+  MyService.of({
+    method: () => Effect.succeed({ status: "ok" }),
+  }),
+);
+
+// BAD — unnecessary generator for a pure return
+method: Effect.fnUntraced(function* () { return { status: "ok" }; }),
+```
+
 ## Learn More
 
 - [Effect](https://effect.website/docs/introduction)

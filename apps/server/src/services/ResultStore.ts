@@ -234,58 +234,110 @@ CREATE INDEX IF NOT EXISTS idx_jobs_status ON batch_jobs(status);
 
 // ─── Row mappers ─────────────────────────────────────────────────────────────
 
-const mapDbResult = (row: Record<string, unknown>): DbResult => ({
-  id: row["id"] as number,
-  runId: row["run_id"] as string,
-  jobId: (row["job_id"] as string | null) ?? null,
-  taskId: row["task_id"] as string,
-  model: row["model"] as string,
-  variant: row["variant"] as string,
-  provider: row["provider"] as string,
-  pass: toBoolean(row["pass"] as number),
-  bits: (row["bits"] as number | null) ?? null,
-  score: (row["score"] as number | null) ?? null,
-  errors: safeJsonParse(
-    row["errors"] as string | null,
-  ) as ReadonlyArray<string> | null,
-  submission: (row["submission"] as string | null) ?? null,
-  elapsedMs: row["elapsed_ms"] as number,
-  timestamp: row["timestamp"] as string,
-  createdAt: (row["created_at"] as string | null) ?? null,
-});
+const mapDbResult = (row: Record<string, unknown>): DbResult => {
+  const r = row as {
+    id: unknown;
+    run_id: unknown;
+    job_id: unknown;
+    task_id: unknown;
+    model: unknown;
+    variant: unknown;
+    provider: unknown;
+    pass: unknown;
+    bits: unknown;
+    score: unknown;
+    errors: unknown;
+    submission: unknown;
+    elapsed_ms: unknown;
+    timestamp: unknown;
+    created_at: unknown;
+  };
+  return {
+    id: r.id as number,
+    runId: r.run_id as string,
+    jobId: (r.job_id as string | null) ?? null,
+    taskId: r.task_id as string,
+    model: r.model as string,
+    variant: r.variant as string,
+    provider: r.provider as string,
+    pass: toBoolean(r.pass as number),
+    bits: (r.bits as number | null) ?? null,
+    score: (r.score as number | null) ?? null,
+    errors: safeJsonParse(
+      r.errors as string | null,
+    ) as ReadonlyArray<string> | null,
+    submission: (r.submission as string | null) ?? null,
+    elapsedMs: r.elapsed_ms as number,
+    timestamp: r.timestamp as string,
+    createdAt: (r.created_at as string | null) ?? null,
+  };
+};
 
-const mapDbJob = (row: Record<string, unknown>): DbJob => ({
-  id: row["id"] as string,
-  status: row["status"] as string,
-  config: safeJsonParse(row["config"] as string | null),
-  totalTasks: row["total_tasks"] as number,
-  completedTasks: row["completed_tasks"] as number,
-  createdAt: (row["created_at"] as string | null) ?? null,
-  completedAt: (row["completed_at"] as string | null) ?? null,
-});
+const mapDbJob = (row: Record<string, unknown>): DbJob => {
+  const r = row as {
+    id: unknown;
+    status: unknown;
+    config: unknown;
+    total_tasks: unknown;
+    completed_tasks: unknown;
+    created_at: unknown;
+    completed_at: unknown;
+  };
+  return {
+    id: r.id as string,
+    status: r.status as DbJob["status"],
+    config: safeJsonParse(r.config as string | null),
+    totalTasks: r.total_tasks as number,
+    completedTasks: r.completed_tasks as number,
+    createdAt: (r.created_at as string | null) ?? null,
+    completedAt: (r.completed_at as string | null) ?? null,
+  };
+};
 
-const mapDbTask = (row: Record<string, unknown>): DbTask => ({
-  id: row["id"] as string,
-  category: row["category"] as string,
-  categoryName: row["category_name"] as string,
-  description: row["description"] as string,
-  testCount: row["test_count"] as number,
-  tests:
-    (safeJsonParse(
-      row["tests"] as string | null,
-    ) as ReadonlyArray<unknown> | null) ?? [],
-  refBits: (row["ref_bits"] as number | null) ?? null,
-  refSolution: (row["ref_solution"] as string | null) ?? null,
-});
+const mapDbTask = (row: Record<string, unknown>): DbTask => {
+  const r = row as {
+    id: unknown;
+    category: unknown;
+    category_name: unknown;
+    description: unknown;
+    test_count: unknown;
+    tests: unknown;
+    ref_bits: unknown;
+    ref_solution: unknown;
+  };
+  return {
+    id: r.id as string,
+    category: r.category as string,
+    categoryName: r.category_name as string,
+    description: r.description as string,
+    testCount: r.test_count as number,
+    tests:
+      (safeJsonParse(
+        r.tests as string | null,
+      ) as ReadonlyArray<unknown> | null) ?? [],
+    refBits: (r.ref_bits as number | null) ?? null,
+    refSolution: (r.ref_solution as string | null) ?? null,
+  };
+};
 
-const mapDbModelConfig = (row: Record<string, unknown>): DbModelConfig => ({
-  id: row["id"] as string,
-  provider: row["provider"] as string,
-  displayName: (row["display_name"] as string | null) ?? null,
-  pricePerMOutput: (row["price_per_m_output"] as number | null) ?? null,
-  isActive: toBoolean(row["is_active"] as number),
-  createdAt: (row["created_at"] as string | null) ?? null,
-});
+const mapDbModelConfig = (row: Record<string, unknown>): DbModelConfig => {
+  const r = row as {
+    id: unknown;
+    provider: unknown;
+    display_name: unknown;
+    price_per_m_output: unknown;
+    is_active: unknown;
+    created_at: unknown;
+  };
+  return {
+    id: r.id as string,
+    provider: r.provider as string,
+    displayName: (r.display_name as string | null) ?? null,
+    pricePerMOutput: (r.price_per_m_output as number | null) ?? null,
+    isActive: toBoolean(r.is_active as number),
+    createdAt: (r.created_at as string | null) ?? null,
+  };
+};
 
 // ─── Layer Factory ───────────────────────────────────────────────────────────
 

@@ -98,9 +98,14 @@ export function ValuePanel({ data }: ValuePanelProps) {
           {"-- pass/dollar = pass_rate% / price_per_1M_output_tokens"}
         </span>
       </VimLine>
-      {Array.from({ length: 8 }).map((_, i) => (
-        <TildeLine key={`tilde-${i}`} />
-      ))}
+      <TildeLine />
+      <TildeLine />
+      <TildeLine />
+      <TildeLine />
+      <TildeLine />
+      <TildeLine />
+      <TildeLine />
+      <TildeLine />
     </div>
   );
 }

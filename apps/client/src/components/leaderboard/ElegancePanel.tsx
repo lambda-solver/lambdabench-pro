@@ -137,9 +137,14 @@ export function ElegancePanel({ data }: ElegancePanelProps) {
           {"  shorter than reference"}
         </span>
       </VimLine>
-      {Array.from({ length: 8 }).map((_, i) => (
-        <TildeLine key={`tilde-${i}`} />
-      ))}
+      <TildeLine />
+      <TildeLine />
+      <TildeLine />
+      <TildeLine />
+      <TildeLine />
+      <TildeLine />
+      <TildeLine />
+      <TildeLine />
     </div>
   );
 }

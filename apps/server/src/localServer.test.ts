@@ -11,8 +11,8 @@ import { afterEach, vi } from "vitest";
 
 const testDbPath = "/tmp/lambench-localserver-test.sqlite";
 
-process.env["LAMBENCH_DB_PATH"] = testDbPath;
-process.env["LAMBENCH_PORT"] = "0";
+vi.stubEnv("LAMBENCH_DB_PATH", testDbPath);
+vi.stubEnv("LAMBENCH_PORT", "0");
 
 vi.doMock("node:path", async (importOriginal) => {
   const original = await importOriginal<typeof import("node:path")>();

@@ -17,7 +17,9 @@ import { TaskService } from "./services/TaskService.js";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const decodeJsonBody = (response: HttpServerResponse): Effect.Effect<unknown> =>
+const decodeJsonBody = (
+  response: HttpServerResponse,
+): Effect.Effect<unknown, Error> =>
   Effect.gen(function* () {
     const body = response.body as unknown as { _tag: string; body: Uint8Array };
     if (body._tag === "Uint8Array") {
@@ -151,7 +153,7 @@ const makeTestLayer = (
     Layer.provide(HttpRouter.layer),
     Layer.provide(BunHttpServer.layerHttpServices),
     Layer.provide(mockConfigProvider),
-  );
+  ) as Layer.Layer<never>;
 
 // ─── Tests ───────────────────────────────────────────────────────────────────
 

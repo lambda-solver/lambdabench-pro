@@ -14,7 +14,7 @@ import {
 import type { BatchEvalRequest, SingleEvalRequest } from "@repo/domain/Api";
 import type { EvalResult } from "@repo/domain/Benchmark";
 import { Effect, Layer, Ref } from "effect";
-import { beforeAll } from "vitest";
+import { beforeAll, vi } from "vitest";
 import { ModelUnresponsiveError } from "../llm/ModelGuard.js";
 import { BatchService, BatchServiceLive } from "./BatchService";
 import { EvalService } from "./EvalService";
@@ -76,21 +76,14 @@ const makeRequest = (overrides?: Partial<BatchEvalRequest>): BatchEvalRequest =>
 const mockTaskService = Layer.succeed(
   TaskService,
   TaskService.of({
-    loadAndCacheTasks: Effect.fnUntraced(function* () {
-      return undefined;
-    }),
-    getTask: Effect.fnUntraced(function* (taskId: string) {
-      return testTasks.find((t) => t.id === taskId) as DbTask | undefined;
-    }),
-    getAllTasks: Effect.fnUntraced(function* () {
-      return testTasks;
-    }),
-    getTasksByCategory: Effect.fnUntraced(function* () {
-      return [];
-    }),
-    computeRefBits: Effect.fnUntraced(function* () {
-      return undefined;
-    }),
+    loadAndCacheTasks: () => Effect.void,
+    getTask: (taskId: string) =>
+      Effect.succeed(
+        testTasks.find((t) => t.id === taskId) as DbTask | undefined,
+      ),
+    getAllTasks: () => Effect.succeed(testTasks),
+    getTasksByCategory: () => Effect.succeed([]),
+    computeRefBits: () => Effect.succeed(undefined),
   }),
 );
 
@@ -102,32 +95,31 @@ const makeMockEvalService = (
     Effect.gen(function* () {
       const callCount = yield* Ref.make(0);
       return EvalService.of({
-        evaluateSingle: Effect.fnUntraced(function* (
-          request: SingleEvalRequest,
-        ) {
-          const idx = yield* Ref.getAndUpdate(callCount, (n) => n + 1);
-          const behavior = behaviors?.[idx] ?? "success";
-          if (behavior === "unresponsive") {
-            return yield* Effect.fail(
-              new ModelUnresponsiveError(request.model, 3),
-            );
-          }
-          if (behavior === "error") {
-            return yield* Effect.fail(new SqlError("unexpected eval error"));
-          }
-          return {
-            taskId: request.task,
-            model: request.model,
-            variant: request.variant,
-            pass: true,
-            bits: 42,
-            score: 0.95,
-            errors: [],
-            elapsedMs: 100,
-            submission: "answer",
-            timestamp: new Date().toISOString(),
-          } as EvalResult;
-        }),
+        evaluateSingle: (request: SingleEvalRequest) =>
+          Effect.gen(function* () {
+            const idx = yield* Ref.getAndUpdate(callCount, (n) => n + 1);
+            const behavior = behaviors?.[idx] ?? "success";
+            if (behavior === "unresponsive") {
+              return yield* Effect.fail(
+                new ModelUnresponsiveError(request.model, 3),
+              );
+            }
+            if (behavior === "error") {
+              return yield* Effect.fail(new SqlError("unexpected eval error"));
+            }
+            return {
+              taskId: request.task,
+              model: request.model,
+              variant: request.variant,
+              pass: true,
+              bits: 42,
+              score: 0.95,
+              errors: [],
+              elapsedMs: 100,
+              submission: "answer",
+              timestamp: new Date().toISOString(),
+            } as EvalResult;
+          }),
       });
     }),
   );
@@ -150,7 +142,7 @@ const provideTestLayers = <A, E, R>(
 describe("BatchService", () => {
   beforeAll(() => {
     cleanupDbFiles();
-    process.env["OPENROUTER_API_KEY"] = "test-key";
+    vi.stubEnv("OPENROUTER_API_KEY", "test-key");
   });
 
   beforeEach(() => {
@@ -248,9 +240,9 @@ describe("BatchService", () => {
           strictEqual(job.status, "queued");
           strictEqual(job.totalTasks, 1);
           strictEqual(job.results.length, 1);
-          strictEqual(job.results[0]!.taskId, "task-1");
-          strictEqual(job.results[0]!.model, "model-a");
-          strictEqual(job.results[0]!.pass, true);
+          strictEqual(job.results[0]?.taskId, "task-1");
+          strictEqual(job.results[0]?.model, "model-a");
+          strictEqual(job.results[0]?.pass, true);
         }),
         makeMockEvalService(),
       ),
@@ -294,10 +286,10 @@ describe("BatchService", () => {
 
           const results = yield* resultStore.getResultsByJobId(job.id);
           strictEqual(results.length, 1);
-          strictEqual(results[0]!.taskId, "task-1");
-          strictEqual(results[0]!.model, "model-a");
-          strictEqual(results[0]!.variant, "standard");
-          strictEqual(results[0]!.pass, true);
+          strictEqual(results[0]?.taskId, "task-1");
+          strictEqual(results[0]?.model, "model-a");
+          strictEqual(results[0]?.variant, "standard");
+          strictEqual(results[0]?.pass, true);
         }),
         makeMockEvalService(),
       ),

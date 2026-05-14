@@ -25,31 +25,22 @@ vi.doMock("./build/BuildResults", () => ({
 
 vi.doMock("./config/BenchConfig", () => ({
   loadBenchConfig: () =>
-    Effect.gen(function* () {
-      return {
-        models: ["model-a"],
-        rlmMaxDepth: 3,
-        concurrency: 2,
-        tasks: [],
-      };
-    }),
+    Effect.sync(() => ({
+      models: ["model-a"],
+      rlmMaxDepth: 3,
+      concurrency: 2,
+      tasks: [],
+    })),
 }));
 
 vi.doMock("./eval/EvalRunner", () => ({
   resolveTopModels: () =>
-    Effect.gen(function* () {
-      return [{ modelId: "model-a", pricePerMOutput: 0 }];
-    }),
+    Effect.sync(() => [{ modelId: "model-a", pricePerMOutput: 0 }]),
 }));
 
 vi.doMock("./eval/ModelEvalRunner", () => ({
-  loadAllTasks: Effect.gen(function* () {
-    return [];
-  }),
-  loadRefBitsMap: () =>
-    Effect.gen(function* () {
-      return new Map();
-    }),
+  loadAllTasks: Effect.sync(() => []),
+  loadRefBitsMap: () => Effect.sync(() => new Map()),
   runModelEval: () => Effect.void,
 }));
 

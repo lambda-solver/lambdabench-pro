@@ -41,9 +41,9 @@ const SERVER_ROOT = new URL("..", import.meta.url).pathname.replace(/\/$/, "");
 const TOP_MODELS_FILE = `${SERVER_ROOT}/top-models.json`;
 
 const evalCommand = Effect.gen(function* () {
-  const devMode = process.env["DEV_MODE"] === "true";
-  const apiKey = process.env["OPENROUTER_API_KEY"];
-  const fallbackEnv = process.env["TOP_MODELS"];
+  const devMode = process.env.DEV_MODE === "true";
+  const apiKey = process.env.OPENROUTER_API_KEY;
+  const fallbackEnv = process.env.TOP_MODELS;
 
   const top = yield* resolveTopModels(devMode, apiKey, fallbackEnv);
   const fs = yield* FileSystem.FileSystem;
@@ -141,7 +141,7 @@ const program = Effect.gen(function* () {
       catch: (e) => new Error(String(e)),
     });
     const cliArgs = process.argv.slice(3);
-    const baseUrl = process.env["LAMBENCH_API_URL"] ?? "http://127.0.0.1:9000";
+    const baseUrl = process.env.LAMBENCH_API_URL ?? "http://127.0.0.1:9000";
     yield* runCli(cliArgs).pipe(Effect.provide(LamBenchClient.layer(baseUrl)));
   } else if (mode === "mcp") {
     const { ServerLayer } = yield* Effect.tryPromise({

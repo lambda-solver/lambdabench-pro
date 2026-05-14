@@ -9,7 +9,7 @@ const helperBlockStart = (
   lines: ReadonlyArray<string>,
   mainIdx: number,
 ): number =>
-  mainIdx === 0 || !lines[mainIdx - 1]!.trim().startsWith("@")
+  mainIdx === 0 || !lines[mainIdx - 1]?.trim().startsWith("@")
     ? mainIdx
     : helperBlockStart(lines, mainIdx - 1);
 

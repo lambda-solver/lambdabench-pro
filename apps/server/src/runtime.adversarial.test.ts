@@ -97,7 +97,7 @@ describe("runtime - adversarial", () => {
 
   it.effect("makeServicesLayer with 10KB dbPath fails on build", () =>
     Effect.gen(function* () {
-      const longPath = "x".repeat(10_000) + ".db";
+      const longPath = `${"x".repeat(10_000)}.db`;
       const layer = makeServicesLayer(longPath).pipe(
         Layer.provideMerge(platformLayer),
       );
@@ -135,10 +135,10 @@ describe("runtime - adversarial", () => {
           unlinkSync(path);
         } catch (_e) {}
         try {
-          if (existsSync(path + "-wal")) unlinkSync(path + "-wal");
+          if (existsSync(`${path}-wal`)) unlinkSync(`${path}-wal`);
         } catch (_e) {}
         try {
-          if (existsSync(path + "-shm")) unlinkSync(path + "-shm");
+          if (existsSync(`${path}-shm`)) unlinkSync(`${path}-shm`);
         } catch (_e) {}
       }),
   );
@@ -158,10 +158,10 @@ describe("runtime - adversarial", () => {
           unlinkSync(absPath);
         } catch (_e) {}
         try {
-          unlinkSync(absPath + "-wal");
+          unlinkSync(`${absPath}-wal`);
         } catch (_e) {}
         try {
-          unlinkSync(absPath + "-shm");
+          unlinkSync(`${absPath}-shm`);
         } catch (_e) {}
       }
       assertTrue(
@@ -207,10 +207,10 @@ describe("runtime - adversarial", () => {
             unlinkSync(sqlPath);
           } catch (_e) {}
           try {
-            unlinkSync(sqlPath + "-wal");
+            unlinkSync(`${sqlPath}-wal`);
           } catch (_e) {}
           try {
-            unlinkSync(sqlPath + "-shm");
+            unlinkSync(`${sqlPath}-shm`);
           } catch (_e) {}
         }
         // Either success or failure is fine — critical: no SQL execution
@@ -237,10 +237,10 @@ describe("runtime - adversarial", () => {
         unlinkSync(path);
       } catch (_e) {}
       try {
-        if (existsSync(path + "-wal")) unlinkSync(path + "-wal");
+        if (existsSync(`${path}-wal`)) unlinkSync(`${path}-wal`);
       } catch (_e) {}
       try {
-        if (existsSync(path + "-shm")) unlinkSync(path + "-shm");
+        if (existsSync(`${path}-shm`)) unlinkSync(`${path}-shm`);
       } catch (_e) {}
     }),
   );
@@ -292,14 +292,14 @@ describe("runtime - adversarial", () => {
         return yield* store.getResultsByRunId("adv-concurrent-1");
       }).pipe(Effect.provide(layer));
       strictEqual(r1.length, 1);
-      strictEqual(r1[0]!.pass, true);
+      strictEqual(r1[0]?.pass, true);
 
       const r2 = yield* Effect.gen(function* () {
         const store = yield* ResultStore;
         return yield* store.getResultsByRunId("adv-concurrent-2");
       }).pipe(Effect.provide(layer));
       strictEqual(r2.length, 1);
-      strictEqual(r2[0]!.pass, false);
+      strictEqual(r2[0]?.pass, false);
     }),
   );
 
@@ -344,8 +344,8 @@ describe("runtime - adversarial", () => {
         );
 
         strictEqual(results.length, 1);
-        strictEqual(results[0]!.runId, "adv-double-init");
-        strictEqual(results[0]!.pass, true);
+        strictEqual(results[0]?.runId, "adv-double-init");
+        strictEqual(results[0]?.pass, true);
       }),
   );
 
@@ -401,7 +401,7 @@ describe("runtime - adversarial", () => {
         }).pipe(Effect.provide(layer));
 
         strictEqual(results.length, 1);
-        strictEqual(results[0]!.model, "model-structural");
+        strictEqual(results[0]?.model, "model-structural");
       }),
   );
 });

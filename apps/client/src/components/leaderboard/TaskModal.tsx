@@ -86,7 +86,7 @@ export function TaskModal({ task, rankings, onClose }: TaskModalProps) {
           <VimLine n={3} />
 
           {task.description.split("\n").map((line, i) => (
-            <VimLine key={`desc-${i}`} n={i + 4}>
+            <VimLine key={line} n={i + 4}>
               <span className="text-[var(--sol-base1)]">{`-- ${line}`}</span>
             </VimLine>
           ))}
@@ -105,8 +105,8 @@ export function TaskModal({ task, rankings, onClose }: TaskModalProps) {
                 </VimLine>
                 <VimLine n={n++} />
 
-                {task.tests.map((t, i) => (
-                  <span key={`test-${i}`}>
+                {task.tests.map((t) => (
+                  <span key={t.input}>
                     <VimLine n={n++}>
                       <span className="text-[var(--sol-cyan)]">{t.input}</span>
                     </VimLine>
@@ -140,9 +140,10 @@ export function TaskModal({ task, rankings, onClose }: TaskModalProps) {
                 })}
 
                 <VimLine n={n++} />
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <TildeLine key={`tilde-${i}`} />
-                ))}
+                <TildeLine />
+                <TildeLine />
+                <TildeLine />
+                <TildeLine />
               </>
             );
           })()}

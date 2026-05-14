@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 import * as NodeFileSystem from "@effect/platform-node-shared/NodeFileSystem";
 import { describe, it } from "@effect/vitest";
 import { assertTrue, strictEqual } from "@effect/vitest/utils";
-import { Effect, FileSystem, Layer } from "effect";
+import { Effect, FileSystem } from "effect";
 
 const platformLayer = NodeFileSystem.layer;
 
@@ -25,7 +25,8 @@ describe("mcp.ts source verification", () => {
         /client\.evalSingle\(\{[\s\S]*?\}\)/,
       );
       strictEqual(evalSingleMatch !== null, true);
-      const evalSingleBlock = evalSingleMatch![0];
+      const evalSingleBlock = evalSingleMatch?.[0];
+      if (!evalSingleBlock) throw new Error("evalSingle block not found");
       assertTrue(evalSingleBlock.includes("maxTokens: 4096"));
       assertTrue(evalSingleBlock.includes("rlmMaxDepth: 3"));
       assertTrue(evalSingleBlock.includes("mode: input.mode"));

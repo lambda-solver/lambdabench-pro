@@ -72,72 +72,37 @@ const makeMockLayers = (onInsertResult?: (r: InsertResult) => void) => {
   const mockResultStore = Layer.succeed(
     ResultStore,
     ResultStore.of({
-      insertResult: Effect.fnUntraced(function* (result: InsertResult) {
-        onInsertResult?.(result);
-      }),
-      getResultsByRunId: Effect.fnUntraced(function* () {
-        return [];
-      }),
-      getResultsByJobId: Effect.fnUntraced(function* () {
-        return [];
-      }),
-      getLatestResults: Effect.fnUntraced(function* () {
-        return [];
-      }),
-      insertJob: Effect.fnUntraced(function* () {
-        return undefined;
-      }),
-      updateJobStatus: Effect.fnUntraced(function* () {
-        return undefined;
-      }),
-      getJob: Effect.fnUntraced(function* () {
-        return undefined;
-      }),
-      getJobsByStatus: Effect.fnUntraced(function* () {
-        return [];
-      }),
-      insertTask: Effect.fnUntraced(function* () {
-        return undefined;
-      }),
-      getTask: Effect.fnUntraced(function* () {
-        return undefined;
-      }),
-      getTasksByCategory: Effect.fnUntraced(function* () {
-        return [];
-      }),
-      getAllTasks: Effect.fnUntraced(function* () {
-        return [];
-      }),
-      insertModelConfig: Effect.fnUntraced(function* () {
-        return undefined;
-      }),
-      getActiveModelConfigs: Effect.fnUntraced(function* () {
-        return [];
-      }),
-      cleanupExpired: Effect.fnUntraced(function* () {
-        return { deletedResults: 0, deletedJobs: 0 };
-      }),
+      insertResult: (result: InsertResult) =>
+        Effect.sync(() => {
+          onInsertResult?.(result);
+        }),
+      getResultsByRunId: () => Effect.succeed([]),
+      getResultsByJobId: () => Effect.succeed([]),
+      getLatestResults: () => Effect.succeed([]),
+      insertJob: () => Effect.void,
+      updateJobStatus: () => Effect.void,
+      getJob: () => Effect.succeed(undefined),
+      getJobsByStatus: () => Effect.succeed([]),
+      insertTask: () => Effect.void,
+      getTask: () => Effect.succeed(undefined),
+      getTasksByCategory: () => Effect.succeed([]),
+      getAllTasks: () => Effect.succeed([]),
+      insertModelConfig: () => Effect.void,
+      getActiveModelConfigs: () => Effect.succeed([]),
+      cleanupExpired: () =>
+        Effect.succeed({ deletedResults: 0, deletedJobs: 0 }),
     }),
   );
 
   const mockTaskService = Layer.succeed(
     TaskService,
     TaskService.of({
-      loadAndCacheTasks: Effect.fnUntraced(function* () {
-        return undefined;
-      }),
-      getTask: Effect.fnUntraced(function* (taskId: string) {
-        return taskId === "test-task" ? testDbTask : undefined;
-      }),
-      getAllTasks: Effect.fnUntraced(function* () {
-        return [];
-      }),
-      getTasksByCategory: Effect.fnUntraced(function* () {
-        return [];
-      }),
-      computeRefBits: Effect.fnUntraced(function* () {
-        return undefined;
-      }),
+      loadAndCacheTasks: () => Effect.void,
+      getTask: (taskId: string) =>
+        Effect.succeed(taskId === "test-task" ? testDbTask : undefined),
+      getAllTasks: () => Effect.succeed([]),
+      getTasksByCategory: () => Effect.succeed([]),
+      computeRefBits: () => Effect.succeed(undefined),
     }),
   );
 
@@ -187,18 +152,18 @@ describe("EvalService", () => {
         assertDefined(result.timestamp);
 
         strictEqual(captured.length, 1);
-        strictEqual(captured[0]!.taskId, "missing-task");
-        strictEqual(captured[0]!.model, "test-model");
-        strictEqual(captured[0]!.variant, "standard");
-        strictEqual(captured[0]!.provider, "openrouter");
-        strictEqual(captured[0]!.pass, false);
-        strictEqual(captured[0]!.bits, 0);
-        strictEqual(captured[0]!.score, 0);
-        deepStrictEqual(captured[0]!.errors, ["Task not found"]);
-        strictEqual(captured[0]!.submission, "");
-        strictEqual(captured[0]!.elapsedMs, 0);
-        assertDefined(captured[0]!.timestamp);
-        assertDefined(captured[0]!.runId);
+        strictEqual(captured[0]?.taskId, "missing-task");
+        strictEqual(captured[0]?.model, "test-model");
+        strictEqual(captured[0]?.variant, "standard");
+        strictEqual(captured[0]?.provider, "openrouter");
+        strictEqual(captured[0]?.pass, false);
+        strictEqual(captured[0]?.bits, 0);
+        strictEqual(captured[0]?.score, 0);
+        deepStrictEqual(captured[0]?.errors, ["Task not found"]);
+        strictEqual(captured[0]?.submission, "");
+        strictEqual(captured[0]?.elapsedMs, 0);
+        assertDefined(captured[0]?.timestamp);
+        assertDefined(captured[0]?.runId);
       }).pipe(
         Effect.provide(EvalServiceLive),
         Effect.provide(layers),
@@ -241,18 +206,18 @@ describe("EvalService", () => {
       assertDefined(result.timestamp);
 
       strictEqual(captured.length, 1);
-      strictEqual(captured[0]!.taskId, "test-task");
-      strictEqual(captured[0]!.model, "test-model");
-      strictEqual(captured[0]!.variant, "standard");
-      strictEqual(captured[0]!.provider, "openrouter");
-      strictEqual(captured[0]!.pass, true);
-      strictEqual(captured[0]!.bits, 42);
-      strictEqual(captured[0]!.score, 0.95);
-      deepStrictEqual(captured[0]!.errors, []);
-      strictEqual(captured[0]!.submission, "");
-      strictEqual(captured[0]!.elapsedMs, 1234);
-      assertDefined(captured[0]!.timestamp);
-      assertDefined(captured[0]!.runId);
+      strictEqual(captured[0]?.taskId, "test-task");
+      strictEqual(captured[0]?.model, "test-model");
+      strictEqual(captured[0]?.variant, "standard");
+      strictEqual(captured[0]?.provider, "openrouter");
+      strictEqual(captured[0]?.pass, true);
+      strictEqual(captured[0]?.bits, 42);
+      strictEqual(captured[0]?.score, 0.95);
+      deepStrictEqual(captured[0]?.errors, []);
+      strictEqual(captured[0]?.submission, "");
+      strictEqual(captured[0]?.elapsedMs, 1234);
+      assertDefined(captured[0]?.timestamp);
+      assertDefined(captured[0]?.runId);
     }).pipe(
       Effect.provide(EvalServiceLive),
       Effect.provide(layers),
@@ -287,9 +252,9 @@ describe("EvalService", () => {
         assertDefined(result.timestamp);
 
         strictEqual(captured.length, 1);
-        strictEqual(captured[0]!.pass, false);
+        strictEqual(captured[0]?.pass, false);
         assertTrue(
-          (captured[0]!.errors ?? []).some((e) =>
+          (captured[0]?.errors ?? []).some((e) =>
             e.includes("Model call failed"),
           ),
         );
@@ -336,14 +301,14 @@ describe("EvalService", () => {
       assertDefined(result.timestamp);
 
       strictEqual(captured.length, 1);
-      strictEqual(captured[0]!.taskId, "test-task");
-      strictEqual(captured[0]!.variant, "rlm");
-      strictEqual(captured[0]!.pass, true);
-      strictEqual(captured[0]!.bits, 50);
-      strictEqual(captured[0]!.score, 0.88);
-      deepStrictEqual(captured[0]!.errors, []);
-      assertDefined(captured[0]!.timestamp);
-      assertDefined(captured[0]!.runId);
+      strictEqual(captured[0]?.taskId, "test-task");
+      strictEqual(captured[0]?.variant, "rlm");
+      strictEqual(captured[0]?.pass, true);
+      strictEqual(captured[0]?.bits, 50);
+      strictEqual(captured[0]?.score, 0.88);
+      deepStrictEqual(captured[0]?.errors, []);
+      assertDefined(captured[0]?.timestamp);
+      assertDefined(captured[0]?.runId);
     }).pipe(
       Effect.provide(EvalServiceLive),
       Effect.provide(layers),
@@ -376,7 +341,8 @@ describe("EvalService", () => {
         yield* svc.evaluateSingle(request);
 
         strictEqual(captured.length, 1);
-        const inserted = captured[0]!;
+        const [inserted] = captured;
+        assertDefined(inserted);
 
         // Verify every required field in InsertResult
         assertDefined(inserted.runId);

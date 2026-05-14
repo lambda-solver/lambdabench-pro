@@ -19,7 +19,7 @@
 | `bun biome check src/ --write`                 | Auto-fix lint + format in current package |
 | `bun run test`                                 | Run all tests via turbo (Vitest)          |
 | `bun run test --filter=server`                 | Run server tests only                     |
-| `bun test --filter=server -- src/file.test.ts` | Run single test file                     |
+| `bun test --filter=server -- src/file.test.ts` | Run single test file                      |
 | `bun src/index.ts server > logs/server.log 2>&1 &` | Start server in background (logs/)  |
 | `lsof -ti:9000 | xargs kill -9`                    | Kill process on port 9000           |
 
@@ -94,6 +94,30 @@ Use the `Read` tool to load each file before starting implementation.
 **Do not guess Effect 4 APIs from memory** — verify against skill files or
 `node_modules` type declarations.
 
+## Reference Projects — Best Practice Source
+
+When unsure about Effect patterns, **consult the reference projects first**:
+
+| Reference | Location | What to look for |
+|-----------|----------|------------------|
+| **Hazel** | `reference/hazel/` | Production Effect 4 app with mock layers, `serviceShape` helper, HTTP API patterns |
+| **Clanka** | `reference/clanka/` | AI agent patterns, `Layer.succeed` for LanguageModel mocking, Toolkit usage |
+| **effect-smol** | `reference/effect-smol/` | Effect library source — canonical API for `Effect.fn`, `Layer`, `Context.Service` |
+
+**How to use:**
+```bash
+# Search for patterns in reference projects
+grep -r "Effect.fnUntraced" reference/hazel/apps/backend/src/ --include="*.test.ts"
+grep -r "Layer.succeed" reference/clanka/src/ --include="*.test.ts"
+grep -r "Toolkit.make" reference/effect-smol/packages/effect/test/ --include="*.test.ts"
+```
+
+**Key patterns from references:**
+- **Mock services**: Use `Layer.succeed(ServiceTag, { method: () => Effect.succeed(...) })` — NEVER wrap mock methods in `Effect.fnUntraced` unless they contain `yield*`
+- **Toolkit tests**: Access tools via `(toolkit as Toolkit.Any).tools["tool_name"]` or use `toolkit.toLayer(...)`
+- **Service definition**: `Context.Service` (or `ServiceMap.Service.Any`) for service definitions
+- **HTTP API**: `HttpApiBuilder.group` with `Layer.provide` composition
+
 ## Effect Essentials (quick reference)
 
 ```typescript
@@ -127,9 +151,116 @@ Key Effect 4 rules:
 - `Effect.catch` — catches all typed errors (`catchAll` does not exist)
 - `Effect.suspend(() => loop(...))` — tail recursion (`Effect.iterate` does not exist)
 - `Effect.forEach(items, fn, { concurrency })` — never `for` loops inside `Effect.gen`
-- `process.env["KEY"]` — index signature access required
+- `process.env["KEY"]` — index signature access required (see `NodeJS.ProcessEnv` below)
 - `Schema.decodeUnknownEffect(schema)(input)` — decode unknown values
 - HTTP headers are **lowercased** by Effect: `headers["authorization"]` not `headers["Authorization"]`
+
+## Type-Safe Environment Variables
+
+Declare known env vars in a global `NodeJS.ProcessEnv` augmentation so TypeScript validates access and Biome's `useLiteralKeys` rule accepts dot notation:
+
+```typescript
+declare global {
+  namespace NodeJS {
+    interface ProcessEnv {
+      readonly OPENROUTER_API_KEY?: string;
+      readonly LAMBENCH_PORT?: string;
+      readonly DEV_MODE?: string;
+    }
+  }
+}
+
+// Now dot notation is type-safe and lint-clean:
+const apiKey = process.env.OPENROUTER_API_KEY;
+```
+
+## Biome Lint Rules (Enforced in CI)
+
+The following rules are enforced at error level. Agents must write code that passes them on first submission:
+
+| Rule | What it means | Pattern to use |
+|------|---------------|----------------|
+| `noArrayIndexKey` | Never use `key={i}` in React `.map()` | Use content-based keys (`key={item.id}`) or inline repeated elements |
+| `useLiteralKeys` | Prefer dot notation for known properties | `obj.field` for known keys; `obj["dynamic"]` only for `Record<string, …>` index access |
+| `noExplicitAny` | Ban the `any` type | Use `unknown` + `as unknown as T` for necessary coercion |
+| `useYield` | Only use `yield*` inside generators | Simple mock returns should be plain arrows, not `Effect.fnUntraced(function* () { … })` |
+
+### `useLiteralKeys` — dot vs bracket notation
+
+```typescript
+// Known property on a typed object — dot notation
+const name = user.name;
+
+// Dynamic / Record index access — bracket notation required
+const value = record[key];
+
+// After casting unknown data — intermediate cast to Record
+const r = row as Record<string, unknown>;
+const id = r.id as number;  // still triggers useLiteralKeys if row has known shape
+
+// Better: cast to a specific intermediate shape
+const r = row as { id: unknown; name: unknown };
+const id = r.id as number;  // now dot notation is fine
+```
+
+```typescript
+// BAD — triggers noExplicitAny
+const x = value as any;
+
+// GOOD — explicit two-step cast
+const x = value as unknown as MyType;
+```
+
+### `useYield` — mock service pattern
+
+```typescript
+// BAD — unnecessary generator for a pure return
+health: Effect.fnUntraced(function* () { return { status: "ok" }; }),
+
+// GOOD — plain arrow returning Effect
+health: () => Effect.succeed({ status: "ok" }),
+```
+
+## Testing Patterns
+
+### `it.layer()` for shared test dependencies
+
+When multiple tests need the same Layer, use `it.layer()` instead of repeating `.pipe(Effect.provide(...))`:
+
+```typescript
+const pdfChunkServiceLayer = Layer.effect(ChunkService, ChunkService.make).pipe(
+  Layer.provideMerge(Layer.mergeAll(...).pipe(Layer.provide(CharacterTokenizerLive))),
+);
+
+describe("ChunkService", () => {
+  it.layer(pdfChunkServiceLayer)((it) => {
+    it.effect("chunks pdf with table metadata preserved", () =>
+      Effect.gen(function* () {
+        const service = yield* ChunkService;
+        // …
+      }),
+    );
+  });
+});
+```
+
+### Mock layers in tests
+
+```typescript
+const mockEvalService = Layer.succeed(
+  EvalService,
+  EvalService.of({
+    evaluateSingle: (request: SingleEvalRequest) =>
+      Effect.succeed({ taskId: request.task, pass: true, bits: 42 } as EvalResult),
+  }),
+);
+```
+
+Key mock rules:
+- Use plain arrow functions for pure returns (`() => Effect.succeed(...)`)
+- Only use `Effect.fnUntraced` when the mock contains `yield*`
+- Type the request parameter explicitly to avoid implicit `any`
+- Prefer `Layer.succeed` + `Service.of({ ... })` over inline class extensions
 
 ## Structure
 
@@ -179,3 +310,153 @@ tail -f logs/server.log
 ---
 
 _This document is a living guide. Update it as the project evolves and new patterns emerge._
+
+Skills provide specialized instructions and workflows for specific tasks.
+Use the skill tool to load a skill when a task matches its description.
+<available_skills>
+  <skill>
+    <name>01-atoms</name>
+    <description>Effect Atom reactivity — useAtomValue, Atom.make, React integration via @effect/atom-react</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/platform/01-atoms/SKILL.md</location>
+  </skill>
+  <skill>
+    <name>01-best-practices</name>
+    <description>Effect-TS 4 best practices — Effect.fn, Effect.fnUntraced, Context.Service, Layer conventions, and FP style</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/patterns/01-best-practices/SKILL.md</location>
+  </skill>
+  <skill>
+    <name>01-fp-style</name>
+    <description>React functional programming style — pure components, hooks conventions, Effect Atom integration, and Tailwind patterns</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/react/patterns/01-fp-style/SKILL.md</location>
+  </skill>
+  <skill>
+    <name>01-fundamentals</name>
+    <description>Effect-TS 4 fundamentals — Effect.gen, yield*, pipe, basic combinators, and runtime execution</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/core/01-fundamentals/SKILL.md</location>
+  </skill>
+  <skill>
+    <name>01-syntax</name>
+    <description>Bend language syntax and types — algebraic data types, pattern matching, function definitions, and HVM primitives</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/bend-hvm/01-syntax/SKILL.md</location>
+  </skill>
+  <skill>
+    <name>01-test-services</name>
+    <description>Effect-TS 4 testing with layers — mock services, test Refs, Layer.succeed, and test dependency injection</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/testing/01-test-services/SKILL.md</location>
+  </skill>
+  <skill>
+    <name>01-validation</name>
+    <description>Effect-TS 4 Schema validation — Schema.decode, struct/union schemas, brand types, and export patterns</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/schema/01-validation/SKILL.md</location>
+  </skill>
+  <skill>
+    <name>02-anti-patterns</name>
+    <description>Effect-TS 4 anti-patterns — plain generators, .pipe after Effect.fn, ServiceMap, catchAll, for loops, and type pitfalls</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/patterns/02-anti-patterns/SKILL.md</location>
+  </skill>
+  <skill>
+    <name>02-execution</name>
+    <description>Bend/HVM execution model — lazy evaluation, reduction strategies, parallel execution, and runtime behavior</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/bend-hvm/02-execution/SKILL.md</location>
+  </skill>
+  <skill>
+    <name>02-http-client</name>
+    <description>Effect-TS 4 HTTP client — HttpClient, request building, response decoding, and error handling via effect/unstable/http</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/platform/02-http-client/SKILL.md</location>
+  </skill>
+  <skill>
+    <name>02-services-layers</name>
+    <description>Effect-TS 4 services and layers — ServiceMap.Service, Layer.effect, dependency injection, and Layer composition</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/core/02-services-layers/SKILL.md</location>
+  </skill>
+  <skill>
+    <name>02-transformations</name>
+    <description>Effect-TS 4 Schema transformations — Schema.transform, Schema.transformOrFail, and codec patterns</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/schema/02-transformations/SKILL.md</location>
+  </skill>
+  <skill>
+    <name>02-vitest-patterns</name>
+    <description>Effect-TS 4 Vitest patterns — it.effect, it.scoped, it.layer, @effect/vitest/utils assertions, ConfigProvider for env, and platform-node-shared for FileSystem</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/testing/02-vitest-patterns/SKILL.md</location>
+  </skill>
+  <skill>
+    <name>03-ai-language-model</name>
+    <description>Effect-TS 4 AI — LanguageModel.generateText, @effect/ai-openai layer factory, and mocking in tests</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/platform/03-ai-language-model/SKILL.md</location>
+  </skill>
+  <skill>
+    <name>03-api-contracts</name>
+    <description>Effect-TS 4 HttpApi schema-first REST contracts — route definitions, error schemas, and typed client</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/schema/03-api-contracts/SKILL.md</location>
+  </skill>
+  <skill>
+    <name>03-error-handling</name>
+    <description>Effect-TS 4 error handling — Effect.catch, catchTag, catchTags, typed channels, and absorb patterns</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/patterns/03-error-handling/SKILL.md</location>
+  </skill>
+  <skill>
+    <name>03-error-model</name>
+    <description>Effect-TS 4 error model — Schema.TaggedErrorClass, typed defects, union errors, and error channel semantics</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/core/03-error-model/SKILL.md</location>
+  </skill>
+  <skill>
+    <name>03-patterns</name>
+    <description>Bend/HVM programming patterns — recursion, fold/unfold, accumulator idioms, and common data structure encodings</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/bend-hvm/03-patterns/SKILL.md</location>
+  </skill>
+  <skill>
+    <name>03-property-testing</name>
+    <description>Effect-TS 4 property-based testing — Schema Arbitrary, fast-check, and generative test patterns</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/testing/03-property-testing/SKILL.md</location>
+  </skill>
+  <skill>
+    <name>04-concurrency</name>
+    <description>Bend/HVM concurrency models — parallel trees, fork/join, superposition, and GPU-parallel execution patterns</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/bend-hvm/04-concurrency/SKILL.md</location>
+  </skill>
+  <skill>
+    <name>04-observability</name>
+    <description>Effect-TS 4 observability — structured logging, spans, tracing, annotations, and metrics</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/patterns/04-observability/SKILL.md</location>
+  </skill>
+  <skill>
+    <name>04-resources</name>
+    <description>Effect-TS 4 resource management — Scope, acquireRelease, Layer.scoped, and safe resource lifecycle</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/core/04-resources/SKILL.md</location>
+  </skill>
+  <skill>
+    <name>05-concurrency</name>
+    <description>Effect-TS 4 concurrency — Effect.all, Effect.forEach, fibers, Ref, and structured concurrency patterns</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/core/05-concurrency/SKILL.md</location>
+  </skill>
+  <skill>
+    <name>05-testing</name>
+    <description>Bend/HVM testing strategies — unit testing Bend functions, property tests, and correctness verification</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/bend-hvm/05-testing/SKILL.md</location>
+  </skill>
+  <skill>
+    <name>06-memory</name>
+    <description>Bend/HVM memory management — interaction net nodes, garbage collection, memory layout, and allocation patterns</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/bend-hvm/06-memory/SKILL.md</location>
+  </skill>
+  <skill>
+    <name>06-streams</name>
+    <description>Effect-TS 4 streams — Stream creation, transformation, chunking, and sink consumption</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/core/06-streams/SKILL.md</location>
+  </skill>
+  <skill>
+    <name>07-benchmarking</name>
+    <description>Bend/HVM benchmarking — profiling HVM programs, measuring interactions per second, and performance tuning</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/bend-hvm/07-benchmarking/SKILL.md</location>
+  </skill>
+  <skill>
+    <name>08-ffi</name>
+    <description>Bend/HVM FFI integration — calling external functions, C interop, and binding native code to HVM programs</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/bend-hvm/08-ffi/SKILL.md</location>
+  </skill>
+  <skill>
+    <name>customize-opencode</name>
+    <description>Use ONLY when the user is editing or creating opencode's own configuration: opencode.json, opencode.jsonc, files under .opencode/, or files under ~/.config/opencode/. Also use when creating or fixing opencode agents, subagents, skills, plugins, MCP servers, or permission rules. Do not use for the user's own application code, or for any project that is not configuring opencode itself.</description>
+    <location>file:///workspaces/typescript-node/lambench-pro/%3Cbuilt-in%3E</location>
+  </skill>
+</available_skills>

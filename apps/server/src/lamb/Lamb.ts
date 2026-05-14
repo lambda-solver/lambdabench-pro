@@ -331,7 +331,7 @@ const printTerm = (
       return idx === undefined ? term.name : varName(idx);
     }
     case "Ref":
-      return "@" + term.name;
+      return `@${term.name}`;
     case "Lam": {
       const idx = counter.n++;
       const newScope = new Map(scope);
@@ -387,11 +387,11 @@ const toDeBruijn = (term: Term, env: string[]): DeBruijn => {
 const encodeBLC = (term: DeBruijn): string => {
   switch (term.tag) {
     case "Idx":
-      return "1".repeat(term.index + 1) + "0";
+      return `${"1".repeat(term.index + 1)}0`;
     case "DLam":
-      return "00" + encodeBLC(term.body);
+      return `00${encodeBLC(term.body)}`;
     case "DApp":
-      return "01" + encodeBLC(term.func) + encodeBLC(term.arg);
+      return `01${encodeBLC(term.func)}${encodeBLC(term.arg)}`;
   }
 };
 

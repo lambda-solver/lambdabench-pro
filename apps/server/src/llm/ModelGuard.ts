@@ -8,7 +8,7 @@
  *      the entire model to be skipped from the benchmark output.
  */
 
-import { Duration, Effect, Schedule } from "effect";
+import { Duration, Effect } from "effect";
 import { LanguageModel } from "effect/unstable/ai";
 
 // ─── Errors ──────────────────────────────────────────────────────────────────

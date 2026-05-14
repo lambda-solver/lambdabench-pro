@@ -1,7 +1,11 @@
 // apps/server/src/cli.test.ts
 
 import { describe, it } from "@effect/vitest";
-import { deepStrictEqual, strictEqual } from "@effect/vitest/utils";
+import {
+  assertDefined,
+  deepStrictEqual,
+  strictEqual,
+} from "@effect/vitest/utils";
 import { Effect, Layer, Ref } from "effect";
 import { vi } from "vitest";
 import { LamBenchClient } from "./client/LamBenchClient.js";
@@ -165,7 +169,7 @@ const makeMockClientLayer = () =>
           };
         }),
         calls,
-      } as unknown as LamBenchClient.Service);
+      } as unknown as LamBenchClient["Service"]);
     }),
   );
 
@@ -175,7 +179,7 @@ const { runCli } = await import("./cli.js");
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const getCalls = (client: LamBenchClient.Service) =>
+const getCalls = (client: LamBenchClient["Service"]) =>
   (
     client as unknown as {
       calls: Ref.Ref<Array<{ method: string; args: unknown }>>;
@@ -194,7 +198,7 @@ describe("cli evalSingle schema compliance", () => {
       const singleCall = calls.find((c) => c.method === "evalSingle");
 
       strictEqual(singleCall !== undefined, true);
-      deepStrictEqual(singleCall!.args, {
+      deepStrictEqual(singleCall?.args, {
         model: "gpt-4",
         task: "task-1",
         variant: "standard",
@@ -222,7 +226,7 @@ describe("cli evalSingle schema compliance", () => {
       const singleCall = calls.find((c) => c.method === "evalSingle");
 
       strictEqual(singleCall !== undefined, true);
-      deepStrictEqual(singleCall!.args, {
+      deepStrictEqual(singleCall?.args, {
         model: "gpt-4",
         task: "task-1",
         variant: "rlm",
@@ -245,7 +249,7 @@ describe("cli evalBatch schema compliance", () => {
       const batchCall = calls.find((c) => c.method === "evalBatch");
 
       strictEqual(batchCall !== undefined, true);
-      deepStrictEqual(batchCall!.args, {
+      deepStrictEqual(batchCall?.args, {
         models: ["model-a", "model-b"],
         tasks: [],
         variant: "both",
@@ -270,7 +274,7 @@ describe("cli evalBatch schema compliance", () => {
       const batchCall = calls.find((c) => c.method === "evalBatch");
 
       strictEqual(batchCall !== undefined, true);
-      deepStrictEqual(batchCall!.args, {
+      deepStrictEqual(batchCall?.args, {
         models: ["model-a"],
         tasks: ["t1", "t2"],
         variant: "standard",
@@ -296,7 +300,7 @@ describe("cli evalBatch schema compliance", () => {
       const batchCall = calls.find((c) => c.method === "evalBatch");
 
       strictEqual(batchCall !== undefined, true);
-      deepStrictEqual((batchCall!.args as { models: string[] }).models, [
+      deepStrictEqual((batchCall?.args as { models: string[] }).models, [
         "model-a",
         "model-b",
       ]);
@@ -315,7 +319,7 @@ describe("cli bounds check undefined handling", () => {
       const batchCall = calls.find((c) => c.method === "evalBatch");
 
       strictEqual(batchCall !== undefined, true);
-      deepStrictEqual((batchCall!.args as { models: string[] }).models, [
+      deepStrictEqual((batchCall?.args as { models: string[] }).models, [
         "model-x",
       ]);
     }).pipe(Effect.provide(makeMockClientLayer())),
@@ -376,7 +380,9 @@ describe("cli results filtering", () => {
         yield* runCli(["results"]);
 
         strictEqual(logs.length, 1);
-        const output = JSON.parse(logs[0]!);
+        const [firstLog] = logs;
+        assertDefined(firstLog);
+        const output = JSON.parse(firstLog);
         strictEqual(output.rankings.length, 3);
       } finally {
         console.log = originalLog;
@@ -396,7 +402,9 @@ describe("cli results filtering", () => {
         yield* runCli(["results", "--model=model-a"]);
 
         strictEqual(logs.length, 1);
-        const output = JSON.parse(logs[0]!);
+        const [firstLog] = logs;
+        assertDefined(firstLog);
+        const output = JSON.parse(firstLog);
         strictEqual(output.rankings.length, 1);
         strictEqual(output.rankings[0].model, "model-a");
       } finally {
@@ -417,13 +425,14 @@ describe("cli results filtering", () => {
         yield* runCli(["results", "--task=task-1"]);
 
         strictEqual(logs.length, 1);
-        const output = JSON.parse(logs[0]!);
+        const [firstLog] = logs;
+        assertDefined(firstLog);
+        const output = JSON.parse(firstLog);
         // all three models have task-1 in their tasks record
         strictEqual(output.rankings.length, 3);
         strictEqual(
           output.rankings.every(
-            (r: { tasks: Record<string, boolean> }) =>
-              "task-1" in r.tasks,
+            (r: { tasks: Record<string, boolean> }) => "task-1" in r.tasks,
           ),
           true,
         );
@@ -445,7 +454,9 @@ describe("cli results filtering", () => {
         yield* runCli(["results", "--task=task-3"]);
 
         strictEqual(logs.length, 1);
-        const output = JSON.parse(logs[0]!);
+        const [firstLog] = logs;
+        assertDefined(firstLog);
+        const output = JSON.parse(firstLog);
         // no model has task-3 in their tasks record
         strictEqual(output.rankings.length, 0);
       } finally {
@@ -466,7 +477,9 @@ describe("cli results filtering", () => {
         yield* runCli(["results", "--limit=2"]);
 
         strictEqual(logs.length, 1);
-        const output = JSON.parse(logs[0]!);
+        const [firstLog] = logs;
+        assertDefined(firstLog);
+        const output = JSON.parse(firstLog);
         strictEqual(output.rankings.length, 2);
       } finally {
         console.log = originalLog;
@@ -486,7 +499,9 @@ describe("cli results filtering", () => {
         yield* runCli(["results", "--limit=0"]);
 
         strictEqual(logs.length, 1);
-        const output = JSON.parse(logs[0]!);
+        const [firstLog] = logs;
+        assertDefined(firstLog);
+        const output = JSON.parse(firstLog);
         // limit 0 is not > 0, so no slice applied
         strictEqual(output.rankings.length, 3);
       } finally {
@@ -507,7 +522,9 @@ describe("cli results filtering", () => {
         yield* runCli(["results", "--task=task-1", "--limit=1"]);
 
         strictEqual(logs.length, 1);
-        const output = JSON.parse(logs[0]!);
+        const [firstLog] = logs;
+        assertDefined(firstLog);
+        const output = JSON.parse(firstLog);
         // task-1 filter gives model-a and model-c; limit=1 gives first one
         strictEqual(output.rankings.length, 1);
         strictEqual("task-1" in output.rankings[0].tasks, true);

@@ -7,7 +7,6 @@
  */
 
 export class RedisClient {
-  constructor(_url?: string) {}
   connect() {
     return Promise.resolve();
   }

@@ -73,19 +73,23 @@ export const parseTask = (
       const secs = text.split(/\n---\n/);
       if (secs.length !== 2)
         throw new Error(`expected 2 sections, got ${secs.length}`);
-      const desc = secs[0]!.trim();
-      const lines = secs[1]!
+      const [descSection, linesSection] = secs as [string, string];
+      const desc = descSection.trim();
+      const lines = linesSection
         .trim()
         .split("\n")
         .filter((l) => l.trim() !== "");
       const tests: Test[] = [];
       for (let i = 0; i < lines.length; i += 2) {
-        const expr = lines[i]!.trim();
+        const expr = lines[i];
+        if (expr === undefined) {
+          throw new Error(`line ${i + 1}: missing expression`);
+        }
         const wantLine = lines[i + 1];
         if (!wantLine?.startsWith("= ")) {
           throw new Error(`line ${i + 2}: expected "= ..." after expression`);
         }
-        tests.push({ expr, want: wantLine.slice(2).trim() });
+        tests.push({ expr: expr.trim(), want: wantLine.slice(2).trim() });
       }
       return { id, desc, tests } satisfies Task;
     },
@@ -127,9 +131,12 @@ export const lamRun = Effect.fn("lamRun")(function* (src: string) {
     try: () => {
       const book = parseLam(src);
       if (book.size === 0) throw new LamError("empty program");
-      // Last inserted key is always the entry point (Map preserves order).
-      const last = [...book.keys()].at(-1)!;
-      const term = book.get(last)!;
+      const keys = [...book.keys()];
+      if (keys.length === 0) throw new LamError("empty program");
+      const last = keys[keys.length - 1];
+      if (last === undefined) throw new LamError("empty program");
+      const term = book.get(last);
+      if (term === undefined) throw new LamError(`entry ${last} not found`);
       const result = normalize(term, book);
       return printNormal(result);
     },
@@ -350,7 +357,7 @@ export const showResult = (r: CheckResult): string => {
     : "FAIL";
   const lines = [
     `${status} ${r.id}: ${detail}`,
-    ...r.errors.map((e) => "  " + e.split("\n").join("\n  ")),
+    ...r.errors.map((e) => `  ${e.split("\n").join("\n  ")}`),
   ];
   return lines.join("\n");
 };

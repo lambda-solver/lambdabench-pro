@@ -63,9 +63,14 @@ export function IntelligencePanel({ data }: IntelligencePanelProps) {
       })}
 
       <VimLine n={n++} />
-      {Array.from({ length: 8 }).map((_, i) => (
-        <TildeLine key={`tilde-${i}`} />
-      ))}
+      <TildeLine />
+      <TildeLine />
+      <TildeLine />
+      <TildeLine />
+      <TildeLine />
+      <TildeLine />
+      <TildeLine />
+      <TildeLine />
     </div>
   );
 }

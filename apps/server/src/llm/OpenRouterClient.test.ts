@@ -8,7 +8,7 @@
 
 import { describe, it } from "@effect/vitest";
 import { assertTrue, strictEqual } from "@effect/vitest/utils";
-import { Effect, Layer, Ref } from "effect";
+import { Effect, Layer } from "effect";
 import { LanguageModel } from "effect/unstable/ai";
 import { FetchHttpClient } from "effect/unstable/http";
 import { expect, it as vitestIt } from "vitest";
@@ -77,7 +77,7 @@ describe("LanguageModel mock (OpenRouterClient replacement)", () => {
 
 // ─── Integration test ─────────────────────────────────────────────────────────
 
-const apiKey = process.env["OPENROUTER_API_KEY"];
+const apiKey = process.env.OPENROUTER_API_KEY;
 
 describe("makeOpenRouterLayer (real OpenRouter)", () => {
   it.effect.skipIf(!apiKey)(
