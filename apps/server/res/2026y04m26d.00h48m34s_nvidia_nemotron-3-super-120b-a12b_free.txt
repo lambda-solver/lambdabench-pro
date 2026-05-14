@@ -1,0 +1,9 @@
+model: nvidia/nemotron-3-super-120b-a12b:free
+right: 2/6
+variant: standard
+- clst_map: 0.233 pass time=4.001s bits=58
+- clst_rev: 0.000 fail time=1.578s
+- cnat_add: 0.500 pass time=4.857s bits=33
+- cnat_mul: 0.000 fail time=794.619s
+- sbin_add: 0.000 fail time=107.906s
+- snat_add: 0.000 fail time=8.504s
