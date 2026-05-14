@@ -1,12 +1,12 @@
 {
   "rankings": [
     {
-      "model": "nvidia/nemotron-3-super-120b-a12b:free/rlm",
+      "model": "nvidia/nemotron-3-super-120b-a12b:free",
       "right": 2,
       "total": 6,
       "pct": "33.3",
-      "avgTime": 18,
-      "timestamp": "2026y05m14d.12h50m21s",
+      "avgTime": 32.3,
+      "timestamp": "2026y05m14d.19h23m37s",
       "tasks": {
         "clst_map": false,
         "clst_rev": false,
@@ -17,7 +17,29 @@
       },
       "taskBits": {
         "cnat_add": 33,
-        "cnat_mul": 19
+        "cnat_mul": 28
+      },
+      "taskRefs": {},
+      "pricePerMOutputTokens": 0
+    },
+    {
+      "model": "nvidia/nemotron-3-super-120b-a12b:free/rlm",
+      "right": 2,
+      "total": 6,
+      "pct": "33.3",
+      "avgTime": 34.5,
+      "timestamp": "2026y05m14d.19h27m04s",
+      "tasks": {
+        "clst_map": false,
+        "clst_rev": false,
+        "cnat_add": true,
+        "cnat_mul": true,
+        "sbin_add": false,
+        "snat_add": false
+      },
+      "taskBits": {
+        "cnat_add": 33,
+        "cnat_mul": 28
       },
       "taskRefs": {},
       "pricePerMOutputTokens": 0,
@@ -55,25 +77,6 @@
       "rlm": true,
       "rlmDepth": 3,
       "rlmAttempts": 3
-    },
-    {
-      "model": "nvidia/nemotron-3-super-120b-a12b:free",
-      "right": 0,
-      "total": 6,
-      "pct": "0.0",
-      "avgTime": 1.8,
-      "timestamp": "2026y05m14d.12h48m33s",
-      "tasks": {
-        "clst_map": false,
-        "clst_rev": false,
-        "cnat_add": false,
-        "cnat_mul": false,
-        "sbin_add": false,
-        "snat_add": false
-      },
-      "taskBits": {},
-      "taskRefs": {},
-      "pricePerMOutputTokens": 0
     }
   ],
   "tasks": [
@@ -2635,5 +2638,5 @@
       "name": "N-Tuples"
     }
   ],
-  "generatedAt": "2026-05-14T12:50:21.530Z"
+  "generatedAt": "2026-05-14T19:27:04.644Z"
 }
