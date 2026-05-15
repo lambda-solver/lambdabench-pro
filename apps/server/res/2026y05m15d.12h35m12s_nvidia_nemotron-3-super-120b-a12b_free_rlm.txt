@@ -1,0 +1,11 @@
+model: nvidia/nemotron-3-super-120b-a12b:free/rlm
+right: 2/6
+variant: rlm
+rlm_depth: 3
+rlm_attempts: 14
+- clst_map: 0.000 fail time=7.023s
+- clst_rev: 0.000 fail time=75.648s
+- cnat_add: 0.500 pass time=13.618s bits=33
+- cnat_mul: 0.500 pass time=11.146s bits=19
+- sbin_add: 0.000 fail time=137.193s
+- snat_add: 0.000 fail time=13.318s
