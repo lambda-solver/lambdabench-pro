@@ -65,3 +65,6 @@ reference/motel/
 
 # DB Volumes
 # data/ — intentionally NOT ignored; results.json is committed as seed data
+# Storybook
+storybook-static/
+

@@ -23,6 +23,15 @@
     "//#format": {},
     "//#lint": {
       "cache": false
+    },
+    "storybook": {
+      "dependsOn": ["^build"],
+      "persistent": true,
+      "cache": false
+    },
+    "build-storybook": {
+      "dependsOn": ["^build"],
+      "outputs": ["storybook-static/**"]
     }
   }
 }
