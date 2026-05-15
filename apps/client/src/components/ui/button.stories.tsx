@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { Button } from "./button";
 import { buttonFixtures } from "@/fixtures/button";
 import { createFixtureDecorator } from "@/fixtures/decorator";
+import { Button } from "./button";
 
 const meta = {
   title: "UI/Button",
@@ -31,10 +31,12 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const firstButtonFixture = buttonFixtures[0]!;
+
 export const Default: Story = {
   args: {
-    children: buttonFixtures[0].label,
-    variant: buttonFixtures[0].variant,
+    children: firstButtonFixture.label,
+    variant: firstButtonFixture.variant,
   },
 };
 

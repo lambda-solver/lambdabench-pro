@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { BarChart } from "./BarChart";
 import { barChartFixtures } from "@/fixtures/barChart";
 import { createFixtureDecorator } from "@/fixtures/decorator";
+import { BarChart } from "./BarChart";
 
 const meta = {
   title: "Leaderboard/BarChart",
@@ -21,7 +21,10 @@ const meta = {
             <BarChart pct={fixture.pct} fluid />
           </div>
         ) : (
-          <BarChart pct={fixture.pct} width={fixture.width} />
+          <BarChart
+            pct={fixture.pct}
+            {...(fixture.width !== undefined && { width: fixture.width })}
+          />
         )}
       </div>
     )),
@@ -31,11 +34,15 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const firstBarFixture = barChartFixtures[0]!;
+
 // Default story renders the first fixture
 export const Default: Story = {
   args: {
-    pct: barChartFixtures[0].pct,
-    width: barChartFixtures[0].width,
+    pct: firstBarFixture.pct,
+    ...(firstBarFixture.width !== undefined && {
+      width: firstBarFixture.width,
+    }),
   },
 };
 

@@ -1,6 +1,6 @@
+import path from "node:path";
 import type { StorybookConfig } from "@storybook/react-vite";
 import tailwindcss from "@tailwindcss/vite";
-import path from "node:path";
 
 const config: StorybookConfig = {
   stories: ["../src/**/*.stories.@(ts|tsx)", "../src/**/*.mdx"],
@@ -8,7 +8,6 @@ const config: StorybookConfig = {
     "@storybook/addon-essentials",
     "@storybook/addon-interactions",
     "@storybook/addon-a11y",
-    "@storybook/addon-viewport",
   ],
   framework: {
     name: "@storybook/react-vite",

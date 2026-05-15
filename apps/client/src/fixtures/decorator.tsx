@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
 import type { StoryContext, StoryFn } from "@storybook/react";
+import { useCallback, useEffect, useState } from "react";
 
 /**
  * Decorator that adds keyboard fixture switching to stories.
@@ -14,14 +14,11 @@ export function createFixtureDecorator<T>(
   fixtures: readonly T[],
   renderFixture: (fixture: T) => React.ReactNode,
 ) {
-  return function FixtureDecorator(
-    Story: StoryFn,
-    context: StoryContext,
-  ) {
+  return function FixtureDecorator(Story: StoryFn, context: StoryContext) {
     const [fixtureIdx, setFixtureIdx] = useState(0);
     const [remountKey, setRemountKey] = useState(0);
 
-    const currentFixture = fixtures[fixtureIdx] ?? fixtures[0];
+    const currentFixture = fixtures[fixtureIdx] ?? fixtures[0]!;
 
     const nextFixture = useCallback(() => {
       setFixtureIdx((i) => (i + 1) % fixtures.length);
@@ -86,11 +83,13 @@ export function createFixtureDecorator<T>(
 
     // Show fixture info bar
     const fixtureName =
-      currentFixture &&
       typeof currentFixture === "object" &&
+      currentFixture !== null &&
       "name" in currentFixture
         ? String(currentFixture.name)
         : `Fixture ${fixtureIdx + 1}`;
+
+    const storyElement = Story(context.args, context);
 
     return (
       <div key={remountKey} className="relative">
@@ -100,11 +99,11 @@ export function createFixtureDecorator<T>(
           </span>{" "}
           <span className="text-[var(--sol-green)]">{fixtureName}</span>
           <span className="ml-4 text-[var(--sol-base1)]">
-            [1-{Math.min(9, fixtures.length)}] switch [j/k] nav [r] re-render [q]
-            reset
+            [1-{Math.min(9, fixtures.length)}] switch [j/k] nav [r] re-render
+            [q] reset
           </span>
         </div>
-        <Story {...context} />
+        {storyElement}
         {renderFixture(currentFixture)}
       </div>
     );

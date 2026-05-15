@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { VimLine, TildeLine } from "./VimLine";
-import { vimLineFixtures } from "@/fixtures/vimLine";
 import { createFixtureDecorator } from "@/fixtures/decorator";
+import { vimLineFixtures } from "@/fixtures/vimLine";
+import { TildeLine, VimLine } from "./VimLine";
 
 const meta = {
   title: "Leaderboard/VimLine",
@@ -14,32 +14,40 @@ const meta = {
   },
   tags: ["autodocs"],
   decorators: [
-    createFixtureDecorator(vimLineFixtures, (fixture) => (
-      <div className="font-mono text-sm p-4">
-        {fixture.tilde ? (
-          <TildeLine />
-        ) : (
-          <VimLine n={fixture.n}>{fixture.content}</VimLine>
-        )}
-      </div>
-    )),
+    createFixtureDecorator(vimLineFixtures, (fixture) => {
+      const props = {
+        ...(fixture.n !== undefined && { n: fixture.n }),
+        ...(fixture.tilde !== undefined && { tilde: fixture.tilde }),
+      };
+      return (
+        <div className="font-mono text-sm p-4">
+          {fixture.tilde ? (
+            <TildeLine />
+          ) : (
+            <VimLine {...props}>{fixture.content}</VimLine>
+          )}
+        </div>
+      );
+    }),
   ],
 } satisfies Meta<typeof VimLine>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const firstVimFixture = vimLineFixtures[0]!;
+
 export const Default: Story = {
   args: {
-    n: vimLineFixtures[0].n,
-    children: vimLineFixtures[0].content,
+    ...(firstVimFixture.n !== undefined && { n: firstVimFixture.n }),
+    children: firstVimFixture.content,
   },
 };
 
 export const WithLineNumber: Story = {
   args: {
     n: 42,
-    children: "import { Effect } from \"effect\";",
+    children: 'import { Effect } from "effect";',
   },
 };
 
