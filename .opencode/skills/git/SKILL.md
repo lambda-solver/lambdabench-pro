@@ -129,26 +129,6 @@ Our project uses **Biome** (not ESLint/Prettier). Two commands sound similar but
 
 Note: `useLiteralKeys` infos on `Record<string, unknown>` bracket access are acceptable and do not fail CI.
 
-## How Reference Projects Do It
-
-**Important: None of the reference projects (Clanka, Motel, Hazel) use Biome.** Our project chose Biome independently.
-
-| Project | Linter | Formatter | Type Check | Test Runner | Notes |
-|---------|--------|-----------|------------|-------------|-------|
-| **Clanka** | `oxlint` | `prettier` | `pnpm tsc -b` | `vitest run` | Uses oxlint + prettier separately |
-| **Motel** | (none) | (none) | `tsc --noEmit` | `bun test` | Minimal tooling; focused CLI tool |
-| **Hazel** | `oxlint` | `oxfmt` | `turbo build typecheck` | `vitest run` | Uses oxlint project's formatter |
-| **effect-solutions** | `biome` | `biome` | `tsc --build` | `vitest run` | **The only reference using Biome** |
-| **This project** | `biome lint` | `biome check` | `turbo run type-check` | `vitest run` | All-in-one: lint + format + imports |
-
-**Why we chose Biome:**
-- **All-in-one**: Single tool handles linting, formatting, and import organization (replaces ESLint + Prettier + import plugins)
-- **Unified config**: One `biome.json` instead of `.eslintrc` + `.prettierrc` + plugins
-- **Speed**: Fast enough for our monorepo size
-- **Rust-based**: Similar performance to oxlint but with formatting built-in
-
-**Trade-off:** Reference projects prefer oxlint (faster linting, separate concerns). We chose Biome for simplicity.
-
 ## Important Files
 
 - `.github/workflows/check.yml` — CI lint/type-check/test

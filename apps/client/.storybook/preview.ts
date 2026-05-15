@@ -1,6 +1,41 @@
 import type { Preview } from "@storybook/react";
 import "../src/index.css";
 
+const VIEWPORTS = {
+  mobile: {
+    name: "Mobile",
+    styles: {
+      width: "375px",
+      height: "667px",
+    },
+    type: "mobile" as const,
+  },
+  tablet: {
+    name: "Tablet",
+    styles: {
+      width: "768px",
+      height: "1024px",
+    },
+    type: "tablet" as const,
+  },
+  desktop: {
+    name: "Desktop",
+    styles: {
+      width: "1280px",
+      height: "720px",
+    },
+    type: "desktop" as const,
+  },
+  wide: {
+    name: "Wide Desktop",
+    styles: {
+      width: "1920px",
+      height: "1080px",
+    },
+    type: "desktop" as const,
+  },
+};
+
 const preview: Preview = {
   parameters: {
     controls: {
@@ -21,6 +56,10 @@ const preview: Preview = {
           value: "#002b36",
         },
       ],
+    },
+    viewport: {
+      viewports: VIEWPORTS,
+      defaultViewport: "desktop",
     },
   },
   decorators: [

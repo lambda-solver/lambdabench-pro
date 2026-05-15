@@ -47,34 +47,38 @@ const res = Schema.decodeUnknownSync(ApiResponse)(await req.json());
 
 ## Testing
 
-The client uses **Vitest 4.x with Browser Mode** (Playwright) for testing React
-components in a real browser environment.
+The client uses **bun:test** (Bun's built-in test runner) for logic tests and
+**Storybook** for visual component inspection.
 
 ```bash
 # Run client tests
 bun run test --filter=client
+
+# Start Storybook for visual component inspection
+bun run storybook --filter=client
 ```
 
 **Test Setup:**
 
-- **Browser Mode**: Tests run in Playwright-controlled browser
-- **vitest-browser-react**: React testing utilities for Browser Mode
-- **CSS Support**: Tailwind CSS is processed during tests
+- **bun:test**: Zero-config test runner for pure logic and utility tests
+- **Storybook**: Manual visual inspection of components with fixtures
+- **No DOM tests**: Component behavior is verified via Storybook fixtures, not automated DOM assertions
 
 **Test File Structure:**
 
 ```typescript
-import { render } from "vitest-browser-react";
-import { expect, test } from "vitest";
-import { App } from "./app";
+import { expect, test } from "bun:test";
+import { fmtModel } from "./fmt";
 
-test("renders app", async () => {
-  const screen = render(<App />);
-  await expect.element(screen.getByText("Hello")).toBeInTheDocument();
+test("strips openrouter/ prefix", () => {
+  expect(fmtModel("openrouter/google/gemini-2.5-pro")).toBe(
+    "google/gemini-2.5-pro"
+  );
 });
 ```
 
-Tests are colocated with source files using the `*.test.tsx` pattern.
+Tests are colocated with source files using the `*.test.ts` pattern.
+For component visual testing, use Storybook stories with fixtures.
 
 ## Learn More
 

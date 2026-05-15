@@ -2,7 +2,7 @@
  * fmt.test.ts — Unit tests for fmtModel display utility.
  */
 
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "bun:test";
 import { fmtModel } from "./fmt";
 
 describe("fmtModel", () => {

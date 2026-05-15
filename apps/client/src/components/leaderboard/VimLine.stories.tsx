@@ -1,38 +1,51 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { VimLine, TildeLine } from "./VimLine";
+import { vimLineFixtures } from "@/fixtures/vimLine";
+import { createFixtureDecorator } from "@/fixtures/decorator";
 
 const meta = {
   title: "Leaderboard/VimLine",
   component: VimLine,
   parameters: {
     layout: "padded",
+    viewport: {
+      defaultViewport: "responsive",
+    },
   },
   tags: ["autodocs"],
-  argTypes: {
-    n: {
-      control: "text",
-      description: "Line number — pass null for blank gutter",
-    },
-    tilde: {
-      control: "boolean",
-      description: "Render as tilde (~) line",
-    },
-  },
+  decorators: [
+    createFixtureDecorator(vimLineFixtures, (fixture) => (
+      <div className="font-mono text-sm p-4">
+        {fixture.tilde ? (
+          <TildeLine />
+        ) : (
+          <VimLine n={fixture.n}>{fixture.content}</VimLine>
+        )}
+      </div>
+    )),
+  ],
 } satisfies Meta<typeof VimLine>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+export const Default: Story = {
+  args: {
+    n: vimLineFixtures[0].n,
+    children: vimLineFixtures[0].content,
+  },
+};
+
 export const WithLineNumber: Story = {
   args: {
     n: 42,
-    children: "This is a line of content with line number 42",
+    children: "import { Effect } from \"effect\";",
   },
 };
 
 export const WithoutLineNumber: Story = {
   args: {
-    children: "This line has no line number in the gutter",
+    children: "  const result = yield* service.call();",
   },
 };
 
@@ -40,6 +53,21 @@ export const Tilde: Story = {
   args: {
     tilde: true,
     children: "~",
+  },
+};
+
+export const MultiDigitLine: Story = {
+  args: {
+    n: 128,
+    children:
+      'export const processItem = Effect.fn("processItem")(function* (id: string) {',
+  },
+};
+
+export const EmptyContent: Story = {
+  args: {
+    n: 7,
+    children: "",
   },
 };
 
@@ -51,17 +79,6 @@ export const MultipleLines: Story = {
       <VimLine n={3}>Third line showing the gutter alignment</VimLine>
       <TildeLine />
       <TildeLine />
-    </div>
-  ),
-};
-
-export const WithColoredContent: Story = {
-  render: () => (
-    <div className="font-mono text-sm">
-      <VimLine n={1}>
-        <span className="text-[var(--sol-blue)]">model-name</span>
-        <span className="mx-2">95/120</span>
-      </VimLine>
     </div>
   ),
 };

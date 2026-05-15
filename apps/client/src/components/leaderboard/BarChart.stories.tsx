@@ -1,77 +1,73 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { BarChart } from "./BarChart";
+import { barChartFixtures } from "@/fixtures/barChart";
+import { createFixtureDecorator } from "@/fixtures/decorator";
 
 const meta = {
   title: "Leaderboard/BarChart",
   component: BarChart,
   parameters: {
     layout: "centered",
+    viewport: {
+      defaultViewport: "responsive",
+    },
   },
   tags: ["autodocs"],
-  argTypes: {
-    pct: {
-      control: { type: "range", min: 0, max: 100 },
-      description: "Percentage 0–100",
-    },
-    width: {
-      control: { type: "range", min: 10, max: 50 },
-      description: "Width in characters (fixed mode)",
-    },
-    fluid: {
-      control: "boolean",
-      description: "Fluid mode fills parent flex-1 cell",
-    },
-  },
+  decorators: [
+    createFixtureDecorator(barChartFixtures, (fixture) => (
+      <div className="p-4">
+        {fixture.fluid ? (
+          <div className="w-64">
+            <BarChart pct={fixture.pct} fluid />
+          </div>
+        ) : (
+          <BarChart pct={fixture.pct} width={fixture.width} />
+        )}
+      </div>
+    )),
+  ],
 } satisfies Meta<typeof BarChart>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const HighScore: Story = {
+// Default story renders the first fixture
+export const Default: Story = {
   args: {
-    pct: 85,
-    width: 28,
+    pct: barChartFixtures[0].pct,
+    width: barChartFixtures[0].width,
   },
+};
+
+// Individual fixture stories for visual regression testing
+export const PerfectScore: Story = {
+  args: { pct: 100, width: 28 },
+};
+
+export const HighScore: Story = {
+  args: { pct: 85, width: 28 },
 };
 
 export const MediumScore: Story = {
-  args: {
-    pct: 55,
-    width: 28,
-  },
+  args: { pct: 55, width: 28 },
 };
 
 export const LowScore: Story = {
-  args: {
-    pct: 15,
-    width: 28,
-  },
+  args: { pct: 15, width: 28 },
+};
+
+export const ZeroScore: Story = {
+  args: { pct: 0, width: 28 },
 };
 
 export const Fluid: Story = {
-  args: {
-    pct: 65,
-    fluid: true,
-  },
-  decorators: [
-    (Story) => (
-      <div className="w-64">
-        <Story />
-      </div>
-    ),
-  ],
+  args: { pct: 65, fluid: true },
 };
 
 export const Narrow: Story = {
-  args: {
-    pct: 42,
-    width: 15,
-  },
+  args: { pct: 42, width: 15 },
 };
 
 export const Wide: Story = {
-  args: {
-    pct: 73,
-    width: 40,
-  },
+  args: { pct: 73, width: 40 },
 };

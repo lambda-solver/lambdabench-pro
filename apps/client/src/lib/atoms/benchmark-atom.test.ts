@@ -1,5 +1,5 @@
 import type { BenchmarkData, Ranking } from "@repo/domain/Benchmark";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "bun:test";
 import { computeValueEntries } from "./benchmark-atom";
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────
