@@ -5,8 +5,8 @@
       "right": 2,
       "total": 6,
       "pct": "33.3",
-      "avgTime": 16.8,
-      "timestamp": "2026y05m15d.13h41m04s",
+      "avgTime": 69.1,
+      "timestamp": "2026y05m17d.09h14m14s",
       "tasks": {
         "clst_map": false,
         "clst_rev": false,
@@ -23,15 +23,15 @@
       "pricePerMOutputTokens": 0,
       "rlm": true,
       "rlmDepth": 3,
-      "rlmAttempts": 14
+      "rlmAttempts": 15
     },
     {
       "model": "nvidia/nemotron-3-super-120b-a12b:free",
       "right": 1,
       "total": 6,
       "pct": "16.7",
-      "avgTime": 5.6,
-      "timestamp": "2026y05m15d.13h13m38s",
+      "avgTime": 5.2,
+      "timestamp": "2026y05m17d.09h07m19s",
       "tasks": {
         "clst_map": false,
         "clst_rev": false,
@@ -2637,5 +2637,5 @@
       "name": "N-Tuples"
     }
   ],
-  "generatedAt": "2026-05-15T13:41:04.800Z"
+  "generatedAt": "2026-05-17T09:14:14.082Z"
 }
