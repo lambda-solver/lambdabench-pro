@@ -106,6 +106,7 @@ const mockLayers = (overrides: {
         );
       },
       waitForPort: () => Effect.void,
+      tryConnect: () => Effect.succeed(false),
       checkHealth: () => Effect.succeed(true),
     }),
   );
