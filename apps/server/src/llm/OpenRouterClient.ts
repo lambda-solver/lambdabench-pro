@@ -10,10 +10,7 @@
  *   // layer: Layer<LanguageModel, ConfigError, HttpClient>
  */
 
-import {
-  OpenRouterClient,
-  OpenRouterLanguageModel,
-} from "@effect/ai-openrouter";
+import { OpenRouterClient, OpenRouterLanguageModel } from "@effect/ai-openrouter";
 import { Config, Layer } from "effect";
 import { FetchHttpClient } from "effect/unstable/http";
 
@@ -30,10 +27,10 @@ export class LlmError {
 }
 
 /** A single message in an OpenAI-compatible chat conversation. */
-export type ChatMessage = {
+export interface ChatMessage {
   readonly role: "user" | "assistant" | "system";
   readonly content: string;
-};
+}
 
 // ─── Layer factory ────────────────────────────────────────────────────────────
 
@@ -49,6 +46,6 @@ const OpenRouterClientLayer = OpenRouterClient.layerConfig({
  */
 export const makeOpenRouterLayer = (model: string) =>
   OpenRouterLanguageModel.layer({
-    model,
     config: { max_tokens: 4096, reasoning: { effort: "none" } },
+    model,
   }).pipe(Layer.provide(OpenRouterClientLayer));

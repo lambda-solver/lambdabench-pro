@@ -1,6 +1,6 @@
+import { Effect } from "effect";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
-import { Effect } from "effect";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -9,7 +9,7 @@ const TEMP_PATH = ".lambench-data/daemon-registry.json.tmp";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-export type ProcessEntry = {
+export interface ProcessEntry {
   readonly pid: number;
   readonly command: string;
   readonly cwd: string;
@@ -17,13 +17,13 @@ export type ProcessEntry = {
   readonly startTime: string;
   readonly lastHealthCheck: string | null;
   readonly healthy: boolean;
-};
+}
 
-export type RegistryData = {
+export interface RegistryData {
   readonly version: number;
-  readonly processes: ProcessEntry[];
+  readonly processes: Array<ProcessEntry>;
   readonly updatedAt: string;
-};
+}
 
 // ─── Error ───────────────────────────────────────────────────────────────────
 
@@ -38,26 +38,30 @@ export class RegistryError extends Error {
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const emptyRegistry = (): RegistryData => ({
-  version: 1,
   processes: [],
   updatedAt: new Date().toISOString(),
+  version: 1,
 });
 
-const ensureDir = Effect.fnUntraced(function* () {
+const ensureDir = Effect.fnUntraced(function*() {
   const dir = dirname(REGISTRY_PATH);
   yield* Effect.tryPromise({
-    try: () => mkdir(dir, { recursive: true }),
     catch: (e) =>
       new RegistryError(
         `Failed to create registry directory: ${e instanceof Error ? e.message : String(e)}`,
       ),
+    try: () => mkdir(dir, { recursive: true }),
   });
 });
 
 // ─── Public API ──────────────────────────────────────────────────────────────
 
-export const readRegistry = Effect.fn("registry.readRegistry")(function* () {
+export const readRegistry = Effect.fn("registry.readRegistry")(function*() {
   const content: string | null = yield* Effect.tryPromise({
+    catch: (e) =>
+      new RegistryError(
+        `Failed to read registry: ${e instanceof Error ? e.message : String(e)}`,
+      ),
     try: async () => {
       try {
         return await readFile(REGISTRY_PATH, "utf-8");
@@ -67,10 +71,6 @@ export const readRegistry = Effect.fn("registry.readRegistry")(function* () {
         throw e;
       }
     },
-    catch: (e) =>
-      new RegistryError(
-        `Failed to read registry: ${e instanceof Error ? e.message : String(e)}`,
-      ),
   });
 
   if (content === null) {
@@ -78,47 +78,46 @@ export const readRegistry = Effect.fn("registry.readRegistry")(function* () {
   }
 
   const data = yield* Effect.try({
-    try: () => JSON.parse(content) as RegistryData,
     catch: (e) =>
       new RegistryError(
         `Corrupt registry file: ${e instanceof Error ? e.message : String(e)}`,
       ),
+    try: () => JSON.parse(content) as RegistryData,
   }).pipe(
     Effect.catchTag("RegistryError", (e) =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         yield* Effect.log(e.message);
         return emptyRegistry();
-      }),
-    ),
+      })),
   );
 
   return data;
 });
 
-export const writeRegistry = Effect.fn("registry.writeRegistry")(function* (
+export const writeRegistry = Effect.fn("registry.writeRegistry")(function*(
   data: RegistryData,
 ) {
   yield* ensureDir();
 
   const json = `${JSON.stringify(data, null, 2)}\n`;
   yield* Effect.tryPromise({
-    try: () => writeFile(TEMP_PATH, json, "utf-8"),
     catch: (e) =>
       new RegistryError(
         `Failed to write registry temp file: ${e instanceof Error ? e.message : String(e)}`,
       ),
+    try: () => writeFile(TEMP_PATH, json, "utf-8"),
   });
 
   yield* Effect.tryPromise({
-    try: () => rename(TEMP_PATH, REGISTRY_PATH),
     catch: (e) =>
       new RegistryError(
         `Failed to rename registry file: ${e instanceof Error ? e.message : String(e)}`,
       ),
+    try: () => rename(TEMP_PATH, REGISTRY_PATH),
   });
 });
 
-export const addProcess = Effect.fn("registry.addProcess")(function* (
+export const addProcess = Effect.fn("registry.addProcess")(function*(
   entry: ProcessEntry,
 ) {
   const data = yield* readRegistry();
@@ -130,7 +129,7 @@ export const addProcess = Effect.fn("registry.addProcess")(function* (
   yield* writeRegistry(updated);
 });
 
-export const removeProcess = Effect.fn("registry.removeProcess")(function* (
+export const removeProcess = Effect.fn("registry.removeProcess")(function*(
   pid: number,
 ) {
   const data = yield* readRegistry();
@@ -142,7 +141,7 @@ export const removeProcess = Effect.fn("registry.removeProcess")(function* (
   yield* writeRegistry(updated);
 });
 
-export const getProcess = Effect.fn("registry.getProcess")(function* (
+export const getProcess = Effect.fn("registry.getProcess")(function*(
   pid: number,
 ) {
   const data = yield* readRegistry();
@@ -150,12 +149,12 @@ export const getProcess = Effect.fn("registry.getProcess")(function* (
   return entry ?? null;
 });
 
-export const listProcesses = Effect.fn("registry.listProcesses")(function* () {
+export const listProcesses = Effect.fn("registry.listProcesses")(function*() {
   const data = yield* readRegistry();
   return data.processes;
 });
 
-export const updateHealth = Effect.fn("registry.updateHealth")(function* (
+export const updateHealth = Effect.fn("registry.updateHealth")(function*(
   pid: number,
   healthy: boolean,
 ) {
@@ -163,9 +162,7 @@ export const updateHealth = Effect.fn("registry.updateHealth")(function* (
   const now = new Date().toISOString();
   const updated: RegistryData = {
     ...data,
-    processes: data.processes.map((p) =>
-      p.pid === pid ? { ...p, healthy, lastHealthCheck: now } : p,
-    ),
+    processes: data.processes.map((p) => p.pid === pid ? { ...p, healthy, lastHealthCheck: now } : p),
     updatedAt: now,
   };
   yield* writeRegistry(updated);

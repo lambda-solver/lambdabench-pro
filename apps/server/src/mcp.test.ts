@@ -15,9 +15,9 @@ vi.doMock("@effect/platform-bun", async () => {
   const Stdio = (await import("effect/Stdio")).Stdio;
   const mockStdio = {
     args: Effect.succeed([]),
-    stdout: () => Sink.drain,
     stderr: () => Sink.drain,
     stdin: Stream.empty,
+    stdout: () => Sink.drain,
   } as never;
   return {
     BunRuntime: { runMain: () => {} },
@@ -38,12 +38,14 @@ vi.doMock("./client/LamBenchClient.js", async () => {
       Layer.succeed(
         LamBenchClient,
         LamBenchClient.of({
-          health: () =>
+          evalBatch: () =>
             Effect.succeed({
-              status: "ok" as const,
-              version: "1.0.0",
-              db: "connected" as const,
-              uptimeSeconds: 0,
+              completedTasks: 0,
+              createdAt: new Date().toISOString(),
+              id: "job-1",
+              results: [],
+              status: "queued" as const,
+              totalTasks: 1,
             }),
 
           evalSingle: (request: unknown) => {
@@ -53,83 +55,83 @@ vi.doMock("./client/LamBenchClient.js", async () => {
               variant: string;
             };
             return Effect.succeed({
-              taskId: req.task,
-              model: req.model,
-              variant: req.variant as "standard" | "rlm" | "both",
-              pass: true,
               bits: 42,
-              score: 0.95,
-              errors: [] as readonly string[],
               elapsedMs: 100,
+              errors: [] as ReadonlyArray<string>,
+              model: req.model,
+              pass: true,
+              score: 0.95,
               submission: "answer",
+              taskId: req.task,
               timestamp: new Date().toISOString(),
+              variant: req.variant as "standard" | "rlm" | "both",
             });
           },
 
-          evalBatch: () =>
-            Effect.succeed({
-              id: "job-1",
-              status: "queued" as const,
-              totalTasks: 1,
-              completedTasks: 0,
-              createdAt: new Date().toISOString(),
-              results: [],
-            }),
-
           evalStatus: () =>
             Effect.succeed({
-              id: "job-1",
-              status: "queued" as const,
-              totalTasks: 1,
               completedTasks: 0,
               createdAt: new Date().toISOString(),
+              id: "job-1",
               results: [],
+              status: "queued" as const,
+              totalTasks: 1,
+            }),
+
+          health: () =>
+            Effect.succeed({
+              db: "connected" as const,
+              status: "ok" as const,
+              uptimeSeconds: 0,
+              version: "1.0.0",
+            }),
+
+          models: () => Effect.succeed([]),
+
+          resultDetail: () =>
+            Effect.succeed({
+              bits: 10,
+              elapsedMs: 100,
+              errors: [],
+              model: "model-a",
+              pass: true,
+              score: 1,
+              submission: "",
+              taskId: "task-1",
+              timestamp: new Date().toISOString(),
+              variant: "standard" as const,
             }),
 
           results: () =>
             Effect.succeed({
-              rankings: [],
-              tasks: [],
               categories: [],
               generatedAt: new Date().toISOString(),
+              rankings: [],
+              tasks: [],
             }),
 
-          resultDetail: () =>
-            Effect.succeed({
-              taskId: "task-1",
-              model: "model-a",
-              variant: "standard" as const,
-              pass: true,
-              bits: 10,
-              score: 1,
-              errors: [],
-              elapsedMs: 100,
-              submission: "",
-              timestamp: new Date().toISOString(),
-            }),
-
-          tasks: () => Effect.succeed([]),
           taskDetail: () =>
             Effect.succeed({
-              id: "task-1",
               category: "algo",
               categoryName: "Algorithms",
               description: "Test task",
+              id: "task-1",
               testCount: 1,
               tests: [],
             }),
 
-          models: () => Effect.succeed([]),
+          tasks: () => Effect.succeed([]),
+
           testModel: () =>
             Effect.succeed({
-              ok: true,
               latencyMs: 0,
+              ok: true,
             }),
         }),
       );
   }
 
-  return { LamBenchClient: MockLamBenchClient, ApiError };
+  return { ApiError, LamBenchClient: MockLamBenchClient };
 });
 
 // ─── Dynamic import after mocks ──────────────────────────────────────────────
@@ -145,8 +147,7 @@ describe("mcp", () => {
     Effect.sync(() => {
       // Verify ServerLayer is a valid Layer object (has the Layer shape)
       assertTrue(typeof ServerLayer === "object" && ServerLayer !== null);
-    }),
-  );
+    }));
 
   it.effect("LambenchToolkit contains all expected tools", () =>
     Effect.sync(() => {
@@ -160,8 +161,7 @@ describe("mcp", () => {
       assertTrue(toolNames.includes("lambench_get_task"));
       assertTrue(toolNames.includes("lambench_list_prompt_versions"));
       assertTrue(toolNames.includes("lambench_trigger_gepa"));
-    }),
-  );
+    }));
 
   it.effect("EvalSingleTool has correct name and valid schemas", () =>
     Effect.sync(() => {
@@ -172,8 +172,7 @@ describe("mcp", () => {
       strictEqual(tool.name, "lambench_eval_single");
       assertTrue(Schema.isSchema(tool.parametersSchema));
       assertTrue(Schema.isSchema(tool.successSchema));
-    }),
-  );
+    }));
 
   it.effect("ListTasksTool has correct name and valid schemas", () =>
     Effect.sync(() => {
@@ -184,8 +183,7 @@ describe("mcp", () => {
       strictEqual(tool.name, "lambench_list_tasks");
       assertTrue(Schema.isSchema(tool.parametersSchema));
       assertTrue(Schema.isSchema(tool.successSchema));
-    }),
-  );
+    }));
 
   it.effect("ListResultsTool has correct name and valid schemas", () =>
     Effect.sync(() => {
@@ -196,8 +194,7 @@ describe("mcp", () => {
       strictEqual(tool.name, "lambench_list_results");
       assertTrue(Schema.isSchema(tool.parametersSchema));
       assertTrue(Schema.isSchema(tool.successSchema));
-    }),
-  );
+    }));
 
   it.effect("GetTaskTool has correct name and valid schemas", () =>
     Effect.sync(() => {
@@ -208,6 +205,5 @@ describe("mcp", () => {
       strictEqual(tool.name, "lambench_get_task");
       assertTrue(Schema.isSchema(tool.parametersSchema));
       assertTrue(Schema.isSchema(tool.successSchema));
-    }),
-  );
+    }));
 });

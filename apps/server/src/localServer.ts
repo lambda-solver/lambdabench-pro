@@ -1,10 +1,10 @@
-import path from "node:path";
 import { BunServices } from "@effect/platform-bun";
 import * as BunHttpServer from "@effect/platform-bun/BunHttpServer";
 import { Layer } from "effect";
 import * as HttpMiddleware from "effect/unstable/http/HttpMiddleware";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import * as HttpStaticServer from "effect/unstable/http/HttpStaticServer";
+import path from "node:path";
 import { ApiLayer } from "./httpApi.js";
 import { makeServicesLayer } from "./runtime.js";
 import { config } from "./services/LamConfig.js";
@@ -38,8 +38,8 @@ export const ServerLive = HttpRouter.serve(
   Layer.provide(BunServices.layer),
   Layer.provide(
     BunHttpServer.layer({
-      port: config.port,
       hostname: "127.0.0.1",
+      port: config.port,
     }),
   ),
 );

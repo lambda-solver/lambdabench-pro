@@ -1,16 +1,11 @@
 // apps/server/src/services/TaskService.test.ts
 
-import { existsSync, unlinkSync } from "node:fs";
 import * as NodeFileSystem from "@effect/platform-node-shared/NodeFileSystem";
 import * as NodePath from "@effect/platform-node-shared/NodePath";
 import { describe, it } from "@effect/vitest";
-import {
-  assertDefined,
-  assertInclude,
-  assertTrue,
-  strictEqual,
-} from "@effect/vitest/utils";
+import { assertDefined, assertInclude, assertTrue, strictEqual } from "@effect/vitest/utils";
 import { Effect, Layer } from "effect";
+import { existsSync, unlinkSync } from "node:fs";
 import { afterAll, afterEach, beforeAll } from "vitest";
 import { ResultStoreLive } from "./ResultStore.js";
 import { TaskService, TaskServiceLive } from "./TaskService";
@@ -34,13 +29,11 @@ const makeTestLayer = (dbPath: string) =>
     Layer.provide(platformLayer),
   );
 
-const runWithTestLayer =
-  (dbPath: string) =>
-  <A, E, R>(effect: Effect.Effect<A, E, R>) =>
-    effect.pipe(
-      Effect.provide(makeTestLayer(dbPath)),
-      Effect.provide(platformLayer),
-    );
+const runWithTestLayer = (dbPath: string) => <A, E, R>(effect: Effect.Effect<A, E, R>) =>
+  effect.pipe(
+    Effect.provide(makeTestLayer(dbPath)),
+    Effect.provide(platformLayer),
+  );
 
 describe("TaskService", () => {
   beforeAll(() => {
@@ -60,20 +53,20 @@ describe("TaskService", () => {
   it.effect(
     "loadAndCacheTasks loads all 120 .tsk files into SQLite",
     () =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const svc = yield* TaskService;
         yield* svc.loadAndCacheTasks();
 
         const all = yield* svc.getAllTasks();
         strictEqual(all.length, 120);
       }).pipe(runWithTestLayer(testDbPath)),
-    15000,
+    15_000,
   );
 
   // ─── getTask ────────────────────────────────────────────────────────────────
 
   it.effect("getTask retrieves a cached task by ID", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const svc = yield* TaskService;
       yield* svc.loadAndCacheTasks();
 
@@ -85,30 +78,28 @@ describe("TaskService", () => {
       assertInclude(task.description, "Add two Scott nats. Return A + B.");
       assertTrue(task.testCount > 0);
       strictEqual(task.tests.length, task.testCount);
-    }).pipe(runWithTestLayer(testDbPath)),
-  );
+    }).pipe(runWithTestLayer(testDbPath)));
 
   it.effect("getTask returns undefined for unknown task ID", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const svc = yield* TaskService;
       yield* svc.loadAndCacheTasks();
 
       const task = yield* svc.getTask("nonexistent_task");
       strictEqual(task, undefined);
-    }).pipe(runWithTestLayer(testDbPath)),
-  );
+    }).pipe(runWithTestLayer(testDbPath)));
 
   // ─── getAllTasks ────────────────────────────────────────────────────────────
 
   it.effect("getAllTasks returns all cached tasks with correct shape", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const svc = yield* TaskService;
       yield* svc.loadAndCacheTasks();
 
       const all = yield* svc.getAllTasks();
       strictEqual(all.length, 120);
 
-      const ids = all.map((t) => t.id).sort();
+      const ids = all.map((t) => t.id).toSorted();
       assertTrue(ids.includes("snat_add"));
       assertTrue(ids.includes("algo_maz"));
       assertTrue(ids.includes("cbin_log"));
@@ -122,15 +113,14 @@ describe("TaskService", () => {
       assertDefined(first.description);
       assertDefined(first.tests);
       assertTrue(first.testCount >= 0);
-    }).pipe(runWithTestLayer(testDbPath)),
-  );
+    }).pipe(runWithTestLayer(testDbPath)));
 
   // ─── getTasksByCategory ─────────────────────────────────────────────────────
 
   it.effect(
     "getTasksByCategory returns tasks filtered by category prefix",
     () =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const svc = yield* TaskService;
         yield* svc.loadAndCacheTasks();
 
@@ -158,7 +148,7 @@ describe("TaskService", () => {
   it.effect(
     "computeRefBits returns positive bit size for tasks with a .lam reference",
     () =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const svc = yield* TaskService;
 
         const bits = yield* svc.computeRefBits("cnat_add");
@@ -170,7 +160,7 @@ describe("TaskService", () => {
   it.effect(
     "computeRefBits returns undefined for tasks without a .lam reference",
     () =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const svc = yield* TaskService;
 
         const bits = yield* svc.computeRefBits("nonexistent_task");
@@ -183,7 +173,7 @@ describe("TaskService", () => {
   it.effect(
     "loadAndCacheTasks twice does not duplicate entries in the database",
     () =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const svc = yield* TaskService;
         yield* svc.loadAndCacheTasks();
         yield* svc.loadAndCacheTasks();

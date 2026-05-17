@@ -10,12 +10,12 @@ compatibility: opencode
 ## Structured logging
 
 ```typescript
-yield* Effect.log("info message")
-yield* Effect.logInfo("user:", id)
-yield* Effect.logWarning("slow query:", sql)
-yield* Effect.logError("fetch failed:", url)
-yield* Effect.logDebug("cache hit:", key)
-yield* Effect.logTrace("verbose detail:", payload)
+yield * Effect.log("info message");
+yield * Effect.logInfo("user:", id);
+yield * Effect.logWarning("slow query:", sql);
+yield * Effect.logError("fetch failed:", url);
+yield * Effect.logDebug("cache hit:", key);
+yield * Effect.logTrace("verbose detail:", payload);
 ```
 
 ## Spans — tracing
@@ -25,25 +25,25 @@ This is the preferred way — no manual `withSpan` needed.
 
 ```typescript
 // ✅ span created automatically from name
-export const processItem = Effect.fn("processItem")(function* (id: string) {
-  return yield* doWork(id)
-})
+export const processItem = Effect.fn("processItem")(function*(id: string) {
+  return yield* doWork(id);
+});
 
 // Manual span — for one-off wrapping
-program.pipe(Effect.withSpan("myOperation"))
+program.pipe(Effect.withSpan("myOperation"));
 
 // Span with attributes
 program.pipe(
   Effect.withSpan("myOperation", {
     attributes: { userId: id, requestId },
   }),
-)
+);
 ```
 
 ## Annotating the current span
 
 ```typescript
-yield* Effect.annotateCurrentSpan({ userId: id, requestId })
+yield * Effect.annotateCurrentSpan({ userId: id, requestId });
 ```
 
 ## Log annotations — attach context to all logs in scope
@@ -65,13 +65,13 @@ export const login = Effect.fn("login")(
 
 ```typescript
 export const runEval = Effect.fn("runEval")(
-  function* (taskId: string) {
-    yield* Effect.log("running eval")
-    return yield* evaluate(taskId)
+  function*(taskId: string) {
+    yield* Effect.log("running eval");
+    return yield* evaluate(taskId);
   },
   Effect.withSpan("runEval"),
   Effect.annotateLogs({ component: "evaluator" }),
-)
+);
 ```
 
 ## Metrics
@@ -91,7 +91,7 @@ yield* Metric.record(latency, elapsedMs)
 ## DevTools (browser / development)
 
 ```typescript
-import { DevTools } from "effect/unstable/devtools"
+import { DevTools } from "effect/unstable/devtools";
 
 const runtime = Atom.runtime(
   FetchHttpClient.layer.pipe(
@@ -101,5 +101,5 @@ const runtime = Atom.runtime(
         : Layer.empty,
     ),
   ),
-)
+);
 ```

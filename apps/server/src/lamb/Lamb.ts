@@ -7,27 +7,27 @@
 // ─── AST ─────────────────────────────────────────────────────────────────────
 
 export type Term =
-  | { tag: "Var"; name: string }
-  | { tag: "Ref"; name: string }
-  | { tag: "Lam"; param: string; body: Term }
-  | { tag: "App"; func: Term; arg: Term };
+  | { tag: "Var"; name: string; }
+  | { tag: "Ref"; name: string; }
+  | { tag: "Lam"; param: string; body: Term; }
+  | { tag: "App"; func: Term; arg: Term; };
 
 export type Book = Map<string, Term>;
 
 // ─── LEXER ───────────────────────────────────────────────────────────────────
 
 type Token =
-  | { type: "Lambda" }
-  | { type: "Dot" }
-  | { type: "LParen" }
-  | { type: "RParen" }
-  | { type: "Comma" }
-  | { type: "Equals" }
-  | { type: "At" }
-  | { type: "Name"; value: string };
+  | { type: "Lambda"; }
+  | { type: "Dot"; }
+  | { type: "LParen"; }
+  | { type: "RParen"; }
+  | { type: "Comma"; }
+  | { type: "Equals"; }
+  | { type: "At"; }
+  | { type: "Name"; value: string; };
 
-const tokenize = (src: string): Token[] => {
-  const tokens: Token[] = [];
+const tokenize = (src: string): Array<Token> => {
+  const tokens: Array<Token> = [];
   let i = 0;
   while (i < src.length) {
     const ch = src[i] ?? "";
@@ -90,7 +90,7 @@ const tokenize = (src: string): Token[] => {
 
 class Parser {
   private pos = 0;
-  constructor(private readonly tokens: Token[]) {}
+  constructor(private readonly tokens: Array<Token>) {}
 
   private peek(): Token | undefined {
     return this.tokens[this.pos];
@@ -102,8 +102,9 @@ class Parser {
   }
   private expect(type: Token["type"]): Token {
     const t = this.consume();
-    if (t.type !== type)
+    if (t.type !== type) {
       throw new Error(`Expected ${type}, got ${t.type} at pos ${this.pos}`);
+    }
     return t;
   }
 
@@ -111,7 +112,7 @@ class Parser {
     const book: Book = new Map();
     while (this.pos < this.tokens.length) {
       this.expect("At");
-      const name = (this.consume() as { type: "Name"; value: string }).value;
+      const name = (this.consume() as { type: "Name"; value: string; }).value;
       this.expect("Equals");
       const body = this.parseTerm();
       book.set(name, body);
@@ -123,10 +124,10 @@ class Parser {
     const t = this.peek();
     if (t?.type === "Lambda") {
       this.consume();
-      const param = (this.consume() as { type: "Name"; value: string }).value;
+      const param = (this.consume() as { type: "Name"; value: string; }).value;
       this.expect("Dot");
       const body = this.parseTerm();
-      return { tag: "Lam", param, body };
+      return { body, param, tag: "Lam" };
     }
     return this.parseApp();
   }
@@ -144,20 +145,20 @@ class Parser {
         const arg = this.parseTerm();
         if (this.peek()?.type === "Comma") {
           // Explicit multi-arg: f(a, b) → App(App(f,a),b)
-          func = { tag: "App", func, arg };
+          func = { arg, func, tag: "App" };
           while (this.peek()?.type === "Comma") {
             this.consume();
             const next = this.parseTerm();
-            func = { tag: "App", func, arg: next };
+            func = { arg: next, func, tag: "App" };
           }
         } else {
-          func = { tag: "App", func, arg };
+          func = { arg, func, tag: "App" };
         }
         this.expect("RParen");
       } else if (t?.type === "Name") {
         // Juxtaposition: f x  (only bare variable names — @refs are book-level defs)
         const arg = this.parseAtom();
-        func = { tag: "App", func, arg };
+        func = { arg, func, tag: "App" };
       } else {
         break;
       }
@@ -170,12 +171,12 @@ class Parser {
     if (!t) throw new Error("Unexpected end of input");
     if (t.type === "At") {
       this.consume();
-      const name = (this.consume() as { type: "Name"; value: string }).value;
-      return { tag: "Ref", name };
+      const name = (this.consume() as { type: "Name"; value: string; }).value;
+      return { name, tag: "Ref" };
     }
     if (t.type === "Name") {
       this.consume();
-      return { tag: "Var", name: (t as { type: "Name"; value: string }).value };
+      return { name: (t as { type: "Name"; value: string; }).value, tag: "Var" };
     }
     if (t.type === "LParen") {
       this.consume();
@@ -187,17 +188,18 @@ class Parser {
   }
 }
 
-export const parse = (src: string): Book =>
-  new Parser(tokenize(src)).parseBook();
+export const parse = (src: string): Book => new Parser(tokenize(src)).parseBook();
 
 // ─── EVALUATOR ───────────────────────────────────────────────────────────────
 
 const freeVars = (term: Term): Set<string> => {
   switch (term.tag) {
-    case "Var":
+    case "Var": {
       return new Set([term.name]);
-    case "Ref":
+    }
+    case "Ref": {
       return new Set();
+    }
     case "Lam": {
       const s = freeVars(term.body);
       s.delete(term.param);
@@ -211,7 +213,7 @@ const freeVars = (term: Term): Set<string> => {
   }
 };
 
-const ALPHA = "abcdefghijklmnopqrstuvwxyz".split("");
+const ALPHA = [..."abcdefghijklmnopqrstuvwxyz"];
 
 const freshen = (base: string, used: Set<string>): string => {
   for (const s of ALPHA) {
@@ -224,42 +226,47 @@ const freshen = (base: string, used: Set<string>): string => {
 
 const subst = (term: Term, name: string, value: Term): Term => {
   switch (term.tag) {
-    case "Var":
+    case "Var": {
       return term.name === name ? value : term;
-    case "Ref":
+    }
+    case "Ref": {
       return term;
-    case "Lam":
+    }
+    case "Lam": {
       if (term.param === name) return term;
       if (freeVars(value).has(term.param)) {
         const fresh = freshen(term.param, freeVars(value));
         const renamed = subst(term.body, term.param, {
-          tag: "Var",
           name: fresh,
+          tag: "Var",
         });
-        return { tag: "Lam", param: fresh, body: subst(renamed, name, value) };
+        return { body: subst(renamed, name, value), param: fresh, tag: "Lam" };
       }
       return {
-        tag: "Lam",
-        param: term.param,
         body: subst(term.body, name, value),
+        param: term.param,
+        tag: "Lam",
       };
-    case "App":
+    }
+    case "App": {
       return {
-        tag: "App",
-        func: subst(term.func, name, value),
         arg: subst(term.arg, name, value),
+        func: subst(term.func, name, value),
+        tag: "App",
       };
+    }
   }
 };
 
 const MAX_STEPS = 10_000_000;
 
-const normalizeWHNF = (term: Term, book: Book, steps: { n: number }): Term => {
+const normalizeWHNF = (term: Term, book: Book, steps: { n: number; }): Term => {
   if (steps.n++ > MAX_STEPS) throw new Error("Reduction limit exceeded");
   switch (term.tag) {
     case "Var":
-    case "Lam":
+    case "Lam": {
       return term;
+    }
     case "Ref": {
       const def = book.get(term.name);
       if (!def) throw new Error(`Undefined reference: @${term.name}`);
@@ -274,37 +281,40 @@ const normalizeWHNF = (term: Term, book: Book, steps: { n: number }): Term => {
           steps,
         );
       }
-      return { tag: "App", func, arg: term.arg };
+      return { arg: term.arg, func, tag: "App" };
     }
   }
 };
 
 export const normalize = (term: Term, book: Book, steps = { n: 0 }): Term => {
-  if (steps.n++ > MAX_STEPS)
+  if (steps.n++ > MAX_STEPS) {
     throw new Error("Reduction limit exceeded (possible infinite loop)");
+  }
   switch (term.tag) {
-    case "Var":
+    case "Var": {
       return term;
+    }
     case "Ref": {
       const def = book.get(term.name);
       if (!def) throw new Error(`Undefined reference: @${term.name}`);
       return normalize(def, book, steps);
     }
-    case "Lam":
+    case "Lam": {
       return {
-        tag: "Lam",
-        param: term.param,
         body: normalize(term.body, book, steps),
+        param: term.param,
+        tag: "Lam",
       };
+    }
     case "App": {
       const func = normalizeWHNF(term.func, book, steps);
       if (func.tag === "Lam") {
         return normalize(subst(func.body, func.param, term.arg), book, steps);
       }
       return {
-        tag: "App",
-        func: normalize(func, book, steps),
         arg: normalize(term.arg, book, steps),
+        func: normalize(func, book, steps),
+        tag: "App",
       };
     }
   }
@@ -323,15 +333,16 @@ const varName = (idx: number): string => {
 const printTerm = (
   term: Term,
   scope: Map<string, number>,
-  counter: { n: number },
+  counter: { n: number; },
 ): string => {
   switch (term.tag) {
     case "Var": {
       const idx = scope.get(term.name);
       return idx === undefined ? term.name : varName(idx);
     }
-    case "Ref":
+    case "Ref": {
       return `@${term.name}`;
+    }
     case "Lam": {
       const idx = counter.n++;
       const newScope = new Map(scope);
@@ -339,7 +350,7 @@ const printTerm = (
       return `λ${varName(idx)}.${printTerm(term.body, newScope, counter)}`;
     }
     case "App": {
-      const args: Term[] = [];
+      const args: Array<Term> = [];
       let cur: Term = term;
       while (cur.tag === "App") {
         args.unshift(cur.arg);
@@ -352,46 +363,51 @@ const printTerm = (
   }
 };
 
-export const printNormal = (term: Term): string =>
-  printTerm(term, new Map(), { n: 0 });
+export const printNormal = (term: Term): string => printTerm(term, new Map(), { n: 0 });
 
 // ─── BINARY ENCODING ─────────────────────────────────────────────────────────
 
 type DeBruijn =
-  | { tag: "Idx"; index: number }
-  | { tag: "DLam"; body: DeBruijn }
-  | { tag: "DApp"; func: DeBruijn; arg: DeBruijn };
+  | { tag: "Idx"; index: number; }
+  | { tag: "DLam"; body: DeBruijn; }
+  | { tag: "DApp"; func: DeBruijn; arg: DeBruijn; };
 
-const toDeBruijn = (term: Term, env: string[]): DeBruijn => {
+const toDeBruijn = (term: Term, env: Array<string>): DeBruijn => {
   switch (term.tag) {
     case "Var": {
       const idx = env.indexOf(term.name);
       if (idx === -1) throw new Error(`Unbound variable: ${term.name}`);
-      return { tag: "Idx", index: idx };
+      return { index: idx, tag: "Idx" };
     }
-    case "Ref":
+    case "Ref": {
       throw new Error(
         `Ref @${term.name} must be inlined before binary encoding`,
       );
-    case "Lam":
-      return { tag: "DLam", body: toDeBruijn(term.body, [term.param, ...env]) };
-    case "App":
+    }
+    case "Lam": {
+      return { body: toDeBruijn(term.body, [term.param, ...env]), tag: "DLam" };
+    }
+    case "App": {
       return {
-        tag: "DApp",
-        func: toDeBruijn(term.func, env),
         arg: toDeBruijn(term.arg, env),
+        func: toDeBruijn(term.func, env),
+        tag: "DApp",
       };
+    }
   }
 };
 
 const encodeBLC = (term: DeBruijn): string => {
   switch (term.tag) {
-    case "Idx":
+    case "Idx": {
       return `${"1".repeat(term.index + 1)}0`;
-    case "DLam":
+    }
+    case "DLam": {
       return `00${encodeBLC(term.body)}`;
-    case "DApp":
+    }
+    case "DApp": {
       return `01${encodeBLC(term.func)}${encodeBLC(term.arg)}`;
+    }
   }
 };
 
@@ -401,23 +417,27 @@ export const inlineRefs = (
   visited = new Set<string>(),
 ): Term => {
   switch (term.tag) {
-    case "Var":
+    case "Var": {
       return term;
+    }
     case "Ref": {
-      if (visited.has(term.name))
+      if (visited.has(term.name)) {
         throw new Error(`Recursive ref @${term.name} cannot be binary-encoded`);
+      }
       const def = book.get(term.name);
       if (!def) throw new Error(`Undefined ref @${term.name}`);
       return inlineRefs(def, book, new Set([...visited, term.name]));
     }
-    case "Lam":
+    case "Lam": {
       return { ...term, body: inlineRefs(term.body, book, visited) };
-    case "App":
+    }
+    case "App": {
       return {
         ...term,
-        func: inlineRefs(term.func, book, visited),
         arg: inlineRefs(term.arg, book, visited),
+        func: inlineRefs(term.func, book, visited),
       };
+    }
   }
 };
 

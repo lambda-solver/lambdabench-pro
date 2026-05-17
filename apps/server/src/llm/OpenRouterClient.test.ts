@@ -21,16 +21,16 @@ const mockLanguageModelLayer = (
   respond: () => Effect.Effect<string, LlmError>,
 ): Layer.Layer<LanguageModel.LanguageModel> =>
   Layer.succeed(LanguageModel.LanguageModel, {
+    generateObject: () => Effect.die(new Error("generateObject not mocked")),
     generateText: (_options: unknown) =>
       respond().pipe(
         Effect.map((text) => ({
-          text,
-          usage: { inputTokens: 0, outputTokens: 0 },
-          toolCalls: [],
           finishReason: "stop" as const,
+          text,
+          toolCalls: [],
+          usage: { inputTokens: 0, outputTokens: 0 },
         })),
       ),
-    generateObject: () => Effect.die(new Error("generateObject not mocked")),
     streamText: () => Effect.die(new Error("streamText not mocked")),
   } as unknown as LanguageModel.Service);
 
@@ -38,7 +38,7 @@ const mockLanguageModelLayer = (
 
 describe("LanguageModel mock (OpenRouterClient replacement)", () => {
   it.effect("generateText returns text from mock layer", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const result = yield* LanguageModel.generateText({
         prompt: "hello",
       }).pipe(
@@ -48,25 +48,21 @@ describe("LanguageModel mock (OpenRouterClient replacement)", () => {
         ),
       );
       strictEqual(result, "@main = λf.λx.f(x)");
-    }),
-  );
+    }));
 
   it.effect("LlmError is caught by Effect.catch at call site", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const result = yield* LanguageModel.generateText({
         prompt: "hello",
       }).pipe(
         Effect.map((r) => r.text),
         Effect.catch((_e) => Effect.succeed("fallback")),
         Effect.provide(
-          mockLanguageModelLayer(() =>
-            Effect.fail(new LlmError("upstream error")),
-          ),
+          mockLanguageModelLayer(() => Effect.fail(new LlmError("upstream error"))),
         ),
       );
       strictEqual(result, "fallback");
-    }),
-  );
+    }));
 
   vitestIt("LlmError carries the original message", () => {
     const err = new LlmError("rate limited");
@@ -83,7 +79,7 @@ describe("makeOpenRouterLayer (real OpenRouter)", () => {
   it.effect.skipIf(!apiKey)(
     "generates a non-empty text response",
     () =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const layer = makeOpenRouterLayer("minimax/minimax-m2.5:free").pipe(
           Layer.provide(FetchHttpClient.layer),
         );

@@ -1,5 +1,5 @@
-import { useLayoutEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { useLayoutEffect, useState } from "react";
 
 interface ControlBarProps {
   muted: boolean;

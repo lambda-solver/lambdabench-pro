@@ -1,4 +1,5 @@
-import { type Chunk, Chunker } from "@repo/domain/Chunk";
+import type { Chunk } from "@repo/domain/Chunk";
+import { Chunker } from "@repo/domain/Chunk";
 import { Context, Effect, Layer, Schema } from "effect";
 import { isBlank } from "./utils";
 
@@ -19,8 +20,7 @@ export const FastChunkerConfig = Context.Reference<
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
-const isContinuationByte = (byte: number): boolean =>
-  (byte & 0b1100_0000) === 0b1000_0000;
+const isContinuationByte = (byte: number): boolean => (byte & 0b1100_0000) === 0b1000_0000;
 
 const isDelimiter = (
   byte: number,
@@ -31,7 +31,7 @@ export class FastChunker extends Context.Service<
   FastChunker,
   Chunker["Service"]
 >()("FastChunker", {
-  make: Effect.gen(function* () {
+  make: Effect.gen(function*() {
     const config = yield* FastChunkerConfig;
     const { chunkSize, delimiters } = yield* Schema.decodeEffect(
       FastChunkerConfigSchema,
@@ -74,8 +74,8 @@ export class FastChunker extends Context.Service<
 
       aligned = end;
       while (
-        aligned < bytes.length &&
-        isContinuationByte(bytes[aligned] as number)
+        aligned < bytes.length
+        && isContinuationByte(bytes[aligned] as number)
       ) {
         aligned++;
       }
@@ -100,9 +100,9 @@ export class FastChunker extends Context.Service<
 
           const textSlice = decoder.decode(bytes.slice(start, end));
           chunks.push({
-            text: textSlice,
-            startIdx: charIndex,
             endIdx: charIndex + textSlice.length,
+            startIdx: charIndex,
+            text: textSlice,
             tokenCount: textSlice.length,
           });
 
@@ -111,7 +111,7 @@ export class FastChunker extends Context.Service<
         }
 
         return chunks;
-      }),
+      })
     );
 
     return {

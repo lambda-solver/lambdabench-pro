@@ -1,30 +1,28 @@
 import { describe, it } from "@effect/vitest";
 import { assertTrue, strictEqual } from "@effect/vitest/utils";
-import { Effect, Fiber, Ref, Schedule, Scope } from "effect";
+import { Effect, Fiber, Ref, Schedule } from "effect";
 
 describe("fork-debug", () => {
   // 1. Test basic sleep
   it.effect("sleep works", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       yield* Effect.sleep(10);
       strictEqual(1, 1);
-    }),
-  );
+    }));
 
   // 2. Test Effect.scoped + sleep
   it.effect("scoped sleep works", () =>
     Effect.scoped(
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         yield* Effect.sleep(10);
         strictEqual(1, 1);
       }),
-    ),
-  );
+    ));
 
   // 3. Test repeat + sleep (no fork)
   it.effect("repeat without fork", () =>
     Effect.scoped(
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const ref = yield* Ref.make(0);
         yield* Effect.forkScoped(
           Effect.repeat(
@@ -36,26 +34,24 @@ describe("fork-debug", () => {
         const val = yield* Ref.get(ref);
         assertTrue(val >= 1, `val=${val}`);
       }),
-    ),
-  );
+    ));
 
   // 4. Test fork without repeat
   it.effect("fork without repeat", () =>
     Effect.scoped(
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const ref = yield* Ref.make(0);
         yield* Effect.forkScoped(Ref.update(ref, (n) => n + 42));
         yield* Effect.sleep(10);
         const val = yield* Ref.get(ref);
         strictEqual(val, 42);
       }),
-    ),
-  );
+    ));
 
   // 5. Test fork + repeat but manually
   it.effect("fork scoped manual repeat", () =>
     Effect.scoped(
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const ref = yield* Ref.make(0);
         const fiber = yield* Effect.forkScoped(
           Effect.forever(
@@ -67,6 +63,5 @@ describe("fork-debug", () => {
         const val = yield* Ref.get(ref);
         assertTrue(val >= 1, `val=${val}`);
       }),
-    ),
-  );
+    ));
 });

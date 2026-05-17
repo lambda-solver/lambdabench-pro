@@ -1,29 +1,19 @@
 // apps/server/src/services/BatchService.test.ts
 
-import { existsSync, unlinkSync } from "node:fs";
 import * as NodeFileSystem from "@effect/platform-node-shared/NodeFileSystem";
 import * as NodePath from "@effect/platform-node-shared/NodePath";
 import { beforeEach, describe, it } from "@effect/vitest";
-import {
-  assertDefined,
-  assertTrue,
-  assertUndefined,
-  deepStrictEqual,
-  strictEqual,
-} from "@effect/vitest/utils";
+import { assertDefined, assertTrue, assertUndefined, deepStrictEqual, strictEqual } from "@effect/vitest/utils";
 import type { BatchEvalRequest, SingleEvalRequest } from "@repo/domain/Api";
 import type { EvalResult } from "@repo/domain/Benchmark";
 import { Effect, Layer, Ref } from "effect";
+import { existsSync, unlinkSync } from "node:fs";
 import { beforeAll, vi } from "vitest";
 import { ModelUnresponsiveError } from "../llm/ModelGuard.js";
 import { BatchService, BatchServiceLive } from "./BatchService";
 import { EvalService } from "./EvalService";
-import {
-  type DbTask,
-  ResultStore,
-  ResultStoreLive,
-  SqlError,
-} from "./ResultStore";
+import { ResultStore, ResultStoreLive, SqlError } from "./ResultStore";
+import type { DbTask } from "./ResultStore";
 import { TaskService } from "./TaskService";
 
 const testDbPath = "apps/server/test-data/BatchService.test.db";
@@ -41,33 +31,33 @@ const cleanupDbFiles = () => {
 
 const testTasks: ReadonlyArray<DbTask> = [
   {
-    id: "task-1",
     category: "algo",
     categoryName: "Algorithms",
     description: "Add two numbers",
-    testCount: 2,
-    tests: [],
+    id: "task-1",
     refBits: null,
     refSolution: null,
+    testCount: 2,
+    tests: [],
   },
   {
-    id: "task-2",
     category: "logic",
     categoryName: "Logic",
     description: "Boolean AND",
-    testCount: 2,
-    tests: [],
+    id: "task-2",
     refBits: null,
     refSolution: null,
+    testCount: 2,
+    tests: [],
   },
 ];
 
 const makeRequest = (overrides?: Partial<BatchEvalRequest>): BatchEvalRequest =>
   ({
+    concurrency: 1,
     models: ["model-a"],
     tasks: ["task-1"],
     variant: "standard",
-    concurrency: 1,
     ...overrides,
   }) as BatchEvalRequest;
 
@@ -76,14 +66,14 @@ const makeRequest = (overrides?: Partial<BatchEvalRequest>): BatchEvalRequest =>
 const mockTaskService = Layer.succeed(
   TaskService,
   TaskService.of({
-    loadAndCacheTasks: () => Effect.void,
+    computeRefBits: () => Effect.succeed(undefined),
+    getAllTasks: () => Effect.succeed(testTasks),
     getTask: (taskId: string) =>
       Effect.succeed(
         testTasks.find((t) => t.id === taskId) as DbTask | undefined,
       ),
-    getAllTasks: () => Effect.succeed(testTasks),
     getTasksByCategory: () => Effect.succeed([]),
-    computeRefBits: () => Effect.succeed(undefined),
+    loadAndCacheTasks: () => Effect.void,
   }),
 );
 
@@ -92,11 +82,11 @@ const makeMockEvalService = (
 ) =>
   Layer.effect(
     EvalService,
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const callCount = yield* Ref.make(0);
       return EvalService.of({
         evaluateSingle: (request: SingleEvalRequest) =>
-          Effect.gen(function* () {
+          Effect.gen(function*() {
             const idx = yield* Ref.getAndUpdate(callCount, (n) => n + 1);
             const behavior = behaviors?.[idx] ?? "success";
             if (behavior === "unresponsive") {
@@ -108,16 +98,16 @@ const makeMockEvalService = (
               return yield* Effect.fail(new SqlError("unexpected eval error"));
             }
             return {
-              taskId: request.task,
-              model: request.model,
-              variant: request.variant,
-              pass: true,
               bits: 42,
-              score: 0.95,
-              errors: [],
               elapsedMs: 100,
+              errors: [],
+              model: request.model,
+              pass: true,
+              score: 0.95,
               submission: "answer",
+              taskId: request.task,
               timestamp: new Date().toISOString(),
+              variant: request.variant,
             } as EvalResult;
           }),
       });
@@ -155,15 +145,15 @@ describe("BatchService", () => {
     "createBatchJob creates a job with correct totalTasks, status queued, persists to ResultStore",
     () =>
       provideTestLayers(
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const batchService = yield* BatchService;
           const resultStore = yield* ResultStore;
 
           const request = makeRequest({
+            concurrency: 1,
             models: ["model-a"],
             tasks: ["task-1"],
             variant: "standard",
-            concurrency: 1,
           });
           const job = yield* batchService.createBatchJob(request);
 
@@ -184,13 +174,13 @@ describe("BatchService", () => {
 
   it.effect("createBatchJob uses all tasks when tasks array is empty", () =>
     provideTestLayers(
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const batchService = yield* BatchService;
         const resultStore = yield* ResultStore;
 
         const request = makeRequest({
-          tasks: [] as string[],
           models: ["model-a"],
+          tasks: [] as Array<string>,
           variant: "standard",
         });
         const job = yield* batchService.createBatchJob(request);
@@ -202,8 +192,7 @@ describe("BatchService", () => {
         strictEqual(dbJob.totalTasks, 2);
       }),
       makeMockEvalService(),
-    ),
-  );
+    ));
 
   // ─── 2. getBatchJob ────────────────────────────────────────────────────────
 
@@ -211,7 +200,7 @@ describe("BatchService", () => {
     "getBatchJob retrieves a job by ID with correct status and results",
     () =>
       provideTestLayers(
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const batchService = yield* BatchService;
           const resultStore = yield* ResultStore;
 
@@ -219,19 +208,19 @@ describe("BatchService", () => {
           const created = yield* batchService.createBatchJob(request);
 
           yield* resultStore.insertResult({
-            runId: "run-1",
-            jobId: created.id,
-            taskId: "task-1",
-            model: "model-a",
-            variant: "standard",
-            provider: "openrouter",
-            pass: true,
             bits: 10,
-            score: 0.8,
-            errors: [],
-            submission: "sub",
             elapsedMs: 50,
+            errors: [],
+            jobId: created.id,
+            model: "model-a",
+            pass: true,
+            provider: "openrouter",
+            runId: "run-1",
+            score: 0.8,
+            submission: "sub",
+            taskId: "task-1",
             timestamp: "2025-01-01T00:00:00Z",
+            variant: "standard",
           });
 
           const job = yield* batchService.getBatchJob(created.id);
@@ -250,14 +239,13 @@ describe("BatchService", () => {
 
   it.effect("getBatchJob returns undefined for unknown job ID", () =>
     provideTestLayers(
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const batchService = yield* BatchService;
         const job = yield* batchService.getBatchJob("non-existent-id");
         assertUndefined(job);
       }),
       makeMockEvalService(),
-    ),
-  );
+    ));
 
   // ─── 3. runBatchJob (single model, single task) ────────────────────────────
 
@@ -265,15 +253,15 @@ describe("BatchService", () => {
     "runBatchJob single model single task completes and saves result",
     () =>
       provideTestLayers(
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const batchService = yield* BatchService;
           const resultStore = yield* ResultStore;
 
           const request = makeRequest({
+            concurrency: 1,
             models: ["model-a"],
             tasks: ["task-1"],
             variant: "standard",
-            concurrency: 1,
           });
           const job = yield* batchService.createBatchJob(request);
 
@@ -299,15 +287,15 @@ describe("BatchService", () => {
 
   it.effect("runBatchJob both variant creates 2 requests per task", () =>
     provideTestLayers(
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const batchService = yield* BatchService;
         const resultStore = yield* ResultStore;
 
         const request = makeRequest({
+          concurrency: 1,
           models: ["model-a"],
           tasks: ["task-1"],
           variant: "both",
-          concurrency: 1,
         });
         const job = yield* batchService.createBatchJob(request);
 
@@ -322,26 +310,25 @@ describe("BatchService", () => {
 
         const results = yield* resultStore.getResultsByJobId(job.id);
         strictEqual(results.length, 2);
-        const variants = results.map((r) => r.variant).sort();
+        const variants = results.map((r) => r.variant).toSorted();
         deepStrictEqual(variants, ["rlm", "standard"]);
       }),
       makeMockEvalService(),
-    ),
-  );
+    ));
 
   // ─── 5. runBatchJob idempotency ────────────────────────────────────────────
 
   it.effect("runBatchJob idempotency does not create duplicate results", () =>
     provideTestLayers(
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const batchService = yield* BatchService;
         const resultStore = yield* ResultStore;
 
         const request = makeRequest({
+          concurrency: 1,
           models: ["model-a"],
           tasks: ["task-1"],
           variant: "standard",
-          concurrency: 1,
         });
         const job = yield* batchService.createBatchJob(request);
 
@@ -359,39 +346,38 @@ describe("BatchService", () => {
         strictEqual(dbJob.completedTasks, 1);
       }),
       makeMockEvalService(),
-    ),
-  );
+    ));
 
   // ─── 6. runBatchJob resume ─────────────────────────────────────────────────
 
   it.effect("runBatchJob resume skips already-completed requests", () =>
     provideTestLayers(
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const batchService = yield* BatchService;
         const resultStore = yield* ResultStore;
 
         const request = makeRequest({
+          concurrency: 1,
           models: ["model-a"],
           tasks: ["task-1", "task-2"],
           variant: "standard",
-          concurrency: 1,
         });
         const job = yield* batchService.createBatchJob(request);
 
         yield* resultStore.insertResult({
-          runId: "run-partial",
-          jobId: job.id,
-          taskId: "task-1",
-          model: "model-a",
-          variant: "standard",
-          provider: "openrouter",
-          pass: true,
           bits: 20,
-          score: 0.7,
-          errors: [],
-          submission: "partial",
           elapsedMs: 30,
+          errors: [],
+          jobId: job.id,
+          model: "model-a",
+          pass: true,
+          provider: "openrouter",
+          runId: "run-partial",
+          score: 0.7,
+          submission: "partial",
+          taskId: "task-1",
           timestamp: "2025-01-01T00:00:00Z",
+          variant: "standard",
         });
 
         yield* resultStore.updateJobStatus(job.id, "running", 1);
@@ -407,8 +393,7 @@ describe("BatchService", () => {
         strictEqual(results.length, 2);
       }),
       makeMockEvalService(),
-    ),
-  );
+    ));
 
   // ─── 7. ModelUnresponsiveError handling ────────────────────────────────────
 
@@ -417,15 +402,15 @@ describe("BatchService", () => {
     () => {
       const evalLayer = makeMockEvalService(["unresponsive", "success"]);
       return provideTestLayers(
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const batchService = yield* BatchService;
           const resultStore = yield* ResultStore;
 
           const request = makeRequest({
+            concurrency: 1,
             models: ["model-a"],
             tasks: ["task-1", "task-2"],
             variant: "standard",
-            concurrency: 1,
           });
           const job = yield* batchService.createBatchJob(request);
 
@@ -446,9 +431,7 @@ describe("BatchService", () => {
 
           strictEqual(failed.pass, false);
           assertTrue(
-            (failed.errors ?? []).some((e) =>
-              e.includes("Model unresponsive after 3 attempts"),
-            ),
+            (failed.errors ?? []).some((e) => e.includes("Model unresponsive after 3 attempts")),
           );
           strictEqual(failed.bits, 0);
           strictEqual(failed.score, 0);
@@ -466,7 +449,7 @@ describe("BatchService", () => {
   it.effect("runBatchJob updates status to failed on unexpected error", () => {
     const evalLayer = makeMockEvalService(["error"]);
     return provideTestLayers(
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const batchService = yield* BatchService;
         const resultStore = yield* ResultStore;
 
@@ -491,7 +474,7 @@ describe("BatchService", () => {
     () => {
       const evalLayer = makeMockEvalService();
       return provideTestLayers(
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const batchService = yield* BatchService;
           const resultStore = yield* ResultStore;
 
@@ -521,18 +504,17 @@ describe("BatchService", () => {
 
   it.effect("runBatchJob does nothing for non-existent job", () =>
     provideTestLayers(
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const batchService = yield* BatchService;
         yield* batchService.runBatchJob("non-existent-id");
         assertTrue(true);
       }),
       makeMockEvalService(),
-    ),
-  );
+    ));
 
   it.effect("runBatchJob does nothing for completed job", () =>
     provideTestLayers(
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const batchService = yield* BatchService;
         const resultStore = yield* ResultStore;
 
@@ -548,6 +530,5 @@ describe("BatchService", () => {
         strictEqual(dbJob.completedTasks, 1);
       }),
       makeMockEvalService(),
-    ),
-  );
+    ));
 });

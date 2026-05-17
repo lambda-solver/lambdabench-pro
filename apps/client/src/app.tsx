@@ -1,18 +1,19 @@
-import { useAtomValue } from "@effect/atom-react";
-import type { BenchmarkTask } from "@repo/domain/Benchmark";
-import { AsyncResult } from "effect/unstable/reactivity";
-import { useState } from "react";
 import { ElegancePanel } from "@/components/leaderboard/ElegancePanel";
 import { IntelligencePanel } from "@/components/leaderboard/IntelligencePanel";
 import { MatrixPanel } from "@/components/leaderboard/MatrixPanel";
 import { ProblemsPanel } from "@/components/leaderboard/ProblemsPanel";
 import { SpeedPanel } from "@/components/leaderboard/SpeedPanel";
-import { type TabId, TabLine } from "@/components/leaderboard/TabLine";
+import type { TabId } from "@/components/leaderboard/TabLine";
+import { TabLine } from "@/components/leaderboard/TabLine";
 import { TaskModal } from "@/components/leaderboard/TaskModal";
 import { ValuePanel } from "@/components/leaderboard/ValuePanel";
 import { benchmarkAtom } from "@/lib/atoms/benchmark-atom";
 import { useMusicPlayer } from "@/lib/useMusicPlayer";
 import { cn } from "@/lib/utils";
+import { useAtomValue } from "@effect/atom-react";
+import type { BenchmarkTask } from "@repo/domain/Benchmark";
+import { AsyncResult } from "effect/unstable/reactivity";
+import { useState } from "react";
 
 function LoadingView() {
   return (
@@ -22,7 +23,7 @@ function LoadingView() {
   );
 }
 
-function ErrorView({ message }: { message: string }) {
+function ErrorView({ message }: { message: string; }) {
   return (
     <div className="flex items-center justify-center min-h-screen text-[var(--sol-red)]">
       <div className="text-center">
@@ -43,10 +44,8 @@ function App() {
   const { muted, toggle: toggleMusic } = useMusicPlayer();
 
   return AsyncResult.match(result, {
+    onFailure: (e) => <ErrorView message={String((e as { cause?: unknown; }).cause ?? e)} />,
     onInitial: () => <LoadingView />,
-    onFailure: (e) => (
-      <ErrorView message={String((e as { cause?: unknown }).cause ?? e)} />
-    ),
     onSuccess: (s) => {
       const data = s.value;
 
@@ -114,8 +113,7 @@ function App() {
               </a>
             </span>
             <span>
-              {data.rankings.length} models · {data.tasks.length} tasks ·{" "}
-              {data.generatedAt
+              {data.rankings.length} models · {data.tasks.length} tasks · {data.generatedAt
                 ? new Date(data.generatedAt).toLocaleDateString()
                 : ""}
             </span>

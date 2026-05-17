@@ -1,11 +1,12 @@
 import type { ChatStreamPart } from "@repo/domain/Chat";
 import { Cause, Context, Effect, Layer, Queue, String } from "effect";
-import { Chat, type LanguageModel, Prompt, Toolkit } from "effect/unstable/ai";
+import { Chat, Prompt, Toolkit } from "effect/unstable/ai";
+import type { LanguageModel } from "effect/unstable/ai";
 import { RagToolkit } from "../toolkits/RagToolkit";
 import { SampleToolkit } from "../toolkits/SampleToolkit";
 import { runAgenticLoop } from "../workflow/AgenticLoop";
 
-export type ChatServiceApi = {
+export interface ChatServiceApi {
   chat: (
     history: Array<Prompt.Message>,
   ) => Effect.Effect<
@@ -13,15 +14,15 @@ export type ChatServiceApi = {
     never,
     LanguageModel.LanguageModel
   >;
-};
+}
 
 export class ChatService extends Context.Service<ChatService>()("ChatService", {
-  make: Effect.gen(function* () {
-    const chat = Effect.fn("chat")(function* (history: Array<Prompt.Message>) {
+  make: Effect.gen(function*() {
+    const chat = Effect.fn("chat")(function*(history: Array<Prompt.Message>) {
       const queue = yield* Queue.make<typeof ChatStreamPart.Type, Cause.Done>();
 
       yield* Effect.forkScoped(
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const systemMessage = String.stripMargin(`
               |You are RAG Bot, an AI assistant for answering questions using retrieved documents.
               |When given a question, you should use the tools available to you to find relevant information and provide a helpful answer.
@@ -37,20 +38,20 @@ export class ChatService extends Context.Service<ChatService>()("ChatService", {
 
           yield* runAgenticLoop({
             chat: session,
+            maxIterations: 25,
             queue,
             toolkit,
-            maxIterations: 25,
           });
         }).pipe(
           Effect.catchCause((cause) =>
-            Effect.gen(function* () {
+            Effect.gen(function*() {
               yield* Effect.logError(`Chat error: ${cause}`);
               yield* Queue.offer(queue, {
                 _tag: "error",
                 message: `System error: ${Cause.pretty(cause)}`,
                 recoverable: false,
               });
-            }),
+            })
           ),
           Effect.ensuring(Queue.end(queue)),
         ),

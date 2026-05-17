@@ -51,7 +51,7 @@ function attemptPlay(audio: HTMLAudioElement): void {
  *   muted   – current mute state (persisted in localStorage)
  *   toggle  – flip mute state
  */
-export function useMusicPlayer(): { muted: boolean; toggle: () => void } {
+export function useMusicPlayer(): { muted: boolean; toggle: () => void; } {
   const [muted, setMuted] = useState<boolean>(() => {
     try {
       return localStorage.getItem(STORAGE_KEY) === "true";

@@ -1,18 +1,10 @@
-import type { Meta, StoryObj } from "@storybook/react";
 import { createFixtureDecorator } from "@/fixtures/decorator";
 import { vimLineFixtures } from "@/fixtures/vimLine";
+import type { Meta, StoryObj } from "@storybook/react";
 import { TildeLine, VimLine } from "./VimLine";
 
 const meta = {
-  title: "Leaderboard/VimLine",
   component: VimLine,
-  parameters: {
-    layout: "padded",
-    viewport: {
-      defaultViewport: "responsive",
-    },
-  },
-  tags: ["autodocs"],
   decorators: [
     createFixtureDecorator(vimLineFixtures, (fixture) => {
       const props = {
@@ -21,15 +13,19 @@ const meta = {
       };
       return (
         <div className="font-mono text-sm p-4">
-          {fixture.tilde ? (
-            <TildeLine />
-          ) : (
-            <VimLine {...props}>{fixture.content}</VimLine>
-          )}
+          {fixture.tilde ? <TildeLine /> : <VimLine {...props}>{fixture.content}</VimLine>}
         </div>
       );
     }),
   ],
+  parameters: {
+    layout: "padded",
+    viewport: {
+      defaultViewport: "responsive",
+    },
+  },
+  tags: ["autodocs"],
+  title: "Leaderboard/VimLine",
 } satisfies Meta<typeof VimLine>;
 
 export default meta;
@@ -46,8 +42,8 @@ export const Default: Story = {
 
 export const WithLineNumber: Story = {
   args: {
+    children: "import { Effect } from \"effect\";",
     n: 42,
-    children: 'import { Effect } from "effect";',
   },
 };
 
@@ -59,23 +55,22 @@ export const WithoutLineNumber: Story = {
 
 export const Tilde: Story = {
   args: {
-    tilde: true,
     children: "~",
+    tilde: true,
   },
 };
 
 export const MultiDigitLine: Story = {
   args: {
+    children: "export const processItem = Effect.fn(\"processItem\")(function* (id: string) {",
     n: 128,
-    children:
-      'export const processItem = Effect.fn("processItem")(function* (id: string) {',
   },
 };
 
 export const EmptyContent: Story = {
   args: {
-    n: 7,
     children: "",
+    n: 7,
   },
 };
 

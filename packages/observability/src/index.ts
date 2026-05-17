@@ -10,7 +10,7 @@ const TracingConfig = Config.all({
 
 export const Observability = NodeSdk;
 
-export const ObservabilityLive = Effect.gen(function* () {
+export const ObservabilityLive = Effect.gen(function*() {
   const tracing = yield* TracingConfig;
   const endpoint = Option.getOrUndefined(tracing.exporterEndpoint);
   const serviceName = Option.getOrUndefined(tracing.serviceName);

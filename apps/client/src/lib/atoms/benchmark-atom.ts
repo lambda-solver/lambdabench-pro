@@ -26,12 +26,11 @@ export const computeValueEntries = (
   Arr.sort(
     data.rankings.map((r) => ({
       model: r.model,
+      passPerDollar: r.pricePerMOutputTokens > 0
+        ? parseFloat(r.pct) / r.pricePerMOutputTokens
+        : 0,
       passRate: parseFloat(r.pct),
       pricePerMOutput: r.pricePerMOutputTokens,
-      passPerDollar:
-        r.pricePerMOutputTokens > 0
-          ? parseFloat(r.pct) / r.pricePerMOutputTokens
-          : 0,
     })),
     byPassPerDollarDesc,
   );
@@ -51,7 +50,7 @@ export const computeValueEntries = (
  *   })
  */
 export const benchmarkAtom = runtime.atom(
-  Effect.gen(function* () {
+  Effect.gen(function*() {
     const client = yield* HttpClient.HttpClient;
     const response = yield* client.get(resultsUrl());
     const body = yield* response.json;

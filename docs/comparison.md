@@ -81,34 +81,42 @@ export const TraceSpanItem = Schema.Struct({
   parentSpanId: Schema.NullOr(Schema.String),
   serviceName: Schema.String,
   scopeName: Schema.NullOr(Schema.String).pipe(
-    Schema.annotateKey({ description: "Instrumentation scope (e.g. module or library name)" })
+    Schema.annotateKey({
+      description: "Instrumentation scope (e.g. module or library name)",
+    }),
   ),
   operationName: Schema.String.pipe(
-    Schema.annotateKey({ description: "The operation this span represents" })
+    Schema.annotateKey({ description: "The operation this span represents" }),
   ),
   startTime: DateFromString.pipe(
-    Schema.annotateKey({ description: "ISO 8601 timestamp" })
+    Schema.annotateKey({ description: "ISO 8601 timestamp" }),
   ),
   isRunning: Schema.Boolean.pipe(
-    Schema.annotateKey({ description: "True when the span has not reported an end timestamp yet" })
+    Schema.annotateKey({
+      description: "True when the span has not reported an end timestamp yet",
+    }),
   ),
   durationMs: Schema.Number.pipe(
-    Schema.annotateKey({ description: "Wall-clock duration in milliseconds" })
+    Schema.annotateKey({ description: "Wall-clock duration in milliseconds" }),
   ),
   status: TraceSpanStatus.pipe(
-    Schema.annotateKey({ description: "ok or error" })
+    Schema.annotateKey({ description: "ok or error" }),
   ),
   depth: Schema.Number.pipe(
-    Schema.annotateKey({ description: "Nesting depth in the span tree (root = 0)" })
+    Schema.annotateKey({
+      description: "Nesting depth in the span tree (root = 0)",
+    }),
   ),
   tags: StringRecord.pipe(
-    Schema.annotateKey({ description: "Span attributes as key-value pairs" })
+    Schema.annotateKey({ description: "Span attributes as key-value pairs" }),
   ),
   warnings: Schema.Array(Schema.String).pipe(
-    Schema.annotateKey({ description: "Structural warnings (e.g. missing parent span)" })
+    Schema.annotateKey({
+      description: "Structural warnings (e.g. missing parent span)",
+    }),
   ),
   events: Schema.Array(TraceSpanEvent),
-}).annotate({ identifier: "TraceSpan" })
+}).annotate({ identifier: "TraceSpan" });
 ```
 
 Key differentiators: extensive use of `Schema.annotateKey` and `Schema.annotate` for OpenAPI documentation, `Schema.NullOr` for nullable fields, `Schema.DateFromString` for temporal types, and `Schema.Literals` for enumerations. Every exported schema carries an `.annotate({ identifier: "..." })` call, which feeds directly into the generated OpenAPI specification.
@@ -135,13 +143,13 @@ export class AgentStart extends Schema.TaggedClass<AgentStart>()("AgentStart", {
   model: Schema.String,
 }) {
   get modelAndProvider() {
-    return `${this.provider}/${this.model}`
+    return `${this.provider}/${this.model}`;
   }
 }
 
 export class AgentFinished extends Schema.TaggedErrorClass<AgentFinished>()(
   "AgentFinished",
-  { summary: Schema.String }
+  { summary: Schema.String },
 ) {}
 ```
 
@@ -149,14 +157,14 @@ The `AgentOutput` union composes 11 distinct tagged classes into a single `Schem
 
 ### 2.4 Domain Comparison Table
 
-| Dimension | LamBench Pro | Motel | Clanka |
-|---|---|---|---|
-| **Schema Richness** | Moderate — core fields with basic validation | Very High — every field annotated for OpenAPI, descriptions on all query params | High — tagged unions with computed properties, tool schemas with documentation |
-| **Nesting Depth** | Shallow (2–3 levels: Task → Tests → Test) | Deep (Trace → Spans → Events; AI Call → Tool Calls → Usage → Timing) | Moderate (Agent → Output Stream → Tagged Parts) |
-| **Effect Schema Features** | `Struct`, `Array`, `Literal`, `optional`, `withDecodingDefaultKey` | `Struct`, `NullOr`, `annotateKey`, `annotate`, `DateFromString`, `Record`, `Array` | `TaggedClass`, `TaggedErrorClass`, `Struct`, `Void`, `Union`, `Opaque` |
-| **Immutability Guarantees** | `ReadonlyArray`, `readonly` properties on interfaces; Schema itself does not freeze | `readonly` on all interface properties; immutable query result arrays | Heavy use of `Data.TaggedClass` for immutable tagged unions; `MutableRef` only for agent history |
-| **Type Export Style** | `export type X = Schema.Schema.Type<typeof X>` | `export type X = typeof X.Type` | Inline type inference from Schema; explicit `TypeId` branded interfaces |
-| **Documentation Density** | Low — minimal JSDoc on schemas | Very High — every field has `annotateKey` description | Moderate — JSDoc `@since` and `@category` tags; tool descriptions in schema annotations |
+| Dimension                   | LamBench Pro                                                                        | Motel                                                                              | Clanka                                                                                           |
+| --------------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| **Schema Richness**         | Moderate — core fields with basic validation                                        | Very High — every field annotated for OpenAPI, descriptions on all query params    | High — tagged unions with computed properties, tool schemas with documentation                   |
+| **Nesting Depth**           | Shallow (2–3 levels: Task → Tests → Test)                                           | Deep (Trace → Spans → Events; AI Call → Tool Calls → Usage → Timing)               | Moderate (Agent → Output Stream → Tagged Parts)                                                  |
+| **Effect Schema Features**  | `Struct`, `Array`, `Literal`, `optional`, `withDecodingDefaultKey`                  | `Struct`, `NullOr`, `annotateKey`, `annotate`, `DateFromString`, `Record`, `Array` | `TaggedClass`, `TaggedErrorClass`, `Struct`, `Void`, `Union`, `Opaque`                           |
+| **Immutability Guarantees** | `ReadonlyArray`, `readonly` properties on interfaces; Schema itself does not freeze | `readonly` on all interface properties; immutable query result arrays              | Heavy use of `Data.TaggedClass` for immutable tagged unions; `MutableRef` only for agent history |
+| **Type Export Style**       | `export type X = Schema.Schema.Type<typeof X>`                                      | `export type X = typeof X.Type`                                                    | Inline type inference from Schema; explicit `TypeId` branded interfaces                          |
+| **Documentation Density**   | Low — minimal JSDoc on schemas                                                      | Very High — every field has `annotateKey` description                              | Moderate — JSDoc `@since` and `@category` tags; tool descriptions in schema annotations          |
 
 ### 2.5 Key Observations
 
@@ -177,7 +185,9 @@ export class ResultStore extends Context.Service<
   ResultStore,
   {
     insertResult(result: InsertResult): Effect.Effect<void, SqlError>;
-    getResultsByRunId(runId: string): Effect.Effect<ReadonlyArray<DbResult>, SqlError>;
+    getResultsByRunId(
+      runId: string,
+    ): Effect.Effect<ReadonlyArray<DbResult>, SqlError>;
     // ... 18 additional methods
   }
 >()("app/ResultStore") {}
@@ -211,8 +221,12 @@ Motel uses `Context.Service` (the stable Effect 4 pattern, distinct from `Servic
 export class TelemetryStore extends Context.Service<
   TelemetryStore,
   {
-    readonly ingestTraces: (payload: OtlpTraceExportRequest) => Effect.Effect<{ readonly insertedSpans: number }, Error>;
-    readonly searchTraces: (input: TraceSearch) => Effect.Effect<readonly TraceItem[], Error>;
+    readonly ingestTraces: (
+      payload: OtlpTraceExportRequest,
+    ) => Effect.Effect<{ readonly insertedSpans: number; }, Error>;
+    readonly searchTraces: (
+      input: TraceSearch,
+    ) => Effect.Effect<readonly TraceItem[], Error>;
     // ... 20+ additional methods
   }
 >()("motel/TelemetryStore") {}
@@ -226,8 +240,14 @@ export interface TelemetryStoreOptions {
   readonly runRetention: boolean;
 }
 
-export const TelemetryStoreLive = makeTelemetryStoreLayer({ readonly: false, runRetention: true });
-export const TelemetryStoreReadonlyLive = makeTelemetryStoreLayer({ readonly: true, runRetention: false });
+export const TelemetryStoreLive = makeTelemetryStoreLayer({
+  readonly: false,
+  runRetention: true,
+});
+export const TelemetryStoreReadonlyLive = makeTelemetryStoreLayer({
+  readonly: true,
+  runRetention: false,
+});
 ```
 
 **Key services** (`reference/motel/src/services/`):
@@ -242,7 +262,10 @@ Resource management is sophisticated. The `TelemetryStore` layer uses `Effect.ac
 The runtime (`reference/motel/src/runtime.ts`) composes these into a `ManagedRuntime`:
 
 ```typescript
-const QueryServicesLive = Layer.mergeAll(TraceQueryServiceLive, LogQueryServiceLive)
+const QueryServicesLive = Layer.mergeAll(
+  TraceQueryServiceLive,
+  LogQueryServiceLive,
+)
   .pipe(Layer.provideMerge(TelemetryStoreReadonlyLive));
 
 export const queryRuntime = ManagedRuntime.make(QueryRuntimeLive);
@@ -258,7 +281,7 @@ export const Agent = Context.Service<Agent>("clanka/Agent");
 
 export class ConversationMode extends Context.Reference<boolean>(
   "clanka/Agent/ConversationMode",
-  { defaultValue: () => false }
+  { defaultValue: () => false },
 ) {
   static readonly layer = (enabled: boolean) =>
     Layer.succeed(ConversationMode, enabled);
@@ -281,7 +304,10 @@ Clanka's `AgentTools` uses `Toolkit.make` and `Tool.make` from `effect/unstable/
 export const AgentTools = Toolkit.make(
   Tool.make("readFile", {
     description: "Read a file and optionally filter the lines to return.",
-    parameters: Schema.Struct({ path: Schema.String, startLine: Schema.optional(Schema.Number) }),
+    parameters: Schema.Struct({
+      path: Schema.String,
+      startLine: Schema.optional(Schema.Number),
+    }),
     success: Schema.NullOr(Schema.String),
     dependencies: [CurrentDirectory],
   }),
@@ -299,14 +325,14 @@ export const AgentToolHandlers = AgentToolHandlersNoDeps.pipe(
 
 ### 3.4 Service Architecture Comparison Table
 
-| Dimension | LamBench Pro | Motel | Clanka |
-|---|---|---|---|
-| **Service Definition** | `Context.Service` (stable pattern) | `Context.Service` (stable pattern) | `Context.Service` + `Context.Reference` |
-| **Layer Factory Style** | Factory functions accepting config (`dbPath`, `model`) | Pre-configured layers + options objects (`TelemetryStoreOptions`) | Direct `Layer.effect` with `Effect.gen` |
-| **Layer Depth** | Shallow (2–3 levels: `BatchServiceLive` → `EvalServiceLive` → `ResultStoreLive`) | Deep (4–5 levels: `ServerLive` → `ApiLayer` → `TelemetryGroupLive` → `TraceQueryServiceLive` → `TelemetryStoreReadonlyLive`) | Moderate (3–4 levels: `AgentToolHandlers` → `AgentToolHandlersNoDeps` → `ExaSearch.layer`) |
-| **DI Pattern** | Ad-hoc `Layer.provide` in HTTP handlers and `BatchService` | `ManagedRuntime` with separate `queryRuntime` and `storeRuntime` | `Layer.provide` in constructors; `Effect.provideService` for subagent model injection |
-| **Error Handling** | Simple `SqlError` class with `_tag`; no union types | Typed `Error` channel; service methods return `Effect<A, Error>` | `Schema.TaggedErrorClass` for `AgentFinished`; `AiError.AiError` for LLM failures; `Effect.die` for fatal errors |
-| **Resource Management** | Basic — `mkdirSync` + `new Database` inside `Layer.effect` | Sophisticated — `Effect.acquireRelease` for DB connections, `Effect.forkScoped` for background retention, incremental vacuum | `Effect.acquireRelease` for `McpClient` connection; `Effect.scoped` for child process execution |
+| Dimension               | LamBench Pro                                                                     | Motel                                                                                                                        | Clanka                                                                                                           |
+| ----------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| **Service Definition**  | `Context.Service` (stable pattern)                                               | `Context.Service` (stable pattern)                                                                                           | `Context.Service` + `Context.Reference`                                                                          |
+| **Layer Factory Style** | Factory functions accepting config (`dbPath`, `model`)                           | Pre-configured layers + options objects (`TelemetryStoreOptions`)                                                            | Direct `Layer.effect` with `Effect.gen`                                                                          |
+| **Layer Depth**         | Shallow (2–3 levels: `BatchServiceLive` → `EvalServiceLive` → `ResultStoreLive`) | Deep (4–5 levels: `ServerLive` → `ApiLayer` → `TelemetryGroupLive` → `TraceQueryServiceLive` → `TelemetryStoreReadonlyLive`) | Moderate (3–4 levels: `AgentToolHandlers` → `AgentToolHandlersNoDeps` → `ExaSearch.layer`)                       |
+| **DI Pattern**          | Ad-hoc `Layer.provide` in HTTP handlers and `BatchService`                       | `ManagedRuntime` with separate `queryRuntime` and `storeRuntime`                                                             | `Layer.provide` in constructors; `Effect.provideService` for subagent model injection                            |
+| **Error Handling**      | Simple `SqlError` class with `_tag`; no union types                              | Typed `Error` channel; service methods return `Effect<A, Error>`                                                             | `Schema.TaggedErrorClass` for `AgentFinished`; `AiError.AiError` for LLM failures; `Effect.die` for fatal errors |
+| **Resource Management** | Basic — `mkdirSync` + `new Database` inside `Layer.effect`                       | Sophisticated — `Effect.acquireRelease` for DB connections, `Effect.forkScoped` for background retention, incremental vacuum | `Effect.acquireRelease` for `McpClient` connection; `Effect.scoped` for child process execution                  |
 
 ### 3.5 Key Observations
 
@@ -377,7 +403,9 @@ Motel uses three triggers on the `span_attr_fts` external-content FTS table (ins
 
 ```typescript
 try {
-  db.exec(`ALTER TABLE trace_summaries ADD COLUMN active_span_count INTEGER NOT NULL DEFAULT 0`);
+  db.exec(
+    `ALTER TABLE trace_summaries ADD COLUMN active_span_count INTEGER NOT NULL DEFAULT 0`,
+  );
 } catch {
   // Existing databases may already have the column.
 }
@@ -395,7 +423,7 @@ Clanka uses the official Effect SQL package rather than raw `bun:sqlite`:
 export const SqliteLayer = (database: string) =>
   SqliteMigrator.layer({
     loader: SqliteMigrator.fromRecord({
-      "0001_create_chunks": Effect.gen(function* () {
+      "0001_create_chunks": Effect.gen(function*() {
         const sql = yield* SqlClient.SqlClient;
         yield* sql`CREATE TABLE IF NOT EXISTS chunks (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -411,7 +439,7 @@ export const SqliteLayer = (database: string) =>
   }).pipe(
     Layer.provide(
       Layer.effectDiscard(
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const client = yield* SqliteClient.SqliteClient;
           yield* client.loadExtension(getExtensionPath());
         }),
@@ -430,18 +458,18 @@ Key characteristics:
 
 ### 4.4 Persistence Comparison Table
 
-| Dimension | LamBench Pro | Motel | Clanka |
-|---|---|---|---|
-| **SQLite Driver** | `bun:sqlite` (raw) | `bun:sqlite` (raw) | `@effect/sql-sqlite-node` |
-| **WAL Mode** | Yes (`PRAGMA journal_mode = WAL`) | Yes + `wal_autocheckpoint = 4000` + passive checkpoint | Not explicitly configured |
-| **Schema Migration** | None — `IF NOT EXISTS` only | Runtime `ALTER TABLE` with try/catch for additive changes | `SqliteMigrator` with named versioned migrations |
-| **Indexing** | B-tree on foreign keys and timestamps | B-tree + composite indexes on all query dimensions | Single index on `hash` |
-| **FTS** | None | FTS5 with external-content tables, unicode61 tokenization, 3 trigger types per table | None |
-| **Vector Search** | None | None | Yes — `sqlite-vector` extension with BLOB vectors |
-| **Attribute Decomposition** | None — JSON blobs only | Normalized `span_attributes` / `log_attributes` tables with exact-match and substring indexes | None — single `chunks` table |
-| **Retention** | Time-based + size-based pruning of results | Trace-granular eviction, incremental vacuum, orphan cleanup | Not implemented |
-| **Query Planner Optimization** | None | `PRAGMA optimize`, `ANALYZE`, `analysis_limit = 1000` | None |
-| **Readonly Connections** | Not supported | First-class support via `TelemetryStoreOptions.readonly` | Not applicable |
+| Dimension                      | LamBench Pro                               | Motel                                                                                         | Clanka                                            |
+| ------------------------------ | ------------------------------------------ | --------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| **SQLite Driver**              | `bun:sqlite` (raw)                         | `bun:sqlite` (raw)                                                                            | `@effect/sql-sqlite-node`                         |
+| **WAL Mode**                   | Yes (`PRAGMA journal_mode = WAL`)          | Yes + `wal_autocheckpoint = 4000` + passive checkpoint                                        | Not explicitly configured                         |
+| **Schema Migration**           | None — `IF NOT EXISTS` only                | Runtime `ALTER TABLE` with try/catch for additive changes                                     | `SqliteMigrator` with named versioned migrations  |
+| **Indexing**                   | B-tree on foreign keys and timestamps      | B-tree + composite indexes on all query dimensions                                            | Single index on `hash`                            |
+| **FTS**                        | None                                       | FTS5 with external-content tables, unicode61 tokenization, 3 trigger types per table          | None                                              |
+| **Vector Search**              | None                                       | None                                                                                          | Yes — `sqlite-vector` extension with BLOB vectors |
+| **Attribute Decomposition**    | None — JSON blobs only                     | Normalized `span_attributes` / `log_attributes` tables with exact-match and substring indexes | None — single `chunks` table                      |
+| **Retention**                  | Time-based + size-based pruning of results | Trace-granular eviction, incremental vacuum, orphan cleanup                                   | Not implemented                                   |
+| **Query Planner Optimization** | None                                       | `PRAGMA optimize`, `ANALYZE`, `analysis_limit = 1000`                                         | None                                              |
+| **Readonly Connections**       | Not supported                              | First-class support via `TelemetryStoreOptions.readonly`                                      | Not applicable                                    |
 
 ### 4.5 Key Observations
 
@@ -460,13 +488,30 @@ LamBench defines its API in `packages/domain/src/Api.ts` using `effect/unstable/
 ```typescript
 export class HealthGroup extends HttpApiGroup.make("health")
   .add(HttpApiEndpoint.get("get", "/health", { success: HealthStatus }))
-  .prefix("/api") {}
+  .prefix("/api")
+{}
 
 export class EvalGroup extends HttpApiGroup.make("eval")
-  .add(HttpApiEndpoint.post("single", "/eval/single", { success: EvalResult, payload: SingleEvalRequest }))
-  .add(HttpApiEndpoint.post("batch", "/eval/batch", { success: BatchJob, payload: BatchEvalRequest }))
-  .add(HttpApiEndpoint.get("status", "/eval/status/:jobId", { success: BatchJob, params: Schema.Struct({ jobId: Schema.String }) }))
-  .prefix("/api") {}
+  .add(
+    HttpApiEndpoint.post("single", "/eval/single", {
+      success: EvalResult,
+      payload: SingleEvalRequest,
+    }),
+  )
+  .add(
+    HttpApiEndpoint.post("batch", "/eval/batch", {
+      success: BatchJob,
+      payload: BatchEvalRequest,
+    }),
+  )
+  .add(
+    HttpApiEndpoint.get("status", "/eval/status/:jobId", {
+      success: BatchJob,
+      params: Schema.Struct({ jobId: Schema.String }),
+    }),
+  )
+  .prefix("/api")
+{}
 
 export const Api = HttpApi.make("Api")
   .add(HealthGroup)
@@ -506,16 +551,25 @@ Motel's API (`reference/motel/src/httpApi.ts`) is significantly more mature:
 export const MotelHttpApi = HttpApi.make("MotelTelemetry")
   .annotate(OpenApi.Title, "Motel Telemetry API")
   .annotate(OpenApi.Version, "1.0.0")
-  .annotate(OpenApi.Description, "Local OpenTelemetry ingest, query, and debugging API...")
+  .annotate(
+    OpenApi.Description,
+    "Local OpenTelemetry ingest, query, and debugging API...",
+  )
   .add(
     HttpApiGroup.make("telemetry")
-      .annotate(OpenApi.Description, "Query traces, spans, logs, and service metadata...")
+      .annotate(
+        OpenApi.Description,
+        "Query traces, spans, logs, and service metadata...",
+      )
       .add(
         HttpApiEndpoint.get("health", "/api/health", { success: Health })
           .annotate(OpenApi.Summary, "Health check and identity handshake")
-          .annotate(OpenApi.Description, "Returns liveness plus identity fields..."),
+          .annotate(
+            OpenApi.Description,
+            "Returns liveness plus identity fields...",
+          ),
         // ... 25+ additional endpoints
-      )
+      ),
   );
 ```
 
@@ -539,24 +593,31 @@ Clanka has no HTTP server. Communication is entirely programmatic through:
 export const McpClient = Context.Service<
   McpClient,
   {
-    connect(options: { readonly url: string }): Effect.Effect<void, McpClientError>;
-    toolCall(options: { readonly name: string; readonly arguments: Record<string, unknown> }): Effect.Effect<unknown, McpClientError>;
+    connect(
+      options: { readonly url: string; },
+    ): Effect.Effect<void, McpClientError>;
+    toolCall(
+      options: {
+        readonly name: string;
+        readonly arguments: Record<string, unknown>;
+      },
+    ): Effect.Effect<unknown, McpClientError>;
   }
 >()("clanka/McpClient");
 ```
 
 ### 5.4 HTTP API Comparison Table
 
-| Dimension | LamBench Pro | Motel | Clanka |
-|---|---|---|---|
-| **API Style** | Effect `HttpApi` groups with `HttpApiBuilder` | Effect `HttpApi` with extensive OpenApi annotations | None — programmatic only |
-| **Endpoint Count** | 10 | ~30 | 0 |
-| **Transport** | HTTP (BunHttpServer on port 9000) | HTTP (BunHttpServer), OTLP HTTP, MCP stdio | MCP over HTTP, stdio, internal Effect channels |
-| **OpenAPI** | Not annotated | Fully annotated — title, version, descriptions, parameter docs | N/A |
-| **Query Parsing** | Path params only | Custom lookback, limit, cursor, attribute filter parsers | N/A |
-| **Pagination** | None | Cursor-based with base64url encoding, meta object with `nextCursor` | N/A |
-| **Static Files** | `HttpStaticServer.layer` with SPA fallback (`../../client/dist`) | `HttpStaticServer.layer` with SPA fallback | N/A |
-| **Middleware** | `HttpMiddleware.tracer` with per-request spans | `HttpMiddleware.tracer` with per-request OTel spans; OTLP paths excluded from tracing | N/A |
+| Dimension          | LamBench Pro                                                     | Motel                                                                                 | Clanka                                         |
+| ------------------ | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| **API Style**      | Effect `HttpApi` groups with `HttpApiBuilder`                    | Effect `HttpApi` with extensive OpenApi annotations                                   | None — programmatic only                       |
+| **Endpoint Count** | 10                                                               | ~30                                                                                   | 0                                              |
+| **Transport**      | HTTP (BunHttpServer on port 9000)                                | HTTP (BunHttpServer), OTLP HTTP, MCP stdio                                            | MCP over HTTP, stdio, internal Effect channels |
+| **OpenAPI**        | Not annotated                                                    | Fully annotated — title, version, descriptions, parameter docs                        | N/A                                            |
+| **Query Parsing**  | Path params only                                                 | Custom lookback, limit, cursor, attribute filter parsers                              | N/A                                            |
+| **Pagination**     | None                                                             | Cursor-based with base64url encoding, meta object with `nextCursor`                   | N/A                                            |
+| **Static Files**   | `HttpStaticServer.layer` with SPA fallback (`../../client/dist`) | `HttpStaticServer.layer` with SPA fallback                                            | N/A                                            |
+| **Middleware**     | `HttpMiddleware.tracer` with per-request spans                   | `HttpMiddleware.tracer` with per-request OTel spans; OTLP paths excluded from tracing | N/A                                            |
 
 ---
 
@@ -614,30 +675,37 @@ Clanka acts as an MCP **client**, not a server. It connects to external MCP serv
 ```typescript
 export const layer = Layer.effect(
   McpClient,
-  Effect.gen(function* () {
+  Effect.gen(function*() {
     const client = yield* Effect.acquireRelease(
       Effect.sync(() => new Client({ name: "clanka", version: "0.1.0" })),
       (client) => Effect.promise(() => client.close()),
     );
 
-    const connect = Effect.fn("McpClient.connect")(function* (options: { readonly url: string }) {
-      const transport = new StreamableHTTPClientTransport(new URL(options.url));
-      return yield* Effect.tryPromise({
-        try: (signal) => client.connect(transport as Transport, { signal }),
-        catch: (cause) => new McpClientError({ cause }),
-      });
-    });
+    const connect = Effect.fn("McpClient.connect")(
+      function*(options: { readonly url: string; }) {
+        const transport = new StreamableHTTPClientTransport(
+          new URL(options.url),
+        );
+        return yield* Effect.tryPromise({
+          try: (signal) => client.connect(transport as Transport, { signal }),
+          catch: (cause) => new McpClientError({ cause }),
+        });
+      },
+    );
 
     return McpClient.of({
       connect,
       toolCall: Effect.fn("McpClient.toolCall")((options) =>
         Effect.tryPromise({
           try: async () => {
-            const response = await client.callTool({ name: options.name, arguments: options.arguments });
+            const response = await client.callTool({
+              name: options.name,
+              arguments: options.arguments,
+            });
             return response.structuredContent ?? response.content;
           },
           catch: (cause) => new McpClientError({ cause }),
-        }),
+        })
       ),
     });
   }),
@@ -650,15 +718,15 @@ This enables Clanka agents to leverage external tools exposed by other MCP-compa
 
 **Effect CLI vs MCP/curl for Benchmark Interfaces**:
 
-| Aspect | Effect CLI | MCP Server |
-|---|---|---|
-| **Type Safety** | Excellent — full Effect type checking, schema validation, typed error channels | Good — MCP protocol is typed, but clients may not enforce schemas |
-| **Ecosystem Integration** | Native Effect — composes with services, layers, and runtime | Universal — any MCP client (Claude Desktop, IDE plugins, custom agents) can connect |
-| **Human Developer Experience** | Familiar command-line interface, shell completion, help text | Requires MCP client; less direct for ad-hoc human use |
-| **Agent Integration** | Requires custom wrapper to expose as tools | Native — agents discover and invoke tools automatically |
-| **Language Agnostic** | No — Effect/TypeScript only | Yes — MCP is protocol-based |
-| **Complexity** | Low — direct service calls | Medium — requires MCP server lifecycle, stdio transport, tool schema definitions |
-| **Observability** | Built into Effect (spans, logs) | Depends on MCP client implementation |
+| Aspect                         | Effect CLI                                                                     | MCP Server                                                                          |
+| ------------------------------ | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| **Type Safety**                | Excellent — full Effect type checking, schema validation, typed error channels | Good — MCP protocol is typed, but clients may not enforce schemas                   |
+| **Ecosystem Integration**      | Native Effect — composes with services, layers, and runtime                    | Universal — any MCP client (Claude Desktop, IDE plugins, custom agents) can connect |
+| **Human Developer Experience** | Familiar command-line interface, shell completion, help text                   | Requires MCP client; less direct for ad-hoc human use                               |
+| **Agent Integration**          | Requires custom wrapper to expose as tools                                     | Native — agents discover and invoke tools automatically                             |
+| **Language Agnostic**          | No — Effect/TypeScript only                                                    | Yes — MCP is protocol-based                                                         |
+| **Complexity**                 | Low — direct service calls                                                     | Medium — requires MCP server lifecycle, stdio transport, tool schema definitions    |
+| **Observability**              | Built into Effect (spans, logs)                                                | Depends on MCP client implementation                                                |
 
 **Recommendation**: For a benchmark platform like LamBench Pro that needs to serve both human developers and AI agents, the optimal strategy is to provide **both interfaces**:
 
@@ -733,15 +801,15 @@ Clanka has no human-facing UI. It is purely programmatic:
 
 ### 7.4 UI Comparison Table
 
-| Dimension | LamBench Pro | Motel | Clanka |
-|---|---|---|---|
-| **Technology** | React 19, Vite 8, Tailwind CSS 4 | React 19 (SPA) + OpenTUI (TUI) | None |
-| **State Management** | `@effect/atom-react` with `AsyncResult` | `@effect/atom-react` with atoms | `Effect.Stream` + `Queue` |
-| **Theme** | Solarized (light/dark) | Motel Default, Tokyo Night, Catppuccin | N/A |
-| **Aesthetic** | Vim-inspired (tabline, statusline, line numbers) | Vim-inspired (TUI keys), professional dark (SPA) | N/A |
-| **Components** | 6 leaderboard panels, bar charts, modal | Trace list, waterfall, span detail, log view | N/A |
-| **Deployment** | GitHub Pages static build | Local server static SPA + TUI | N/A |
-| **Accessibility** | Basic (standard HTML) | TUI: keyboard-only; SPA: standard web | N/A |
+| Dimension            | LamBench Pro                                     | Motel                                            | Clanka                    |
+| -------------------- | ------------------------------------------------ | ------------------------------------------------ | ------------------------- |
+| **Technology**       | React 19, Vite 8, Tailwind CSS 4                 | React 19 (SPA) + OpenTUI (TUI)                   | None                      |
+| **State Management** | `@effect/atom-react` with `AsyncResult`          | `@effect/atom-react` with atoms                  | `Effect.Stream` + `Queue` |
+| **Theme**            | Solarized (light/dark)                           | Motel Default, Tokyo Night, Catppuccin           | N/A                       |
+| **Aesthetic**        | Vim-inspired (tabline, statusline, line numbers) | Vim-inspired (TUI keys), professional dark (SPA) | N/A                       |
+| **Components**       | 6 leaderboard panels, bar charts, modal          | Trace list, waterfall, span detail, log view     | N/A                       |
+| **Deployment**       | GitHub Pages static build                        | Local server static SPA + TUI                    | N/A                       |
+| **Accessibility**    | Basic (standard HTML)                            | TUI: keyboard-only; SPA: standard web            | N/A                       |
 
 ### 7.5 Key Observations
 
@@ -815,16 +883,16 @@ Clanka's tests use concrete examples for patch parsing, script extraction, and o
 
 ### 8.4 Testing Comparison Table
 
-| Dimension | LamBench Pro | Motel | Clanka |
-|---|---|---|---|
-| **Framework** | Vitest + `@effect/vitest` | Vitest | Vitest |
-| **Test Types** | Unit tests for services and eval logic | Unit, UI logic, end-to-end OTLP, TUI regression | Unit, example-based |
-| **Service Mocking** | `Layer.succeed` with stub stores | `Layer.mock` for readonly store variants | `Layer.mock` for `ExaSearch`, `WebToMarkdown` |
-| **Co-location** | Yes (`*.test.ts` alongside source) | Yes (`*.test.ts` alongside source) | Yes (`*.test.ts` alongside source) |
-| **Property-Based Tests** | No | No | No |
-| **End-to-End Tests** | Yes — `httpApi.test.ts` with 32 integration tests | Yes — `telemetry.test.ts` with real OTLP payloads | No |
-| **UI Tests** | No (Storybook planned for client) | Yes — TUI regression tests with `tuistory` | No |
-| **Coverage Focus** | Service CRUD, eval pipeline, λ-RLM | SQLite persistence, query correctness, TUI navigation | Agent execution, patch application, vector search |
+| Dimension                | LamBench Pro                                      | Motel                                                 | Clanka                                            |
+| ------------------------ | ------------------------------------------------- | ----------------------------------------------------- | ------------------------------------------------- |
+| **Framework**            | Vitest + `@effect/vitest`                         | Vitest                                                | Vitest                                            |
+| **Test Types**           | Unit tests for services and eval logic            | Unit, UI logic, end-to-end OTLP, TUI regression       | Unit, example-based                               |
+| **Service Mocking**      | `Layer.succeed` with stub stores                  | `Layer.mock` for readonly store variants              | `Layer.mock` for `ExaSearch`, `WebToMarkdown`     |
+| **Co-location**          | Yes (`*.test.ts` alongside source)                | Yes (`*.test.ts` alongside source)                    | Yes (`*.test.ts` alongside source)                |
+| **Property-Based Tests** | No                                                | No                                                    | No                                                |
+| **End-to-End Tests**     | Yes — `httpApi.test.ts` with 32 integration tests | Yes — `telemetry.test.ts` with real OTLP payloads     | No                                                |
+| **UI Tests**             | No (Storybook planned for client)                 | Yes — TUI regression tests with `tuistory`            | No                                                |
+| **Coverage Focus**       | Service CRUD, eval pipeline, λ-RLM                | SQLite persistence, query correctness, TUI navigation | Agent execution, patch application, vector search |
 
 ---
 
@@ -832,11 +900,11 @@ Clanka's tests use concrete examples for patch parsing, script extraction, and o
 
 ### 9.1 Effect.fn vs Plain Functions
 
-| Project | Exported Functions | Internal Helpers |
-|---|---|---|
-| **LamBench** | `Effect.fn("Name")(function* (...) { ... })` | `Effect.fnUntraced(function* (...) { ... })` |
-| **Motel** | `Effect.fn("motel/Service.method")(function* (...) { ... })` | Plain `function` or arrow functions for pure helpers |
-| **Clanka** | `Effect.fn("Name")(function* (...) { ... })` | `Effect.fnUntraced(function* (...) { ... })` |
+| Project      | Exported Functions                                           | Internal Helpers                                     |
+| ------------ | ------------------------------------------------------------ | ---------------------------------------------------- |
+| **LamBench** | `Effect.fn("Name")(function* (...) { ... })`                 | `Effect.fnUntraced(function* (...) { ... })`         |
+| **Motel**    | `Effect.fn("motel/Service.method")(function* (...) { ... })` | Plain `function` or arrow functions for pure helpers |
+| **Clanka**   | `Effect.fn("Name")(function* (...) { ... })`                 | `Effect.fnUntraced(function* (...) { ... })`         |
 
 All three projects use `Effect.fn` for exported named functions. LamBench and Clanka consistently use `Effect.fnUntraced` for internal helpers; Motel sometimes uses plain functions for pure logic (parsing, formatting) where tracing adds no value.
 
@@ -845,6 +913,7 @@ All three projects use `Effect.fn` for exported named functions. LamBench and Cl
 All three projects use `Effect.gen` + `yield*` exclusively. No plain generators (`function*`) without `Effect.gen` wrapper.
 
 **LamBench**:
+
 ```typescript
 Effect.gen(function* () {
   const evalService = yield* EvalService;
@@ -853,6 +922,7 @@ Effect.gen(function* () {
 ```
 
 **Motel**:
+
 ```typescript
 Effect.gen(function* () {
   const cutoff = (yield* Clock.currentTimeMillis) - config.otel.retentionHours * 60 * 60 * 1000;
@@ -861,51 +931,54 @@ Effect.gen(function* () {
 ```
 
 **Clanka**:
+
 ```typescript
-Effect.gen(function* () {
+Effect.gen(function*() {
   const executor = yield* AgentExecutor.AgentExecutor;
-  const singleTool = yield* SingleTools.asEffect().pipe(Effect.provide(SingleToolHandlers));
+  const singleTool = yield* SingleTools.asEffect().pipe(
+    Effect.provide(SingleToolHandlers),
+  );
   // ...
 });
 ```
 
 ### 9.3 Pipe vs Direct Calls
 
-| Project | Preference |
-|---|---|
+| Project      | Preference                                                                                            |
+| ------------ | ----------------------------------------------------------------------------------------------------- |
 | **LamBench** | Mixed — `Effect.gen` blocks often `.pipe(Effect.match)` at the end; service calls use direct `yield*` |
-| **Motel** | Heavy pipe usage — `.pipe(Effect.map, Effect.flatMap, Effect.catch)` chains are common |
-| **Clanka** | Heavy pipe usage — especially for stream operations and layer composition |
+| **Motel**    | Heavy pipe usage — `.pipe(Effect.map, Effect.flatMap, Effect.catch)` chains are common                |
+| **Clanka**   | Heavy pipe usage — especially for stream operations and layer composition                             |
 
 Motel and Clanka favor pipe chains for transformation pipelines. LamBench tends to collect results in `Effect.gen` and apply a single `.pipe` at the end for error handling.
 
 ### 9.4 Type Annotations
 
-| Project | Style |
-|---|---|
+| Project      | Style                                                                                                                 |
+| ------------ | --------------------------------------------------------------------------------------------------------------------- |
 | **LamBench** | Explicit return types on service interfaces; inferred types in handlers. Uses `type X = Schema.Schema.Type<typeof X>` |
-| **Motel** | Explicit return types on service methods; `typeof X.Type` for schema-derived types. Heavy use of `readonly` |
-| **Clanka** | Explicit return types on public APIs; `Effect.fn.Return<...>` for agent constructor. `TypeId` branded interfaces |
+| **Motel**    | Explicit return types on service methods; `typeof X.Type` for schema-derived types. Heavy use of `readonly`           |
+| **Clanka**   | Explicit return types on public APIs; `Effect.fn.Return<...>` for agent constructor. `TypeId` branded interfaces      |
 
 ### 9.5 Error Handling Patterns
 
-| Project | Pattern |
-|---|---|
-| **LamBench** | Simple `SqlError` class; `Effect.match` for HTTP error responses; `Effect.catchTag` for specific errors |
-| **Motel** | Typed `Error` channel; `Effect.match` for JSON error responses; no `catchAll` — uses `Effect.catch` |
-| **Clanka** | `Schema.TaggedErrorClass` for domain errors (`AgentFinished`); `Effect.retry` with schedules; `Effect.die` for fatal errors; `Effect.catchTag` for recoverable errors |
+| Project      | Pattern                                                                                                                                                               |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **LamBench** | Simple `SqlError` class; `Effect.match` for HTTP error responses; `Effect.catchTag` for specific errors                                                               |
+| **Motel**    | Typed `Error` channel; `Effect.match` for JSON error responses; no `catchAll` — uses `Effect.catch`                                                                   |
+| **Clanka**   | `Schema.TaggedErrorClass` for domain errors (`AgentFinished`); `Effect.retry` with schedules; `Effect.die` for fatal errors; `Effect.catchTag` for recoverable errors |
 
 Clanka's error handling is the most sophisticated, using `Effect.retry` with exponential backoff and jitter for LLM calls, and `Schema.TaggedErrorClass` to signal completion through the error channel.
 
 ### 9.6 Documentation Density
 
-| Project | Density | Style |
-|---|---|---|
-| **LamBench** | Low | Minimal comments; some section headers (`─── Service Definition ───`) |
-| **Motel** | Very High | Extensive JSDoc, inline comments explaining SQLite pragmas, performance rationale, design decisions |
-| **Clanka** | Moderate-High | JSDoc `@since`, `@category` tags; tool descriptions in schema annotations; inline comments for complex logic |
+| Project      | Density       | Style                                                                                                        |
+| ------------ | ------------- | ------------------------------------------------------------------------------------------------------------ |
+| **LamBench** | Low           | Minimal comments; some section headers (`─── Service Definition ───`)                                        |
+| **Motel**    | Very High     | Extensive JSDoc, inline comments explaining SQLite pragmas, performance rationale, design decisions          |
+| **Clanka**   | Moderate-High | JSDoc `@since`, `@category` tags; tool descriptions in schema annotations; inline comments for complex logic |
 
-Motel's comments are exceptional — they explain *why* decisions were made (e.g., "64MB fits most hot index pages in RAM even on multi-GB databases"). This knowledge transfer is invaluable for maintainers.
+Motel's comments are exceptional — they explain _why_ decisions were made (e.g., "64MB fits most hot index pages in RAM even on multi-GB databases"). This knowledge transfer is invaluable for maintainers.
 
 ---
 
@@ -918,6 +991,7 @@ Based on the comparative analysis, the following recommendations are proposed fo
 **Rationale**: LamBench's `ResultStore` is functional but basic. Motel's `TelemetryStore` demonstrates production-grade SQLite patterns that scale to multi-GB databases.
 
 **Specific actions**:
+
 - Add `span_attributes`-style normalized tables if querying individual result fields (e.g., error messages, submission content) becomes necessary.
 - Integrate FTS5 for searching submissions and error text. Use external-content FTS with triggers to avoid data duplication.
 - Implement trace-granular retention (or job-granular, in LamBench's case) instead of row-granular deletion to maintain data integrity.
@@ -931,6 +1005,7 @@ Based on the comparative analysis, the following recommendations are proposed fo
 **Rationale**: LamBench's API lacks OpenAPI annotations, pagination, and comprehensive query parameter documentation. Motel's API is fully self-documenting.
 
 **Specific actions**:
+
 - Add `OpenApi.Title`, `OpenApi.Version`, and `OpenApi.Description` annotations to the `Api` definition.
 - Add `Schema.annotateKey` descriptions to all endpoint parameters and fields.
 - Implement cursor-based pagination for result listing (base64url-encoded cursors with `meta.nextCursor`).
@@ -945,6 +1020,7 @@ Based on the comparative analysis, the following recommendations are proposed fo
 **Rationale**: Clanka's `Toolkit.make` + `Tool.make` pattern is clean, type-safe, and self-documenting. It integrates seamlessly with Effect's AI primitives.
 
 **Specific actions**:
+
 - Define benchmark tools using `Tool.make` with `Schema.Struct` parameters.
 - Use `dependencies` arrays to declare required services (`CurrentDirectory`, `ResultStore`).
 - Annotate tools with `Tool.Readonly` since benchmark execution is query-like.
@@ -957,6 +1033,7 @@ Based on the comparative analysis, the following recommendations are proposed fo
 **Rationale**: LamBench's Solarized theme and Vim aesthetic create a distinctive developer-focused identity. Motel's UI is more utilitarian.
 
 **Specific actions**:
+
 - Maintain the Solarized color system and JetBrains Mono typography.
 - Preserve Vim-inspired components (TabLine, VimLine, statusline).
 - Consider adding a dark/light theme toggle if not already present.
@@ -967,6 +1044,7 @@ Based on the comparative analysis, the following recommendations are proposed fo
 **Rationale**: Benchmarks need to be invokable by both humans (developers) and AI agents. A CLI serves humans; an MCP server serves agents.
 
 **Specific actions**:
+
 - Maintain the existing Effect CLI (`bun src/index.ts eval`, `run`, `build`).
 - Build an MCP server that exposes the same `EvalService`, `BatchService`, and `ResultStore` operations through standardized tool definitions.
 - Ensure result shapes are identical between CLI and MCP to prevent drift.
@@ -976,6 +1054,7 @@ Based on the comparative analysis, the following recommendations are proposed fo
 **Rationale**: If LamBench grows beyond 120 tasks, content-based discovery ("find me tasks about Church numerals with recursion") becomes valuable.
 
 **Specific actions**:
+
 - Integrate `sqlite-vector` or a similar vector extension.
 - Generate embeddings for task descriptions and test cases.
 - Add a `search` tool to the MCP server that performs semantic task lookup.
@@ -987,6 +1066,7 @@ Based on the comparative analysis, the following recommendations are proposed fo
 **Rationale**: If LamBench adds OpenTelemetry self-tracing (e.g., tracing LLM calls, evaluation pipeline stages), Motel's worker-thread ingest pattern prevents blocking the main event loop.
 
 **Specific actions**:
+
 - Spawn a dedicated worker for SQLite writes during heavy batch evaluations.
 - Keep the main thread free for HTTP request handling and TUI responsiveness.
 - Use `Effect.runFork` or `Effect.forkDaemon` for fire-and-forget ingest.

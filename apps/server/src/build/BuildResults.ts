@@ -6,13 +6,8 @@
  * Uses Effect FileSystem + Path instead of Node fs/path.
  */
 
+import type { BenchmarkCategory, BenchmarkData, BenchmarkTask, Ranking } from "@repo/domain/Benchmark";
 import { Array as Arr, Effect, FileSystem, Option, Path } from "effect";
-import type {
-  BenchmarkCategory,
-  BenchmarkData,
-  BenchmarkTask,
-  Ranking,
-} from "@repo/domain/Benchmark";
 import type { TopModel } from "../eval/EvalRunner";
 
 // ─── Paths ───────────────────────────────────────────────────────────────────
@@ -26,15 +21,15 @@ const TOP_MODELS_FILE = `${SERVER_ROOT}/top-models.json`;
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type TaskResult = {
+interface TaskResult {
   readonly id: string;
   readonly pass: boolean;
   readonly time: number;
   readonly bits?: number | undefined;
   readonly ref?: number | undefined;
-};
+}
 
-type RunResult = {
+interface RunResult {
   readonly filename: string;
   readonly timestamp: string;
   readonly model: string;
@@ -44,23 +39,23 @@ type RunResult = {
   readonly variant: "standard" | "rlm";
   readonly rlmDepth?: number;
   readonly rlmAttempts?: number;
-};
+}
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const CATEGORY_NAMES: Record<string, string> = {
   algo: "Algorithms",
-  cnat: "Church Naturals",
+  cadt: "Church ADTs",
   cbin: "Church Binaries",
   clst: "Church Lists",
+  cnat: "Church Naturals",
   ctre: "Church Trees",
-  cadt: "Church ADTs",
-  snat: "Scott Naturals",
+  ntup: "N-Tuples",
+  sadt: "Scott ADTs",
   sbin: "Scott Binaries",
   slst: "Scott Lists",
+  snat: "Scott Naturals",
   stre: "Scott Trees",
-  sadt: "Scott ADTs",
-  ntup: "N-Tuples",
 };
 
 // ─── Parsers ─────────────────────────────────────────────────────────────────
@@ -81,24 +76,24 @@ const parseResultFile = (filename: string, text: string): RunResult => {
   const rlmAttemptsRaw = lines.find(l => l.startsWith("rlm_attempts:"))?.slice("rlm_attempts:".length).trim();
   const rlmAttempts = rlmAttemptsRaw !== undefined ? parseInt(rlmAttemptsRaw, 10) : undefined;
 
-  const tasks: TaskResult[] = lines.flatMap(line => {
+  const tasks: Array<TaskResult> = lines.flatMap(line => {
     const m = line.match(
       /^- (\w+):\s+\S+\s+(pass|fail)\s+time=([\d.]+)s(?:\s+bits=(\d+))?(?:\s+ref=(\d+))?/,
     );
     if (!m) return [];
     return [{
+      bits: m[4] ? parseInt(m[4]) : undefined,
       id: m[1]!,
       pass: m[2] === "pass",
-      time: parseFloat(m[3]!),
-      bits: m[4] ? parseInt(m[4]) : undefined,
       ref: m[5] ? parseInt(m[5]) : undefined,
+      time: parseFloat(m[3]!),
     }];
   });
 
   const tsMatch = filename.match(/^(\d{4}y\d{2}m\d{2}d\.\d{2}h\d{2}m\d{2}s)/);
   const timestamp = tsMatch ? tsMatch[1]! : filename;
 
-  const result: RunResult = { filename, timestamp, model, right, total, tasks, variant };
+  const result: RunResult = { filename, model, right, tasks, timestamp, total, variant };
   if (rlmDepth !== undefined) Object.assign(result, { rlmDepth });
   if (rlmAttempts !== undefined) Object.assign(result, { rlmAttempts });
   return result;
@@ -107,12 +102,12 @@ const parseResultFile = (filename: string, text: string): RunResult => {
 const parseTaskFile = (id: string, text: string): BenchmarkTask => {
   const category = id.split("_")[0] ?? id;
   const sep = text.indexOf("\n---\n");
-  const description = sep >= 0 ? text.slice(0, sep).trim() : text.trim();
-  const testSection = sep >= 0 ? text.slice(sep + 5).trim() : "";
+  const description = sep !== -1 ? text.slice(0, sep).trim() : text.trim();
+  const testSection = sep !== -1 ? text.slice(sep + 5).trim() : "";
 
   const testLines = testSection.split("\n");
   const tests = Array.from({ length: testLines.length }, (_, i) => i).reduce<{
-    pairs: Array<{ input: string; expected: string }>;
+    pairs: Array<{ input: string; expected: string; }>;
     skip: boolean;
   }>(
     ({ pairs, skip }, i) => {
@@ -121,7 +116,7 @@ const parseTaskFile = (id: string, text: string): BenchmarkTask => {
       if (line.startsWith("@main") || line.startsWith("λ")) {
         const next = testLines[i + 1]?.trim();
         if (next?.startsWith("=")) {
-          return { pairs: [...pairs, { input: line, expected: next.slice(1).trim() }], skip: true };
+          return { pairs: [...pairs, { expected: next.slice(1).trim(), input: line }], skip: true };
         }
       }
       return { pairs, skip: false };
@@ -130,10 +125,10 @@ const parseTaskFile = (id: string, text: string): BenchmarkTask => {
   ).pairs;
 
   return {
-    id,
     category,
     categoryName: CATEGORY_NAMES[category] ?? category,
     description,
+    id,
     testCount: tests.length,
     tests: tests.slice(0, 3),
   };
@@ -141,17 +136,16 @@ const parseTaskFile = (id: string, text: string): BenchmarkTask => {
 
 // ─── Loaders ─────────────────────────────────────────────────────────────────
 
-const loadAllResults = Effect.gen(function* () {
+const loadAllResults = Effect.gen(function*() {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const exists = yield* fs.exists(RES_DIR);
   if (!exists) return [] as ReadonlyArray<RunResult>;
-  const files = (yield* fs.readDirectory(RES_DIR)).filter(f => f.endsWith(".txt")).sort();
+  const files = (yield* fs.readDirectory(RES_DIR)).filter(f => f.endsWith(".txt")).toSorted();
   return yield* Effect.forEach(files, (f) =>
     fs.readFileString(path.join(RES_DIR, f)).pipe(
       Effect.map(text => parseResultFile(f, text)),
-    ),
-  );
+    ));
 });
 
 const latestPerModel = (runs: ReadonlyArray<RunResult>): ReadonlyArray<RunResult> =>
@@ -163,32 +157,30 @@ const latestPerModel = (runs: ReadonlyArray<RunResult>): ReadonlyArray<RunResult
       )
       .values(),
   ]
-    .sort((a, b) => b.right - a.right || a.model.localeCompare(b.model));
+    .toSorted((a, b) => b.right - a.right || a.model.localeCompare(b.model));
 
-const loadAllTasks = Effect.gen(function* () {
+const loadAllTasks = Effect.gen(function*() {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const files = (yield* fs.readDirectory(TSK_DIR)).filter(f => f.endsWith(".tsk")).sort();
+  const files = (yield* fs.readDirectory(TSK_DIR)).filter(f => f.endsWith(".tsk")).toSorted();
   return yield* Effect.forEach(files, (f) =>
     fs.readFileString(path.join(TSK_DIR, f)).pipe(
       Effect.map(text => parseTaskFile(path.basename(f, ".tsk"), text)),
-    ),
-  );
+    ));
 });
 
 const loadTopModels = (flagPath?: string) =>
-  Effect.gen(function* () {
+  Effect.gen(function*() {
     const fs = yield* FileSystem.FileSystem;
-    const candidates = [flagPath, TOP_MODELS_FILE].filter(Boolean) as string[];
+    const candidates = [flagPath, TOP_MODELS_FILE].filter(Boolean) as Array<string>;
     const found = yield* Effect.forEach(candidates, (p) =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const exists = yield* fs.exists(p);
         if (!exists) return Option.none<Map<string, number>>();
         const text = yield* fs.readFileString(p);
-        const data = JSON.parse(text) as TopModel[];
+        const data = JSON.parse(text) as Array<TopModel>;
         return Option.some(new Map(data.map((m) => [m.modelId, m.pricePerMOutput])));
-      }),
-    );
+      }));
     return Option.getOrElse(
       Option.flatten(Arr.findFirst(found, Option.isSome)),
       () => new Map<string, number>(),
@@ -196,18 +188,18 @@ const loadTopModels = (flagPath?: string) =>
   });
 
 /** Load rankings from the existing results.json, if present. Used as fallback when res/ is empty. */
-const loadExistingRankings = Effect.gen(function* () {
+const loadExistingRankings = Effect.gen(function*() {
   const fs = yield* FileSystem.FileSystem;
   const exists = yield* fs.exists(OUT_FILE);
   if (!exists) return [] as ReadonlyArray<Ranking>;
   const text = yield* fs.readFileString(OUT_FILE);
-  const data = JSON.parse(text) as { rankings?: Ranking[] };
+  const data = JSON.parse(text) as { rankings?: Array<Ranking>; };
   return (data.rankings ?? []) as ReadonlyArray<Ranking>;
 });
 
 // ─── Builder ─────────────────────────────────────────────────────────────────
 
-export const build = Effect.fn("build")(function* (topModelsPath?: string) {
+export const build = Effect.fn("build")(function*(topModelsPath?: string) {
   const fs = yield* FileSystem.FileSystem;
 
   const runs = yield* loadAllResults;
@@ -215,7 +207,7 @@ export const build = Effect.fn("build")(function* (topModelsPath?: string) {
   const tasks = yield* loadAllTasks;
   const priceMap = yield* loadTopModels(topModelsPath);
 
-  const categories: BenchmarkCategory[] = Object.entries(CATEGORY_NAMES).map(
+  const categories: Array<BenchmarkCategory> = Object.entries(CATEGORY_NAMES).map(
     ([id, name]) => ({ id, name }),
   );
 
@@ -225,16 +217,21 @@ export const build = Effect.fn("build")(function* (topModelsPath?: string) {
     const existing = yield* loadExistingRankings;
     if (existing.length > 0) {
       yield* Effect.log(`No res/ data found — preserving ${existing.length} existing rankings`);
-      const data: BenchmarkData = { rankings: existing as Ranking[], tasks, categories, generatedAt: new Date().toISOString() };
+      const data: BenchmarkData = {
+        categories,
+        generatedAt: new Date().toISOString(),
+        rankings: existing as Array<Ranking>,
+        tasks,
+      };
       yield* fs.makeDirectory(`${REPO_ROOT}/apps/client/public/data`, { recursive: true });
-      yield* fs.writeFileString(OUT_FILE, JSON.stringify(data, null, 2) + "\n");
+      yield* fs.writeFileString(OUT_FILE, `${JSON.stringify(data, null, 2)}\n`);
       yield* Effect.log(`Written ${existing.length} models · ${tasks.length} tasks → ${OUT_FILE}`);
       return;
     }
     yield* Effect.log("No res/ data and no existing results.json — writing empty rankings");
   }
 
-  const rankings: Ranking[] = latest.map(run => {
+  const rankings: Array<Ranking> = latest.map(run => {
     const timed = run.tasks.filter(t => t.time > 0);
     const avgTime = timed.length
       ? Arr.reduce(timed, 0, (s, t) => s + t.time) / timed.length
@@ -242,20 +239,20 @@ export const build = Effect.fn("build")(function* (topModelsPath?: string) {
     const price = priceMap.get(run.model) ?? 0;
 
     return {
-      model: run.model,
-      right: run.right,
-      total: run.total,
-      pct: ((run.right / run.total) * 100).toFixed(1),
       avgTime: Number(avgTime.toFixed(1)),
-      timestamp: run.timestamp,
-      tasks: Object.fromEntries(run.tasks.map(t => [t.id, t.pass])),
+      model: run.model,
+      pct: ((run.right / run.total) * 100).toFixed(1),
+      pricePerMOutputTokens: price,
+      right: run.right,
       taskBits: Object.fromEntries(
         run.tasks.filter(t => t.pass && t.bits !== undefined).map(t => [t.id, t.bits!]),
       ),
       taskRefs: Object.fromEntries(
         run.tasks.filter(t => t.ref !== undefined).map(t => [t.id, t.ref!]),
       ),
-      pricePerMOutputTokens: price,
+      tasks: Object.fromEntries(run.tasks.map(t => [t.id, t.pass])),
+      timestamp: run.timestamp,
+      total: run.total,
       ...(run.variant === "rlm" ? { rlm: true } : {}),
       ...(run.rlmDepth !== undefined ? { rlmDepth: run.rlmDepth } : {}),
       ...(run.rlmAttempts !== undefined ? { rlmAttempts: run.rlmAttempts } : {}),
@@ -263,17 +260,18 @@ export const build = Effect.fn("build")(function* (topModelsPath?: string) {
   });
 
   const data: BenchmarkData = {
-    rankings,
-    tasks,
     categories,
     generatedAt: new Date().toISOString(),
+    rankings,
+    tasks,
   };
 
   yield* fs.makeDirectory(`${REPO_ROOT}/apps/client/public/data`, { recursive: true });
-  yield* fs.writeFileString(OUT_FILE, JSON.stringify(data, null, 2) + "\n");
+  yield* fs.writeFileString(OUT_FILE, `${JSON.stringify(data, null, 2)}\n`);
 
   yield* Effect.log(`Written ${rankings.length} models · ${tasks.length} tasks → ${OUT_FILE}`);
-  yield* Effect.forEach(rankings, r =>
-    Effect.log(`  ${r.model}: ${r.right}/${r.total} (${r.pct}%) price=$${r.pricePerMOutputTokens}/1M`),
+  yield* Effect.forEach(
+    rankings,
+    r => Effect.log(`  ${r.model}: ${r.right}/${r.total} (${r.pct}%) price=$${r.pricePerMOutputTokens}/1M`),
   );
 });

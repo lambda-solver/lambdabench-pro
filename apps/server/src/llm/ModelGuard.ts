@@ -45,7 +45,7 @@ const BASE_BACKOFF = Duration.seconds(5);
  * Retries up to MAX_RETRIES times with exponential backoff.
  * If all attempts fail → ModelUnresponsiveError (model excluded from bench).
  */
-export const guardedGenerate = Effect.fn("guardedGenerate")(function* (
+export const guardedGenerate = Effect.fn("guardedGenerate")(function*(
   prompt: string,
   model: string,
 ) {
@@ -65,9 +65,11 @@ export const guardedGenerate = Effect.fn("guardedGenerate")(function* (
           return Effect.fail(new ModelUnresponsiveError(model, n));
         }
         const backoff = Duration.times(BASE_BACKOFF, 2 ** (n - 1));
-        return Effect.gen(function* () {
+        return Effect.gen(function*() {
           yield* Effect.log(
-            `[guard] ${model} attempt ${n}/${MAX_RETRIES} failed (${e.cause}) — retrying in ${Duration.toSeconds(backoff)}s`,
+            `[guard] ${model} attempt ${n}/${MAX_RETRIES} failed (${e.cause}) — retrying in ${
+              Duration.toSeconds(backoff)
+            }s`,
           );
           yield* Effect.sleep(backoff);
           return yield* attempt(n + 1);

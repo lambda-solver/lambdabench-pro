@@ -3,25 +3,25 @@
 // Health checking service — polls background processes and auto-restarts failed ones.
 
 import { Context, Effect, Layer, Ref, Schedule } from "effect";
-import type { ProcessEntry } from "./registry";
 import * as Registry from "./registry";
+import type { ProcessEntry } from "./registry";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
-export type HealthCheckConfig = {
+export interface HealthCheckConfig {
   readonly pid: number;
   readonly port: number;
   readonly intervalMs: number;
   readonly maxRestarts: number;
-};
+}
 
-export type HealthStatus = {
+export interface HealthStatus {
   readonly pid: number;
   readonly healthy: boolean;
   readonly lastCheck: string | null;
   readonly consecutiveFailures: number;
   readonly restartCount: number;
-};
+}
 
 // ─── Internal Error ────────────────────────────────────────────────────────────
 
@@ -68,20 +68,20 @@ export class RegistryOps extends Context.Service<
   static readonly live: Layer.Layer<RegistryOps> = Layer.succeed(
     RegistryOps,
     RegistryOps.of({
-      updateHealth: (pid, healthy) =>
-        Registry.updateHealth(pid, healthy).pipe(
-          Effect.catch((e) =>
-            Effect.logWarning(
-              `Registry updateHealth failed for pid ${pid}: ${e.message}`,
-            ).pipe(Effect.map(() => undefined)),
-          ),
-        ),
       getProcess: (pid) =>
         Registry.getProcess(pid).pipe(
           Effect.catch((e) =>
             Effect.logWarning(
               `Registry getProcess failed for pid ${pid}: ${e.message}`,
-            ).pipe(Effect.map(() => null)),
+            ).pipe(Effect.map(() => null))
+          ),
+        ),
+      updateHealth: (pid, healthy) =>
+        Registry.updateHealth(pid, healthy).pipe(
+          Effect.catch((e) =>
+            Effect.logWarning(
+              `Registry updateHealth failed for pid ${pid}: ${e.message}`,
+            ).pipe(Effect.map(() => undefined))
           ),
         ),
     }),
@@ -92,9 +92,8 @@ export class RegistryOps extends Context.Service<
 
 const checkHealthImpl = (port: number): Effect.Effect<boolean, never> =>
   Effect.tryPromise({
-    try: () =>
-      fetch(`http://127.0.0.1:${port}`, { signal: AbortSignal.timeout(2000) }),
     catch: () => new Error("fetch failed"),
+    try: () => fetch(`http://127.0.0.1:${port}`, { signal: AbortSignal.timeout(2000) }),
   }).pipe(
     Effect.timeout("2 seconds"),
     Effect.map(() => true as const),
@@ -102,7 +101,7 @@ const checkHealthImpl = (port: number): Effect.Effect<boolean, never> =>
   );
 
 const restartProcessImpl = (pid: number): Effect.Effect<void, never> =>
-  Effect.gen(function* () {
+  Effect.gen(function*() {
     yield* Effect.logWarning(`restart not implemented for pid ${pid}`);
   });
 
@@ -113,7 +112,7 @@ const restartProcessImpl = (pid: number): Effect.Effect<void, never> =>
  * Returns `true` if the fetch succeeds (any status code), `false` on
  * connection error or 2-second timeout. Never fails.
  */
-export const checkHealth = Effect.fn("health.checkHealth")(function* (
+export const checkHealth = Effect.fn("health.checkHealth")(function*(
   port: number,
 ) {
   return yield* checkHealthImpl(port);
@@ -123,7 +122,7 @@ export const checkHealth = Effect.fn("health.checkHealth")(function* (
  * Stub for restarting a process. Logs a warning — actual restart logic
  * will be implemented in the DaemonManager (task 6.4).
  */
-export const restartProcess = Effect.fn("health.restartProcess")(function* (
+export const restartProcess = Effect.fn("health.restartProcess")(function*(
   pid: number,
 ): Effect.fn.Return<void, never> {
   return yield* restartProcessImpl(pid);
@@ -140,7 +139,7 @@ export const restartProcess = Effect.fn("health.restartProcess")(function* (
  * Requires `HealthChecker` and `RegistryOps` services.
  */
 export const createHealthPoller = Effect.fn("health.createHealthPoller")(
-  function* (config: HealthCheckConfig) {
+  function*(config: HealthCheckConfig) {
     const checker = yield* HealthChecker;
     const registry = yield* RegistryOps;
     const state = yield* Ref.make({
@@ -148,7 +147,7 @@ export const createHealthPoller = Effect.fn("health.createHealthPoller")(
       restartCount: 0,
     });
 
-    const tick = Effect.fnUntraced(function* () {
+    const tick = Effect.fnUntraced(function*() {
       const healthy = yield* checker.check(config.port);
       yield* registry.updateHealth(config.pid, healthy);
 

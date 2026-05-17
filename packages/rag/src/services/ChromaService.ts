@@ -1,5 +1,5 @@
-import type { ChromaClient as ChromaSdkClient } from "chromadb";
 import { ChromaClient } from "chromadb";
+import type { ChromaClient as ChromaSdkClient } from "chromadb";
 import { Config, Context, Data, Effect, Layer, Option } from "effect";
 
 export class ChromaError extends Data.TaggedError("ChromaError")<{
@@ -7,10 +7,10 @@ export class ChromaError extends Data.TaggedError("ChromaError")<{
 }> {}
 
 const ChromaConfig = Config.all({
-  url: Config.option(Config.string("CHROMA_URL")),
+  headersJson: Config.option(Config.string("CHROMA_HEADERS_JSON")),
   host: Config.option(Config.string("CHROMA_HOST")),
   port: Config.option(Config.number("CHROMA_PORT")),
-  headersJson: Config.option(Config.string("CHROMA_HEADERS_JSON")),
+  url: Config.option(Config.string("CHROMA_URL")),
 });
 
 export class ChromaService extends Context.Service<
@@ -22,7 +22,7 @@ export class ChromaService extends Context.Service<
     ) => Effect.Effect<A, ChromaError>;
   }
 >()("ChromaService", {
-  make: Effect.gen(function* () {
+  make: Effect.gen(function*() {
     const config = yield* ChromaConfig;
     const url = Option.getOrUndefined(config.url);
     const host = Option.getOrUndefined(config.host);
@@ -36,28 +36,30 @@ export class ChromaService extends Context.Service<
     );
 
     const client = yield* Effect.try({
+      catch: (cause) => new ChromaError({ cause }),
       try: () =>
         url
-          ? new ChromaClient({ path: url, headers })
+          ? new ChromaClient({ headers, path: url })
           : new ChromaClient({
-              host: host ?? "localhost",
-              port: port ?? 8000,
-              headers,
-            }),
-      catch: (cause) => new ChromaError({ cause }),
+            headers,
+            host: host ?? "localhost",
+            port: port ?? 8000,
+          }),
     });
 
     const use = <A>(fn: (client: ChromaSdkClient) => Promise<A>) =>
       Effect.tryPromise({
-        try: () => fn(client),
         catch: (cause) => new ChromaError({ cause }),
+        try: () => fn(client),
       }).pipe(
         Effect.tapError((error) =>
           Effect.logError(
-            `[ChromaService] ${fn.name || "use"} failed: ${String(
-              error.cause,
-            )}`,
-          ),
+            `[ChromaService] ${fn.name || "use"} failed: ${
+              String(
+                error.cause,
+              )
+            }`,
+          )
         ),
         Effect.withSpan(`chroma.${fn.name || "use"}`),
       );

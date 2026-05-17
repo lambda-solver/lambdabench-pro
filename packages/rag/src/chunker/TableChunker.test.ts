@@ -2,10 +2,7 @@ import { describe, expect, it } from "@effect/vitest";
 import { Chunker } from "@repo/domain/Chunk";
 import { Cause, Effect, Exit, Layer, Option } from "effect";
 import { SchemaError } from "effect/Schema";
-import {
-  CharacterTokenizerLive,
-  WordTokenizerLive,
-} from "../tokenizer/DelimTokenizer";
+import { CharacterTokenizerLive, WordTokenizerLive } from "../tokenizer/DelimTokenizer";
 import { TableChunker, TableChunkerConfig } from "./TableChunker";
 
 const makeTableChunkerLive = (
@@ -27,19 +24,20 @@ const markdownTable = `| name | score |
 | Sam | 95 |
 | Mia | 90 |
 `;
-const htmlTable = `<table><thead><tr><th>name</th><th>score</th></tr></thead><tbody><tr><td>Ada</td><td>91</td></tr><tr><td>Lin</td><td>88</td></tr><tr><td>Sam</td><td>95</td></tr><tr><td>Mia</td><td>90</td></tr></tbody></table>`;
+const htmlTable =
+  `<table><thead><tr><th>name</th><th>score</th></tr></thead><tbody><tr><td>Ada</td><td>91</td></tr><tr><td>Lin</td><td>88</td></tr><tr><td>Sam</td><td>95</td></tr><tr><td>Mia</td><td>90</td></tr></tbody></table>`;
 describe("TableChunker", () => {
   it.layer(
     makeTableChunkerLive({
       chunkSize: 2,
-      mode: "row",
       format: "markdown",
+      mode: "row",
     }),
   )((it) => {
     it.effect(
       "Given markdown table in row mode, when chunking, then header repeats per chunk",
       () =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const chunker = yield* Chunker;
           const chunks = yield* chunker.chunk(markdownTable);
           expect(chunks.length).toEqual(2);
@@ -57,7 +55,7 @@ describe("TableChunker", () => {
     it.effect(
       "Given row chunks, when chunking, then table metadata is attached",
       () =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const chunker = yield* Chunker;
           const chunks = yield* chunker.chunk(markdownTable);
           expect(chunks.length).toBe(2);
@@ -75,7 +73,7 @@ describe("TableChunker", () => {
     it.effect(
       "Given whitespace-only input, when chunking, then returns empty chunks",
       () =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const chunker = yield* Chunker;
           const chunks = yield* chunker.chunk("   \n\t  ");
           expect(chunks).toEqual([]);
@@ -86,8 +84,8 @@ describe("TableChunker", () => {
     makeTableChunkerLive(
       {
         chunkSize: 12,
-        mode: "token",
         format: "markdown",
+        mode: "token",
       },
       CharacterTokenizerLive,
     ),
@@ -95,7 +93,7 @@ describe("TableChunker", () => {
     it.effect(
       "Given markdown table in token mode, when chunking, then header is preserved",
       () =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const chunker = yield* Chunker;
           const chunks = yield* chunker.chunk(markdownTable);
           expect(chunks.length).toBeGreaterThan(1);
@@ -110,14 +108,14 @@ describe("TableChunker", () => {
   it.layer(
     makeTableChunkerLive({
       chunkSize: 2,
-      mode: "row",
       format: "html",
+      mode: "row",
     }),
   )((it) => {
     it.effect(
       "Given html table in row mode, when chunking, then table shell is preserved",
       () =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const chunker = yield* Chunker;
           const chunks = yield* chunker.chunk(htmlTable);
           expect(chunks.length).toEqual(2);
@@ -133,14 +131,14 @@ describe("TableChunker", () => {
   it.layer(
     makeTableChunkerLive({
       chunkSize: 2,
-      mode: "row",
       format: "auto",
+      mode: "row",
     }),
   )((it) => {
     it.effect(
       "Given auto format, when chunking, then markdown and html are detected",
       () =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const chunker = yield* Chunker;
           const markdownChunks = yield* chunker.chunk(markdownTable);
           const htmlChunks = yield* chunker.chunk(htmlTable);
@@ -152,14 +150,14 @@ describe("TableChunker", () => {
   it.layer(
     makeTableChunkerLive({
       chunkSize: 2,
-      mode: "row",
       format: "markdown",
+      mode: "row",
     }),
   )((it) => {
     it.effect(
       "Given row chunks, when chunking, then offsets are monotonic and valid",
       () =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const chunker = yield* Chunker;
           const chunks = yield* chunker.chunk(markdownTable);
           let prevStart = -1;
@@ -178,16 +176,16 @@ describe("TableChunker", () => {
   it.effect(
     "Given non-positive chunk size, when chunking, then config validation fails",
     () =>
-      Effect.gen(function* () {
-        const program = Effect.gen(function* () {
+      Effect.gen(function*() {
+        const program = Effect.gen(function*() {
           const chunker = yield* Chunker;
           return yield* chunker.chunk(markdownTable);
         }).pipe(
           Effect.provide(
             makeTableChunkerLive({
               chunkSize: 0,
-              mode: "row",
               format: "markdown",
+              mode: "row",
             }),
           ),
         );
@@ -208,16 +206,16 @@ describe("TableChunker", () => {
   it.effect(
     "Given invalid markdown table, when chunking, then returns empty chunks",
     () =>
-      Effect.gen(function* () {
-        const program = Effect.gen(function* () {
+      Effect.gen(function*() {
+        const program = Effect.gen(function*() {
           const chunker = yield* Chunker;
           return yield* chunker.chunk("| head |\n| data |");
         }).pipe(
           Effect.provide(
             makeTableChunkerLive({
               chunkSize: 2,
-              mode: "row",
               format: "markdown",
+              mode: "row",
             }),
           ),
         );

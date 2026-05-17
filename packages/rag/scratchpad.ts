@@ -1,7 +1,7 @@
 import { Effect } from "effect";
 import { RagService } from "./src";
 
-const main = Effect.gen(function* () {
+const main = Effect.gen(function*() {
   yield* Effect.log("Hello, Rag Scratchpad!");
   const rag = yield* RagService;
 
@@ -16,8 +16,8 @@ const main = Effect.gen(function* () {
 
   const inputResult = yield* rag.ingest({
     collection: collectionName,
-    ids,
     documents,
+    ids,
   });
   console.log("Ingest result:", inputResult);
 

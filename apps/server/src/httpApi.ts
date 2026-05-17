@@ -13,20 +13,18 @@ import { TaskService } from "./services/TaskService.js";
 const HealthGroupLive = HttpApiBuilder.group(Api, "health", (handlers) =>
   handlers.handle("get", () =>
     Effect.succeed({
-      status: "ok" as const,
-      version: "1.0.0",
       db: "connected" as const,
+      status: "ok" as const,
       uptimeSeconds: process.uptime(),
-    }),
-  ),
-);
+      version: "1.0.0",
+    })));
 
 // ─── EvalGroup ───────────────────────────────────────────────────────────────
 
 const EvalGroupLive = HttpApiBuilder.group(Api, "eval", (handlers) =>
   handlers
     .handle("single", ({ payload }) =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         // Mode is accepted but only "direct" is fully implemented; "agent" mode is Phase 6
         const evalService = yield* EvalService;
         return yield* evalService
@@ -41,10 +39,9 @@ const EvalGroupLive = HttpApiBuilder.group(Api, "eval", (handlers) =>
             ),
           onSuccess: (value) => value,
         }),
-      ),
-    )
+      ))
     .handle("batch", ({ payload }) =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         // Mode is accepted but only "direct" is fully implemented; "agent" mode is Phase 6
         const batchService = yield* BatchService;
         const job = yield* batchService.createBatchJob(payload);
@@ -59,10 +56,9 @@ const EvalGroupLive = HttpApiBuilder.group(Api, "eval", (handlers) =>
             ),
           onSuccess: (value) => value,
         }),
-      ),
-    )
+      ))
     .handle("status", ({ params }) =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const batchService = yield* BatchService;
         const job = yield* batchService.getBatchJob(params.jobId);
         if (job === undefined) {
@@ -81,16 +77,14 @@ const EvalGroupLive = HttpApiBuilder.group(Api, "eval", (handlers) =>
             ),
           onSuccess: (value) => value,
         }),
-      ),
-    ),
-);
+      )));
 
 // ─── ResultsGroup ─────────────────────────────────────────────────────────────
 
 const ResultsGroupLive = HttpApiBuilder.group(Api, "results", (handlers) =>
   handlers
     .handle("list", () =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const resultStore = yield* ResultStore;
         const dbResults = yield* resultStore.getLatestResults();
 
@@ -108,28 +102,27 @@ const ResultsGroupLive = HttpApiBuilder.group(Api, "results", (handlers) =>
           ([model, modelResults]) => {
             const passed = modelResults.filter((r) => r.pass).length;
             return {
-              model,
-              right: passed,
-              total: modelResults.length,
-              pct:
-                modelResults.length > 0
-                  ? ((passed / modelResults.length) * 100).toFixed(1)
-                  : "0.0",
               avgTime: 0,
-              timestamp: new Date().toISOString(),
-              tasks: {},
+              model,
+              pct: modelResults.length > 0
+                ? ((passed / modelResults.length) * 100).toFixed(1)
+                : "0.0",
+              pricePerMOutputTokens: 0,
+              right: passed,
               taskBits: {},
               taskRefs: {},
-              pricePerMOutputTokens: 0,
+              tasks: {},
+              timestamp: new Date().toISOString(),
+              total: modelResults.length,
             };
           },
         );
 
         return {
-          rankings,
-          tasks: [],
           categories: [],
           generatedAt: new Date().toISOString(),
+          rankings,
+          tasks: [],
         };
       }).pipe(
         Effect.match({
@@ -140,10 +133,9 @@ const ResultsGroupLive = HttpApiBuilder.group(Api, "results", (handlers) =>
             ),
           onSuccess: (value) => value,
         }),
-      ),
-    )
+      ))
     .handle("detail", ({ params }) =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const resultStore = yield* ResultStore;
         const results = yield* resultStore.getResultsByRunId(params.runId);
         const first = results[0];
@@ -154,16 +146,16 @@ const ResultsGroupLive = HttpApiBuilder.group(Api, "results", (handlers) =>
           );
         }
         return {
-          taskId: first.taskId,
-          model: first.model,
-          variant: first.variant as "standard" | "rlm" | "both",
-          pass: first.pass,
           bits: first.bits ?? 0,
-          score: first.score ?? 0,
-          errors: first.errors ?? [],
           elapsedMs: first.elapsedMs,
+          errors: first.errors ?? [],
+          model: first.model,
+          pass: first.pass,
+          score: first.score ?? 0,
           submission: first.submission ?? "",
+          taskId: first.taskId,
           timestamp: first.timestamp,
+          variant: first.variant as "standard" | "rlm" | "both",
         };
       }).pipe(
         Effect.match({
@@ -174,23 +166,21 @@ const ResultsGroupLive = HttpApiBuilder.group(Api, "results", (handlers) =>
             ),
           onSuccess: (value) => value,
         }),
-      ),
-    ),
-);
+      )));
 
 // ─── TasksGroup ──────────────────────────────────────────────────────────────
 
 const TasksGroupLive = HttpApiBuilder.group(Api, "tasks", (handlers) =>
   handlers
     .handle("list", () =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const taskService = yield* TaskService;
         const dbTasks = yield* taskService.getAllTasks();
         return dbTasks.map((t) => ({
-          id: t.id,
           category: t.category,
           categoryName: t.categoryName,
           description: t.description,
+          id: t.id,
           testCount: t.testCount,
           tests: (
             t.tests as Array<{
@@ -200,8 +190,8 @@ const TasksGroupLive = HttpApiBuilder.group(Api, "tasks", (handlers) =>
           )
             .slice(0, 3)
             .map((test) => ({
-              input: test.input,
               expected: test.expected,
+              input: test.input,
             })),
         }));
       }).pipe(
@@ -213,10 +203,9 @@ const TasksGroupLive = HttpApiBuilder.group(Api, "tasks", (handlers) =>
             ),
           onSuccess: (value) => value,
         }),
-      ),
-    )
+      ))
     .handle("detail", ({ params }) =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const taskService = yield* TaskService;
         const task = yield* taskService.getTask(params.taskId);
         if (task === undefined) {
@@ -226,10 +215,10 @@ const TasksGroupLive = HttpApiBuilder.group(Api, "tasks", (handlers) =>
           );
         }
         return {
-          id: task.id,
           category: task.category,
           categoryName: task.categoryName,
           description: task.description,
+          id: task.id,
           testCount: task.testCount,
           tests: (
             task.tests as Array<{
@@ -239,8 +228,8 @@ const TasksGroupLive = HttpApiBuilder.group(Api, "tasks", (handlers) =>
           )
             .slice(0, 3)
             .map((test) => ({
-              input: test.input,
               expected: test.expected,
+              input: test.input,
             })),
         };
       }).pipe(
@@ -252,24 +241,22 @@ const TasksGroupLive = HttpApiBuilder.group(Api, "tasks", (handlers) =>
             ),
           onSuccess: (value) => value,
         }),
-      ),
-    ),
-);
+      )));
 
 // ─── ModelsGroup ─────────────────────────────────────────────────────────────
 
 const ModelsGroupLive = HttpApiBuilder.group(Api, "models", (handlers) =>
   handlers
     .handle("list", () =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const resultStore = yield* ResultStore;
         const configs = yield* resultStore.getActiveModelConfigs();
         return configs.map((c) => ({
-          id: c.id,
-          provider: c.provider as "openrouter" | "opencode-go",
           displayName: c.displayName ?? undefined,
-          pricePerMOutput: c.pricePerMOutput ?? undefined,
+          id: c.id,
           isActive: c.isActive,
+          pricePerMOutput: c.pricePerMOutput ?? undefined,
+          provider: c.provider as "openrouter" | "opencode-go",
         }));
       }).pipe(
         Effect.match({
@@ -280,15 +267,12 @@ const ModelsGroupLive = HttpApiBuilder.group(Api, "models", (handlers) =>
             ),
           onSuccess: (value) => value,
         }),
-      ),
-    )
+      ))
     .handle("test", ({ payload: _payload }) =>
       Effect.succeed({
         latencyMs: 0,
         ok: true,
-      }),
-    ),
-);
+      })));
 
 // ─── API Layer ───────────────────────────────────────────────────────────────
 

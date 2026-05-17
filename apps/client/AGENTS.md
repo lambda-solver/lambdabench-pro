@@ -4,13 +4,13 @@
 
 ## Commands
 
-| Command                                  | Purpose                                      |
-| ---------------------------------------- | -------------------------------------------- |
-| `bun dev --filter=client`                | Start dev server (port 3000, Vite HMR)       |
-| `bun test --filter=client`               | Run client tests (Vitest + Playwright)       |
-| `bun run build --filter=client`          | Production build → `apps/client/dist/`       |
-| `bun run type-check`                     | TypeScript check across all packages         |
-| `bunx playwright install chromium`       | **One-time local setup** — download Chromium |
+| Command                            | Purpose                                      |
+| ---------------------------------- | -------------------------------------------- |
+| `bun dev --filter=client`          | Start dev server (port 3000, Vite HMR)       |
+| `bun test --filter=client`         | Run client tests (Vitest + Playwright)       |
+| `bun run build --filter=client`    | Production build → `apps/client/dist/`       |
+| `bun run type-check`               | TypeScript check across all packages         |
+| `bunx playwright install chromium` | **One-time local setup** — download Chromium |
 
 > Tests use Vitest's browser mode with Playwright/Chromium. CI installs it
 > automatically (`bunx playwright install chromium --with-deps`). Locally you
@@ -60,30 +60,31 @@ Uses `@effect/atom-react` — **not** standard Jotai.
 
 ```typescript
 // lib/atom.ts — runtime with FetchHttpClient
-import { Atom } from "@effect/atom"
-import { FetchHttpClient } from "effect/unstable/http"
-export const runtime = Atom.runtime(FetchHttpClient.layer)
+import { Atom } from "@effect/atom";
+import { FetchHttpClient } from "effect/unstable/http";
+export const runtime = Atom.runtime(FetchHttpClient.layer);
 
 // lib/atoms/benchmark-atom.ts
 export const benchmarkAtom = runtime.atom(
-  Effect.gen(function* () {
-    const client = yield* HttpClient.HttpClient
-    const response = yield* client.get(resultsUrl())
-    const body = yield* response.json
-    return yield* Schema.decodeUnknownEffect(BenchmarkDataSchema)(body)
-  })
-)
+  Effect.gen(function*() {
+    const client = yield* HttpClient.HttpClient;
+    const response = yield* client.get(resultsUrl());
+    const body = yield* response.json;
+    return yield* Schema.decodeUnknownEffect(BenchmarkDataSchema)(body);
+  }),
+);
 
 // Component usage
-const result = useAtomValue(benchmarkAtom)
+const result = useAtomValue(benchmarkAtom);
 AsyncResult.match(result, {
   onInitial: () => <Loading />,
   onFailure: (e) => <Error />,
   onSuccess: (s) => <View data={s.value} />,
-})
+});
 ```
 
 Key rules:
+
 - `useAtomValue(atom)` returns `AsyncResult<A, E>` — match with `AsyncResult.match`
 - `onSuccess` receives `Success<A,E>` — access data via `.value`
 - Import: `import { AsyncResult } from "effect/unstable/reactivity"`
@@ -99,23 +100,23 @@ Key rules:
 
 ### Solarized token reference
 
-| Token | Light | Dark | Use |
-|-------|-------|------|-----|
-| `--sol-base3` | `#fdf6e3` | `#002b36` | Page background |
-| `--sol-base2` | `#eee8d5` | `#073642` | Tab bar, statusline |
-| `--sol-base1` | `#93a1a1` | `#586e75` | Comments, dim text |
-| `--sol-base00` | `#657b83` | `#839496` | Body text |
-| `--sol-green` | `#859900` | same | ≥70% bar fill |
-| `--sol-blue` | `#268bd2` | same | ≥45% bar fill, model names |
-| `--sol-yellow` | `#b58900` | same | ≥20% bar fill, headings |
-| `--sol-red` | `#dc322f` | same | <20% bar fill |
+| Token          | Light     | Dark      | Use                        |
+| -------------- | --------- | --------- | -------------------------- |
+| `--sol-base3`  | `#fdf6e3` | `#002b36` | Page background            |
+| `--sol-base2`  | `#eee8d5` | `#073642` | Tab bar, statusline        |
+| `--sol-base1`  | `#93a1a1` | `#586e75` | Comments, dim text         |
+| `--sol-base00` | `#657b83` | `#839496` | Body text                  |
+| `--sol-green`  | `#859900` | same      | ≥70% bar fill              |
+| `--sol-blue`   | `#268bd2` | same      | ≥45% bar fill, model names |
+| `--sol-yellow` | `#b58900` | same      | ≥20% bar fill, headings    |
+| `--sol-red`    | `#dc322f` | same      | <20% bar fill              |
 
 ## BarChart
 
 Uses a single `█` glyph repeated for both filled and empty portions — **never mix `█` and `░`** as they have different vertical metrics in JetBrains Mono and will misalign. The empty portion is rendered at reduced opacity.
 
 ```tsx
-<BarChart pct={75} width={28} />
+<BarChart pct={75} width={28} />;
 ```
 
 ## VimLine
@@ -126,8 +127,8 @@ Every content row is a `<VimLine n={lineNum}>`. Provides the line-number gutter 
 <VimLine n={1}>
   <span className="text-[var(--sol-blue)]">model-name</span>
   <BarChart pct={pct} />
-  <span className="text-[var(--sol-magenta)]"> 95/120</span>
-</VimLine>
+  <span className="text-[var(--sol-magenta)]">95/120</span>
+</VimLine>;
 ```
 
 ## Data File
@@ -136,9 +137,9 @@ Every content row is a `<VimLine n={lineNum}>`. Provides the line-number gutter 
 
 ## Environment
 
-| Variable | Default | Purpose |
-|----------|---------|---------|
-| `VITE_BASE_URL` | `/` | Base path — set to `/lambdabench-pro/` for GitHub Pages |
+| Variable        | Default | Purpose                                                 |
+| --------------- | ------- | ------------------------------------------------------- |
+| `VITE_BASE_URL` | `/`     | Base path — set to `/lambdabench-pro/` for GitHub Pages |
 
 ## Deployment
 

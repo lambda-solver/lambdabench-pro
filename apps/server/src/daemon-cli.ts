@@ -4,8 +4,8 @@
 // CLI entry point for daemon lifecycle management.
 // Supports start, stop, restart, status, and logs commands.
 
-import { spawn } from "node:child_process";
 import { Effect } from "effect";
+import { spawn } from "node:child_process";
 import { DaemonManager, DaemonManagerLayer } from "./daemon/manager";
 import { ProcessError } from "./daemon/process";
 
@@ -44,7 +44,7 @@ const main = async (): Promise<void> => {
     case "start":
     case "bg": {
       const status = await run(
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const manager = yield* DaemonManager;
           return yield* manager.start();
         }),
@@ -54,7 +54,7 @@ const main = async (): Promise<void> => {
     }
     case "stop": {
       const status = await run(
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const manager = yield* DaemonManager;
           return yield* manager.stop();
         }),
@@ -64,7 +64,7 @@ const main = async (): Promise<void> => {
     }
     case "restart": {
       const status = await run(
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const manager = yield* DaemonManager;
           return yield* manager.restart();
         }),
@@ -74,7 +74,7 @@ const main = async (): Promise<void> => {
     }
     case "status": {
       const status = await run(
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const manager = yield* DaemonManager;
           return yield* manager.status();
         }),

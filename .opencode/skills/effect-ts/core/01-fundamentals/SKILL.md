@@ -17,13 +17,13 @@ Nothing runs until you call a `run*` function or `Layer.launch`.
 ## Effect.gen — primary style
 
 ```typescript
-import { Effect } from "effect"
+import { Effect } from "effect";
 
-const program = Effect.gen(function* () {
-  yield* Effect.log("starting")
-  const result = yield* someEffect
-  return result
-})
+const program = Effect.gen(function*() {
+  yield* Effect.log("starting");
+  const result = yield* someEffect;
+  return result;
+});
 ```
 
 ## Effect.fn — all named exported functions
@@ -59,45 +59,45 @@ Use when the function is not exported and tracing is not needed.
 Simpler syntax — no name string required.
 
 ```typescript
-import { Effect } from "effect"
+import { Effect } from "effect";
 
 // ✅ for private / internal helpers
-const buildPayload = Effect.fnUntraced(function* (id: string) {
-  const data = yield* loadData(id)
-  return { id, data }
-})
+const buildPayload = Effect.fnUntraced(function*(id: string) {
+  const data = yield* loadData(id);
+  return { id, data };
+});
 ```
 
 ## Creating Effects
 
 ```typescript
-Effect.succeed(value)               // constant value
-Effect.fail(new MyError())          // typed error
-Effect.sync(() => Date.now())       // sync side-effect, guaranteed not to throw
+Effect.succeed(value); // constant value
+Effect.fail(new MyError()); // typed error
+Effect.sync(() => Date.now()); // sync side-effect, guaranteed not to throw
 Effect.try({
   try: () => JSON.parse(s),
   catch: (e) => new ParseError({ cause: e }),
-})
+});
 Effect.tryPromise({
   try: () => fetch(url).then(r => r.json()),
   catch: (e) => new FetchError({ url, cause: e }),
-})
-Effect.callback<number>((resume) => {  // callback-based APIs
-  const id = setTimeout(() => resume(Effect.succeed(42)), 100)
-  return Effect.sync(() => clearTimeout(id))  // finalizer on interruption
-})
+});
+Effect.callback<number>((resume) => { // callback-based APIs
+  const id = setTimeout(() => resume(Effect.succeed(42)), 100);
+  return Effect.sync(() => clearTimeout(id)); // finalizer on interruption
+});
 ```
 
 ## Running Effects
 
 ```typescript
-import { BunRuntime } from "@effect/platform-bun"
-import { NodeRuntime } from "@effect/platform-node"
+import { BunRuntime } from "@effect/platform-bun";
+import { NodeRuntime } from "@effect/platform-node";
 
-BunRuntime.runMain(program)           // Bun entrypoint — handles signals
-NodeRuntime.runMain(program)          // Node entrypoint
-await Effect.runPromise(program)      // tests / scripts
-Effect.runSync(program)               // sync-only programs
+BunRuntime.runMain(program); // Bun entrypoint — handles signals
+NodeRuntime.runMain(program); // Node entrypoint
+await Effect.runPromise(program); // tests / scripts
+Effect.runSync(program); // sync-only programs
 ```
 
 ## Pipe for composition
@@ -108,7 +108,7 @@ program.pipe(
   Effect.flatMap(n => Effect.succeed(n + 1)),
   Effect.catchTag("ParseError", () => Effect.succeed(0)),
   Effect.withSpan("myOp"),
-)
+);
 ```
 
 ## Always `return` before `yield* error`
@@ -116,10 +116,10 @@ program.pipe(
 TypeScript must see the `return` to know execution stops at that point:
 
 ```typescript
-export const load = Effect.fn("load")(function* (id: string) {
-  if (!id) return yield* new NotFoundError()  // return = TS knows it stops here
-  return yield* fetchById(id)
-})
+export const load = Effect.fn("load")(function*(id: string) {
+  if (!id) return yield* new NotFoundError(); // return = TS knows it stops here
+  return yield* fetchById(id);
+});
 ```
 
 ## Type annotations

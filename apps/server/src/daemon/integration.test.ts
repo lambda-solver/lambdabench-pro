@@ -3,25 +3,14 @@
 // Integration test for DaemonManager — uses real RegistryService (filesystem)
 // with a mock ProcessManager so no actual processes are spawned.
 
-import { existsSync, unlinkSync } from "node:fs";
 import { describe, it } from "@effect/vitest";
 import { assertTrue, strictEqual } from "@effect/vitest/utils";
 import { Effect, Layer } from "effect";
+import { existsSync, unlinkSync } from "node:fs";
 import { afterEach } from "vitest";
-
-import {
-  DaemonManager,
-  DaemonManagerLive,
-  ProcessManager,
-  RegistryService,
-} from "./manager";
+import { DaemonManager, DaemonManagerLive, ProcessManager, RegistryService } from "./manager";
 import { ProcessError } from "./process";
-import {
-  addProcess,
-  REGISTRY_PATH,
-  readRegistry,
-  removeProcess,
-} from "./registry";
+import { addProcess, readRegistry, REGISTRY_PATH, removeProcess } from "./registry";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -43,42 +32,38 @@ const cleanup = () => {
  * in production).
  */
 const MockProcessManager = ProcessManager.of({
+  checkHealth: () => Effect.succeed(true),
+  isAlive: (pid) => Effect.succeed(pid > 0),
   spawn: (config) =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const pid = config.port === 9000 ? 9001 : 3001;
       const entry = {
-        pid,
         command: config.command.join(" "),
         cwd: config.cwd,
+        healthy: true,
+        lastHealthCheck: null,
+        pid,
         port: config.port,
         startTime: new Date().toISOString(),
-        lastHealthCheck: null,
-        healthy: true,
       };
       yield* addProcess(entry).pipe(
-        Effect.catch((e) =>
-          Effect.fail(new ProcessError(`Registry error: ${e.message}`)),
-        ),
+        Effect.catch((e) => Effect.fail(new ProcessError(`Registry error: ${e.message}`))),
       );
       return {
+        config,
         pid,
         proc: {} as never,
-        config,
         startTime: entry.startTime,
       };
     }),
   stop: (spawned) =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       yield* removeProcess(spawned.pid).pipe(
-        Effect.catch((e) =>
-          Effect.fail(new ProcessError(`Registry error: ${e.message}`)),
-        ),
+        Effect.catch((e) => Effect.fail(new ProcessError(`Registry error: ${e.message}`))),
       );
     }),
-  isAlive: (pid) => Effect.succeed(pid > 0),
-  waitForPort: () => Effect.void,
-  checkHealth: () => Effect.succeed(true),
   tryConnect: () => Effect.succeed(false),
+  waitForPort: () => Effect.void,
 });
 
 // ─── Test Layer ──────────────────────────────────────────────────────────────
@@ -99,7 +84,7 @@ describe("DaemonManager integration", () => {
   });
 
   it.effect("full lifecycle: start → status → stop", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const manager = yield* DaemonManager;
 
       // Start daemon
@@ -132,11 +117,10 @@ describe("DaemonManager integration", () => {
         0,
         "expected empty registry after stop",
       );
-    }).pipe(Effect.provide(TestLayer)),
-  );
+    }).pipe(Effect.provide(TestLayer)));
 
   it.effect("restart replaces entries", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const manager = yield* DaemonManager;
 
       // Start — creates 2 registry entries
@@ -155,6 +139,5 @@ describe("DaemonManager integration", () => {
         2,
         "expected 2 entries after restart (no duplicates)",
       );
-    }).pipe(Effect.provide(TestLayer)),
-  );
+    }).pipe(Effect.provide(TestLayer)));
 });

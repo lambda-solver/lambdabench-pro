@@ -72,7 +72,7 @@ import { fmtModel } from "./fmt";
 
 test("strips openrouter/ prefix", () => {
   expect(fmtModel("openrouter/google/gemini-2.5-pro")).toBe(
-    "google/gemini-2.5-pro"
+    "google/gemini-2.5-pro",
   );
 });
 ```

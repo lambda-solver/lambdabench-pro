@@ -25,68 +25,67 @@ const connection = yield* Effect.acquireRelease(
 Use when the resource should live as long as the layer's scope.
 
 ```typescript
-import { Context, Effect, Layer } from "effect"
+import { Context, Effect, Layer } from "effect";
 
 export class DbPool extends Context.Service<DbPool, {
-  query(sql: string): Effect.Effect<Array<unknown>>
+  query(sql: string): Effect.Effect<Array<unknown>>;
 }>()(
   "myapp/DbPool",
 ) {
   static readonly layer = Layer.scoped(
     DbPool,
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const pool = yield* Effect.acquireRelease(
         Effect.promise(() => createPool(config)),
         (p) => Effect.promise(() => p.end()),
-      )
+      );
       return DbPool.of({
-        query: Effect.fn("DbPool.query")(function* (sql) {
-          return yield* Effect.promise(() => pool.query(sql))
+        query: Effect.fn("DbPool.query")(function*(sql) {
+          return yield* Effect.promise(() => pool.query(sql));
         }),
-      })
+      });
     }),
-  )
+  );
 }
 ```
 
 ## Effect.addFinalizer — finalizer in current scope
 
 ```typescript
-yield* Effect.addFinalizer(() =>
-  Effect.sync(() => console.log("scope closing")),
-)
+yield
+  * Effect.addFinalizer(() => Effect.sync(() => console.log("scope closing")));
 ```
 
 ## Scope — explicit lifetime management
 
 ```typescript
-import { Scope } from "effect"
+import { Scope } from "effect";
 
-const program = Effect.gen(function* () {
-  const scope = yield* Scope.make()
+const program = Effect.gen(function*() {
+  const scope = yield* Scope.make();
 
   const conn = yield* Effect.acquireRelease(
     Effect.sync(() => db.connect()),
     (c) => Effect.sync(() => c.close()),
-  ).pipe(Effect.provideService(Scope.Scope, scope))
+  ).pipe(Effect.provideService(Scope.Scope, scope));
 
   // ... use conn ...
 
   // Close explicitly when done
-  yield* Scope.close(scope, Exit.void)
-})
+  yield* Scope.close(scope, Exit.void);
+});
 ```
 
 ## Effect.using — acquire + use + release in one expression
 
 ```typescript
-const result = yield* Effect.using(
+const result = yield * Effect.using(
   Effect.acquireRelease(
     Effect.sync(() => openFile(path)),
     (f) => Effect.sync(() => f.close()),
   ),
   (file) => readLines(file),
-)
+);
 ```
 
 ## forkScoped — fiber tied to scope
@@ -94,14 +93,14 @@ const result = yield* Effect.using(
 The fiber is interrupted when the enclosing scope closes.
 
 ```typescript
-yield* Effect.forkScoped(
-  Effect.gen(function* () {
+yield * Effect.forkScoped(
+  Effect.gen(function*() {
     while (true) {
-      yield* Effect.sleep("5 seconds")
-      yield* Effect.log("heartbeat")
+      yield* Effect.sleep("5 seconds");
+      yield* Effect.log("heartbeat");
     }
   }),
-)
+);
 ```
 
 ## Key rules

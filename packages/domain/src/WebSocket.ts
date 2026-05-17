@@ -8,8 +8,8 @@ export type ClientStatus = Schema.Schema.Type<typeof ClientStatus>;
 
 export const ClientInfo = Schema.Struct({
   clientId: ClientId,
-  status: ClientStatus,
   connectedAt: Schema.Number,
+  status: ClientStatus,
 });
 export type ClientInfo = Schema.Schema.Type<typeof ClientInfo>;
 
@@ -25,9 +25,9 @@ export const WebSocketEvent = Schema.Union([
   }),
   // Broadcast when a user's status changes
   Schema.TaggedStruct("status_changed", {
+    changedAt: Schema.Number,
     clientId: ClientId,
     status: ClientStatus,
-    changedAt: Schema.Number,
   }),
   // Broadcast when a user disconnects
   Schema.TaggedStruct("user_left", {
@@ -40,10 +40,9 @@ export type WebSocketEvent = Schema.Schema.Type<typeof WebSocketEvent>;
 export class WebSocketRpc extends RpcGroup.make(
   // Subscribe to presence events - returns a stream of events
   Rpc.make("subscribe", {
-    success: WebSocketEvent,
     stream: true, // This makes it a streaming RPC over WebSocket
+    success: WebSocketEvent,
   }),
-
   // Set your presence status (requires clientId from subscribe)
   Rpc.make("setStatus", {
     payload: {
@@ -54,7 +53,6 @@ export class WebSocketRpc extends RpcGroup.make(
       success: Schema.Boolean,
     }),
   }),
-
   // Get current list of connected clients
   Rpc.make("getPresence", {
     success: Schema.Struct({

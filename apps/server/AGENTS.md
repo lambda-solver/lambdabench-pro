@@ -19,20 +19,20 @@
 
 ## Env vars
 
-| Variable            | Default                                | Purpose                          |
-| ------------------- | -------------------------------------- | -------------------------------- |
-| `OPENROUTER_API_KEY`| —                                      | Required for all LLM calls       |
-| `LLM_MODEL`         | `minimax/minimax-m2.5:free`            | Model to evaluate                |
-| `RLM_MAX_DEPTH`     | `3`                                    | λ-RLM self-correction iterations |
-| `LAMBENCH_PORT`     | `9000`                                 | API server port                  |
-| `LAMBENCH_DB_PATH`  | `.lambench-data/benchmark.sqlite`      | SQLite database path             |
-| `LAMBENCH_API_URL`  | `http://127.0.0.1:9000`                | Base URL for CLI client          |
-| `DEV_MODE`          | `false`                                | Skip live fetch, use mock data   |
-| `TOP_MODELS`        | —                                      | Comma-separated fallback models  |
-| `EVAL_CONCURRENCY`  | `4`                                    | Single-eval concurrency          |
-| `BATCH_CONCURRENCY` | `2`                                    | Batch-eval concurrency           |
-| `RETENTION_DAYS`    | `90`                                   | SQLite retention window          |
-| `MAX_DB_SIZE_MB`    | `1024`                                 | Max SQLite size before cleanup   |
+| Variable             | Default                           | Purpose                          |
+| -------------------- | --------------------------------- | -------------------------------- |
+| `OPENROUTER_API_KEY` | —                                 | Required for all LLM calls       |
+| `LLM_MODEL`          | `minimax/minimax-m2.5:free`       | Model to evaluate                |
+| `RLM_MAX_DEPTH`      | `3`                               | λ-RLM self-correction iterations |
+| `LAMBENCH_PORT`      | `9000`                            | API server port                  |
+| `LAMBENCH_DB_PATH`   | `.lambench-data/benchmark.sqlite` | SQLite database path             |
+| `LAMBENCH_API_URL`   | `http://127.0.0.1:9000`           | Base URL for CLI client          |
+| `DEV_MODE`           | `false`                           | Skip live fetch, use mock data   |
+| `TOP_MODELS`         | —                                 | Comma-separated fallback models  |
+| `EVAL_CONCURRENCY`   | `4`                               | Single-eval concurrency          |
+| `BATCH_CONCURRENCY`  | `2`                               | Batch-eval concurrency           |
+| `RETENTION_DAYS`     | `90`                              | SQLite retention window          |
+| `MAX_DB_SIZE_MB`     | `1024`                            | Max SQLite size before cleanup   |
 
 ## Stack
 
@@ -87,7 +87,10 @@ import * as HttpMiddleware from "effect/unstable/http/HttpMiddleware";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import * as HttpStaticServer from "effect/unstable/http/HttpStaticServer";
 
-const StaticLayer = HttpStaticServer.layer({ root: CLIENT_DIST_DIR, spa: true });
+const StaticLayer = HttpStaticServer.layer({
+  root: CLIENT_DIST_DIR,
+  spa: true,
+});
 
 export const ServerLive = HttpRouter.serve(
   Layer.mergeAll(ApiLayer, StaticLayer),
@@ -108,11 +111,15 @@ const MyGroupLive = HttpApiBuilder.group(Api, "myGroup", (handlers) =>
     .handle("detail", ({ params }) =>
       params.id === "1"
         ? Effect.succeed({ id: "1" })
-        : Effect.succeed(HttpServerResponse.jsonUnsafe({ error: "Not found" }, { status: 404 })),
-    ),
-);
+        : Effect.succeed(
+          HttpServerResponse.jsonUnsafe({ error: "Not found" }, {
+            status: 404,
+          }),
+        )));
 
-export const ApiLayer = HttpApiBuilder.layer(Api, { openapiPath: "/openapi.json" })
+export const ApiLayer = HttpApiBuilder.layer(Api, {
+  openapiPath: "/openapi.json",
+})
   .pipe(Layer.provide(MyGroupLive));
 ```
 
@@ -138,13 +145,16 @@ export class LamBenchClient extends Context.Service<LamBenchClient, {
   // ...
 }>()("app/LamBenchClient") {
   static readonly layer = (baseUrl: string) =>
-    Layer.effect(LamBenchClient, Effect.gen(function* () {
-      const client = (yield* HttpClient.HttpClient).pipe(
-        HttpClient.mapRequest(HttpClientRequest.prependUrl(baseUrl)),
-        HttpClient.filterStatusOk,
-      );
-      // ... implement methods
-    })).pipe(Layer.provide(FetchHttpClient.layer));
+    Layer.effect(
+      LamBenchClient,
+      Effect.gen(function*() {
+        const client = (yield* HttpClient.HttpClient).pipe(
+          HttpClient.mapRequest(HttpClientRequest.prependUrl(baseUrl)),
+          HttpClient.filterStatusOk,
+        );
+        // ... implement methods
+      }),
+    ).pipe(Layer.provide(FetchHttpClient.layer));
 }
 ```
 
@@ -159,7 +169,7 @@ const MyTool = Tool.make("my_tool", {
 
 export const MyToolkit = Toolkit.make(MyTool);
 
-const ToolHandlers = MyToolkit.toLayer(Effect.gen(function* () {
+const ToolHandlers = MyToolkit.toLayer(Effect.gen(function*() {
   return { my_tool: (input) => Effect.succeed({ result: input.id }) };
 }));
 

@@ -1,8 +1,8 @@
 # LamBench Pro — Technical Expert Specification
 
-> **Version:** 1.0  
-> **Date:** 2026-04-28  
-> **Status:** Phase 1 & 2 implemented; Phases 3–6 pending  
+> **Version:** 1.0\
+> **Date:** 2026-04-28\
+> **Status:** Phase 1 & 2 implemented; Phases 3–6 pending\
 > **Scope:** Full architectural refactor from static-file CLI to motel-inspired local server + SQLite + HTTP API + interactive UI
 
 ---
@@ -97,14 +97,14 @@ sequenceDiagram
 
 ### 2.3 Pain Points
 
-| Pain Point | Impact |
-|------------|--------|
-| File-based results (`res/*.txt`) | Hard to query, no history, brittle parsing |
-| No local server | Cannot iterate quickly on a single task/model |
-| Static client | Must rebuild + redeploy to see new results |
-| No SQLite | Cannot run analytics, search, or correlate runs |
-| Mixed test runners | `vitest` (server), `vitest browser + playwright` (client), `bun test` (reference) |
-| No MCP | Agents cannot introspect benchmark state programmatically |
+| Pain Point                       | Impact                                                                            |
+| -------------------------------- | --------------------------------------------------------------------------------- |
+| File-based results (`res/*.txt`) | Hard to query, no history, brittle parsing                                        |
+| No local server                  | Cannot iterate quickly on a single task/model                                     |
+| Static client                    | Must rebuild + redeploy to see new results                                        |
+| No SQLite                        | Cannot run analytics, search, or correlate runs                                   |
+| Mixed test runners               | `vitest` (server), `vitest browser + playwright` (client), `bun test` (reference) |
+| No MCP                           | Agents cannot introspect benchmark state programmatically                         |
 
 ---
 
@@ -171,19 +171,19 @@ graph TB
 
 ### 3.2 Component Map
 
-| Component | Source File | Responsibility |
-|-----------|-------------|----------------|
-| **CLI** | `apps/server/src/cli.ts` | Route commands (`eval`, `server`, `status`, `results`) |
-| **MCP** | `apps/server/src/mcp.ts` | Model Context Protocol server exposing benchmark tools |
-| **HTTP API** | `apps/server/src/httpApi.ts` | Schema-first `HttpApi` definition + OpenAPI spec |
-| **Local Server** | `apps/server/src/localServer.ts` | Bun HTTP router, static SPA serve, API handler wiring |
-| **Eval Service** | `apps/server/src/services/EvalService.ts` | Orchestrate single/batch evaluation, provider dispatch |
-| **Result Store** | `apps/server/src/services/ResultStore.ts` | SQLite persistence for benchmark results |
-| **Task Service** | `apps/server/src/services/TaskService.ts` | Load `.tsk`/`.lam` files, cache in memory |
-| **Model Service** | `apps/server/src/services/ModelService.ts` | Manage provider configs (OpenRouter, LocalChat) |
-| **Config** | `apps/server/src/config/LamConfig.ts` | Env-driven + file-based config (ports, DB path, retention) |
-| **Runtime** | `apps/server/src/runtime.ts` | Effect `ManagedRuntime` with service layers |
-| **Web UI** | `apps/client/src/` | Existing React app, now powered by live API |
+| Component         | Source File                                | Responsibility                                             |
+| ----------------- | ------------------------------------------ | ---------------------------------------------------------- |
+| **CLI**           | `apps/server/src/cli.ts`                   | Route commands (`eval`, `server`, `status`, `results`)     |
+| **MCP**           | `apps/server/src/mcp.ts`                   | Model Context Protocol server exposing benchmark tools     |
+| **HTTP API**      | `apps/server/src/httpApi.ts`               | Schema-first `HttpApi` definition + OpenAPI spec           |
+| **Local Server**  | `apps/server/src/localServer.ts`           | Bun HTTP router, static SPA serve, API handler wiring      |
+| **Eval Service**  | `apps/server/src/services/EvalService.ts`  | Orchestrate single/batch evaluation, provider dispatch     |
+| **Result Store**  | `apps/server/src/services/ResultStore.ts`  | SQLite persistence for benchmark results                   |
+| **Task Service**  | `apps/server/src/services/TaskService.ts`  | Load `.tsk`/`.lam` files, cache in memory                  |
+| **Model Service** | `apps/server/src/services/ModelService.ts` | Manage provider configs (OpenRouter, LocalChat)            |
+| **Config**        | `apps/server/src/config/LamConfig.ts`      | Env-driven + file-based config (ports, DB path, retention) |
+| **Runtime**       | `apps/server/src/runtime.ts`               | Effect `ManagedRuntime` with service layers                |
+| **Web UI**        | `apps/client/src/`                         | Existing React app, now powered by live API                |
 
 ---
 
@@ -309,32 +309,38 @@ sequenceDiagram
 
 All routes are defined in `apps/server/src/httpApi.ts` using Effect `HttpApiGroup` and `HttpApiEndpoint`.
 
-| Method | Path | Request | Response | Description |
-|--------|------|---------|----------|-------------|
-| `POST` | `/api/eval/single` | `SingleEvalRequest` | `EvalResult` | Evaluate one task with one model |
-| `POST` | `/api/eval/batch` | `BatchEvalRequest` | `BatchJob` | Start a full benchmark run |
-| `GET`  | `/api/eval/status/:jobId` | — | `BatchJob` | Poll batch job progress |
-| `GET`  | `/api/results` | `?sort=&filter=` | `BenchmarkData` | All results (leaderboard data) |
-| `GET`  | `/api/results/:runId` | — | `RunResult` | Single run detail |
-| `GET`  | `/api/tasks` | `?category=` | `BenchmarkTask[]` | List tasks |
-| `GET`  | `/api/tasks/:taskId` | — | `TaskDetail` | Task + reference solution |
-| `GET`  | `/api/models` | — | `ModelConfig[]` | Configured LLM providers |
-| `POST` | `/api/models/test` | `{provider, model}` | `{latencyMs, ok}` | Test a provider connection |
-| `GET`  | `/api/health` | — | `HealthStatus` | Server + DB health |
-| `GET`  | `/openapi.json` | — | OpenAPI 3.1 | Auto-generated spec |
+| Method | Path                      | Request             | Response          | Description                      |
+| ------ | ------------------------- | ------------------- | ----------------- | -------------------------------- |
+| `POST` | `/api/eval/single`        | `SingleEvalRequest` | `EvalResult`      | Evaluate one task with one model |
+| `POST` | `/api/eval/batch`         | `BatchEvalRequest`  | `BatchJob`        | Start a full benchmark run       |
+| `GET`  | `/api/eval/status/:jobId` | —                   | `BatchJob`        | Poll batch job progress          |
+| `GET`  | `/api/results`            | `?sort=&filter=`    | `BenchmarkData`   | All results (leaderboard data)   |
+| `GET`  | `/api/results/:runId`     | —                   | `RunResult`       | Single run detail                |
+| `GET`  | `/api/tasks`              | `?category=`        | `BenchmarkTask[]` | List tasks                       |
+| `GET`  | `/api/tasks/:taskId`      | —                   | `TaskDetail`      | Task + reference solution        |
+| `GET`  | `/api/models`             | —                   | `ModelConfig[]`   | Configured LLM providers         |
+| `POST` | `/api/models/test`        | `{provider, model}` | `{latencyMs, ok}` | Test a provider connection       |
+| `GET`  | `/api/health`             | —                   | `HealthStatus`    | Server + DB health               |
+| `GET`  | `/openapi.json`           | —                   | OpenAPI 3.1       | Auto-generated spec              |
 
 ### 5.2 Key Schemas (Effect Schema)
 
 ```typescript
 // --- Eval ---
 export const SingleEvalRequest = Schema.Struct({
-  model: Schema.String,          // model ID or "local"
-  task: Schema.String,           // task ID, e.g. "snat_add"
-  variant: Schema.Literal("standard", "rlm").pipe(Schema.optionalWith({ default: () => "standard" })),
-  provider: Schema.Literal("openrouter", "opencode-go").pipe(Schema.optionalWith({ default: () => "openrouter" })),
+  model: Schema.String, // model ID or "local"
+  task: Schema.String, // task ID, e.g. "snat_add"
+  variant: Schema.Literal("standard", "rlm").pipe(
+    Schema.optionalWith({ default: () => "standard" }),
+  ),
+  provider: Schema.Literal("openrouter", "opencode-go").pipe(
+    Schema.optionalWith({ default: () => "openrouter" }),
+  ),
   maxTokens: Schema.Number.pipe(Schema.optionalWith({ default: () => 4096 })),
   rlmMaxDepth: Schema.Number.pipe(Schema.optionalWith({ default: () => 3 })),
-  mode: Schema.Literal("direct", "agent").pipe(Schema.optionalWith({ default: () => "direct" })),
+  mode: Schema.Literal("direct", "agent").pipe(
+    Schema.optionalWith({ default: () => "direct" }),
+  ),
 });
 
 export const EvalResult = Schema.Struct({
@@ -346,16 +352,22 @@ export const EvalResult = Schema.Struct({
   score: Schema.Number,
   errors: Schema.Array(Schema.String),
   elapsedMs: Schema.Number,
-  submission: Schema.String,     // the .lam code returned by the model
-  timestamp: Schema.String,      // ISO-8601
+  submission: Schema.String, // the .lam code returned by the model
+  timestamp: Schema.String, // ISO-8601
 });
 
 export const BatchEvalRequest = Schema.Struct({
   models: Schema.Array(Schema.String),
-  tasks: Schema.Array(Schema.String).pipe(Schema.optionalWith({ default: () => [] })), // empty = all
-  variant: Schema.Literal("standard", "rlm", "both").pipe(Schema.optionalWith({ default: () => "both" })),
+  tasks: Schema.Array(Schema.String).pipe(
+    Schema.optionalWith({ default: () => [] }),
+  ), // empty = all
+  variant: Schema.Literal("standard", "rlm", "both").pipe(
+    Schema.optionalWith({ default: () => "both" }),
+  ),
   concurrency: Schema.Number.pipe(Schema.optionalWith({ default: () => 2 })),
-  mode: Schema.Literal("direct", "agent", "both").pipe(Schema.optionalWith({ default: () => "both" })),
+  mode: Schema.Literal("direct", "agent", "both").pipe(
+    Schema.optionalWith({ default: () => "both" }),
+  ),
 });
 
 export const BatchJob = Schema.Struct({
@@ -541,13 +553,13 @@ JOIN latest l ON r.model = l.model AND r.timestamp = l.max_ts;
 
 ### 7.1 Current → Target Transition
 
-| Aspect | Current | Target |
-|--------|---------|--------|
-| Data source | Static `results.json` | Live API (`/api/results`) |
-| State | `useState` for tabs + `AsyncResult` atom | `AsyncResult` atom connected to `AtomHttpApi` |
-| Routing | None (single page) | `react-router-dom` (optional — can remain single-page) |
-| Theme | Solarized (CSS vars) | **Preserved exactly** |
-| Build | Static Vite → GitHub Pages | Vite SPA served by local server + static export for Pages |
+| Aspect      | Current                                  | Target                                                    |
+| ----------- | ---------------------------------------- | --------------------------------------------------------- |
+| Data source | Static `results.json`                    | Live API (`/api/results`)                                 |
+| State       | `useState` for tabs + `AsyncResult` atom | `AsyncResult` atom connected to `AtomHttpApi`             |
+| Routing     | None (single page)                       | `react-router-dom` (optional — can remain single-page)    |
+| Theme       | Solarized (CSS vars)                     | **Preserved exactly**                                     |
+| Build       | Static Vite → GitHub Pages               | Vite SPA served by local server + static export for Pages |
 
 ### 7.2 Component Hierarchy (Target)
 
@@ -593,12 +605,12 @@ The **Solarized palette** is a core brand asset. The refactor must preserve:
 
 ### 7.4 Responsive Design Targets (Storybook)
 
-| Viewport | Width | Purpose |
-|----------|-------|---------|
-| Mobile | 375×667 | iPhone SE — stacked panels, hidden matrix |
-| Tablet | 768×1024 | iPad — 2-column grids, condensed tabs |
-| Desktop | 1440×900 | Standard — full 6-tab layout |
-| Wide | 1920×1080 | Large monitor — expanded matrix, side-by-side panels |
+| Viewport | Width     | Purpose                                              |
+| -------- | --------- | ---------------------------------------------------- |
+| Mobile   | 375×667   | iPhone SE — stacked panels, hidden matrix            |
+| Tablet   | 768×1024  | iPad — 2-column grids, condensed tabs                |
+| Desktop  | 1440×900  | Standard — full 6-tab layout                         |
+| Wide     | 1920×1080 | Large monitor — expanded matrix, side-by-side panels |
 
 ---
 
@@ -606,13 +618,13 @@ The **Solarized palette** is a core brand asset. The refactor must preserve:
 
 ### 8.1 Test Matrix
 
-| Layer | Framework | Runner | Environment | Coverage Target |
-|-------|-----------|--------|-------------|-----------------|
-| Server unit | Vitest | `vitest run` | Node (Bun) | 80% |
-| Server integration | Vitest | `vitest run` | Node (Bun) | 60% |
-| Client unit | Vitest | `vitest run` | jsdom | 70% |
-| Client visual | Storybook | `storybook dev` / `build` | Browser | N/A (visual) |
-| E2E | **Removed** | — | — | — |
+| Layer              | Framework   | Runner                    | Environment | Coverage Target |
+| ------------------ | ----------- | ------------------------- | ----------- | --------------- |
+| Server unit        | Vitest      | `vitest run`              | Node (Bun)  | 80%             |
+| Server integration | Vitest      | `vitest run`              | Node (Bun)  | 60%             |
+| Client unit        | Vitest      | `vitest run`              | jsdom       | 70%             |
+| Client visual      | Storybook   | `storybook dev` / `build` | Browser     | N/A (visual)    |
+| E2E                | **Removed** | —                         | —           | —               |
 
 ### 8.2 Storybook Setup
 
@@ -625,8 +637,14 @@ const preview: Preview = {
     viewport: {
       viewports: {
         mobile: { name: "Mobile", styles: { width: "375px", height: "667px" } },
-        tablet: { name: "Tablet", styles: { width: "768px", height: "1024px" } },
-        desktop: { name: "Desktop", styles: { width: "1440px", height: "900px" } },
+        tablet: {
+          name: "Tablet",
+          styles: { width: "768px", height: "1024px" },
+        },
+        desktop: {
+          name: "Desktop",
+          styles: { width: "1440px", height: "900px" },
+        },
         wide: { name: "Wide", styles: { width: "1920px", height: "1080px" } },
       },
     },
@@ -642,6 +660,7 @@ const preview: Preview = {
 ```
 
 **Stories to create:**
+
 - `App.stories.tsx` — full app shell with mock data
 - `IntelligencePanel.stories.tsx` — sorted leaderboard
 - `MatrixPanel.stories.tsx` — pass/fail grid
@@ -715,25 +734,29 @@ This creates a **human-in-the-loop** fast iteration path: the user can iterate o
 
 ### 10.1 Environment Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `LAMBENCH_PORT` | `9000` | HTTP API port |
-| `LAMBENCH_DB_PATH` | `.lambench-data/benchmark.sqlite` | SQLite database path |
-| `OPENROUTER_API_KEY` | — | API key for OpenRouter |
-| `LLM_MODEL` | `minimax/minimax-m2.5:free` | Model to evaluate |
-| `RLM_MAX_DEPTH` | `3` | λ-RLM self-correction iterations |
-| `DEV_MODE` | `false` | Skip live fetch, use mock data |
-| `EVAL_CONCURRENCY` | `4` | Concurrent eval tasks |
-| `BATCH_CONCURRENCY` | `2` | Concurrent batch jobs |
-| `RETENTION_DAYS` | `90` | Result retention in days |
-| `MAX_DB_SIZE_MB` | `1024` | Size-based retention cap |
+| Variable             | Default                           | Description                      |
+| -------------------- | --------------------------------- | -------------------------------- |
+| `LAMBENCH_PORT`      | `9000`                            | HTTP API port                    |
+| `LAMBENCH_DB_PATH`   | `.lambench-data/benchmark.sqlite` | SQLite database path             |
+| `OPENROUTER_API_KEY` | —                                 | API key for OpenRouter           |
+| `LLM_MODEL`          | `minimax/minimax-m2.5:free`       | Model to evaluate                |
+| `RLM_MAX_DEPTH`      | `3`                               | λ-RLM self-correction iterations |
+| `DEV_MODE`           | `false`                           | Skip live fetch, use mock data   |
+| `EVAL_CONCURRENCY`   | `4`                               | Concurrent eval tasks            |
+| `BATCH_CONCURRENCY`  | `2`                               | Concurrent batch jobs            |
+| `RETENTION_DAYS`     | `90`                              | Result retention in days         |
+| `MAX_DB_SIZE_MB`     | `1024`                            | Size-based retention cap         |
 
 ### 10.2 Config File (`lambench.config.json`)
 
 ```json
 {
   "models": [
-    { "id": "google/gemini-2.5-pro", "provider": "openrouter", "pricePerMOutput": 2.5 },
+    {
+      "id": "google/gemini-2.5-pro",
+      "provider": "openrouter",
+      "pricePerMOutput": 2.5
+    },
     { "id": "local", "provider": "localchat", "displayName": "OpenCode Local" }
   ],
   "rlmMaxDepth": 3,
@@ -747,6 +770,7 @@ This creates a **human-in-the-loop** fast iteration path: the user can iterate o
 ## 11. Implementation Roadmap
 
 ### Phase 1 — Foundation (SQLite + Services)
+
 - [ ] Create `ResultStore.ts` with SQLite schema and CRUD
 - [ ] Create `TaskService.ts` (load `.tsk`/`.lam` into SQLite cache)
 - [ ] Create `ModelService.ts` (provider config management)
@@ -754,6 +778,7 @@ This creates a **human-in-the-loop** fast iteration path: the user can iterate o
 - [ ] Create `LamConfig.ts` (env + file config)
 
 ### Phase 2 — HTTP API + Local Server
+
 - [x] Define `httpApi.ts` with all endpoints
 - [x] Implement `localServer.ts` (Bun HTTP router)
 - [x] Implement `runtime.ts` (ManagedRuntime)
@@ -763,23 +788,27 @@ This creates a **human-in-the-loop** fast iteration path: the user can iterate o
 - [x] Add comprehensive integration tests (32 tests passing)
 
 ### Phase 3 — CLI + MCP
+
 - [ ] Create `cli.ts` with commands (`eval`, `server`, `status`, `results`)
 - [ ] Create `mcp.ts` with benchmark tools
 - [ ] Create `MotelClient.ts` typed HTTP client
 
 ### Phase 4 — Provider Refactor
+
 - [ ] Extract `LlmProvider` interface
 - [ ] Refactor `OpenRouterClient.ts` → `OpenRouterProvider`
 - [ ] Implement `LocalChatProvider`
 - [ ] Update `Check.ts` and `LambdaRlm.ts` to use provider interface
 
 ### Phase 5 — Web UI Refresh
+
 - [ ] Update `benchmark-atom.ts` to use `AtomHttpApi`
 - [ ] Add API client layer in client
 - [ ] Preserve Solarized theme exactly
 - [ ] Ensure responsive layout works on all viewports
 
 ### Phase 6 — Testing + QA
+
 - [ ] Migrate all `bun test` to Vitest
 - [ ] Remove Playwright dependencies
 - [ ] Add Storybook with viewport stories
@@ -790,13 +819,13 @@ This creates a **human-in-the-loop** fast iteration path: the user can iterate o
 
 ## 12. Risk Assessment
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|------------|--------|------------|
-| SQLite write-lock contention during batch eval | Medium | High | Use WAL mode; write results in batches; queue writes |
-| Local chat latency breaks fast iteration | Medium | Medium | Add timeouts; fallback to cached responses; async polling |
-| Effect beta API churn | Medium | Medium | Pin versions; isolate unstable imports behind adapters |
-| UI theme regression | Low | High | Storybook visual regression; pixel-diff checks |
-| Reference/lambench test migration | Low | Low | Port tests mechanically; verify bit-exact outputs |
+| Risk                                           | Likelihood | Impact | Mitigation                                                |
+| ---------------------------------------------- | ---------- | ------ | --------------------------------------------------------- |
+| SQLite write-lock contention during batch eval | Medium     | High   | Use WAL mode; write results in batches; queue writes      |
+| Local chat latency breaks fast iteration       | Medium     | Medium | Add timeouts; fallback to cached responses; async polling |
+| Effect beta API churn                          | Medium     | Medium | Pin versions; isolate unstable imports behind adapters    |
+| UI theme regression                            | Low        | High   | Storybook visual regression; pixel-diff checks            |
+| Reference/lambench test migration              | Low        | Low    | Port tests mechanically; verify bit-exact outputs         |
 
 ---
 
@@ -810,4 +839,4 @@ All diagrams in this document are rendered from native Mermaid syntax embedded i
 
 ---
 
-*End of Specification*
+_End of Specification_

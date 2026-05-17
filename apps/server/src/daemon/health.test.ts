@@ -3,23 +3,16 @@
 import { describe, it } from "@effect/vitest";
 import { assertTrue, strictEqual } from "@effect/vitest/utils";
 import { Effect, Layer, Ref } from "effect";
-
-import {
-  checkHealth,
-  createHealthPoller,
-  type HealthCheckConfig,
-  HealthChecker,
-  RegistryOps,
-  restartProcess,
-} from "./health";
+import { checkHealth, createHealthPoller, HealthChecker, RegistryOps, restartProcess } from "./health";
+import type { HealthCheckConfig } from "./health";
 
 // ─── Test config ───────────────────────────────────────────────────────────────
 
 const defaultConfig: HealthCheckConfig = {
-  pid: 42,
-  port: 9999,
   intervalMs: 10,
   maxRestarts: 3,
+  pid: 42,
+  port: 9999,
 };
 
 // ─── checkHealth ────────────────────────────────────────────────────────────────
@@ -27,15 +20,15 @@ const defaultConfig: HealthCheckConfig = {
 describe.skipIf(typeof Bun === "undefined")("checkHealth", () => {
   it.effect("returns true for healthy port", () =>
     Effect.scoped(
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const server = yield* Effect.acquireRelease(
           Effect.sync(() =>
             Bun.serve({
-              port: 0,
               fetch() {
                 return new Response("ok");
               },
-            }),
+              port: 0,
+            })
           ),
           (s) => Effect.tryPromise(() => s.stop()),
         );
@@ -43,20 +36,19 @@ describe.skipIf(typeof Bun === "undefined")("checkHealth", () => {
         const result = yield* checkHealth(server.port as number);
         strictEqual(result, true);
       }),
-    ),
-  );
+    ));
 
   it.effect("returns false for closed port", () =>
     Effect.scoped(
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const server = yield* Effect.acquireRelease(
           Effect.sync(() =>
             Bun.serve({
-              port: 0,
               fetch() {
                 return new Response("ok");
               },
-            }),
+              port: 0,
+            })
           ),
           (s) => Effect.tryPromise(() => s.stop()),
         );
@@ -68,26 +60,23 @@ describe.skipIf(typeof Bun === "undefined")("checkHealth", () => {
         const result = yield* checkHealth(port);
         strictEqual(result, false);
       }),
-    ),
-  );
+    ));
 
   it.effect("never fails — always returns boolean", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       // A port that is very unlikely to be in use → connection refused (fast)
-      const result = yield* checkHealth(65530);
+      const result = yield* checkHealth(65_530);
       strictEqual(typeof result, "boolean");
-    }),
-  );
+    }));
 });
 
 // ─── restartProcess ─────────────────────────────────────────────────────────────
 
 describe("restartProcess", () => {
   it.effect("is a no-op stub that succeeds", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       yield* restartProcess(42);
-    }),
-  );
+    }));
 });
 
 // ─── createHealthPoller ─────────────────────────────────────────────────────────
@@ -95,9 +84,9 @@ describe("restartProcess", () => {
 describe.skipIf(typeof Bun === "undefined")("createHealthPoller", () => {
   it.effect("updates registry after health check", () =>
     Effect.scoped(
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const updateCalls = yield* Ref.make<
-          Array<{ pid: number; healthy: boolean }>
+          Array<{ pid: number; healthy: boolean; }>
         >([]);
 
         const mockHealthChecker = Layer.succeed(
@@ -111,9 +100,8 @@ describe.skipIf(typeof Bun === "undefined")("createHealthPoller", () => {
         const mockRegistryOps = Layer.succeed(
           RegistryOps,
           RegistryOps.of({
-            updateHealth: (pid, healthy) =>
-              Ref.update(updateCalls, (calls) => [...calls, { pid, healthy }]),
             getProcess: () => Effect.succeed(null),
+            updateHealth: (pid, healthy) => Ref.update(updateCalls, (calls) => [...calls, { healthy, pid }]),
           }),
         );
 
@@ -130,16 +118,15 @@ describe.skipIf(typeof Bun === "undefined")("createHealthPoller", () => {
         strictEqual((calls[0] as (typeof calls)[number]).pid, 42);
         strictEqual((calls[0] as (typeof calls)[number]).healthy, true);
       }),
-    ),
-  );
+    ));
 
   it.effect("tracks consecutive failures and resets on health", () =>
     Effect.scoped(
-      Effect.gen(function* () {
-        const checkResults: boolean[] = [false, false, true, false];
+      Effect.gen(function*() {
+        const checkResults: Array<boolean> = [false, false, true, false];
         let callIndex = 0;
         const updateCalls = yield* Ref.make<
-          Array<{ pid: number; healthy: boolean }>
+          Array<{ pid: number; healthy: boolean; }>
         >([]);
 
         const mockHealthChecker = Layer.succeed(
@@ -158,9 +145,8 @@ describe.skipIf(typeof Bun === "undefined")("createHealthPoller", () => {
         const mockRegistryOps = Layer.succeed(
           RegistryOps,
           RegistryOps.of({
-            updateHealth: (pid, healthy) =>
-              Ref.update(updateCalls, (calls) => [...calls, { pid, healthy }]),
             getProcess: () => Effect.succeed(null),
+            updateHealth: (pid, healthy) => Ref.update(updateCalls, (calls) => [...calls, { healthy, pid }]),
           }),
         );
 
@@ -182,12 +168,11 @@ describe.skipIf(typeof Bun === "undefined")("createHealthPoller", () => {
         const healthyCall = calls.find((c) => c.healthy === true);
         assertTrue(healthyCall !== undefined);
       }),
-    ),
-  );
+    ));
 
   it.effect("triggers restart after 3 consecutive failures", () =>
     Effect.scoped(
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const checkCount = yield* Ref.make(0);
         const restartCalled = yield* Ref.make(false);
 
@@ -195,7 +180,7 @@ describe.skipIf(typeof Bun === "undefined")("createHealthPoller", () => {
           HealthChecker,
           HealthChecker.of({
             check: () =>
-              Effect.gen(function* () {
+              Effect.gen(function*() {
                 const count = yield* Ref.getAndUpdate(checkCount, (n) => n + 1);
                 // First 3 calls return false; subsequent calls return true
                 return count >= 3;
@@ -207,8 +192,8 @@ describe.skipIf(typeof Bun === "undefined")("createHealthPoller", () => {
         const mockRegistryOps = Layer.succeed(
           RegistryOps,
           RegistryOps.of({
-            updateHealth: () => Effect.void,
             getProcess: () => Effect.succeed(null),
+            updateHealth: () => Effect.void,
           }),
         );
 
@@ -227,11 +212,10 @@ describe.skipIf(typeof Bun === "undefined")("createHealthPoller", () => {
           "restart should have been called after 3 consecutive failures",
         );
       }),
-    ),
-  );
+    ));
 
   it.effect("stops after max restarts exhausted", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const restartCalls = yield* Ref.make(0);
 
       const mockHealthChecker = Layer.succeed(
@@ -245,16 +229,16 @@ describe.skipIf(typeof Bun === "undefined")("createHealthPoller", () => {
       const mockRegistryOps = Layer.succeed(
         RegistryOps,
         RegistryOps.of({
-          updateHealth: () => Effect.void,
           getProcess: () => Effect.succeed(null),
+          updateHealth: () => Effect.void,
         }),
       );
 
       const poller = createHealthPoller({
-        pid: 1,
-        port: 9999,
         intervalMs: 10,
         maxRestarts: 1,
+        pid: 1,
+        port: 9999,
       }).pipe(
         Effect.provide(Layer.mergeAll(mockHealthChecker, mockRegistryOps)),
       );
@@ -273,11 +257,10 @@ describe.skipIf(typeof Bun === "undefined")("createHealthPoller", () => {
 
       const calls = yield* Ref.get(restartCalls);
       strictEqual(calls, 1, "restart should be called exactly once");
-    }),
-  );
+    }));
 
   it.effect("respects config values (interval, maxRestarts)", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const restartCalls = yield* Ref.make(0);
 
       const mockHealthChecker = Layer.succeed(
@@ -291,16 +274,16 @@ describe.skipIf(typeof Bun === "undefined")("createHealthPoller", () => {
       const mockRegistryOps = Layer.succeed(
         RegistryOps,
         RegistryOps.of({
-          updateHealth: () => Effect.void,
           getProcess: () => Effect.succeed(null),
+          updateHealth: () => Effect.void,
         }),
       );
 
       const config: HealthCheckConfig = {
-        pid: 7,
-        port: 3000,
         intervalMs: 5,
         maxRestarts: 2,
+        pid: 7,
+        port: 3000,
       };
 
       const poller = createHealthPoller(config).pipe(
@@ -316,6 +299,5 @@ describe.skipIf(typeof Bun === "undefined")("createHealthPoller", () => {
 
       const calls = yield* Ref.get(restartCalls);
       strictEqual(calls, 2, "restart should be called twice");
-    }),
-  );
+    }));
 });

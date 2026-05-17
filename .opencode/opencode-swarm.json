@@ -1,13 +1,13 @@
 {
   "agents": {
-    "coder": { "model": "opencode-go/deepseek-v4-flash" },
-    "reviewer": { "model": "opencode-go/deepseek-v4-flash" },
-    "test_engineer": { "model": "opencode-go/deepseek-v4-flash" },
-    "explorer": { "model": "opencode-go/deepseek-v4-flash" },
-    "sme": { "model": "opencode-go/deepseek-v4-flash" },
-    "critic": { "model": "opencode-go/deepseek-v4-flash" },
-    "docs": { "model": "opencode-go/deepseek-v4-flash" },
-    "designer": { "model": "opencode-go/deepseek-v4-flash" }
+    "coder": { "model": "opencode/deepseek-v4-flash-free" },
+    "reviewer": { "model": "opencode/deepseek-v4-flash-free" },
+    "test_engineer": { "model": "opencode/deepseek-v4-flash-free" },
+    "explorer": { "model": "opencode/deepseek-v4-flash-free" },
+    "sme": { "model": "opencode/deepseek-v4-flash-free" },
+    "critic": { "model": "opencode/deepseek-v4-flash-free" },
+    "docs": { "model": "opencode/deepseek-v4-flash-free" },
+    "designer": { "model": "opencode/deepseek-v4-flash-free" }
   },
   "max_iterations": 5
 }

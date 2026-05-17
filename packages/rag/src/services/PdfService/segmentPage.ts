@@ -8,53 +8,51 @@ const PDF_MIN_COLUMN_GAP = 18;
 const PDF_MIN_TABLE_LINES = 3;
 const PDF_MIN_SHARED_TABLE_COLUMNS = 3;
 
-type PdfTextItem = {
+interface PdfTextItem {
   readonly str?: unknown;
   readonly transform?: unknown;
   readonly width?: unknown;
   readonly height?: unknown;
-};
+}
 
-type PositionedPdfTextItem = {
+interface PositionedPdfTextItem {
   readonly text: string;
   readonly x: number;
   readonly y: number;
   readonly width: number;
   readonly height: number;
-};
+}
 
-type PdfLine = {
+interface PdfLine {
   readonly text: string;
   readonly items: ReadonlyArray<PositionedPdfTextItem>;
   readonly maxGap: number;
-};
+}
 
-type PdfTableRegion = {
+interface PdfTableRegion {
   readonly startLine: number;
   readonly endLineExclusive: number;
   readonly anchors: ReadonlyArray<number>;
-};
+}
 
-type PdfLineSpan = {
+interface PdfLineSpan {
   readonly startLine: number;
   readonly endLineExclusive: number;
-};
+}
 
 type PageSegment =
   | {
-      readonly _tag: "paragraph";
-      readonly text: string;
-    }
+    readonly _tag: "paragraph";
+    readonly text: string;
+  }
   | {
-      readonly _tag: "table";
-      readonly text: string;
-    };
+    readonly _tag: "table";
+    readonly text: string;
+  };
 
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  typeof value === "object" && value !== null;
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
 
-const isFiniteNumber = (value: unknown): value is number =>
-  typeof value === "number" && Number.isFinite(value);
+const isFiniteNumber = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
 
 const toPdfPosition = (
   value: unknown,
@@ -76,11 +74,11 @@ const toPdfPosition = (
 };
 
 const isPdfTextItem = (item: unknown): item is PdfTextItem =>
-  isRecord(item) &&
-  "str" in item &&
-  "transform" in item &&
-  Array.isArray(item["transform"]) &&
-  item["transform"].length >= 6;
+  isRecord(item)
+  && "str" in item
+  && "transform" in item
+  && Array.isArray(item["transform"])
+  && item["transform"].length >= 6;
 
 const toPositionedPdfTextItem = (
   item: unknown,
@@ -97,11 +95,11 @@ const toPositionedPdfTextItem = (
   return pipe(
     toPdfPosition(item.transform),
     Option.map((position) => ({
+      height: isFiniteNumber(item.height) ? item.height : 0,
       text,
+      width: isFiniteNumber(item.width) ? item.width : 0,
       x: position.x,
       y: position.y,
-      width: isFiniteNumber(item.width) ? item.width : 0,
-      height: isFiniteNumber(item.height) ? item.height : 0,
     })),
   );
 };
@@ -109,7 +107,7 @@ const toPositionedPdfTextItem = (
 const sortPdfTextItems = (
   items: ReadonlyArray<PositionedPdfTextItem>,
 ): Array<PositionedPdfTextItem> =>
-  [...items].sort((left, right) => {
+  [...items].toSorted((left, right) => {
     if (right.y !== left.y) {
       return right.y - left.y;
     }
@@ -141,9 +139,9 @@ const groupAdjacentPdfItems = (
       const currentY = currentLine?.at(-1)?.y;
 
       if (
-        !currentLine ||
-        currentY === undefined ||
-        Math.abs(currentY - item.y) > PDF_LINE_Y_TOLERANCE
+        !currentLine
+        || currentY === undefined
+        || Math.abs(currentY - item.y) > PDF_LINE_Y_TOLERANCE
       ) {
         grouped.push([item]);
         return grouped;
@@ -158,7 +156,7 @@ const groupAdjacentPdfItems = (
 const summarizePdfLine = (
   lineItems: ReadonlyArray<PositionedPdfTextItem>,
 ): PdfLine => {
-  const itemsByX = [...lineItems].sort((left, right) => left.x - right.x);
+  const itemsByX = [...lineItems].toSorted((left, right) => left.x - right.x);
 
   const maxGap = itemsByX.reduce((largestGap, item, index) => {
     const previous = itemsByX[index - 1];
@@ -197,8 +195,7 @@ const getSharedPdfAnchors = (lines: ReadonlyArray<PdfLine>): Array<number> => {
   for (const line of lines) {
     const anchors = new Set(
       line.items.map(
-        (item) =>
-          Math.round(item.x / PDF_COLUMN_X_TOLERANCE) * PDF_COLUMN_X_TOLERANCE,
+        (item) => Math.round(item.x / PDF_COLUMN_X_TOLERANCE) * PDF_COLUMN_X_TOLERANCE,
       ),
     );
     for (const anchor of anchors) {
@@ -208,11 +205,10 @@ const getSharedPdfAnchors = (lines: ReadonlyArray<PdfLine>): Array<number> => {
 
   return [...counts.entries()]
     .filter(
-      ([, count]) =>
-        count >= Math.max(PDF_MIN_TABLE_LINES, Math.ceil(lines.length * 0.6)),
+      ([, count]) => count >= Math.max(PDF_MIN_TABLE_LINES, Math.ceil(lines.length * 0.6)),
     )
     .map(([anchor]) => anchor)
-    .sort((left, right) => left - right);
+    .toSorted((left, right) => left - right);
 };
 
 const findCandidateLineSpans = (
@@ -228,13 +224,13 @@ const findCandidateLineSpans = (
     }
 
     if (startLine !== undefined) {
-      spans.push({ startLine, endLineExclusive: index });
+      spans.push({ endLineExclusive: index, startLine });
       startLine = undefined;
     }
   }
 
   if (startLine !== undefined) {
-    spans.push({ startLine, endLineExclusive: lines.length });
+    spans.push({ endLineExclusive: lines.length, startLine });
   }
 
   return spans;
@@ -260,17 +256,14 @@ const toPdfTableBlock = (
 const findPdfTableBlocks = (
   lines: ReadonlyArray<PdfLine>,
 ): Array<PdfTableRegion> =>
-  findCandidateLineSpans(lines).flatMap((span) =>
-    Array.fromOption(toPdfTableBlock(lines, span)),
-  );
+  findCandidateLineSpans(lines).flatMap((span) => Array.fromOption(toPdfTableBlock(lines, span)));
 
 const findAnchorIndex = (
   anchors: ReadonlyArray<number>,
   item: PositionedPdfTextItem,
 ) => {
   const matchingAnchorIndex = anchors.reduce(
-    (currentIndex, anchor, anchorIndex) =>
-      item.x >= anchor - PDF_COLUMN_X_TOLERANCE ? anchorIndex : currentIndex,
+    (currentIndex, anchor, anchorIndex) => item.x >= anchor - PDF_COLUMN_X_TOLERANCE ? anchorIndex : currentIndex,
     -1,
   );
 
@@ -286,8 +279,7 @@ const lineToMarkdownRow = (
   for (const item of line.items) {
     const anchorIndex = findAnchorIndex(anchors, item);
     const previous = cells[anchorIndex] ?? "";
-    cells[anchorIndex] =
-      previous.length === 0 ? item.text : `${previous} ${item.text}`;
+    cells[anchorIndex] = previous.length === 0 ? item.text : `${previous} ${item.text}`;
   }
 
   return cells.map((cell) => normalizeWhitespace(cell));
@@ -373,10 +365,9 @@ const toPageBlocks = (
   segments: ReadonlyArray<PageSegment>,
 ): Array<PdfBlock> =>
   segments.flatMap((segment, readingOrder) => {
-    const block =
-      segment._tag === "table"
-        ? toTableBlock(pageNumber, readingOrder, segment.text)
-        : toParagraphBlock(pageNumber, readingOrder, segment.text);
+    const block = segment._tag === "table"
+      ? toTableBlock(pageNumber, readingOrder, segment.text)
+      : toParagraphBlock(pageNumber, readingOrder, segment.text);
 
     return Array.fromOption(block);
   });
@@ -418,31 +409,26 @@ export const segmentPdfPage = (
   pageNumber: number,
   items: ReadonlyArray<unknown>,
 ): PdfPage => {
-  const pdfItems = items.flatMap((item) =>
-    Array.fromOption(toPositionedPdfTextItem(item)),
-  );
-  const lines = groupPdfLines(pdfItems).filter((line) =>
-    String.isNonEmpty(line.text),
-  );
+  const pdfItems = items.flatMap((item) => Array.fromOption(toPositionedPdfTextItem(item)));
+  const lines = groupPdfLines(pdfItems).filter((line) => String.isNonEmpty(line.text));
 
   if (lines.length === 0) {
     return {
+      blocks: [],
       pageNumber,
       text: "",
-      blocks: [],
     };
   }
 
   const blocks = findPdfTableBlocks(lines);
-  const segments =
-    blocks.length === 0
-      ? Array.fromOption(toParagraphSegment(lines))
-      : toPageSegments(lines, blocks);
+  const segments = blocks.length === 0
+    ? Array.fromOption(toParagraphSegment(lines))
+    : toPageSegments(lines, blocks);
   const pageBlocks = toPageBlocks(pageNumber, segments);
 
   return {
+    blocks: pageBlocks,
     pageNumber,
     text: pageBlocks.map((block) => block.text).join("\n\n"),
-    blocks: pageBlocks,
   };
 };

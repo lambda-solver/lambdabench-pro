@@ -1,49 +1,51 @@
-import type { Preview } from "@storybook/react";
 import "../src/index.css";
+import type { Preview } from "@storybook/react";
 
 const VIEWPORTS = {
+  desktop: {
+    name: "Desktop",
+    styles: {
+      height: "720px",
+      width: "1280px",
+    },
+    type: "desktop" as const,
+  },
   mobile: {
     name: "Mobile",
     styles: {
-      width: "375px",
       height: "667px",
+      width: "375px",
     },
     type: "mobile" as const,
   },
   tablet: {
     name: "Tablet",
     styles: {
-      width: "768px",
       height: "1024px",
+      width: "768px",
     },
     type: "tablet" as const,
-  },
-  desktop: {
-    name: "Desktop",
-    styles: {
-      width: "1280px",
-      height: "720px",
-    },
-    type: "desktop" as const,
   },
   wide: {
     name: "Wide Desktop",
     styles: {
-      width: "1920px",
       height: "1080px",
+      width: "1920px",
     },
     type: "desktop" as const,
   },
 };
 
 const preview: Preview = {
-  parameters: {
-    controls: {
-      matchers: {
-        color: /(background|color)$/i,
-        date: /Date$/,
-      },
+  decorators: [
+    (Story, context) => {
+      const isDark = context.globals.backgrounds?.value === "#002b36"
+        || context.parameters.backgrounds?.default === "dark";
+      document.documentElement.classList.toggle("dark", isDark);
+      return Story();
     },
+  ],
+  parameters: {
     backgrounds: {
       default: "light",
       values: [
@@ -57,24 +59,17 @@ const preview: Preview = {
         },
       ],
     },
+    controls: {
+      matchers: {
+        color: /(background|color)$/i,
+        date: /Date$/,
+      },
+    },
     viewport: {
-      viewports: VIEWPORTS,
       defaultViewport: "desktop",
+      viewports: VIEWPORTS,
     },
   },
-  decorators: [
-    (Story, context) => {
-      const isDark =
-        context.globals.backgrounds?.value === "#002b36" ||
-        context.parameters.backgrounds?.default === "dark";
-      if (isDark) {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
-      }
-      return Story();
-    },
-  ],
 };
 
 export default preview;

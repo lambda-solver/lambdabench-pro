@@ -27,23 +27,23 @@ export function BarChart({
   fluid = false,
   className,
 }: BarChartProps) {
-  const color =
-    pct >= 70
-      ? "var(--sol-green)"
-      : pct >= 45
-        ? "var(--sol-blue)"
-        : pct >= 20
-          ? "var(--sol-yellow)"
-          : "var(--sol-red)";
+  const color = pct >= 70
+    ? "var(--sol-green)"
+    : pct >= 45
+    ? "var(--sol-blue)"
+    : pct >= 20
+    ? "var(--sol-yellow)"
+    : "var(--sol-red)";
 
   if (fluid) {
     return (
       <span
         className={cn("block w-full self-center", className)}
         style={{
-          height: "0.7em",
-          background: `linear-gradient(to right, ${color} ${pct}%, color-mix(in srgb, ${color} 25%, transparent) ${pct}%)`,
+          background:
+            `linear-gradient(to right, ${color} ${pct}%, color-mix(in srgb, ${color} 25%, transparent) ${pct}%)`,
           borderRadius: "1px",
+          height: "0.7em",
         }}
       />
     );
@@ -51,15 +51,14 @@ export function BarChart({
 
   const filled = Math.round((pct / 100) * width);
   const empty = width - filled;
-  const colorClass =
-    pct >= 70
-      ? "text-[var(--sol-green)]"
-      : pct >= 45
-        ? "text-[var(--sol-blue)]"
-        : pct >= 20
-          ? "text-[var(--sol-yellow)]"
-          : "text-[var(--sol-red)]";
-  const style = { verticalAlign: "top", lineHeight: "inherit" } as const;
+  const colorClass = pct >= 70
+    ? "text-[var(--sol-green)]"
+    : pct >= 45
+    ? "text-[var(--sol-blue)]"
+    : pct >= 20
+    ? "text-[var(--sol-yellow)]"
+    : "text-[var(--sol-red)]";
+  const style = { lineHeight: "inherit", verticalAlign: "top" } as const;
 
   return (
     <span className={cn(colorClass, className)}>

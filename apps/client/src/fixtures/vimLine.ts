@@ -1,29 +1,28 @@
 import type { VimLineFixture } from "./index";
 
-export const vimLineFixtures: readonly VimLineFixture[] = [
+export const vimLineFixtures: ReadonlyArray<VimLineFixture> = [
   {
-    name: "with-line-number",
+    content: "import { Effect } from \"effect\";",
     n: 42,
-    content: 'import { Effect } from "effect";',
+    name: "with-line-number",
   },
   {
-    name: "without-line-number",
     content: "  const result = yield* service.call();",
+    name: "without-line-number",
   },
   {
+    content: "~",
     name: "tilde-line",
     tilde: true,
-    content: "~",
   },
   {
-    name: "multi-digit-line",
+    content: "export const processItem = Effect.fn(\"processItem\")(function* (id: string) {",
     n: 128,
-    content:
-      'export const processItem = Effect.fn("processItem")(function* (id: string) {',
+    name: "multi-digit-line",
   },
   {
-    name: "empty-content",
-    n: 7,
     content: "",
+    n: 7,
+    name: "empty-content",
   },
 ];

@@ -1,4 +1,5 @@
-import { Context, Data, type Effect, Schema } from "effect";
+import { Context, Data, Schema } from "effect";
+import type { Effect } from "effect";
 
 export class ChunkError extends Data.TaggedError("ChunkError")<{
   message: string;
@@ -10,11 +11,11 @@ export class TokenizerError extends Data.TaggedError("TokenizerError")<{
 }> {}
 
 export const Chunk = Schema.Struct({
-  text: Schema.String,
-  startIdx: Schema.Number,
   endIdx: Schema.Number,
-  tokenCount: Schema.Number,
   metadata: Schema.optional(Schema.Record(Schema.String, Schema.Unknown)),
+  startIdx: Schema.Number,
+  text: Schema.String,
+  tokenCount: Schema.Number,
 });
 
 export type Chunk = typeof Chunk.Type;

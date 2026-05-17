@@ -1,7 +1,7 @@
 /// <reference types="bun" />
 import { defineConfig, devices } from "@playwright/test";
 
-const isCI = !!process.env.CI;
+const isCI = Boolean(process.env.CI);
 
 export default defineConfig({
   testDir: "./e2e",
@@ -27,15 +27,15 @@ export default defineConfig({
   webServer: [
     {
       command: "bun run dev --filter=server",
-      url: "http://localhost:9000",
       reuseExistingServer: !isCI,
       timeout: 120 * 1000,
+      url: "http://localhost:9000",
     },
     {
       command: "bun run dev --filter=client",
-      url: "http://localhost:3000",
       reuseExistingServer: !isCI,
       timeout: 120 * 1000,
+      url: "http://localhost:3000",
     },
   ],
 });

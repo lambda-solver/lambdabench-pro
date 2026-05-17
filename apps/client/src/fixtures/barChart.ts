@@ -1,6 +1,6 @@
 import type { BarChartFixture } from "./index";
 
-export const barChartFixtures: readonly BarChartFixture[] = [
+export const barChartFixtures: ReadonlyArray<BarChartFixture> = [
   {
     name: "perfect-score",
     pct: 100,
@@ -27,9 +27,9 @@ export const barChartFixtures: readonly BarChartFixture[] = [
     width: 28,
   },
   {
+    fluid: true,
     name: "fluid-mode",
     pct: 65,
-    fluid: true,
   },
   {
     name: "narrow-width",

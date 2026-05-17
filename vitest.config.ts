@@ -11,11 +11,7 @@ export default defineConfig({
     },
   },
   test: {
-    globals: true,
-    exclude: ["**/node_modules/**", "**/dist/**", "**/e2e/**", "reference/**"],
     coverage: {
-      provider: "v8",
-      reporter: ["text", "json", "html"],
       exclude: [
         "node_modules/**",
         "dist/**",
@@ -24,6 +20,10 @@ export default defineConfig({
         "**/*.d.ts",
         "**/types/**",
       ],
+      provider: "v8",
+      reporter: ["text", "json", "html"],
     },
+    exclude: ["**/node_modules/**", "**/dist/**", "**/e2e/**", "reference/**"],
+    globals: true,
   },
 });

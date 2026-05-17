@@ -28,7 +28,7 @@ export type ClientInfo = Schema.Schema.Type<typeof ClientInfo>;
 export const MyEvent = Schema.Union(
   Schema.TaggedStruct("started", { timestamp: Schema.Number }),
   Schema.TaggedStruct("completed", { result: Schema.String }),
-  Schema.TaggedStruct("failed", { error: Schema.String })
+  Schema.TaggedStruct("failed", { error: Schema.String }),
 );
 ```
 
@@ -51,7 +51,8 @@ const data: typeof ApiResponse.Type = { message: "Hello", success: true };
 // HTTP API endpoints
 export class HelloGroup extends HttpApiGroup.make("hello")
   .add(HttpApiEndpoint.get("get", "/").addSuccess(ApiResponse))
-  .prefix("/hello") {}
+  .prefix("/hello")
+{}
 
 export const Api = HttpApi.make("Api").add(HelloGroup);
 
@@ -61,7 +62,7 @@ export class EventRpc extends RpcGroup.make(
     payload: Schema.Struct({ ticks: Schema.Number }),
     success: TickEvent,
     stream: true, // Enable streaming
-  })
+  }),
 ) {}
 ```
 
@@ -80,7 +81,7 @@ src/
 // From other workspaces, import with subpath
 import { Api, type ApiResponse } from "@repo/domain/Api";
 import { EventRpc, type TickEvent } from "@repo/domain/Rpc";
-import { WebSocketRpc, type ClientInfo } from "@repo/domain/WebSocket";
+import { type ClientInfo, WebSocketRpc } from "@repo/domain/WebSocket";
 
 // Use 'type' keyword for type-only imports
 import type { ClientStatus } from "@repo/domain/WebSocket";

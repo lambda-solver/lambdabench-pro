@@ -1,44 +1,32 @@
 import type { Chunk, TokenizerError } from "@repo/domain/Chunk";
-import {
-  Array,
-  Context,
-  Effect,
-  Layer,
-  Option,
-  pipe,
-  type Record,
-  type Schema,
-  String,
-} from "effect";
+import { Array, Context, Effect, Layer, Option, pipe, String } from "effect";
+import type { Record, Schema } from "effect";
 import { FastChunker } from "../../chunker/FastChunker";
 import { RecursiveChunker } from "../../chunker/RecursiveChunker";
 import { SentenceChunker } from "../../chunker/SentenceChunker";
 import { TableChunker } from "../../chunker/TableChunker";
 import { TokenChunker } from "../../chunker/TokenChunker";
 import { CharacterTokenizerLive } from "../../tokenizer/DelimTokenizer";
-import {
-  getFileExtension,
-  normalizeWhitespace,
-  resolveMimeTypeForFile,
-} from "../../utils";
+import { getFileExtension, normalizeWhitespace, resolveMimeTypeForFile } from "../../utils";
 import type { PdfBlock, PdfDocument } from "../PdfService/PdfDocument";
-import { type PdfError, PdfService } from "../PdfService/PdfService";
+import type { PdfError } from "../PdfService/PdfService";
+import { PdfService } from "../PdfService/PdfService";
 
 const FAST_CHUNK_THRESHOLD_CHARS = 100_000;
 
 type ChunkStrategy = "fast" | "sentence" | "token" | "recursive" | "table";
 
-type ChunkEntry = {
+interface ChunkEntry {
   text: string;
   pageNumber?: number;
   pageCount?: number;
   metadata?: Record<string, unknown> | undefined;
-};
+}
 
-type MarkdownSegment = {
+interface MarkdownSegment {
   kind: "text" | "table";
   text: string;
-};
+}
 
 export class ChunkService extends Context.Service<
   ChunkService,
@@ -70,7 +58,7 @@ export class ChunkService extends Context.Service<
     readonly resolveMimeTypeForFile: (fileName: string) => string;
   }
 >()("ChunkService", {
-  make: Effect.gen(function* () {
+  make: Effect.gen(function*() {
     const fastChunker = yield* FastChunker;
     const sentenceChunker = yield* SentenceChunker;
     const tokenChunker = yield* TokenChunker;
@@ -80,7 +68,7 @@ export class ChunkService extends Context.Service<
 
     const toChunkEntries = (
       chunks: ReadonlyArray<Chunk>,
-      metadata?: { pageNumber?: number; pageCount?: number },
+      metadata?: { pageNumber?: number; pageCount?: number; },
       baseMetadata?: Record<string, unknown>,
     ): Array<ChunkEntry> =>
       pipe(
@@ -94,11 +82,11 @@ export class ChunkService extends Context.Service<
           text: chunk.text,
           ...metadata,
           metadata: {
-            ...(baseMetadata ?? {}),
-            chunkCharStart: chunk.startIdx,
+            ...baseMetadata,
             chunkCharEnd: chunk.endIdx,
+            chunkCharStart: chunk.startIdx,
             chunkTokenCount: chunk.tokenCount,
-            ...(chunk.metadata ?? {}),
+            ...chunk.metadata,
           },
         })),
       );
@@ -108,23 +96,27 @@ export class ChunkService extends Context.Service<
       text: string,
     ): Effect.Effect<Array<Chunk>, Schema.SchemaError | TokenizerError> => {
       switch (strategy) {
-        case "fast":
+        case "fast": {
           return fastChunker.chunk(text);
-        case "sentence":
+        }
+        case "sentence": {
           return sentenceChunker.chunk(text);
-        case "token":
+        }
+        case "token": {
           return tokenChunker.chunk(text);
-        case "recursive":
+        }
+        case "recursive": {
           return recursiveChunker.chunk(text);
-        case "table":
+        }
+        case "table": {
           return tableChunker.chunk(text);
+        }
       }
     };
 
     const looksLikeMarkdownTable = (text: string): boolean => {
       const hasPipeRow = /^\s*\|.*\|\s*$/m.test(text);
-      const hasSeparator =
-        /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/m.test(text);
+      const hasSeparator = /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/m.test(text);
       return hasPipeRow && hasSeparator;
     };
 
@@ -147,8 +139,7 @@ export class ChunkService extends Context.Service<
       for (let index = 0; index < lines.length; index += 1) {
         const header = lines[index] ?? "";
         const separator = lines[index + 1] ?? "";
-        const isTableStart =
-          isPipeLine(header) && isMarkdownTableSeparatorLine(separator);
+        const isTableStart = isPipeLine(header) && isMarkdownTableSeparatorLine(separator);
 
         if (!isTableStart) {
           proseBuffer.push(header);
@@ -175,9 +166,7 @@ export class ChunkService extends Context.Service<
 
       flushProse();
 
-      return segments.filter((segment) =>
-        String.isNonEmpty(String.trim(segment.text)),
-      );
+      return segments.filter((segment) => String.isNonEmpty(String.trim(segment.text)));
     };
 
     const selectStrategy = (
@@ -185,42 +174,46 @@ export class ChunkService extends Context.Service<
       normalizedText: string,
     ): Option.Option<ChunkStrategy> => {
       switch (extension) {
-        case ".csv":
+        case ".csv": {
           return Option.some("token");
-        case ".md":
+        }
+        case ".md": {
           return Option.some(
             looksLikeMarkdownTable(normalizedText) ? "table" : "recursive",
           );
+        }
         case ".pdf":
-        case ".txt":
+        case ".txt": {
           return Option.some(
             normalizedText.length >= FAST_CHUNK_THRESHOLD_CHARS
               ? "fast"
               : "sentence",
           );
-        default:
+        }
+        default: {
           return Option.none();
+        }
       }
     };
 
     const chunkMarkdownText = (
       normalizedText: string,
     ): Effect.Effect<Array<ChunkEntry>, Schema.SchemaError | TokenizerError> =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const segments = splitMarkdownSegments(normalizedText);
         const allEntries = yield* Effect.forEach(segments, (segment) =>
           segment.kind === "table"
-            ? Effect.map(chunkWithStrategy("table", segment.text), (chunks) =>
-                toChunkEntries(chunks, undefined, { chunkStrategy: "table" }),
-              )
+            ? Effect.map(
+              chunkWithStrategy("table", segment.text),
+              (chunks) => toChunkEntries(chunks, undefined, { chunkStrategy: "table" }),
+            )
             : Effect.map(
-                chunkWithStrategy("recursive", segment.text),
-                (chunks) =>
-                  toChunkEntries(chunks, undefined, {
-                    chunkStrategy: "recursive",
-                  }),
-              ),
-        );
+              chunkWithStrategy("recursive", segment.text),
+              (chunks) =>
+                toChunkEntries(chunks, undefined, {
+                  chunkStrategy: "recursive",
+                }),
+            ));
 
         return allEntries.flat();
       });
@@ -237,8 +230,7 @@ export class ChunkService extends Context.Service<
             Effect.map(chunkWithStrategy(strategy, normalizedText), (chunks) =>
               toChunkEntries(chunks, undefined, {
                 chunkStrategy: strategy,
-              }),
-            ),
+              })),
         }),
       );
 
@@ -258,8 +250,7 @@ export class ChunkService extends Context.Service<
               pdfBlockType: "table",
               pdfSegmentKind: "table",
             },
-          ),
-        );
+          ));
       }
 
       return Effect.map(
@@ -267,12 +258,12 @@ export class ChunkService extends Context.Service<
         (entries) =>
           entries.map((entry) => ({
             ...entry,
-            pageNumber: block.pageNumber,
             metadata: {
-              ...(entry.metadata ?? {}),
+              ...entry.metadata,
               pdfBlockType: "paragraph",
               pdfSegmentKind: "text",
             },
+            pageNumber: block.pageNumber,
           })),
       );
     };
@@ -287,19 +278,17 @@ export class ChunkService extends Context.Service<
         return chunkNormalizedText(".pdf", normalizeWhitespace(document.text));
       }
 
-      return Effect.forEach(document.blocks, (block) =>
-        chunkPdfBlock(block),
-      ).pipe(
+      return Effect.forEach(document.blocks, (block) => chunkPdfBlock(block)).pipe(
         Effect.map((blocksWithChunks) =>
           blocksWithChunks.flat().map((entry) => ({
             ...entry,
             pageCount: document.pageCount,
-          })),
+          }))
         ),
       );
     };
 
-    const chunkText = Effect.fn(function* (fileName: string, text: string) {
+    const chunkText = Effect.fn(function*(fileName: string, text: string) {
       const extension = getFileExtension(fileName);
       const baseChunks: Array<ChunkEntry> = yield* ((): Effect.Effect<
         Array<ChunkEntry>,
@@ -308,24 +297,27 @@ export class ChunkService extends Context.Service<
         switch (extension) {
           case ".csv":
           case ".txt":
-          case ".pdf":
+          case ".pdf": {
             return chunkNormalizedText(extension, normalizeWhitespace(text));
-          case ".md":
+          }
+          case ".md": {
             return chunkMarkdownText(normalizeWhitespace(text));
-          default:
+          }
+          default: {
             return Effect.succeed([] as Array<ChunkEntry>);
+          }
         }
       })();
 
       return baseChunks.map((chunk, index) => ({
         ...chunk,
         metadata: {
-          sourceFile: fileName,
+          chunkCount: baseChunks.length,
+          chunkIndex: index,
           fileExt: getFileExtension(fileName),
           mimeType: resolveMimeTypeForFile(fileName),
-          chunkIndex: index,
-          chunkCount: baseChunks.length,
-          ...(chunk.metadata ?? {}),
+          sourceFile: fileName,
+          ...chunk.metadata,
           ...(chunk.pageNumber !== undefined
             ? { pageNumber: chunk.pageNumber }
             : {}),
@@ -343,14 +335,16 @@ export class ChunkService extends Context.Service<
       switch (extension) {
         case ".txt":
         case ".md":
-        case ".csv":
+        case ".csv": {
           return Effect.succeed(decoder.decode(buffer));
-        default:
+        }
+        default: {
           return Effect.fail(new Error(`Unsupported file type: ${fileName}`));
+        }
       }
     };
 
-    const chunkFile = Effect.fn(function* (
+    const chunkFile = Effect.fn(function*(
       fileName: string,
       buffer: Uint8Array,
     ) {
@@ -369,8 +363,9 @@ export class ChunkService extends Context.Service<
           const text = yield* decodeTextFile(fileName, buffer);
           return yield* chunkText(fileName, text);
         }
-        default:
+        default: {
           return [] as Array<ChunkEntry>;
+        }
       }
     });
 

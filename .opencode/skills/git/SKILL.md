@@ -8,15 +8,15 @@
 Run these commands in order and verify each exits with code 0:
 
 ```bash
-# 1. Biome lint (fastest gate — catches correctness issues first)
+# 1. oxlint (fastest gate — catches correctness issues first)
 bun lint
 
 # 2. TypeScript type check (catches type errors before they reach CI)
 #    Use --filter=<workspace> to check only modified packages for speed
 bun run type-check
 
-# 3. Biome full check — lint + format + imports + more
-#    This is the gate CI uses. It is stricter than `bun lint` alone.
+# 3. dprint format check
+#    This is the gate CI uses.
 bun format:check
 
 # 4. Build verification (catches bundling and import errors)
@@ -33,6 +33,7 @@ bun run test
 ```
 
 If ANY command fails:
+
 - Fix the issue locally
 - Re-run the failing command until it passes
 - Only then proceed to commit
@@ -104,28 +105,30 @@ git add apps/client/public/data/results.json
 
 ## Lint vs Format: What's the Difference?
 
-Our project uses **Biome** (not ESLint/Prettier). Two commands sound similar but do different things:
+Our project uses **oxlint** for linting and **dprint** for formatting (not ESLint/Prettier/Biome). Two commands sound similar but do different things:
 
-| Command | Script | What it does | Speed |
-|---------|--------|-------------|-------|
-| `bun lint` | `biome lint .` | Runs **only** lint rules (correctness, complexity, style, suspicious, performance) | Fast |
-| `bun format:check` | `biome check .` | Runs **everything**: lint + format + organize imports + `noUnusedImports` + all other checks | Slower |
+| Command            | Script                        | What it does                                     | Speed |
+| ------------------ | ----------------------------- | ------------------------------------------------ | ----- |
+| `bun lint`         | `oxlint --config oxlint.json` | Runs lint rules (correctness, suspicious, style) | Fast  |
+| `bun format:check` | `dprint check`                | Checks formatting only                           | Fast  |
 
 **When to use each:**
+
 - `bun lint` — Quick check during development. Catches the most common issues fast.
-- `bun format:check` — The **real CI gate**. This is what GitHub Actions runs. It catches formatting mistakes, unused imports, and import sorting issues that `bun lint` misses.
-- `bun format` (alias `bun biome check --write .`) — Auto-fixes both lint and format issues. Run this if `bun format:check` fails.
+- `bun format:check` — The **formatting gate**. This is what GitHub Actions runs. It catches formatting mistakes.
+- `bun lint:fix` — Auto-fixes lint issues via oxlint.
+- `bun format` — Auto-fixes formatting issues via dprint.
 
-**Why run both?** `bun lint` is fast feedback during development. `bun format:check` is the comprehensive gate that matches CI. Running both ensures nothing slips through.
+**Why run both?** `bun lint` catches code issues. `bun format:check` catches formatting issues. Running both ensures nothing slips through.
 
-## Biome Lint Rules (Enforced in CI)
+## oxlint Rules (Enforced in CI)
 
-| Rule | What it means | Pattern to use |
-|------|---------------|----------------|
-| `noArrayIndexKey` | Never use `key={i}` in React `.map()` | Use content-based keys |
-| `useLiteralKeys` | Prefer dot notation for known properties | `obj.field` for known keys; `obj["dynamic"]` for Record index access |
-| `noExplicitAny` | Ban the `any` type | Use `unknown` + `as unknown as T` |
-| `useYield` | Only use `yield*` inside generators | Plain arrows for simple mocks |
+| Rule              | What it means                            | Pattern to use                                                       |
+| ----------------- | ---------------------------------------- | -------------------------------------------------------------------- |
+| `noArrayIndexKey` | Never use `key={i}` in React `.map()`    | Use content-based keys                                               |
+| `useLiteralKeys`  | Prefer dot notation for known properties | `obj.field` for known keys; `obj["dynamic"]` for Record index access |
+| `noExplicitAny`   | Ban the `any` type                       | Use `unknown` + `as unknown as T`                                    |
+| `useYield`        | Only use `yield*` inside generators      | Plain arrows for simple mocks                                        |
 
 Note: `useLiteralKeys` infos on `Record<string, unknown>` bracket access are acceptable and do not fail CI.
 

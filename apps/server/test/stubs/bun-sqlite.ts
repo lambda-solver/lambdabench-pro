@@ -30,7 +30,7 @@ class StatementWrapper {
 export class Database {
   private db: DatabaseSync;
 
-  constructor(path: string, _opts?: { create?: boolean }) {
+  constructor(path: string, _opts?: { create?: boolean; }) {
     this.db = new DatabaseSync(path);
   }
 
@@ -44,7 +44,7 @@ export class Database {
 
   get changes(): number {
     const stmt = this.db.prepare("SELECT changes() as changes");
-    const row = stmt.get() as { changes: number } | undefined;
+    const row = stmt.get() as { changes: number; } | undefined;
     return row?.changes ?? 0;
   }
 }

@@ -1,16 +1,16 @@
-import { type Chunk, Chunker, Tokenizer } from "@repo/domain/Chunk";
+import { Chunker, Tokenizer } from "@repo/domain/Chunk";
+import type { Chunk } from "@repo/domain/Chunk";
 import { Context, Effect, Layer, Schema } from "effect";
 import { WordTokenizerLive } from "../tokenizer/DelimTokenizer";
 import { isBlank } from "./utils";
 
 const TokenChunkerConfigSchema = Schema.Struct({
-  chunkSize: Schema.Number.check(Schema.isGreaterThan(0)),
   chunkOverlap: Schema.Number.check(Schema.isGreaterThanOrEqualTo(0)),
+  chunkSize: Schema.Number.check(Schema.isGreaterThan(0)),
 }).pipe(
   Schema.check(
     Schema.makeFilter(
-      ({ chunkOverlap, chunkSize }) =>
-        chunkOverlap < chunkSize || "chunkOverlap must be less than chunkSize",
+      ({ chunkOverlap, chunkSize }) => chunkOverlap < chunkSize || "chunkOverlap must be less than chunkSize",
     ),
   ),
 );
@@ -19,8 +19,8 @@ export const TokenChunkerConfig = Context.Reference<
   typeof TokenChunkerConfigSchema.Type
 >("TokenChunkerConfig", {
   defaultValue: () => ({
-    chunkSize: 2048,
     chunkOverlap: 0,
+    chunkSize: 2048,
   }),
 });
 
@@ -28,13 +28,13 @@ export class TokenChunker extends Context.Service<
   TokenChunker,
   Chunker["Service"]
 >()("TokenChunker", {
-  make: Effect.gen(function* () {
+  make: Effect.gen(function*() {
     const tokenizer = yield* Tokenizer;
     const config = yield* TokenChunkerConfig;
     const { chunkSize, chunkOverlap } = yield* Schema.decodeEffect(
       TokenChunkerConfigSchema,
     )(config);
-    const chunk = Effect.fn("TokenChunker.chunk")(function* (text: string) {
+    const chunk = Effect.fn("TokenChunker.chunk")(function*(text: string) {
       if (isBlank(text)) {
         return [];
       }
@@ -60,9 +60,9 @@ export class TokenChunker extends Context.Service<
         const endIdx = startIdx + chunkText.length;
 
         chunks.push({
-          text: chunkText,
-          startIdx,
           endIdx,
+          startIdx,
+          text: chunkText,
           tokenCount: group.length,
         });
 

@@ -10,8 +10,12 @@ compatibility: opencode
 ## HttpApi — schema-first REST definition
 
 ```typescript
-import { HttpApi, HttpApiEndpoint, HttpApiGroup } from "effect/unstable/httpapi"
-import { Schema } from "effect"
+import { Schema } from "effect";
+import {
+  HttpApi,
+  HttpApiEndpoint,
+  HttpApiGroup,
+} from "effect/unstable/httpapi";
 
 class UsersGroup extends HttpApiGroup.make("users")
   .add(HttpApiEndpoint.get("list", "/").addSuccess(Schema.Array(User)))
@@ -25,9 +29,10 @@ class UsersGroup extends HttpApiGroup.make("users")
       .setPayload(CreateUserInput)
       .addSuccess(User),
   )
-  .prefix("/users") {}
+  .prefix("/users")
+{}
 
-export const Api = HttpApi.make("Api").add(UsersGroup)
+export const Api = HttpApi.make("Api").add(UsersGroup);
 ```
 
 ## HttpApiClient — generated typed client
@@ -57,8 +62,8 @@ const newUser = yield* client.users.create({ body: { name: "Ada" } })
 ## RPC — streaming / request-response
 
 ```typescript
-import { Rpc, RpcGroup } from "effect/unstable/rpc"
-import { Schema } from "effect"
+import { Schema } from "effect";
+import { Rpc, RpcGroup } from "effect/unstable/rpc";
 
 export class BenchmarkRpc extends RpcGroup.make(
   Rpc.make("runEval", {
@@ -79,24 +84,24 @@ Always export the Schema constant AND the derived TypeScript type together:
 
 ```typescript
 export const Ranking = Schema.Struct({
-  model:    Schema.String,
-  right:    Schema.Number,
-  total:    Schema.Number,
-  pct:      Schema.String,
-  avgTime:  Schema.Number,
-  tasks:    Schema.Record(Schema.String, Schema.Boolean),
+  model: Schema.String,
+  right: Schema.Number,
+  total: Schema.Number,
+  pct: Schema.String,
+  avgTime: Schema.Number,
+  tasks: Schema.Record(Schema.String, Schema.Boolean),
   taskBits: Schema.Record(Schema.String, Schema.Number),
-  rlm:      Schema.optional(Schema.Number),
+  rlm: Schema.optional(Schema.Number),
   rlmDepth: Schema.optional(Schema.Number),
-})
-export type Ranking = Schema.Schema.Type<typeof Ranking>
+});
+export type Ranking = Schema.Schema.Type<typeof Ranking>;
 
 export const BenchmarkData = Schema.Struct({
-  rankings:    Schema.Array(Ranking),
-  tasks:       Schema.Array(BenchmarkTask),
+  rankings: Schema.Array(Ranking),
+  tasks: Schema.Array(BenchmarkTask),
   generatedAt: Schema.String,
-})
-export type BenchmarkData = Schema.Schema.Type<typeof BenchmarkData>
+});
+export type BenchmarkData = Schema.Schema.Type<typeof BenchmarkData>;
 ```
 
 ## Error schemas for API boundaries
@@ -120,6 +125,6 @@ const AppLayer = Layer.mergeAll(
   HttpApiServer.layer,
   UsersHandler.layer,
   DbPool.layer,
-)
-BunRuntime.runMain(Layer.launch(AppLayer))
+);
+BunRuntime.runMain(Layer.launch(AppLayer));
 ```

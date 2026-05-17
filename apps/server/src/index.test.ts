@@ -8,11 +8,11 @@ import { vi } from "vitest";
 // ─── Module mocks ────────────────────────────────────────────────────────────
 
 vi.doMock("@effect/platform-bun", () => ({
-  BunRuntime: {
-    runMain: () => {},
-  },
   BunHttpClient: {
     layer: {},
+  },
+  BunRuntime: {
+    runMain: () => {},
   },
   BunServices: {
     layer: {},
@@ -26,16 +26,15 @@ vi.doMock("./build/BuildResults", () => ({
 vi.doMock("./config/BenchConfig", () => ({
   loadBenchConfig: () =>
     Effect.sync(() => ({
+      concurrency: 2,
       models: ["model-a"],
       rlmMaxDepth: 3,
-      concurrency: 2,
       tasks: [],
     })),
 }));
 
 vi.doMock("./eval/EvalRunner", () => ({
-  resolveTopModels: () =>
-    Effect.sync(() => [{ modelId: "model-a", pricePerMOutput: 0 }]),
+  resolveTopModels: () => Effect.sync(() => [{ modelId: "model-a", pricePerMOutput: 0 }]),
 }));
 
 vi.doMock("./eval/ModelEvalRunner", () => ({
@@ -66,55 +65,50 @@ vi.doMock("./mcp.js", () => ({
 
 describe("index.ts dynamic imports", () => {
   it.effect("localServer module can be dynamically imported", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const mod = yield* Effect.tryPromise({
-        try: () => import("./localServer.js"),
         catch: (e) => new Error(String(e)),
+        try: () => import("./localServer.js"),
       });
       strictEqual(typeof mod.ServerLive !== "undefined", true);
-    }),
-  );
+    }));
 
   it.effect("cli module can be dynamically imported", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const mod = yield* Effect.tryPromise({
-        try: () => import("./cli.js"),
         catch: (e) => new Error(String(e)),
+        try: () => import("./cli.js"),
       });
       strictEqual(typeof mod.runCli !== "undefined", true);
-    }),
-  );
+    }));
 
   it.effect("mcp module can be dynamically imported", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const mod = yield* Effect.tryPromise({
-        try: () => import("./mcp.js"),
         catch: (e) => new Error(String(e)),
+        try: () => import("./mcp.js"),
       });
       strictEqual(typeof mod.ServerLayer !== "undefined", true);
-    }),
-  );
+    }));
 
   it.effect("LamBenchClient module can be dynamically imported", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const mod = yield* Effect.tryPromise({
-        try: () => import("./client/LamBenchClient.js"),
         catch: (e) => new Error(String(e)),
+        try: () => import("./client/LamBenchClient.js"),
       });
       strictEqual(typeof mod.LamBenchClient !== "undefined", true);
-    }),
-  );
+    }));
 });
 
 describe("index.ts import structure", () => {
   it.effect("imports required modules from effect/platform-bun", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const mod = yield* Effect.tryPromise({
-        try: () => import("./index.js"),
         catch: (e) => new Error(String(e)),
+        try: () => import("./index.js"),
       });
       // Verify the module loads without errors (compilation check)
       strictEqual(typeof mod !== "undefined", true);
-    }),
-  );
+    }));
 });

@@ -16,19 +16,19 @@ export class EventRpc extends RpcGroup.make(
     payload: {
       ticks: Schema.Number,
     },
-    success: TickEvent,
     stream: true,
+    success: TickEvent,
   }),
   Rpc.make("chat", {
     payload: {
       messages: Schema.Array(ChatMessage),
     },
-    success: ChatStreamPart,
     stream: true,
+    success: ChatStreamPart,
   }),
   Rpc.make("uploadChunk", {
     payload: UploadChunk,
-    success: UploadIngestEvent,
     stream: true,
+    success: UploadIngestEvent,
   }),
 ) {}

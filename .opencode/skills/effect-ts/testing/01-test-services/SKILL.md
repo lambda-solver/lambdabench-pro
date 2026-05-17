@@ -13,23 +13,23 @@ Provide a `Layer.succeed` or `Layer.effect` that replaces the real implementatio
 Never reach past the layer boundary in tests.
 
 ```typescript
-import { Context, Effect, Layer, Ref } from "effect"
+import { Context, Effect, Layer, Ref } from "effect";
 
 // Mock a service with a Ref for state inspection
 const mockDb = Layer.effect(
   Database,
-  Effect.gen(function* () {
-    const store = yield* Ref.make<Array<Row>>([])
+  Effect.gen(function*() {
+    const store = yield* Ref.make<Array<Row>>([]);
     return Database.of({
-      query: Effect.fnUntraced(function* (_sql) {
-        return yield* Ref.get(store)
+      query: Effect.fnUntraced(function*(_sql) {
+        return yield* Ref.get(store);
       }),
-      insert: Effect.fnUntraced(function* (row) {
-        yield* Ref.update(store, (rows) => [...rows, row])
+      insert: Effect.fnUntraced(function*(row) {
+        yield* Ref.update(store, (rows) => [...rows, row]);
       }),
-    })
+    });
   }),
-)
+);
 ```
 
 ## Test Ref service — expose internal state to tests
@@ -77,28 +77,28 @@ const todos = yield* Ref.get(yield* TodoRepoTestRef)
 The AI SDK uses `Context.Service` exactly like any other service:
 
 ```typescript
-import { LanguageModel } from "effect/unstable/ai"
+import { LanguageModel } from "effect/unstable/ai";
 
 const mockLmLayer = (responses: ReadonlyArray<string>) =>
   Layer.effect(
     LanguageModel.LanguageModel,
-    Effect.gen(function* () {
-      const idx = yield* Ref.make(0)
+    Effect.gen(function*() {
+      const idx = yield* Ref.make(0);
       return {
-        generateText: Effect.fnUntraced(function* (_options) {
-          const i = yield* Ref.getAndUpdate(idx, (n) => n + 1)
+        generateText: Effect.fnUntraced(function*(_options) {
+          const i = yield* Ref.getAndUpdate(idx, (n) => n + 1);
           return {
             text: responses[Math.min(i, responses.length - 1)] ?? "",
             usage: { inputTokens: 0, outputTokens: 0 },
             toolCalls: [],
             finishReason: "stop" as const,
-          }
+          };
         }),
         generateObject: () => Effect.die(new Error("not mocked")),
         streamText: () => Effect.die(new Error("not mocked")),
-      } as unknown as LanguageModel.Service
+      } as unknown as LanguageModel.Service;
     }),
-  )
+  );
 ```
 
 ## Per-test provide — isolated
@@ -106,30 +106,29 @@ const mockLmLayer = (responses: ReadonlyArray<string>) =>
 ```typescript
 test("processes item", async () => {
   await Effect.runPromise(
-    Effect.gen(function* () {
-      const svc = yield* MyService
-      const result = yield* svc.doThing("input")
-      expect(result).toBe("expected")
+    Effect.gen(function*() {
+      const svc = yield* MyService;
+      const result = yield* svc.doThing("input");
+      expect(result).toBe("expected");
     }).pipe(Effect.provide(MyService.layerTest)),
-  )
-})
+  );
+});
 ```
 
 ## Shared layer across describe block — use `layer()` from @effect/vitest
 
 ```typescript
-import { layer } from "@effect/vitest"
+import { layer } from "@effect/vitest";
 
 layer(TodoRepo.layerTest)("TodoRepo tests", (it) => {
   it.effect("creates a todo", () =>
-    Effect.gen(function* () {
-      const repo = yield* TodoRepo
-      yield* repo.create("Write tests")
-      const all = yield* repo.list
-      expect(all.length).toBeGreaterThanOrEqual(1)
-    }),
-  )
-})
+    Effect.gen(function*() {
+      const repo = yield* TodoRepo;
+      yield* repo.create("Write tests");
+      const all = yield* repo.list;
+      expect(all.length).toBeGreaterThanOrEqual(1);
+    }));
+});
 ```
 
 ## Counting calls with Ref
@@ -137,13 +136,13 @@ layer(TodoRepo.layerTest)("TodoRepo tests", (it) => {
 ```typescript
 test("calls LLM twice for maxDepth=0", async () => {
   await Effect.runPromise(
-    Effect.gen(function* () {
-      const callCount = yield* Ref.make(0)
-      const layer = mockLmLayerCounting(callCount)
-      yield* myEffect.pipe(Effect.provide(layer))
-      const total = yield* Ref.get(callCount)
-      expect(total).toBeGreaterThanOrEqual(2)
+    Effect.gen(function*() {
+      const callCount = yield* Ref.make(0);
+      const layer = mockLmLayerCounting(callCount);
+      yield* myEffect.pipe(Effect.provide(layer));
+      const total = yield* Ref.get(callCount);
+      expect(total).toBeGreaterThanOrEqual(2);
     }),
-  )
-})
+  );
+});
 ```

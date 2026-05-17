@@ -1,5 +1,6 @@
 import type { ChatStreamPart } from "@repo/domain/Chat";
-import { type Cause, Effect, type Queue, Ref, Schema, Stream } from "effect";
+import type { Cause, Queue } from "effect";
+import { Effect, Ref, Schema, Stream } from "effect";
 import type { Chat, Tool, Toolkit } from "effect/unstable/ai";
 import { createMailboxEvents } from "./MailboxEvents";
 
@@ -17,7 +18,7 @@ const loop = <Tools extends Record<string, Tool.Any>>({
   queue: Queue.Queue<typeof ChatStreamPart.Type, Cause.Done>;
   toolkit: Toolkit.WithHandler<Tools>;
 }) =>
-  Effect.gen(function* () {
+  Effect.gen(function*() {
     const events = createMailboxEvents(queue);
     const finishReasonRef = yield* Ref.make("stop");
     const toolParamsRef = yield* Ref.make(
@@ -38,13 +39,14 @@ const loop = <Tools extends Record<string, Tool.Any>>({
       })
       .pipe(
         Stream.runForEach((part) =>
-          Effect.gen(function* () {
+          Effect.gen(function*() {
             switch (part.type) {
-              case "text-delta":
+              case "text-delta": {
                 yield* events.textDelta(part.delta);
                 break;
+              }
 
-              case "tool-params-start":
+              case "tool-params-start": {
                 yield* Effect.logInfo(`Selected tool: ${part.name}`);
 
                 yield* Ref.update(toolParamsRef, (map) => {
@@ -61,6 +63,7 @@ const loop = <Tools extends Record<string, Tool.Any>>({
                   name: part.name,
                 });
                 break;
+              }
 
               case "tool-params-delta": {
                 const toolParamsMap = yield* Ref.get(toolParamsRef);
@@ -105,14 +108,14 @@ const loop = <Tools extends Record<string, Tool.Any>>({
                   Effect.tapError((error) =>
                     Effect.logError(
                       `Failed to parse tool arguments for ${toolCall.name}: ${JSON.stringify(error)}`,
-                    ),
+                    )
                   ),
                   Effect.orElseSucceed(() => ({})),
                 );
 
                 yield* events.toolCallComplete(toolCall.id, {
-                  name: toolCall.name,
                   arguments: parsedParams,
+                  name: toolCall.name,
                 });
 
                 yield* events.toolExecutionStart(toolCall.id, {
@@ -122,10 +125,9 @@ const loop = <Tools extends Record<string, Tool.Any>>({
               }
 
               case "tool-result": {
-                const resultText =
-                  typeof part.result === "string"
-                    ? part.result
-                    : JSON.stringify(part.result);
+                const resultText = typeof part.result === "string"
+                  ? part.result
+                  : JSON.stringify(part.result);
 
                 if (part.isFailure) {
                   yield* Effect.logError(
@@ -141,20 +143,20 @@ const loop = <Tools extends Record<string, Tool.Any>>({
                 break;
               }
 
-              case "finish":
+              case "finish": {
                 yield* Ref.set(finishReasonRef, part.reason);
                 if (part.reason !== "tool-calls") {
                   yield* events.finish(part.reason, {
-                    promptTokens: part.usage.inputTokens.total ?? 0,
                     completionTokens: part.usage.outputTokens.total ?? 0,
-                    totalTokens:
-                      (part.usage.inputTokens.total ?? 0) +
-                      (part.usage.outputTokens.total ?? 0),
+                    promptTokens: part.usage.inputTokens.total ?? 0,
+                    totalTokens: (part.usage.inputTokens.total ?? 0)
+                      + (part.usage.outputTokens.total ?? 0),
                   });
                 }
                 break;
+              }
 
-              case "error":
+              case "error": {
                 yield* events.error(
                   typeof part.error === "string"
                     ? part.error
@@ -162,12 +164,14 @@ const loop = <Tools extends Record<string, Tool.Any>>({
                   false,
                 );
                 break;
+              }
 
-              default:
+              default: {
                 // Ignore other part types (reasoning, files, etc.)
                 break;
+              }
             }
-          }),
+          })
         ),
       );
 
@@ -185,14 +189,14 @@ export const runAgenticLoop = <Tools extends Record<string, Tool.Any>>({
   toolkit: Toolkit.WithHandler<Tools>;
   maxIterations?: number;
 }) =>
-  Effect.gen(function* () {
+  Effect.gen(function*() {
     const events = createMailboxEvents(queue);
 
     let state = { finishReason: "tool-calls", iteration: 0 };
 
     while (
-      state.finishReason === "tool-calls" &&
-      state.iteration < maxIterations
+      state.finishReason === "tool-calls"
+      && state.iteration < maxIterations
     ) {
       const iteration = state.iteration + 1;
 
@@ -211,8 +215,8 @@ export const runAgenticLoop = <Tools extends Record<string, Tool.Any>>({
 
     // Handle max iterations case
     if (
-      finalState.finishReason === "tool-calls" &&
-      finalState.iteration >= maxIterations
+      finalState.finishReason === "tool-calls"
+      && finalState.iteration >= maxIterations
     ) {
       yield* events.thinking(
         `Reached maximum iterations (${maxIterations}). Stopping here.`,

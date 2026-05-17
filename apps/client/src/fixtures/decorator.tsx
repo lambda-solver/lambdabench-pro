@@ -11,7 +11,7 @@ import { useCallback, useEffect, useState } from "react";
  *   q / esc   reset to first fixture
  */
 export function createFixtureDecorator<T>(
-  fixtures: readonly T[],
+  fixtures: ReadonlyArray<T>,
   renderFixture: (fixture: T) => React.ReactNode,
 ) {
   return function FixtureDecorator(Story: StoryFn, context: StoryContext) {
@@ -32,8 +32,8 @@ export function createFixtureDecorator<T>(
       const handler = (e: KeyboardEvent) => {
         // Only handle when not typing in an input
         if (
-          e.target instanceof HTMLInputElement ||
-          e.target instanceof HTMLTextAreaElement
+          e.target instanceof HTMLInputElement
+          || e.target instanceof HTMLTextAreaElement
         ) {
           return;
         }
@@ -82,12 +82,11 @@ export function createFixtureDecorator<T>(
     }, [nextFixture, prevFixture]);
 
     // Show fixture info bar
-    const fixtureName =
-      typeof currentFixture === "object" &&
-      currentFixture !== null &&
-      "name" in currentFixture
-        ? String(currentFixture.name)
-        : `Fixture ${fixtureIdx + 1}`;
+    const fixtureName = typeof currentFixture === "object"
+        && currentFixture !== null
+        && "name" in currentFixture
+      ? String(currentFixture.name)
+      : `Fixture ${fixtureIdx + 1}`;
 
     const storyElement = Story(context.args, context);
 
@@ -99,8 +98,7 @@ export function createFixtureDecorator<T>(
           </span>{" "}
           <span className="text-[var(--sol-green)]">{fixtureName}</span>
           <span className="ml-4 text-[var(--sol-base1)]">
-            [1-{Math.min(9, fixtures.length)}] switch [j/k] nav [r] re-render
-            [q] reset
+            [1-{Math.min(9, fixtures.length)}] switch [j/k] nav [r] re-render [q] reset
           </span>
         </div>
         {storyElement}

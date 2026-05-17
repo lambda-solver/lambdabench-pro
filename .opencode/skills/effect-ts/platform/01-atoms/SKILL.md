@@ -13,10 +13,10 @@ compatibility: opencode
 ## Runtime setup
 
 ```typescript
-import { Layer } from "effect"
-import { DevTools } from "effect/unstable/devtools"
-import { Atom } from "effect/unstable/reactivity"
-import { FetchHttpClient } from "effect/unstable/http"
+import { Layer } from "effect";
+import { DevTools } from "effect/unstable/devtools";
+import { FetchHttpClient } from "effect/unstable/http";
+import { Atom } from "effect/unstable/reactivity";
 
 // Static site — no RPC server, just FetchHttpClient
 export const runtime = Atom.runtime(
@@ -24,10 +24,10 @@ export const runtime = Atom.runtime(
     Layer.provideMerge(
       import.meta.env.VITE_ENABLE_DEVTOOLS === "true"
         ? DevTools.layer()
-        : Layer.empty
-    )
-  )
-)
+        : Layer.empty,
+    ),
+  ),
+);
 ```
 
 ## Atom types
@@ -35,64 +35,64 @@ export const runtime = Atom.runtime(
 ```typescript
 // runtime.atom(Effect) — single-shot, loads once, reactive
 export const benchmarkAtom = runtime.atom(
-  Effect.gen(function* () {
-    const client = yield* HttpClient.HttpClient
-    const response = yield* client.get(url)
-    const body = yield* response.json
-    return yield* Schema.decode(BenchmarkDataSchema)(body)
-  })
-)
+  Effect.gen(function*() {
+    const client = yield* HttpClient.HttpClient;
+    const response = yield* client.get(url);
+    const body = yield* response.json;
+    return yield* Schema.decode(BenchmarkDataSchema)(body);
+  }),
+);
 // Type: Atom<AsyncResult<BenchmarkData, E>>
 
 // runtime.fn(arg => Effect) — triggered/parameterized atom
 export const searchAtom = runtime.fn((query: string) =>
-  Effect.gen(function* () {
-    const svc = yield* SearchService
-    return yield* svc.search(query)
+  Effect.gen(function*() {
+    const svc = yield* SearchService;
+    return yield* svc.search(query);
   })
-)
+);
 // Type: AtomResultFn<string, SearchResult, E>
 
 // runtime.atom(Stream) — streaming atom
 export const streamAtom = runtime.atom(
-  Stream.fromPubSub(myPubSub)
-)
+  Stream.fromPubSub(myPubSub),
+);
 ```
 
 ## React hooks
 
 ```typescript
-import { useAtom, useAtomValue, useAtomSet } from "@effect/atom-react"
-import { AsyncResult } from "effect/unstable/reactivity"
+import { useAtom, useAtomSet, useAtomValue } from "@effect/atom-react";
+import { AsyncResult } from "effect/unstable/reactivity";
 
 // Read-only
-const result = useAtomValue(benchmarkAtom)
+const result = useAtomValue(benchmarkAtom);
 
 // Read + write (returns [value, setter])
-const [result, trigger] = useAtom(searchAtom)
-trigger("my query")
+const [result, trigger] = useAtom(searchAtom);
+trigger("my query");
 
 // Write-only
-const trigger = useAtomSet(searchAtom)
-trigger("my query")
+const trigger = useAtomSet(searchAtom);
+trigger("my query");
 ```
 
 ## AsyncResult pattern matching
 
 ```typescript
-import { AsyncResult } from "effect/unstable/reactivity"
+import { AsyncResult } from "effect/unstable/reactivity";
 
 // In a React component
-const result = useAtomValue(benchmarkAtom)
+const result = useAtomValue(benchmarkAtom);
 
 return AsyncResult.match(result, {
   onInitial: (_) => <Loading />,
   onFailure: (e) => <Error message={String(e.cause)} />,
   onSuccess: (s) => <Leaderboard data={s.value} />,
-})
+});
 
 // getOrElse for a default
-const data = AsyncResult.getOrElse(result, () => emptyBenchmarkData)
+const data = AsyncResult.getOrElse(result, () => emptyBenchmarkData);
 ```
 
 ## RegistryProvider — required in app root
@@ -101,13 +101,13 @@ const data = AsyncResult.getOrElse(result, () => emptyBenchmarkData)
 // main.tsx — not needed explicitly when using Atom.runtime()
 // The runtime() call registers itself globally.
 // But for tests, wrap with RegistryProvider:
-import { RegistryProvider } from "@effect/atom-react"
+import { RegistryProvider } from "@effect/atom-react";
 
 render(
   <RegistryProvider>
     <App />
-  </RegistryProvider>
-)
+  </RegistryProvider>,
+);
 ```
 
 ## Key signatures from Atom.d.ts

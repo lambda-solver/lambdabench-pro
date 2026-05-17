@@ -1,18 +1,10 @@
-import type { Meta, StoryObj } from "@storybook/react";
 import { buttonFixtures } from "@/fixtures/button";
 import { createFixtureDecorator } from "@/fixtures/decorator";
+import type { Meta, StoryObj } from "@storybook/react";
 import { Button } from "./button";
 
 const meta = {
-  title: "UI/Button",
   component: Button,
-  parameters: {
-    layout: "centered",
-    viewport: {
-      defaultViewport: "responsive",
-    },
-  },
-  tags: ["autodocs"],
   decorators: [
     createFixtureDecorator(buttonFixtures, (fixture) => (
       <div className="p-4">
@@ -26,6 +18,14 @@ const meta = {
       </div>
     )),
   ],
+  parameters: {
+    layout: "centered",
+    viewport: {
+      defaultViewport: "responsive",
+    },
+  },
+  tags: ["autodocs"],
+  title: "UI/Button",
 } satisfies Meta<typeof Button>;
 
 export default meta;

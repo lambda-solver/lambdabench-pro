@@ -1,11 +1,7 @@
 // apps/server/src/cli.test.ts
 
 import { describe, it } from "@effect/vitest";
-import {
-  assertDefined,
-  deepStrictEqual,
-  strictEqual,
-} from "@effect/vitest/utils";
+import { assertDefined, deepStrictEqual, strictEqual } from "@effect/vitest/utils";
 import { Effect, Layer, Ref } from "effect";
 import { vi } from "vitest";
 import { LamBenchClient } from "./client/LamBenchClient.js";
@@ -23,7 +19,7 @@ vi.doMock("@effect/platform-bun", () => ({
 const makeMockClientLayer = () =>
   Layer.effect(
     LamBenchClient,
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const calls = yield* Ref.make<
         Array<{
           method: string;
@@ -31,145 +27,146 @@ const makeMockClientLayer = () =>
         }>
       >([]);
 
-      const record = (method: string, args: unknown) =>
-        Ref.update(calls, (prev) => [...prev, { method, args }]);
+      const record = (method: string, args: unknown) => Ref.update(calls, (prev) => [...prev, { args, method }]);
 
-      return LamBenchClient.of({
-        health: Effect.fnUntraced(function* () {
-          yield* record("health", undefined);
-          return {
-            status: "ok" as const,
-            version: "1.0.0",
-            db: "connected" as const,
-            uptimeSeconds: 0,
-          };
-        }),
-        evalSingle: Effect.fnUntraced(function* (request: unknown) {
-          yield* record("evalSingle", request);
-          return {
-            taskId: (request as { task: string }).task,
-            model: (request as { model: string }).model,
-            variant: (request as { variant: string }).variant,
-            pass: true,
-            bits: 42,
-            score: 0.95,
-            errors: [],
-            elapsedMs: 100,
-            submission: "answer",
-            timestamp: new Date().toISOString(),
-          };
-        }),
-        evalBatch: Effect.fnUntraced(function* (request: unknown) {
-          yield* record("evalBatch", request);
-          return {
-            id: "job-1",
-            status: "queued" as const,
-            totalTasks: 1,
-            completedTasks: 0,
-            createdAt: new Date().toISOString(),
-            results: [],
-          };
-        }),
-        evalStatus: Effect.fnUntraced(function* (jobId: string) {
-          yield* record("evalStatus", jobId);
-          return {
-            id: jobId,
-            status: "queued" as const,
-            totalTasks: 1,
-            completedTasks: 0,
-            createdAt: new Date().toISOString(),
-            results: [],
-          };
-        }),
-        results: Effect.fnUntraced(function* () {
-          yield* record("results", undefined);
-          return {
-            rankings: [
-              {
-                model: "model-a",
-                right: 1,
-                total: 2,
-                pct: "50.0",
-                avgTime: 1.0,
-                timestamp: "2024-01-01T00:00:00Z",
-                tasks: { "task-1": true, "task-2": false },
-                taskBits: { "task-1": 10 },
-                taskRefs: { "task-1": 5 },
-                pricePerMOutputTokens: 0.5,
-              },
-              {
-                model: "model-b",
-                right: 1,
-                total: 2,
-                pct: "50.0",
-                avgTime: 1.2,
-                timestamp: "2024-01-01T00:00:00Z",
-                tasks: { "task-1": false, "task-2": true },
-                taskBits: { "task-2": 15 },
-                taskRefs: { "task-2": 8 },
-                pricePerMOutputTokens: 0.3,
-              },
-              {
-                model: "model-c",
-                right: 2,
-                total: 2,
-                pct: "100.0",
-                avgTime: 0.8,
-                timestamp: "2024-01-01T00:00:00Z",
-                tasks: { "task-1": true, "task-2": true },
-                taskBits: { "task-1": 12, "task-2": 18 },
-                taskRefs: { "task-1": 6, "task-2": 9 },
-                pricePerMOutputTokens: 0.7,
-              },
-            ],
-            tasks: [],
-            categories: [],
-            generatedAt: new Date().toISOString(),
-          };
-        }),
-        resultDetail: Effect.fnUntraced(function* (runId: string) {
-          yield* record("resultDetail", runId);
-          return {
-            taskId: "task-1",
-            model: "model-a",
-            variant: "standard" as const,
-            pass: true,
-            bits: 10,
-            score: 1,
-            errors: [],
-            elapsedMs: 100,
-            submission: "",
-            timestamp: new Date().toISOString(),
-          };
-        }),
-        tasks: Effect.fnUntraced(function* () {
-          yield* record("tasks", undefined);
-          return [];
-        }),
-        taskDetail: Effect.fnUntraced(function* (taskId: string) {
-          yield* record("taskDetail", taskId);
-          return {
-            id: taskId,
-            category: "algo",
-            categoryName: "Algorithms",
-            description: "Test task",
-            testCount: 1,
-            tests: [],
-          };
-        }),
-        models: Effect.fnUntraced(function* () {
-          yield* record("models", undefined);
-          return [];
-        }),
-        testModel: Effect.fnUntraced(function* (request: unknown) {
-          yield* record("testModel", request);
-          return {
-            latencyMs: 100,
-            ok: true,
-          };
-        }),
-        calls,
-      } as unknown as LamBenchClient["Service"]);
+      return LamBenchClient.of(
+        {
+          calls,
+          evalBatch: Effect.fnUntraced(function*(request: unknown) {
+            yield* record("evalBatch", request);
+            return {
+              completedTasks: 0,
+              createdAt: new Date().toISOString(),
+              id: "job-1",
+              results: [],
+              status: "queued" as const,
+              totalTasks: 1,
+            };
+          }),
+          evalSingle: Effect.fnUntraced(function*(request: unknown) {
+            yield* record("evalSingle", request);
+            return {
+              bits: 42,
+              elapsedMs: 100,
+              errors: [],
+              model: (request as { model: string; }).model,
+              pass: true,
+              score: 0.95,
+              submission: "answer",
+              taskId: (request as { task: string; }).task,
+              timestamp: new Date().toISOString(),
+              variant: (request as { variant: string; }).variant,
+            };
+          }),
+          evalStatus: Effect.fnUntraced(function*(jobId: string) {
+            yield* record("evalStatus", jobId);
+            return {
+              completedTasks: 0,
+              createdAt: new Date().toISOString(),
+              id: jobId,
+              results: [],
+              status: "queued" as const,
+              totalTasks: 1,
+            };
+          }),
+          health: Effect.fnUntraced(function*() {
+            yield* record("health", undefined);
+            return {
+              db: "connected" as const,
+              status: "ok" as const,
+              uptimeSeconds: 0,
+              version: "1.0.0",
+            };
+          }),
+          models: Effect.fnUntraced(function*() {
+            yield* record("models", undefined);
+            return [];
+          }),
+          resultDetail: Effect.fnUntraced(function*(runId: string) {
+            yield* record("resultDetail", runId);
+            return {
+              bits: 10,
+              elapsedMs: 100,
+              errors: [],
+              model: "model-a",
+              pass: true,
+              score: 1,
+              submission: "",
+              taskId: "task-1",
+              timestamp: new Date().toISOString(),
+              variant: "standard" as const,
+            };
+          }),
+          results: Effect.fnUntraced(function*() {
+            yield* record("results", undefined);
+            return {
+              categories: [],
+              generatedAt: new Date().toISOString(),
+              rankings: [
+                {
+                  avgTime: 1.0,
+                  model: "model-a",
+                  pct: "50.0",
+                  pricePerMOutputTokens: 0.5,
+                  right: 1,
+                  taskBits: { "task-1": 10 },
+                  taskRefs: { "task-1": 5 },
+                  tasks: { "task-1": true, "task-2": false },
+                  timestamp: "2024-01-01T00:00:00Z",
+                  total: 2,
+                },
+                {
+                  avgTime: 1.2,
+                  model: "model-b",
+                  pct: "50.0",
+                  pricePerMOutputTokens: 0.3,
+                  right: 1,
+                  taskBits: { "task-2": 15 },
+                  taskRefs: { "task-2": 8 },
+                  tasks: { "task-1": false, "task-2": true },
+                  timestamp: "2024-01-01T00:00:00Z",
+                  total: 2,
+                },
+                {
+                  avgTime: 0.8,
+                  model: "model-c",
+                  pct: "100.0",
+                  pricePerMOutputTokens: 0.7,
+                  right: 2,
+                  taskBits: { "task-1": 12, "task-2": 18 },
+                  taskRefs: { "task-1": 6, "task-2": 9 },
+                  tasks: { "task-1": true, "task-2": true },
+                  timestamp: "2024-01-01T00:00:00Z",
+                  total: 2,
+                },
+              ],
+              tasks: [],
+            };
+          }),
+          taskDetail: Effect.fnUntraced(function*(taskId: string) {
+            yield* record("taskDetail", taskId);
+            return {
+              category: "algo",
+              categoryName: "Algorithms",
+              description: "Test task",
+              id: taskId,
+              testCount: 1,
+              tests: [],
+            };
+          }),
+          tasks: Effect.fnUntraced(function*() {
+            yield* record("tasks", undefined);
+            return [];
+          }),
+          testModel: Effect.fnUntraced(function*(request: unknown) {
+            yield* record("testModel", request);
+            return {
+              latencyMs: 100,
+              ok: true,
+            };
+          }),
+        } as unknown as LamBenchClient["Service"],
+      );
     }),
   );
 
@@ -182,7 +179,7 @@ const { runCli } = await import("./cli.js");
 const getCalls = (client: LamBenchClient["Service"]) =>
   (
     client as unknown as {
-      calls: Ref.Ref<Array<{ method: string; args: unknown }>>;
+      calls: Ref.Ref<Array<{ method: string; args: unknown; }>>;
     }
   ).calls;
 
@@ -190,7 +187,7 @@ const getCalls = (client: LamBenchClient["Service"]) =>
 
 describe("cli evalSingle schema compliance", () => {
   it.effect("passes all required SingleEvalRequest fields", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const client = yield* LamBenchClient;
       yield* runCli(["eval", "single", "gpt-4", "task-1"]);
 
@@ -199,19 +196,18 @@ describe("cli evalSingle schema compliance", () => {
 
       strictEqual(singleCall !== undefined, true);
       deepStrictEqual(singleCall?.args, {
+        maxTokens: 4096,
+        mode: "direct",
         model: "gpt-4",
+        provider: "openrouter",
+        rlmMaxDepth: 3,
         task: "task-1",
         variant: "standard",
-        provider: "openrouter",
-        maxTokens: 4096,
-        rlmMaxDepth: 3,
-        mode: "direct",
       });
-    }).pipe(Effect.provide(makeMockClientLayer())),
-  );
+    }).pipe(Effect.provide(makeMockClientLayer())));
 
   it.effect("passes explicit variant and provider flags", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const client = yield* LamBenchClient;
       yield* runCli([
         "eval",
@@ -227,21 +223,20 @@ describe("cli evalSingle schema compliance", () => {
 
       strictEqual(singleCall !== undefined, true);
       deepStrictEqual(singleCall?.args, {
+        maxTokens: 4096,
+        mode: "direct",
         model: "gpt-4",
+        provider: "opencode-go",
+        rlmMaxDepth: 3,
         task: "task-1",
         variant: "rlm",
-        provider: "opencode-go",
-        maxTokens: 4096,
-        rlmMaxDepth: 3,
-        mode: "direct",
       });
-    }).pipe(Effect.provide(makeMockClientLayer())),
-  );
+    }).pipe(Effect.provide(makeMockClientLayer())));
 });
 
 describe("cli evalBatch schema compliance", () => {
   it.effect("passes all required BatchEvalRequest fields with defaults", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const client = yield* LamBenchClient;
       yield* runCli(["eval", "batch", "model-a", "model-b"]);
 
@@ -250,17 +245,16 @@ describe("cli evalBatch schema compliance", () => {
 
       strictEqual(batchCall !== undefined, true);
       deepStrictEqual(batchCall?.args, {
+        concurrency: 2,
+        mode: "both",
         models: ["model-a", "model-b"],
         tasks: [],
         variant: "both",
-        concurrency: 2,
-        mode: "both",
       });
-    }).pipe(Effect.provide(makeMockClientLayer())),
-  );
+    }).pipe(Effect.provide(makeMockClientLayer())));
 
   it.effect("passes explicit tasks and variant flags", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const client = yield* LamBenchClient;
       yield* runCli([
         "eval",
@@ -275,17 +269,16 @@ describe("cli evalBatch schema compliance", () => {
 
       strictEqual(batchCall !== undefined, true);
       deepStrictEqual(batchCall?.args, {
+        concurrency: 2,
+        mode: "both",
         models: ["model-a"],
         tasks: ["t1", "t2"],
         variant: "standard",
-        concurrency: 2,
-        mode: "both",
       });
-    }).pipe(Effect.provide(makeMockClientLayer())),
-  );
+    }).pipe(Effect.provide(makeMockClientLayer())));
 
   it.effect("stops collecting models at first flag (undefined guard)", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const client = yield* LamBenchClient;
       yield* runCli([
         "eval",
@@ -300,17 +293,16 @@ describe("cli evalBatch schema compliance", () => {
       const batchCall = calls.find((c) => c.method === "evalBatch");
 
       strictEqual(batchCall !== undefined, true);
-      deepStrictEqual((batchCall?.args as { models: string[] }).models, [
+      deepStrictEqual((batchCall.args as { models: Array<string>; }).models, [
         "model-a",
         "model-b",
       ]);
-    }).pipe(Effect.provide(makeMockClientLayer())),
-  );
+    }).pipe(Effect.provide(makeMockClientLayer())));
 });
 
 describe("cli bounds check undefined handling", () => {
   it.effect("handles args array ending without flags (undefined arg)", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const client = yield* LamBenchClient;
       // Simulate args where idx reaches args.length (arg becomes undefined)
       yield* runCli(["eval", "batch", "model-x"]);
@@ -319,17 +311,16 @@ describe("cli bounds check undefined handling", () => {
       const batchCall = calls.find((c) => c.method === "evalBatch");
 
       strictEqual(batchCall !== undefined, true);
-      deepStrictEqual((batchCall?.args as { models: string[] }).models, [
+      deepStrictEqual((batchCall.args as { models: Array<string>; }).models, [
         "model-x",
       ]);
-    }).pipe(Effect.provide(makeMockClientLayer())),
-  );
+    }).pipe(Effect.provide(makeMockClientLayer())));
 });
 
 describe("cli gepa optimize command", () => {
   it.effect("logs not-yet-implemented message", () =>
-    Effect.gen(function* () {
-      const logs: string[] = [];
+    Effect.gen(function*() {
+      const logs: Array<string> = [];
       const originalLog = console.log;
       console.log = (msg: string) => {
         logs.push(msg);
@@ -343,12 +334,11 @@ describe("cli gepa optimize command", () => {
       } finally {
         console.log = originalLog;
       }
-    }).pipe(Effect.provide(makeMockClientLayer())),
-  );
+    }).pipe(Effect.provide(makeMockClientLayer())));
 
   it.effect("prints usage for unknown gepa subcommand", () =>
-    Effect.gen(function* () {
-      const errors: string[] = [];
+    Effect.gen(function*() {
+      const errors: Array<string> = [];
       const originalError = console.error;
       console.error = (msg: string) => {
         errors.push(msg);
@@ -363,14 +353,13 @@ describe("cli gepa optimize command", () => {
       } finally {
         console.error = originalError;
       }
-    }).pipe(Effect.provide(makeMockClientLayer())),
-  );
+    }).pipe(Effect.provide(makeMockClientLayer())));
 });
 
 describe("cli results filtering", () => {
   it.effect("returns all rankings when no filters provided", () =>
-    Effect.gen(function* () {
-      const logs: string[] = [];
+    Effect.gen(function*() {
+      const logs: Array<string> = [];
       const originalLog = console.log;
       console.log = (msg: string) => {
         logs.push(msg);
@@ -387,12 +376,11 @@ describe("cli results filtering", () => {
       } finally {
         console.log = originalLog;
       }
-    }).pipe(Effect.provide(makeMockClientLayer())),
-  );
+    }).pipe(Effect.provide(makeMockClientLayer())));
 
   it.effect("filters by model", () =>
-    Effect.gen(function* () {
-      const logs: string[] = [];
+    Effect.gen(function*() {
+      const logs: Array<string> = [];
       const originalLog = console.log;
       console.log = (msg: string) => {
         logs.push(msg);
@@ -410,12 +398,11 @@ describe("cli results filtering", () => {
       } finally {
         console.log = originalLog;
       }
-    }).pipe(Effect.provide(makeMockClientLayer())),
-  );
+    }).pipe(Effect.provide(makeMockClientLayer())));
 
   it.effect("filters by task presence", () =>
-    Effect.gen(function* () {
-      const logs: string[] = [];
+    Effect.gen(function*() {
+      const logs: Array<string> = [];
       const originalLog = console.log;
       console.log = (msg: string) => {
         logs.push(msg);
@@ -432,19 +419,18 @@ describe("cli results filtering", () => {
         strictEqual(output.rankings.length, 3);
         strictEqual(
           output.rankings.every(
-            (r: { tasks: Record<string, boolean> }) => "task-1" in r.tasks,
+            (r: { tasks: Record<string, boolean>; }) => "task-1" in r.tasks,
           ),
           true,
         );
       } finally {
         console.log = originalLog;
       }
-    }).pipe(Effect.provide(makeMockClientLayer())),
-  );
+    }).pipe(Effect.provide(makeMockClientLayer())));
 
   it.effect("filters by task presence excluding models without task", () =>
-    Effect.gen(function* () {
-      const logs: string[] = [];
+    Effect.gen(function*() {
+      const logs: Array<string> = [];
       const originalLog = console.log;
       console.log = (msg: string) => {
         logs.push(msg);
@@ -462,12 +448,11 @@ describe("cli results filtering", () => {
       } finally {
         console.log = originalLog;
       }
-    }).pipe(Effect.provide(makeMockClientLayer())),
-  );
+    }).pipe(Effect.provide(makeMockClientLayer())));
 
   it.effect("limits results", () =>
-    Effect.gen(function* () {
-      const logs: string[] = [];
+    Effect.gen(function*() {
+      const logs: Array<string> = [];
       const originalLog = console.log;
       console.log = (msg: string) => {
         logs.push(msg);
@@ -484,12 +469,11 @@ describe("cli results filtering", () => {
       } finally {
         console.log = originalLog;
       }
-    }).pipe(Effect.provide(makeMockClientLayer())),
-  );
+    }).pipe(Effect.provide(makeMockClientLayer())));
 
   it.effect("ignores limit of zero or negative", () =>
-    Effect.gen(function* () {
-      const logs: string[] = [];
+    Effect.gen(function*() {
+      const logs: Array<string> = [];
       const originalLog = console.log;
       console.log = (msg: string) => {
         logs.push(msg);
@@ -507,12 +491,11 @@ describe("cli results filtering", () => {
       } finally {
         console.log = originalLog;
       }
-    }).pipe(Effect.provide(makeMockClientLayer())),
-  );
+    }).pipe(Effect.provide(makeMockClientLayer())));
 
   it.effect("combines multiple filters", () =>
-    Effect.gen(function* () {
-      const logs: string[] = [];
+    Effect.gen(function*() {
+      const logs: Array<string> = [];
       const originalLog = console.log;
       console.log = (msg: string) => {
         logs.push(msg);
@@ -531,6 +514,5 @@ describe("cli results filtering", () => {
       } finally {
         console.log = originalLog;
       }
-    }).pipe(Effect.provide(makeMockClientLayer())),
-  );
+    }).pipe(Effect.provide(makeMockClientLayer())));
 });

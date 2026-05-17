@@ -6,7 +6,7 @@ import { FastChunker, FastChunkerConfig } from "./FastChunker";
 
 const makeFastChunkerLive = (config: {
   chunkSize: number;
-  delimiters: readonly [string, ...string[]];
+  delimiters: readonly [string, ...Array<string>];
 }) =>
   Layer.effect(Chunker)(FastChunker.make).pipe(
     Layer.provide(Layer.succeed(FastChunkerConfig, config)),
@@ -22,7 +22,7 @@ describe("FastChunker", () => {
     it.effect(
       "Given delimiter-based chunking, when splitting, then delimiters bound windows",
       () =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const chunker = yield* Chunker;
           const text = "A short sentence. Another one! Last part?";
           const chunks = yield* chunker.chunk(text);
@@ -41,7 +41,7 @@ describe("FastChunker", () => {
     it.effect(
       "Given whitespace-only input, when chunking, then returns empty chunks",
       () =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const chunker = yield* Chunker;
           const chunks = yield* chunker.chunk("   \n\t  ");
 
@@ -52,7 +52,7 @@ describe("FastChunker", () => {
     it.effect(
       "Given same input and config, when chunking twice, then output is deterministic",
       () =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const chunker = yield* Chunker;
           const text = "one two three four five six seven";
 
@@ -73,7 +73,7 @@ describe("FastChunker", () => {
     it.effect(
       "Given multibyte UTF-8 text, when chunking, then offsets and lengths align",
       () =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const chunker = yield* Chunker;
           const text = "Hi 👋 cafe. Привет?";
           const chunks = yield* chunker.chunk(text);
@@ -94,8 +94,8 @@ describe("FastChunker", () => {
   it.effect(
     "Given non-positive chunk size, when chunking, then config validation fails",
     () =>
-      Effect.gen(function* () {
-        const program = Effect.gen(function* () {
+      Effect.gen(function*() {
+        const program = Effect.gen(function*() {
           const chunker = yield* Chunker;
           return yield* chunker.chunk("A B C");
         }).pipe(
@@ -134,7 +134,7 @@ describe("FastChunker delimiter fallback", () => {
     it.effect(
       "Given no delimiters found, when chunking, then splits by size",
       () =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const chunker = yield* Chunker;
           const text = "ABCDEFG";
           const chunks = yield* chunker.chunk(text);

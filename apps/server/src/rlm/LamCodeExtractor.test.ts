@@ -7,8 +7,7 @@ import { extractLamCode } from "./LamCodeExtractor";
 
 describe("extractLamCode", () => {
   it("extracts content from ```lambda fence", () => {
-    const raw =
-      "Here is your answer:\n```lambda\n@main = λf.λx.f(x)\n```\nDone.";
+    const raw = "Here is your answer:\n```lambda\n@main = λf.λx.f(x)\n```\nDone.";
     expect(extractLamCode(raw)).toBe("@main = λf.λx.f(x)");
   });
 

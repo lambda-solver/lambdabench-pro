@@ -5,22 +5,22 @@ import { BatchEvalRequest, HealthStatus, SingleEvalRequest } from "./Api";
 describe("SingleEvalRequest schema", () => {
   it("decodes a valid request with all fields", () => {
     const input = {
+      maxTokens: 2048,
       model: "openai/gpt-4",
+      provider: "opencode-go" as const,
+      rlmMaxDepth: 5,
       task: "cnat_add",
       variant: "rlm" as const,
-      provider: "opencode-go" as const,
-      maxTokens: 2048,
-      rlmMaxDepth: 5,
     };
     const result = Schema.decodeUnknownSync(SingleEvalRequest)(input);
     expect(result).toEqual({
+      maxTokens: 2048,
+      mode: "direct",
       model: "openai/gpt-4",
+      provider: "opencode-go",
+      rlmMaxDepth: 5,
       task: "cnat_add",
       variant: "rlm",
-      provider: "opencode-go",
-      maxTokens: 2048,
-      rlmMaxDepth: 5,
-      mode: "direct",
     });
   });
 
@@ -31,13 +31,13 @@ describe("SingleEvalRequest schema", () => {
     };
     const result = Schema.decodeUnknownSync(SingleEvalRequest)(input);
     expect(result).toEqual({
+      maxTokens: 4096,
+      mode: "direct",
       model: "google/gemini-pro",
+      provider: "openrouter",
+      rlmMaxDepth: 3,
       task: "bool_and",
       variant: "standard",
-      provider: "openrouter",
-      maxTokens: 4096,
-      rlmMaxDepth: 3,
-      mode: "direct",
     });
   });
 
@@ -53,8 +53,8 @@ describe("SingleEvalRequest schema", () => {
   it("rejects invalid provider values", () => {
     const input = {
       model: "openai/gpt-4",
-      task: "cnat_add",
       provider: "unknown",
+      task: "cnat_add",
     };
     expect(() => Schema.decodeUnknownSync(SingleEvalRequest)(input)).toThrow();
   });
@@ -63,18 +63,18 @@ describe("SingleEvalRequest schema", () => {
 describe("BatchEvalRequest schema", () => {
   it("decodes a valid batch request", () => {
     const input = {
+      concurrency: 4,
       models: ["openai/gpt-4", "google/gemini-pro"],
       tasks: ["cnat_add", "bool_and"],
       variant: "standard" as const,
-      concurrency: 4,
     };
     const result = Schema.decodeUnknownSync(BatchEvalRequest)(input);
     expect(result).toEqual({
+      concurrency: 4,
+      mode: "both",
       models: ["openai/gpt-4", "google/gemini-pro"],
       tasks: ["cnat_add", "bool_and"],
       variant: "standard",
-      concurrency: 4,
-      mode: "both",
     });
   });
 
@@ -84,11 +84,11 @@ describe("BatchEvalRequest schema", () => {
     };
     const result = Schema.decodeUnknownSync(BatchEvalRequest)(input);
     expect(result).toEqual({
+      concurrency: 2,
+      mode: "both",
       models: ["openai/gpt-4"],
       tasks: [],
       variant: "both",
-      concurrency: 2,
-      mode: "both",
     });
   });
 });
@@ -96,52 +96,52 @@ describe("BatchEvalRequest schema", () => {
 describe("HealthStatus schema", () => {
   it("decodes valid health status", () => {
     const input = {
-      status: "ok" as const,
-      version: "1.0.0",
       db: "connected" as const,
+      status: "ok" as const,
       uptimeSeconds: 1234,
+      version: "1.0.0",
     };
     const result = Schema.decodeUnknownSync(HealthStatus)(input);
     expect(result).toEqual({
-      status: "ok",
-      version: "1.0.0",
       db: "connected",
+      status: "ok",
       uptimeSeconds: 1234,
+      version: "1.0.0",
     });
   });
 
   it("decodes degraded health status", () => {
     const input = {
-      status: "degraded" as const,
-      version: "1.0.0",
       db: "disconnected" as const,
+      status: "degraded" as const,
       uptimeSeconds: 0,
+      version: "1.0.0",
     };
     const result = Schema.decodeUnknownSync(HealthStatus)(input);
     expect(result).toEqual({
-      status: "degraded",
-      version: "1.0.0",
       db: "disconnected",
+      status: "degraded",
       uptimeSeconds: 0,
+      version: "1.0.0",
     });
   });
 
   it("rejects invalid status values", () => {
     const input = {
-      status: "down",
-      version: "1.0.0",
       db: "connected",
+      status: "down",
       uptimeSeconds: 1234,
+      version: "1.0.0",
     };
     expect(() => Schema.decodeUnknownSync(HealthStatus)(input)).toThrow();
   });
 
   it("rejects invalid db values", () => {
     const input = {
-      status: "ok",
-      version: "1.0.0",
       db: "error",
+      status: "ok",
       uptimeSeconds: 1234,
+      version: "1.0.0",
     };
     expect(() => Schema.decodeUnknownSync(HealthStatus)(input)).toThrow();
   });

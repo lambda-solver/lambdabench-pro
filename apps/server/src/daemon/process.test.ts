@@ -1,20 +1,12 @@
 // apps/server/src/daemon/process.test.ts
 
-import { existsSync, mkdirSync, rmSync } from "node:fs";
 import { describe, it } from "@effect/vitest";
 import { assertFalse, assertTrue, strictEqual } from "@effect/vitest/utils";
-import { Effect, Either } from "effect";
+import { Effect, Result } from "effect";
+import { existsSync, mkdirSync, rmSync } from "node:fs";
 import { afterEach } from "vitest";
-
-import {
-  isProcessAlive,
-  type ProcessConfig,
-  ProcessError,
-  type SpawnedProcess,
-  spawnProcess,
-  stopProcess,
-  waitForPort,
-} from "./process";
+import type { ProcessConfig, SpawnedProcess } from "./process";
+import { isProcessAlive, ProcessError, spawnProcess, stopProcess, waitForPort } from "./process";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -23,8 +15,8 @@ const TEST_DIR = "/tmp/lambench-test-process";
 const testConfig = (overrides?: Partial<ProcessConfig>): ProcessConfig => ({
   command: ["sleep", "30"],
   cwd: TEST_DIR,
-  port: 0,
   logFile: `${TEST_DIR}/test.log`,
+  port: 0,
   ...overrides,
 });
 
@@ -36,14 +28,14 @@ const ensureTestDir = () => {
 
 const cleanupDir = () => {
   if (existsSync(TEST_DIR)) {
-    rmSync(TEST_DIR, { recursive: true, force: true });
+    rmSync(TEST_DIR, { force: true, recursive: true });
   }
 };
 
 // ─── Tests ───────────────────────────────────────────────────────────────────
 
 describe.skipIf(typeof Bun === "undefined")("ProcessHandle", () => {
-  const spawned: SpawnedProcess[] = [];
+  const spawned: Array<SpawnedProcess> = [];
 
   afterEach(() => {
     // Kill any spawned processes that are still running
@@ -59,7 +51,7 @@ describe.skipIf(typeof Bun === "undefined")("ProcessHandle", () => {
   });
 
   it.effect("spawnProcess creates a real background process", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       ensureTestDir();
 
       const proc = yield* spawnProcess(
@@ -74,11 +66,10 @@ describe.skipIf(typeof Bun === "undefined")("ProcessHandle", () => {
       // The process should be alive shortly after spawn
       const alive = yield* isProcessAlive(proc.pid);
       assertTrue(alive, "expected process to be alive after spawn");
-    }),
-  );
+    }));
 
   it.effect("stopProcess terminates the process", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       ensureTestDir();
 
       const proc = yield* spawnProcess(
@@ -96,11 +87,10 @@ describe.skipIf(typeof Bun === "undefined")("ProcessHandle", () => {
       // Confirm it's dead
       const aliveAfter = yield* isProcessAlive(proc.pid);
       assertFalse(aliveAfter, "expected process to be dead after stop");
-    }),
-  );
+    }));
 
   it.effect("isProcessAlive returns true for running process", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       ensureTestDir();
 
       const proc = yield* spawnProcess(testConfig({ command: ["sleep", "5"] }));
@@ -108,53 +98,49 @@ describe.skipIf(typeof Bun === "undefined")("ProcessHandle", () => {
 
       const alive = yield* isProcessAlive(proc.pid);
       assertTrue(alive, "expected running process to report alive");
-    }),
-  );
+    }));
 
   it.effect("isProcessAlive returns false for non-existent pid", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       // Use a pid that is extremely unlikely to exist
       const alive = yield* isProcessAlive(999_999_999);
       assertFalse(alive, "expected non-existent pid to report dead");
-    }),
-  );
+    }));
 
   it.effect("isProcessAlive never fails for non-existent pid", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       // pid 0 checks the current process group — it may succeed, so only
       // test with a very large pid that is extremely unlikely to exist.
       const alive = yield* isProcessAlive(999_999_999);
       assertFalse(alive);
-    }),
-  );
+    }));
 
   it.effect("waitForPort succeeds when port is available", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       // Start a minimal Bun HTTP server on a random port
       const server = Bun.serve({
-        port: 0,
         fetch() {
           return new Response("ok");
         },
+        port: 0,
       });
 
       const port = server.port;
 
       try {
-        yield* waitForPort(port, 5_000);
+        yield* waitForPort(port, 5000);
       } finally {
         server.stop();
       }
-    }),
-  );
+    }));
 
   it.effect("waitForPort times out when port is not available", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       // Use a port that should not be listening (high random port)
-      const effect = waitForPort(58_999, 1_000);
-      const result = yield* Effect.either(effect);
-      Either.match(result, {
-        onLeft: (error) => {
+      const effect = waitForPort(58_999, 1000);
+      const result = yield* Effect.result(effect);
+      Result.match(result, {
+        onFailure: (error) => {
           assertTrue(
             error instanceof ProcessError,
             "expected ProcessError instance",
@@ -164,15 +150,14 @@ describe.skipIf(typeof Bun === "undefined")("ProcessHandle", () => {
             `expected timeout message, got: ${error.message}`,
           );
         },
-        onRight: () => {
+        onSuccess: () => {
           assertTrue(
             false,
             "expected waitForPort to fail with a timeout error",
           );
         },
       });
-    }),
-  );
+    }));
 }); // closes ProcessHandle describe
 
 describe("ProcessError", () => {
@@ -182,6 +167,5 @@ describe("ProcessError", () => {
       strictEqual(err._tag, "ProcessError");
       strictEqual(err.name, "ProcessError");
       strictEqual(err.message, "test error");
-    }),
-  );
+    }));
 });

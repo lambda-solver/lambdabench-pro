@@ -23,43 +23,43 @@ all React code regardless of whether Effect-TS is used.
 ```typescript
 // ❌ mutation
 const handleAdd = () => {
-  items.push(newItem)
-  setItems(items)
-}
+  items.push(newItem);
+  setItems(items);
+};
 
 // ✅ new array
 const handleAdd = () => {
-  setItems([...items, newItem])
-}
+  setItems([...items, newItem]);
+};
 
 // ❌ object mutation
-state.count = state.count + 1
+state.count = state.count + 1;
 
 // ✅ new object
-const next = { ...state, count: state.count + 1 }
+const next = { ...state, count: state.count + 1 };
 ```
 
 ## Always const
 
 ```typescript
 // ❌ let / var
-let MyComponent = () => <div />
-var count = items.length
+let MyComponent = () => <div />;
+var count = items.length;
 
 // ✅ const
-const MyComponent = () => <div />
-const count = items.length
+const MyComponent = () => <div />;
+const count = items.length;
 ```
 
 ## Derive, Don't Store
 
 ```typescript
 // ❌ redundant state
-const [sortedItems, setSortedItems] = useState(items)
-useEffect(() => setSortedItems([...items].sort()), [items])
+const [sortedItems, setSortedItems] = useState(items);
+useEffect(() => setSortedItems([...items].sort()), [items]);
 
 // ✅ derived value
-const sortedItems = useMemo(() => [...items].sort(), [items])
+const sortedItems = useMemo(() => [...items].sort(), [items]);
 ```
 
 ## Immutable Handlers
@@ -77,27 +77,27 @@ const handleClick = () => setState(prev => [...prev, x])
 
 ```typescript
 // ❌ mutate props or state directly
-props.user.name = "Alice"
-state.items[0] = updated
+props.user.name = "Alice";
+state.items[0] = updated;
 
 // ✅ spread for objects, map/filter for arrays
-const updatedUser = { ...props.user, name: "Alice" }
-const updatedItems = state.items.map((item, i) => i === 0 ? updated : item)
+const updatedUser = { ...props.user, name: "Alice" };
+const updatedItems = state.items.map((item, i) => i === 0 ? updated : item);
 ```
 
 ## Effect Atom Boundary (Effect-TS projects)
 
 ```typescript
 // ❌ imperative runtime call inside JSX
-const value = runtime.runSync(someEffect)
+const value = runtime.runSync(someEffect);
 
 // ✅ read atom declaratively; AsyncResult.match handles all states
-const result = useAtomValue(benchmarkAtom)
+const result = useAtomValue(benchmarkAtom);
 return AsyncResult.match(result, {
   onInitial: () => <Loading />,
   onFailure: (e) => <Error error={e} />,
   onSuccess: ({ value }) => <View data={value} />,
-})
+});
 ```
 
 ## List Rendering with map
@@ -124,18 +124,24 @@ return AsyncResult.match(result, {
 
 ```tsx
 // ❌ index as key — causes reordering bugs, broken state
-{items.map((item, i) => <Item key={i} {...item} />)}
+{
+  items.map((item, i) => <Item key={i} {...item} />);
+}
 
 // ✅ stable unique id
-{items.map((item) => <Item key={item.id} {...item} />)}
+{
+  items.map((item) => <Item key={item.id} {...item} />);
+}
 
 // ✅ fragment with key for multiple elements
-{items.map((item) => (
-  <React.Fragment key={item.id}>
-    <dt>{item.name}</dt>
-    <dd>{item.value}</dd>
-  </React.Fragment>
-))}
+{
+  items.map((item) => (
+    <React.Fragment key={item.id}>
+      <dt>{item.name}</dt>
+      <dd>{item.value}</dd>
+    </React.Fragment>
+  ));
+}
 ```
 
 ## Custom Hooks for Logic Reuse
@@ -143,31 +149,31 @@ return AsyncResult.match(result, {
 ```tsx
 // ❌ logic in component
 function UserList() {
-  const [users, setUsers] = useState([])
-  const [loading, setLoading] = useState(false)
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
-    setLoading(true)
-    fetchUsers().then(setUsers).finally(() => setLoading(false))
-  }, [])
+    setLoading(true);
+    fetchUsers().then(setUsers).finally(() => setLoading(false));
+  }, []);
   // ... 50 more lines
 }
 
 // ✅ custom hook
 function useUsers() {
-  const [users, setUsers] = useState<User[]>([])
-  const [isLoading, setIsLoading] = useState(false)
+  const [users, setUsers] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
-    setIsLoading(true)
-    fetchUsers().then(setUsers).finally(() => setIsLoading(false))
-  }, [])
-  return { users, isLoading }
+    setIsLoading(true);
+    fetchUsers().then(setUsers).finally(() => setIsLoading(false));
+  }, []);
+  return { users, isLoading };
 }
 
 // ✅ clean component
 function UserList() {
-  const { users, isLoading } = useUsers()
-  if (isLoading) return <Loading />
-  return <ul>{users.map((u) => <li key={u.id}>{u.name}</li>)}</ul>
+  const { users, isLoading } = useUsers();
+  if (isLoading) return <Loading />;
+  return <ul>{users.map((u) => <li key={u.id}>{u.name}</li>)}</ul>;
 }
 ```
 
@@ -177,13 +183,13 @@ function UserList() {
 // ✅ memoize expensive computation
 const sortedUsers = useMemo(
   () => users.sort((a, b) => a.name.localeCompare(b.name)),
-  [users]
-)
+  [users],
+);
 
 // ✅ memoize callback to prevent child re-renders
 const handleSelect = useCallback((id: string) => {
-  setSelectedId(id)
-}, [])
+  setSelectedId(id);
+}, []);
 
 // ❌ don't memoize everything — only when:
 // 1. Expensive computation
@@ -191,7 +197,7 @@ const handleSelect = useCallback((id: string) => {
 // 3. Used in dependency array of useEffect
 
 // ❌ unnecessary memoization
-const count = useMemo(() => items.length, [items]) // cheap, skip it
+const count = useMemo(() => items.length, [items]); // cheap, skip it
 ```
 
 ## Component Composition
@@ -237,15 +243,15 @@ import { ErrorBoundary } from 'react-error-boundary'
 
 ## Summary
 
-| Rule | Enforce |
-|------|---------|
-| `const` everywhere | No `let`/`var` in component files |
-| No in-place mutation | Spread, `map`, `filter`, `structuredClone` |
-| Derive over store | `useMemo` / inline expression |
-| Pure render | No side effects in render body |
-| Declarative atom reads | `useAtomValue` + `AsyncResult.match` |
-| Dynamic lists | Always `Array.map`, never static |
-| Stable keys | Use `id`, never array index |
-| Custom hooks | Extract logic, keep components thin |
-| Composition | `children` props over configuration props |
-| Memoization | Only for expensive ops or memoized children |
+| Rule                   | Enforce                                     |
+| ---------------------- | ------------------------------------------- |
+| `const` everywhere     | No `let`/`var` in component files           |
+| No in-place mutation   | Spread, `map`, `filter`, `structuredClone`  |
+| Derive over store      | `useMemo` / inline expression               |
+| Pure render            | No side effects in render body              |
+| Declarative atom reads | `useAtomValue` + `AsyncResult.match`        |
+| Dynamic lists          | Always `Array.map`, never static            |
+| Stable keys            | Use `id`, never array index                 |
+| Custom hooks           | Extract logic, keep components thin         |
+| Composition            | `children` props over configuration props   |
+| Memoization            | Only for expensive ops or memoized children |

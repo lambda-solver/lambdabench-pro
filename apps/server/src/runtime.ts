@@ -6,8 +6,9 @@ import { ResultStoreLive } from "./services/ResultStore.js";
 import { TaskServiceLive } from "./services/TaskService.js";
 
 const validateDbPath = (dbPath: string) => {
-  if (dbPath.trim().length === 0)
+  if (dbPath.trim().length === 0) {
     throw new Error(`dbPath must be a non-empty string, got: '${dbPath}'`);
+  }
 };
 
 export const ServicesLive = BatchServiceLive.pipe(

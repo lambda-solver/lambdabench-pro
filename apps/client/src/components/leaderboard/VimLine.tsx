@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import type { ReactNode } from "react";
 
 interface VimLineProps {
   /** Line number — pass null or undefined for tilde (~) lines */

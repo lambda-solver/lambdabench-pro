@@ -5,16 +5,16 @@ import { Effect, Schema } from "effect";
 // ============================================================================
 
 export const BenchmarkTest = Schema.Struct({
-  input: Schema.String,
   expected: Schema.String,
+  input: Schema.String,
 });
 export type BenchmarkTest = Schema.Schema.Type<typeof BenchmarkTest>;
 
 export const BenchmarkTask = Schema.Struct({
-  id: Schema.String,
   category: Schema.String,
   categoryName: Schema.String,
   description: Schema.String,
+  id: Schema.String,
   testCount: Schema.Number,
   /** First 3 tests only (for display) */
   tests: Schema.Array(BenchmarkTest),
@@ -36,32 +36,32 @@ export type BenchmarkCategory = Schema.Schema.Type<typeof BenchmarkCategory>;
 // ============================================================================
 
 export const Ranking = Schema.Struct({
-  /** Full model id, e.g. "openrouter/google/gemini-2.5-pro" */
-  model: Schema.String,
-  /** Number of tasks passed */
-  right: Schema.Number,
-  /** Total tasks in benchmark */
-  total: Schema.Number,
-  /** Pass rate as formatted string, e.g. "84.2" */
-  pct: Schema.String,
   /** Average wall-clock seconds per passing task */
   avgTime: Schema.Number,
-  /** ISO timestamp of the evaluation run */
-  timestamp: Schema.String,
-  /** Per-task pass/fail map: { taskId: boolean } */
-  tasks: Schema.Record(Schema.String, Schema.Boolean),
+  /** Full model id, e.g. "openrouter/google/gemini-2.5-pro" */
+  model: Schema.String,
+  /** Pass rate as formatted string, e.g. "84.2" */
+  pct: Schema.String,
+  /** Price per 1M output tokens in USD, from OpenRouter API */
+  pricePerMOutputTokens: Schema.Number,
+  /** Number of tasks passed */
+  right: Schema.Number,
+  /** True when this ranking was produced by the λ-RLM evaluator */
+  rlm: Schema.optional(Schema.Boolean),
+  /** Total LLM calls made by λ-RLM across all tasks */
+  rlmAttempts: Schema.optional(Schema.Number),
+  /** Recursion depth used by λ-RLM (0 = single-shot leaf call) */
+  rlmDepth: Schema.optional(Schema.Number),
   /** Per-task solution size in bits (passing tasks only) */
   taskBits: Schema.Record(Schema.String, Schema.Number),
   /** Per-task reference solution size in bits */
   taskRefs: Schema.Record(Schema.String, Schema.Number),
-  /** Price per 1M output tokens in USD, from OpenRouter API */
-  pricePerMOutputTokens: Schema.Number,
-  /** True when this ranking was produced by the λ-RLM evaluator */
-  rlm: Schema.optional(Schema.Boolean),
-  /** Recursion depth used by λ-RLM (0 = single-shot leaf call) */
-  rlmDepth: Schema.optional(Schema.Number),
-  /** Total LLM calls made by λ-RLM across all tasks */
-  rlmAttempts: Schema.optional(Schema.Number),
+  /** Per-task pass/fail map: { taskId: boolean } */
+  tasks: Schema.Record(Schema.String, Schema.Boolean),
+  /** ISO timestamp of the evaluation run */
+  timestamp: Schema.String,
+  /** Total tasks in benchmark */
+  total: Schema.Number,
 });
 export type Ranking = Schema.Schema.Type<typeof Ranking>;
 
@@ -70,10 +70,10 @@ export type Ranking = Schema.Schema.Type<typeof Ranking>;
 // ============================================================================
 
 export const BenchmarkData = Schema.Struct({
-  rankings: Schema.Array(Ranking),
-  tasks: Schema.Array(BenchmarkTask),
   categories: Schema.Array(BenchmarkCategory),
   generatedAt: Schema.String,
+  rankings: Schema.Array(Ranking),
+  tasks: Schema.Array(BenchmarkTask),
 });
 export type BenchmarkData = Schema.Schema.Type<typeof BenchmarkData>;
 
@@ -83,12 +83,12 @@ export type BenchmarkData = Schema.Schema.Type<typeof BenchmarkData>;
 
 export const ValueEntry = Schema.Struct({
   model: Schema.String,
+  /** passRate / pricePerMOutput  (higher = better value) */
+  passPerDollar: Schema.Number,
   /** Pass rate 0–100 */
   passRate: Schema.Number,
   /** Price per 1M output tokens in USD */
   pricePerMOutput: Schema.Number,
-  /** passRate / pricePerMOutput  (higher = better value) */
-  passPerDollar: Schema.Number,
 });
 export type ValueEntry = Schema.Schema.Type<typeof ValueEntry>;
 
@@ -97,16 +97,16 @@ export type ValueEntry = Schema.Schema.Type<typeof ValueEntry>;
 // ============================================================================
 
 export const EvalResult = Schema.Struct({
-  taskId: Schema.String,
-  model: Schema.String,
-  variant: Schema.Literals(["standard", "rlm", "both"]),
-  pass: Schema.Boolean,
   bits: Schema.Number,
-  score: Schema.Number,
-  errors: Schema.Array(Schema.String),
   elapsedMs: Schema.Number,
+  errors: Schema.Array(Schema.String),
+  model: Schema.String,
+  pass: Schema.Boolean,
+  score: Schema.Number,
   submission: Schema.String,
+  taskId: Schema.String,
   timestamp: Schema.String,
+  variant: Schema.Literals(["standard", "rlm", "both"]),
 });
 export type EvalResult = Schema.Schema.Type<typeof EvalResult>;
 
@@ -115,13 +115,13 @@ export type EvalResult = Schema.Schema.Type<typeof EvalResult>;
 // ============================================================================
 
 export const BatchJob = Schema.Struct({
-  id: Schema.String,
-  status: Schema.Literals(["queued", "running", "completed", "failed"]),
-  createdAt: Schema.String,
   completedAt: Schema.optional(Schema.String),
-  totalTasks: Schema.Number,
   completedTasks: Schema.Number,
+  createdAt: Schema.String,
+  id: Schema.String,
   results: Schema.Array(EvalResult),
+  status: Schema.Literals(["queued", "running", "completed", "failed"]),
+  totalTasks: Schema.Number,
 });
 export type BatchJob = Schema.Schema.Type<typeof BatchJob>;
 
@@ -130,12 +130,12 @@ export type BatchJob = Schema.Schema.Type<typeof BatchJob>;
 // ============================================================================
 
 export const ModelConfig = Schema.Struct({
-  id: Schema.String,
-  provider: Schema.Literals(["openrouter", "opencode-go"]),
   displayName: Schema.optional(Schema.String),
-  pricePerMOutput: Schema.optional(Schema.Number),
+  id: Schema.String,
   isActive: Schema.Boolean.pipe(
     Schema.withDecodingDefaultKey(Effect.succeed(true)),
   ),
+  pricePerMOutput: Schema.optional(Schema.Number),
+  provider: Schema.Literals(["openrouter", "opencode-go"]),
 });
 export type ModelConfig = Schema.Schema.Type<typeof ModelConfig>;

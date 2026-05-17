@@ -1,6 +1,7 @@
 import { Context, Data, Effect, Layer, Schema } from "effect";
 import { getDocumentProxy } from "unpdf";
-import { PdfDocument, type PdfPage } from "./PdfDocument";
+import { PdfDocument } from "./PdfDocument";
+import type { PdfPage } from "./PdfDocument";
 import { segmentPdfPage } from "./segmentPage";
 
 export class PdfError extends Data.TaggedError("PdfError")<{
@@ -19,14 +20,19 @@ export class PdfService extends Context.Service<
     ) => Effect.Effect<typeof PdfDocument.Type, PdfError | Schema.SchemaError>;
   }
 >()("PdfService", {
-  make: Effect.gen(function* () {
-    const analyze = Effect.fn(function* (
+  make: Effect.gen(function*() {
+    const analyze = Effect.fn(function*(
       buffer: Uint8Array,
       options?: {
         sourceName?: string;
       },
     ) {
       const analyzed = yield* Effect.tryPromise({
+        catch: (cause) =>
+          new PdfError({
+            cause,
+            message: `PDF parse failed${options?.sourceName ? ` for ${options.sourceName}` : ""}`,
+          }),
         try: async () => {
           const pdf = await getDocumentProxy(new Uint8Array(buffer));
           const pages: Array<PdfPage> = [];
@@ -47,17 +53,12 @@ export class PdfService extends Context.Service<
           }
 
           return {
-            text: pages.map((page) => page.text).join("\n\n"),
+            blocks: pages.flatMap((page) => page.blocks),
             pageCount: pages.length,
             pages,
-            blocks: pages.flatMap((page) => page.blocks),
+            text: pages.map((page) => page.text).join("\n\n"),
           };
         },
-        catch: (cause) =>
-          new PdfError({
-            message: `PDF parse failed${options?.sourceName ? ` for ${options.sourceName}` : ""}`,
-            cause,
-          }),
       });
 
       return yield* Schema.decodeEffect(PdfDocument)(analyzed);

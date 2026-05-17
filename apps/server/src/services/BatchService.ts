@@ -1,23 +1,11 @@
 import type { BatchEvalRequest, SingleEvalRequest } from "@repo/domain/Api";
 import type { BatchJob, EvalResult } from "@repo/domain/Benchmark";
-import {
-  type Config,
-  Context,
-  Effect,
-  type FileSystem,
-  Layer,
-  type Path,
-  Ref,
-} from "effect";
+import type { Config, FileSystem, Path } from "effect";
+import { Context, Effect, Layer, Ref } from "effect";
 import { makeOpenRouterLayer } from "../llm/OpenRouterClient.js";
 import { EvalService } from "./EvalService.js";
-import {
-  type DbJob,
-  type DbResult,
-  type InsertJob,
-  ResultStore,
-  type SqlError,
-} from "./ResultStore.js";
+import type { DbJob, DbResult, InsertJob, SqlError } from "./ResultStore.js";
+import { ResultStore } from "./ResultStore.js";
 import { TaskService } from "./TaskService.js";
 
 // ─── Service Definition ─────────────────────────────────────────────────────
@@ -54,12 +42,12 @@ const buildRequests = (
   variant: "standard" | "rlm" | "both",
 ): ReadonlyArray<SingleEvalRequest> => {
   const base = {
-    model,
-    task: taskId,
-    provider: "openrouter" as const,
     maxTokens: 4096,
-    rlmMaxDepth: 3,
     mode: "direct" as const,
+    model,
+    provider: "openrouter" as const,
+    rlmMaxDepth: 3,
+    task: taskId,
   };
   if (variant === "both") {
     return [
@@ -71,74 +59,72 @@ const buildRequests = (
 };
 
 const dbResultToEvalResult = (dbResult: DbResult): EvalResult => ({
-  taskId: dbResult.taskId,
-  model: dbResult.model,
-  variant: dbResult.variant as "standard" | "rlm" | "both",
-  pass: dbResult.pass,
   bits: dbResult.bits ?? 0,
-  score: dbResult.score ?? 0,
-  errors: dbResult.errors ?? [],
   elapsedMs: dbResult.elapsedMs,
+  errors: dbResult.errors ?? [],
+  model: dbResult.model,
+  pass: dbResult.pass,
+  score: dbResult.score ?? 0,
   submission: dbResult.submission ?? "",
+  taskId: dbResult.taskId,
   timestamp: dbResult.timestamp,
+  variant: dbResult.variant as "standard" | "rlm" | "both",
 });
 
 const dbJobToBatchJob = (
   dbJob: DbJob,
   results: ReadonlyArray<EvalResult>,
 ): BatchJob => ({
-  id: dbJob.id,
-  status: dbJob.status as "queued" | "running" | "completed" | "failed",
-  createdAt: dbJob.createdAt ?? new Date().toISOString(),
-  totalTasks: dbJob.totalTasks,
   completedTasks: dbJob.completedTasks,
+  createdAt: dbJob.createdAt ?? new Date().toISOString(),
+  id: dbJob.id,
   results,
+  status: dbJob.status as "queued" | "running" | "completed" | "failed",
+  totalTasks: dbJob.totalTasks,
 });
 
 // ─── Layer Factory ───────────────────────────────────────────────────────────
 
 export const BatchServiceLive = Layer.effect(
   BatchService,
-  Effect.gen(function* () {
+  Effect.gen(function*() {
     const resultStore = yield* ResultStore;
     const evalService = yield* EvalService;
     const taskService = yield* TaskService;
 
-    const createBatchJob = Effect.fn("BatchService.createBatchJob")(function* (
+    const createBatchJob = Effect.fn("BatchService.createBatchJob")(function*(
       request: BatchEvalRequest,
     ) {
       const jobId = crypto.randomUUID();
 
-      const taskIds =
-        request.tasks.length === 0
-          ? (yield* taskService.getAllTasks()).map((t) => t.id)
-          : request.tasks;
+      const taskIds = request.tasks.length === 0
+        ? (yield* taskService.getAllTasks()).map((t) => t.id)
+        : request.tasks;
 
-      const totalTasks =
-        request.models.length *
-        taskIds.length *
-        (request.variant === "both" ? 2 : 1);
+      const totalTasks = request.models.length
+        * taskIds.length
+        * (request.variant === "both" ? 2 : 1);
 
       const insertJob: InsertJob = {
+        completedTasks: 0,
+        config: { ...request, tasks: taskIds },
         id: jobId,
         status: "queued",
-        config: { ...request, tasks: taskIds },
         totalTasks,
-        completedTasks: 0,
       };
       yield* resultStore.insertJob(insertJob);
 
       return {
-        id: jobId,
-        status: "queued",
-        createdAt: new Date().toISOString(),
-        totalTasks,
         completedTasks: 0,
+        createdAt: new Date().toISOString(),
+        id: jobId,
         results: [],
+        status: "queued",
+        totalTasks,
       } as BatchJob;
     });
 
-    const getBatchJob = Effect.fn("BatchService.getBatchJob")(function* (
+    const getBatchJob = Effect.fn("BatchService.getBatchJob")(function*(
       jobId: string,
     ) {
       const dbJob = yield* resultStore.getJob(jobId);
@@ -150,13 +136,13 @@ export const BatchServiceLive = Layer.effect(
       return dbJobToBatchJob(dbJob, results);
     });
 
-    const runBatchJob = Effect.fn("BatchService.runBatchJob")(function* (
+    const runBatchJob = Effect.fn("BatchService.runBatchJob")(function*(
       jobId: string,
     ) {
       const job = yield* resultStore.getJob(jobId);
       if (
-        job === undefined ||
-        (job.status !== "queued" && job.status !== "running")
+        job === undefined
+        || (job.status !== "queued" && job.status !== "running")
       ) {
         return;
       }
@@ -177,21 +163,21 @@ export const BatchServiceLive = Layer.effect(
 
       const tasks = yield* Effect.forEach(
         config.tasks,
-        Effect.fnUntraced(function* (taskId: string) {
+        Effect.fnUntraced(function*(taskId: string) {
           const task = yield* taskService.getTask(taskId);
           return task ?? { id: taskId };
         }),
       );
 
       const requests = config.models.flatMap((model) =>
-        tasks.flatMap((task) => buildRequests(model, task.id, config.variant)),
+        tasks.flatMap((task) => buildRequests(model, task.id, config.variant))
       );
 
       const completedRef = yield* Ref.make(0);
 
       yield* Effect.forEach(
         requests,
-        Effect.fnUntraced(function* (request: SingleEvalRequest) {
+        Effect.fnUntraced(function*(request: SingleEvalRequest) {
           const key = `${request.model}:${request.task}:${request.variant}`;
           if (existingKeys.has(key)) {
             yield* Ref.update(completedRef, (n) => n + 1);
@@ -209,34 +195,33 @@ export const BatchServiceLive = Layer.effect(
             Effect.provide(llmLayer),
             Effect.catchTag("ModelUnresponsiveError", (e) =>
               Effect.succeed({
-                taskId: request.task,
-                model: request.model,
-                variant: request.variant,
-                pass: false,
                 bits: 0,
-                score: 0,
-                errors: [`Model unresponsive after ${e.attempts} attempts`],
                 elapsedMs: 0,
+                errors: [`Model unresponsive after ${e.attempts} attempts`],
+                model: request.model,
+                pass: false,
+                score: 0,
                 submission: "",
+                taskId: request.task,
                 timestamp: new Date().toISOString(),
-              } as EvalResult),
-            ),
+                variant: request.variant,
+              } as EvalResult)),
           );
 
           yield* resultStore.insertResult({
-            runId: crypto.randomUUID(),
-            jobId,
-            taskId: result.taskId,
-            model: result.model,
-            variant: result.variant,
-            provider: request.provider,
-            pass: result.pass,
             bits: result.bits,
-            score: result.score,
-            errors: result.errors,
-            submission: result.submission,
             elapsedMs: result.elapsedMs,
+            errors: result.errors,
+            jobId,
+            model: result.model,
+            pass: result.pass,
+            provider: request.provider,
+            runId: crypto.randomUUID(),
+            score: result.score,
+            submission: result.submission,
+            taskId: result.taskId,
             timestamp: result.timestamp,
+            variant: result.variant,
           });
 
           yield* Ref.update(completedRef, (n) => n + 1);
@@ -246,10 +231,10 @@ export const BatchServiceLive = Layer.effect(
         { concurrency: config.concurrency },
       ).pipe(
         Effect.catch((e) =>
-          Effect.gen(function* () {
+          Effect.gen(function*() {
             yield* resultStore.updateJobStatus(jobId, "failed");
             return yield* Effect.fail(e);
-          }),
+          })
         ),
       );
 
@@ -259,13 +244,13 @@ export const BatchServiceLive = Layer.effect(
 
     const resumeInterruptedJobs = Effect.fn(
       "BatchService.resumeInterruptedJobs",
-    )(function* () {
+    )(function*() {
       const queuedJobs = yield* resultStore.getJobsByStatus("queued");
       const runningJobs = yield* resultStore.getJobsByStatus("running");
 
       yield* Effect.forEach(
         [...queuedJobs, ...runningJobs],
-        Effect.fnUntraced(function* (job) {
+        Effect.fnUntraced(function*(job) {
           if (job.status === "running") {
             yield* resultStore.updateJobStatus(job.id, "queued");
           }
@@ -277,8 +262,8 @@ export const BatchServiceLive = Layer.effect(
     return BatchService.of({
       createBatchJob,
       getBatchJob,
-      runBatchJob,
       resumeInterruptedJobs,
+      runBatchJob,
     });
   }),
 );

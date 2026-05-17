@@ -1,0 +1,136 @@
+{
+  "plugins": [
+    "typescript",
+    "import",
+    "unicorn"
+  ],
+  "jsPlugins": [
+    {
+      "name": "effect",
+      "specifier": "@mpsuesser/oxlint-plugin-effect"
+    },
+    {
+      "name": "repo",
+      "specifier": "@repo/effect-oxlint"
+    }
+  ],
+  "categories": {
+    "correctness": "error",
+    "perf": "error",
+    "suspicious": "error",
+    "style": "warn"
+  },
+  "rules": {
+    "typescript/consistent-type-imports": [
+      "error",
+      {
+        "fixStyle": "inline-type-imports"
+      }
+    ],
+    "typescript/no-import-type-side-effects": "error",
+    "import/no-duplicates": "error",
+    "import/no-self-import": "error",
+    "import/no-empty-named-blocks": "error",
+    "eslint/sort-imports": [
+      "error",
+      {
+        "memberSyntaxSortOrder": [
+          "none",
+          "all",
+          "multiple",
+          "single"
+        ]
+      }
+    ],
+    "typescript/no-unnecessary-type-assertion": "error",
+    "typescript/no-unnecessary-type-constraint": "error",
+    "typescript/no-useless-empty-export": "error",
+    "typescript/array-type": [
+      "error",
+      {
+        "default": "generic",
+        "readonly": "generic"
+      }
+    ],
+    "typescript/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_"
+      }
+    ],
+    "eslint/no-var": "error",
+    "eslint/no-useless-constructor": "error",
+    "eslint/no-useless-concat": "error",
+    "unicorn/no-abusive-eslint-disable": "error",
+    "unicorn/prefer-array-flat-map": "error",
+    "unicorn/no-accessor-recursion": "error",
+    "unicorn/no-null": "off",
+    "unicorn/filename-case": "off",
+    "eslint/func-names": "off",
+    "eslint/func-style": "off",
+    "eslint/id-length": "off",
+    "eslint/no-magic-numbers": "off",
+    "eslint/no-ternary": "off",
+    "eslint/new-cap": "off",
+    "eslint/no-shadow": "off",
+    "eslint/no-underscore-dangle": "off",
+    "eslint/no-continue": "off",
+    "eslint/max-statements": "off",
+    "eslint/prefer-destructuring": "off",
+    "eslint/no-param-reassign": "off",
+    "eslint/max-lines": "off",
+    "eslint/max-params": "off",
+    "eslint/require-await": "off",
+    "import/no-named-export": "off",
+    "import/group-exports": "off",
+    "import/exports-last": "off",
+    "import/prefer-default-export": "off",
+    "import/no-namespace": "off",
+    "typescript/no-explicit-any": "off",
+    "typescript/no-non-null-assertion": "off",
+    "typescript/ban-ts-comment": "off",
+    "typescript/no-namespace": "off",
+    "typescript/no-empty-interface": "off",
+    "typescript/no-empty-object-type": "off",
+    "unicorn/no-new-array": "off",
+    "unicorn/consistent-function-scoping": "off",
+    "unicorn/prefer-set-has": "off",
+    "eslint/no-fallthrough": "off",
+    "eslint/no-await-in-loop": "off",
+    "import/no-nodejs-modules": "off",
+    "unicorn/no-array-method-this-argument": "off",
+    "eslint/no-nested-ternary": "off",
+    "eslint/curly": "off",
+    "unicorn/no-zero-fractions": "off",
+    "unicorn/catch-error-name": "off",
+    "eslint/capitalized-comments": "off",
+    "typescript/parameter-properties": "off",
+    "unicorn/text-encoding-identifier-case": "off",
+    "eslint/require-yield": "off",
+    "import/no-unassigned-import": "off",
+    "unicorn/no-empty-file": "off",
+    "repo/prefer-effect-fn": "warn",
+    "repo/no-let-in-effect-gen": "error",
+    "repo/no-try-catch-in-effect-gen": "error",
+    "repo/no-async-await-in-effect-gen": "error",
+    "repo/no-pipe-after-effect-fn": "error",
+    "repo/no-catchall": "error",
+    "repo/no-effect-iterate": "error",
+    "repo/prefer-context-service": "error",
+    "repo/no-for-loops-in-effect-gen": "warn",
+    "repo/prefer-tagged-error-class": "error",
+    "repo/no-platform-imports-in-domain": "error",
+    "repo/prefer-effect-vitest": "error",
+    "repo/no-vitest-expect-for-effect": "warn"
+  },
+  "ignorePatterns": [
+    "reference/**",
+    "dist/**",
+    ".turbo/**",
+    "coverage/**",
+    "node_modules/**",
+    ".swarm/**",
+    "bun.lock"
+  ]
+}

@@ -13,9 +13,9 @@ compatibility: opencode
 ## Import paths
 
 ```typescript
-import { LanguageModel } from "effect/unstable/ai"
-import { OpenAiClient, OpenAiLanguageModel } from "@effect/ai-openai"
-import { Redacted } from "effect"
+import { OpenAiClient, OpenAiLanguageModel } from "@effect/ai-openai";
+import { Redacted } from "effect";
+import { LanguageModel } from "effect/unstable/ai";
 ```
 
 ## LanguageModel service
@@ -25,8 +25,8 @@ consume it anywhere with `yield* LanguageModel.generateText(...)`.
 
 ```typescript
 // Generate text — primary usage
-const response = yield* LanguageModel.generateText({ prompt: "hello" })
-const text: string = response.text
+const response = yield * LanguageModel.generateText({ prompt: "hello" });
+const text: string = response.text;
 
 // The prompt field accepts a plain string, Message array, or Prompt object
 ```
@@ -37,10 +37,10 @@ OpenRouter is OpenAI-compatible — point `apiUrl` at it and use any OpenRouter
 model ID as the `model`.
 
 ```typescript
-import { Context, Layer, Redacted } from "effect"
-import { OpenAiClient, OpenAiLanguageModel } from "@effect/ai-openai"
-import { BunHttpClient } from "@effect/platform-bun"
-import { LanguageModel } from "effect/unstable/ai"
+import { OpenAiClient, OpenAiLanguageModel } from "@effect/ai-openai";
+import { BunHttpClient } from "@effect/platform-bun";
+import { Context, Layer, Redacted } from "effect";
+import { LanguageModel } from "effect/unstable/ai";
 
 /**
  * Build a Layer<LanguageModel.LanguageModel, never, never> for the given
@@ -58,7 +58,7 @@ export const makeOpenRouterLayer = (
       }),
     ),
     Layer.provide(BunHttpClient.layer),
-  )
+  );
 ```
 
 ## Wiring in appLayer (index.ts)
@@ -67,11 +67,12 @@ export const makeOpenRouterLayer = (
 const appLayer = Layer.mergeAll(
   BunServices.layer,
   BunHttpClient.layer,
-  makeOpenRouterLayer(process.env["LLM_MODEL"] ?? "minimax/minimax-m2.5:free").pipe(
-    Layer.provide(BunHttpClient.layer),
-  ),
-)
-BunRuntime.runMain(program.pipe(Effect.provide(appLayer)))
+  makeOpenRouterLayer(process.env["LLM_MODEL"] ?? "minimax/minimax-m2.5:free")
+    .pipe(
+      Layer.provide(BunHttpClient.layer),
+    ),
+);
+BunRuntime.runMain(program.pipe(Effect.provide(appLayer)));
 ```
 
 ## Per-model layer in eval runners
@@ -81,11 +82,11 @@ When evaluating multiple models, build and provide a fresh layer per run:
 ```typescript
 const llmLayer = makeOpenRouterLayer(model.modelId).pipe(
   Layer.provide(BunHttpClient.layer),
-)
+);
 
-const results = yield* runAllTasksForModel(tasks, refBitsMap).pipe(
+const results = yield * runAllTasksForModel(tasks, refBitsMap).pipe(
   Effect.provide(llmLayer),
-)
+);
 ```
 
 ## Callers use LanguageModel directly — no modelId parameter
@@ -121,7 +122,7 @@ type PhiEffect = Effect.Effect<
   Result,
   never,
   LanguageModel.LanguageModel | FileSystem.FileSystem | Path.Path
->
+>;
 ```
 
 ## Mocking in tests
@@ -130,30 +131,30 @@ type PhiEffect = Effect.Effect<
 `Layer.succeed` or `Layer.effect` like any other service.
 
 ```typescript
-import { LanguageModel } from "effect/unstable/ai"
+import { LanguageModel } from "effect/unstable/ai";
 
 const mockLmLayer = (
   responses: ReadonlyArray<string>,
 ): Layer.Layer<LanguageModel.LanguageModel> =>
   Layer.effect(
     LanguageModel.LanguageModel,
-    Effect.gen(function* () {
-      const idx = yield* Ref.make(0)
+    Effect.gen(function*() {
+      const idx = yield* Ref.make(0);
       return {
-        generateText: Effect.fnUntraced(function* (_options) {
-          const i = yield* Ref.getAndUpdate(idx, (n) => n + 1)
+        generateText: Effect.fnUntraced(function*(_options) {
+          const i = yield* Ref.getAndUpdate(idx, (n) => n + 1);
           return {
             text: responses[Math.min(i, responses.length - 1)] ?? "",
             usage: { inputTokens: 0, outputTokens: 0 },
             toolCalls: [],
             finishReason: "stop" as const,
-          }
+          };
         }),
         generateObject: () => Effect.die(new Error("not mocked")),
-        streamText:     () => Effect.die(new Error("not mocked")),
-      } as unknown as LanguageModel.Service
+        streamText: () => Effect.die(new Error("not mocked")),
+      } as unknown as LanguageModel.Service;
     }),
-  )
+  );
 
 // Usage in tests
 const result = await Effect.runPromise(
@@ -162,7 +163,7 @@ const result = await Effect.runPromise(
     Effect.provide(BunFileSystem.layer),
     Effect.provide(Path.layer),
   ),
-)
+);
 ```
 
 ## Key facts

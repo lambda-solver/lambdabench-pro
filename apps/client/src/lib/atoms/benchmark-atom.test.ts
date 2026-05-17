@@ -1,30 +1,30 @@
-import { describe, expect, test } from "bun:test";
 import type { BenchmarkData, Ranking } from "@repo/domain/Benchmark";
+import { describe, expect, test } from "bun:test";
 import { computeValueEntries } from "./benchmark-atom";
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────
 
-function makeRanking(overrides: Partial<Ranking> & { model: string }): Ranking {
+function makeRanking(overrides: Partial<Ranking> & { model: string; }): Ranking {
   return {
-    right: 1,
-    total: 10,
-    pct: "10.0",
     avgTime: 5,
-    timestamp: "2026-01-01T00:00:00Z",
-    tasks: {},
+    pct: "10.0",
+    pricePerMOutputTokens: 1,
+    right: 1,
     taskBits: {},
     taskRefs: {},
-    pricePerMOutputTokens: 1,
+    tasks: {},
+    timestamp: "2026-01-01T00:00:00Z",
+    total: 10,
     ...overrides,
   };
 }
 
-function makeData(rankings: Ranking[]): BenchmarkData {
+function makeData(rankings: Array<Ranking>): BenchmarkData {
   return {
-    generatedAt: "2026-01-01T00:00:00Z",
-    tasks: [],
     categories: [],
+    generatedAt: "2026-01-01T00:00:00Z",
     rankings,
+    tasks: [],
   };
 }
 

@@ -35,16 +35,16 @@ export const FileUploadStatus = Schema.Literals([
 export type FileUploadStatus = Schema.Schema.Type<typeof FileUploadStatus>;
 
 export const FileUploadEntry = Schema.Struct({
-  id: Schema.String,
-  name: Schema.String,
-  size: Schema.Number,
-  type: Schema.String,
-  status: FileUploadStatus,
-  progress: Schema.Number,
-  error: Schema.optional(Schema.String),
-  ingesting: Schema.optional(Schema.Boolean),
   chunksTotal: Schema.Number,
   chunksUploaded: Schema.Number,
+  error: Schema.optional(Schema.String),
+  id: Schema.String,
+  ingesting: Schema.optional(Schema.Boolean),
+  name: Schema.String,
+  progress: Schema.Number,
+  size: Schema.Number,
+  status: FileUploadStatus,
+  type: Schema.String,
 });
 
 export type FileUploadEntry = Schema.Schema.Type<typeof FileUploadEntry>;
@@ -54,11 +54,11 @@ export type FileUploadEntry = Schema.Schema.Type<typeof FileUploadEntry>;
 // ============================================================================
 
 export const UploadChunk = Schema.Struct({
+  chunkIndex: Schema.Number,
+  data: Schema.String, // base64-encoded chunk
   fileId: Schema.String,
   fileName: Schema.String,
-  chunkIndex: Schema.Number,
   totalChunks: Schema.Number,
-  data: Schema.String, // base64-encoded chunk
 });
 
 export type UploadChunk = Schema.Schema.Type<typeof UploadChunk>;
@@ -69,8 +69,8 @@ export type UploadChunk = Schema.Schema.Type<typeof UploadChunk>;
 
 export const UploadIngestEvent = Schema.Union([
   Schema.TaggedStruct("chunk-received", {
-    id: Schema.String,
     chunkIndex: Schema.Number,
+    id: Schema.String,
   }),
   Schema.TaggedStruct("ingest-start", {
     id: Schema.String,

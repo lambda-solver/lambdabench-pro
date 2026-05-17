@@ -4,17 +4,13 @@
 
 import { describe, expect, it } from "vitest";
 import type { Task } from "../check/Check";
-import {
-  buildRetryPrompt,
-  buildSolvePrompt,
-  buildTaskDetectionProbe,
-} from "./LlmPrompts";
+import { buildRetryPrompt, buildSolvePrompt, buildTaskDetectionProbe } from "./LlmPrompts";
 
 // ─── Fixture ─────────────────────────────────────────────────────────────────
 
 const task: Task = {
-  id: "cnat_add",
   desc: "Add two Church nats. Return A + B.",
+  id: "cnat_add",
   tests: [
     { expr: "@main(λf.λx.x, λf.λx.x)", want: "λa.λb.b" },
     { expr: "@main(λf.λx.f(x), λf.λx.f(x))", want: "λa.λb.a(a(b))" },

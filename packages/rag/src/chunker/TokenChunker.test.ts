@@ -2,10 +2,7 @@ import { describe, expect, it } from "@effect/vitest";
 import { Chunker } from "@repo/domain/Chunk";
 import { Cause, Effect, Exit, Layer, Option } from "effect";
 import { SchemaError } from "effect/Schema";
-import {
-  CharacterTokenizerLive,
-  WordTokenizerLive,
-} from "../tokenizer/DelimTokenizer";
+import { CharacterTokenizerLive, WordTokenizerLive } from "../tokenizer/DelimTokenizer";
 import { TokenChunker, TokenChunkerConfig } from "./TokenChunker";
 
 const makeWordTokenChunkerLive = (config: {
@@ -27,12 +24,12 @@ const makeCharacterTokenChunkerLive = (config: {
   );
 
 describe("TokenChunker", () => {
-  it.layer(makeWordTokenChunkerLive({ chunkSize: 5, chunkOverlap: 2 }))(
+  it.layer(makeWordTokenChunkerLive({ chunkOverlap: 2, chunkSize: 5 }))(
     (it) => {
       it.effect(
         "Given overlap, when chunking tokens, then windows overlap with correct offsets",
         () =>
-          Effect.gen(function* () {
+          Effect.gen(function*() {
             const chunker = yield* Chunker;
             const text = "Hello world. How are you. Fine";
             const chunks = yield* chunker.chunk(text);
@@ -50,7 +47,7 @@ describe("TokenChunker", () => {
       it.effect(
         "Given whitespace-only input, when chunking, then returns empty chunks",
         () =>
-          Effect.gen(function* () {
+          Effect.gen(function*() {
             const chunker = yield* Chunker;
             const chunks = yield* chunker.chunk("   \n\t  ");
 
@@ -61,7 +58,7 @@ describe("TokenChunker", () => {
       it.effect(
         "Given same input and config, when chunking twice, then output is deterministic",
         () =>
-          Effect.gen(function* () {
+          Effect.gen(function*() {
             const chunker = yield* Chunker;
             const text = "one two three four five six";
 
@@ -77,15 +74,15 @@ describe("TokenChunker", () => {
   it.effect(
     "Given overlap equals chunk size, when chunking, then config validation fails",
     () =>
-      Effect.gen(function* () {
-        const program = Effect.gen(function* () {
+      Effect.gen(function*() {
+        const program = Effect.gen(function*() {
           const chunker = yield* Chunker;
           return yield* chunker.chunk("A B C");
         }).pipe(
           Effect.provide(
             makeWordTokenChunkerLive({
-              chunkSize: 3,
               chunkOverlap: 3,
+              chunkSize: 3,
             }),
           ),
         );
@@ -109,15 +106,15 @@ describe("TokenChunker", () => {
   it.effect(
     "Given non-positive chunk size, when chunking, then config validation fails",
     () =>
-      Effect.gen(function* () {
-        const program = Effect.gen(function* () {
+      Effect.gen(function*() {
+        const program = Effect.gen(function*() {
           const chunker = yield* Chunker;
           return yield* chunker.chunk("A B C");
         }).pipe(
           Effect.provide(
             makeWordTokenChunkerLive({
-              chunkSize: 0,
               chunkOverlap: 0,
+              chunkSize: 0,
             }),
           ),
         );
@@ -142,14 +139,14 @@ describe("TokenChunker", () => {
 describe("TokenChunker non-overlapping windows", () => {
   it.layer(
     makeCharacterTokenChunkerLive({
-      chunkSize: 2,
       chunkOverlap: 0,
+      chunkSize: 2,
     }),
   )((it) => {
     it.effect(
       "Given zero overlap, when chunking, then windows do not overlap and offsets advance",
       () =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const chunker = yield* Chunker;
           const chunks = yield* chunker.chunk("ABCDE");
 
@@ -165,14 +162,14 @@ describe("TokenChunker non-overlapping windows", () => {
 describe("TokenChunker lesson alignment", () => {
   it.layer(
     makeCharacterTokenChunkerLive({
-      chunkSize: 4,
       chunkOverlap: 1,
+      chunkSize: 4,
     }),
   )((it) => {
     it.effect(
       "Given character tokenization, when chunking, then windows align to size and overlap",
       () =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const chunker = yield* Chunker;
           const chunks = yield* chunker.chunk("ABCDEFGHIJ");
 

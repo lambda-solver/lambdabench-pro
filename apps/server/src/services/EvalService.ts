@@ -1,11 +1,14 @@
 import type { SingleEvalRequest } from "@repo/domain/Api";
 import type { EvalResult } from "@repo/domain/Benchmark";
-import { Context, Effect, type FileSystem, Layer, type Path } from "effect";
+import { Context, Effect, Layer } from "effect";
+import type { FileSystem, Path } from "effect";
 import type { LanguageModel } from "effect/unstable/ai";
-import { runTaskWithLlm, type Task } from "../check/Check.js";
+import type { Task } from "../check/Check.js";
+import { runTaskWithLlm } from "../check/Check.js";
 import type { ModelUnresponsiveError } from "../llm/ModelGuard.js";
 import { defaultConfig, rlmEval } from "../rlm/LambdaRlm.js";
-import { ResultStore, type SqlError } from "./ResultStore.js";
+import { ResultStore } from "./ResultStore.js";
+import type { SqlError } from "./ResultStore.js";
 import { TaskService } from "./TaskService.js";
 
 // ─── Service Definition ───────────────────────────────────────────────────────
@@ -40,40 +43,40 @@ const buildEvalResult = (
   },
   elapsedMs: number,
 ): EvalResult => ({
-  taskId,
-  model: request.model,
-  variant: request.variant,
-  pass: checkResult.pass,
   bits: checkResult.bits,
-  score: checkResult.score,
-  errors: checkResult.errors,
   elapsedMs,
+  errors: checkResult.errors,
+  model: request.model,
+  pass: checkResult.pass,
+  score: checkResult.score,
   submission: "",
+  taskId,
   timestamp: new Date().toISOString(),
+  variant: request.variant,
 });
 
 const notFoundResult = (request: SingleEvalRequest): EvalResult => ({
-  taskId: request.task,
-  model: request.model,
-  variant: request.variant,
-  pass: false,
   bits: 0,
-  score: 0,
-  errors: ["Task not found"],
   elapsedMs: 0,
+  errors: ["Task not found"],
+  model: request.model,
+  pass: false,
+  score: 0,
   submission: "",
+  taskId: request.task,
   timestamp: new Date().toISOString(),
+  variant: request.variant,
 });
 
 // ─── Layer Factory ───────────────────────────────────────────────────────────
 
 export const EvalServiceLive = Layer.effect(
   EvalService,
-  Effect.gen(function* () {
+  Effect.gen(function*() {
     const resultStore = yield* ResultStore;
     const taskService = yield* TaskService;
 
-    const evaluateSingle = Effect.fn("EvalService.evaluateSingle")(function* (
+    const evaluateSingle = Effect.fn("EvalService.evaluateSingle")(function*(
       request: SingleEvalRequest,
     ) {
       const dbTask = yield* taskService.getTask(request.task);
@@ -81,26 +84,26 @@ export const EvalServiceLive = Layer.effect(
       if (dbTask === undefined) {
         const result = notFoundResult(request);
         yield* resultStore.insertResult({
-          runId: crypto.randomUUID(),
-          taskId: result.taskId,
-          model: result.model,
-          variant: result.variant,
-          provider: request.provider,
-          pass: result.pass,
           bits: result.bits,
-          score: result.score,
-          errors: result.errors,
-          submission: result.submission,
           elapsedMs: result.elapsedMs,
+          errors: result.errors,
+          model: result.model,
+          pass: result.pass,
+          provider: request.provider,
+          runId: crypto.randomUUID(),
+          score: result.score,
+          submission: result.submission,
+          taskId: result.taskId,
           timestamp: result.timestamp,
+          variant: result.variant,
         });
         return result;
       }
 
       const task: Task = {
-        id: dbTask.id,
         desc: dbTask.description,
-        tests: (dbTask.tests as Array<{ input: string; expected: string }>).map(
+        id: dbTask.id,
+        tests: (dbTask.tests as Array<{ input: string; expected: string; }>).map(
           (t) => ({ expr: t.input, want: t.expected }),
         ),
       };
@@ -109,37 +112,35 @@ export const EvalServiceLive = Layer.effect(
 
       const checkResult = yield* request.variant === "standard"
         ? runTaskWithLlm(task, refBits).pipe(
+          Effect.catchTag("ModelCallError", (e) =>
+            Effect.succeed({
+              bits: 0,
+              elapsedMs: 0,
+              errors: [`Model call failed: ${e.cause}`],
+              id: task.id,
+              pass: false,
+              score: 0,
+            })),
+        )
+        : Effect.gen(function*() {
+          const start = Date.now();
+          const r = yield* rlmEval(
+            task,
+            refBits,
+            defaultConfig(request.rlmMaxDepth),
+          ).pipe(
             Effect.catchTag("ModelCallError", (e) =>
               Effect.succeed({
+                bits: 0,
+                elapsedMs: 0,
+                errors: [`Model call failed: ${e.cause}`],
                 id: task.id,
                 pass: false,
-                bits: 0,
                 score: 0,
-                errors: [`Model call failed: ${e.cause}`],
-                elapsedMs: 0,
-              }),
-            ),
-          )
-        : Effect.gen(function* () {
-            const start = Date.now();
-            const r = yield* rlmEval(
-              task,
-              refBits,
-              defaultConfig(request.rlmMaxDepth),
-            ).pipe(
-              Effect.catchTag("ModelCallError", (e) =>
-                Effect.succeed({
-                  id: task.id,
-                  pass: false,
-                  bits: 0,
-                  score: 0,
-                  errors: [`Model call failed: ${e.cause}`],
-                  elapsedMs: 0,
-                }),
-              ),
-            );
-            return { ...r, elapsedMs: Date.now() - start };
-          });
+              })),
+          );
+          return { ...r, elapsedMs: Date.now() - start };
+        });
 
       const result = buildEvalResult(
         task.id,
@@ -149,18 +150,18 @@ export const EvalServiceLive = Layer.effect(
       );
 
       yield* resultStore.insertResult({
-        runId: crypto.randomUUID(),
-        taskId: result.taskId,
-        model: result.model,
-        variant: result.variant,
-        provider: request.provider,
-        pass: result.pass,
         bits: result.bits,
-        score: result.score,
-        errors: result.errors,
-        submission: result.submission,
         elapsedMs: result.elapsedMs,
+        errors: result.errors,
+        model: result.model,
+        pass: result.pass,
+        provider: request.provider,
+        runId: crypto.randomUUID(),
+        score: result.score,
+        submission: result.submission,
+        taskId: result.taskId,
         timestamp: result.timestamp,
+        variant: result.variant,
       });
 
       return result;

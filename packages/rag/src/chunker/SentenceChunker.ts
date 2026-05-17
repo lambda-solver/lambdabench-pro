@@ -1,25 +1,19 @@
-import { type Chunk, Chunker, Tokenizer } from "@repo/domain/Chunk";
+import { Chunker, Tokenizer } from "@repo/domain/Chunk";
+import type { Chunk } from "@repo/domain/Chunk";
 import { Context, Effect, Layer, Schema } from "effect";
 import { WordTokenizerLive } from "../tokenizer/DelimTokenizer";
-import {
-  buildDelimiterPattern,
-  findDelimiterSpans,
-  IncludeDelim,
-  isBlank,
-  splitTextByMatches,
-  type TextSpan,
-} from "./utils";
+import { buildDelimiterPattern, findDelimiterSpans, IncludeDelim, isBlank, splitTextByMatches } from "./utils";
+import type { TextSpan } from "./utils";
 
 const SentenceChunkerConfigSchema = Schema.Struct({
-  chunkSize: Schema.Number.check(Schema.isGreaterThan(0)),
   chunkOverlap: Schema.Number.check(Schema.isGreaterThanOrEqualTo(0)),
+  chunkSize: Schema.Number.check(Schema.isGreaterThan(0)),
   delimiters: Schema.NonEmptyArray(Schema.String),
   includeDelim: IncludeDelim,
 }).pipe(
   Schema.check(
     Schema.makeFilter(
-      ({ chunkOverlap, chunkSize }) =>
-        chunkOverlap < chunkSize || "chunkOverlap must be less than chunkSize",
+      ({ chunkOverlap, chunkSize }) => chunkOverlap < chunkSize || "chunkOverlap must be less than chunkSize",
     ),
   ),
 );
@@ -28,8 +22,8 @@ export const SentenceChunkerConfig = Context.Reference<
   typeof SentenceChunkerConfigSchema.Type
 >("SentenceChunkerConfig", {
   defaultValue: () => ({
-    chunkSize: 2048,
     chunkOverlap: 0,
+    chunkSize: 2048,
     delimiters: [". ", "! ", "? ", "\n"],
     includeDelim: "prev",
   }),
@@ -43,14 +37,14 @@ const splitSentences = (
   if (delimiters.length === 0) {
     return text.length === 0
       ? []
-      : [{ text, startIdx: 0, endIdx: text.length }];
+      : [{ endIdx: text.length, startIdx: 0, text }];
   }
 
   const pattern = buildDelimiterPattern(delimiters);
   const delimiterMatches = findDelimiterSpans(text, pattern);
 
   if (delimiterMatches.length === 0) {
-    return [{ text, startIdx: 0, endIdx: text.length }];
+    return [{ endIdx: text.length, startIdx: 0, text }];
   }
 
   return splitTextByMatches(text, delimiterMatches, includeDelim);
@@ -86,10 +80,10 @@ const windowFrom = (
   }
 
   return {
-    startIdx,
     endExclusive,
-    tokenCount,
+    startIdx,
     text,
+    tokenCount,
   };
 };
 
@@ -109,11 +103,11 @@ const toChunk = (
   }
 
   return {
-    text: window.text,
-    startIdx: startSentence.startIdx,
     endIdx: endSentence.endIdx,
-    tokenCount: window.tokenCount,
     metadata: {},
+    startIdx: startSentence.startIdx,
+    text: window.text,
+    tokenCount: window.tokenCount,
   };
 };
 
@@ -151,14 +145,15 @@ export class SentenceChunker extends Context.Service<
   SentenceChunker,
   Chunker["Service"]
 >()("SentenceChunker", {
-  make: Effect.gen(function* () {
+  make: Effect.gen(function*() {
     const tokenizer = yield* Tokenizer;
     const config = yield* SentenceChunkerConfig;
 
-    const { chunkSize, chunkOverlap, delimiters, includeDelim } =
-      yield* Schema.decodeEffect(SentenceChunkerConfigSchema)(config);
+    const { chunkSize, chunkOverlap, delimiters, includeDelim } = yield* Schema.decodeEffect(
+      SentenceChunkerConfigSchema,
+    )(config);
 
-    const chunk = Effect.fn("SentenceChunker.chunk")(function* (text: string) {
+    const chunk = Effect.fn("SentenceChunker.chunk")(function*(text: string) {
       if (isBlank(text)) {
         return [];
       }
@@ -169,11 +164,13 @@ export class SentenceChunker extends Context.Service<
         return [];
       }
 
-      const sentences = yield* Effect.forEach(sentenceSpans, (sentence) =>
-        Effect.map(tokenizer.countTokens(sentence.text), (tokenCount) => ({
-          ...sentence,
-          tokenCount,
-        })),
+      const sentences = yield* Effect.forEach(
+        sentenceSpans,
+        (sentence) =>
+          Effect.map(tokenizer.countTokens(sentence.text), (tokenCount) => ({
+            ...sentence,
+            tokenCount,
+          })),
       );
 
       if (sentences.length === 0) {

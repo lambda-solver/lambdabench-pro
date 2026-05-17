@@ -20,13 +20,13 @@ import { TaskService } from "./services/TaskService.js";
 const decodeJsonBody = (
   response: HttpServerResponse,
 ): Effect.Effect<unknown, Error> =>
-  Effect.gen(function* () {
-    const body = response.body as unknown as { _tag: string; body: Uint8Array };
+  Effect.gen(function*() {
+    const body = response.body as unknown as { _tag: string; body: Uint8Array; };
     if (body._tag === "Uint8Array") {
       const text = new TextDecoder().decode(body.body);
       return yield* Effect.try({
-        try: () => JSON.parse(text),
         catch: (error) => new Error(String(error)),
+        try: () => JSON.parse(text),
       });
     }
     return null;
@@ -36,12 +36,12 @@ const runRequest = (
   layer: Layer.Layer<never>,
   request: globalThis.Request,
 ): Effect.Effect<HttpServerResponse> =>
-  Effect.gen(function* () {
+  Effect.gen(function*() {
     const runtime = ManagedRuntime.make(
       layer.pipe(Layer.provideMerge(HttpRouter.layer) /* test */),
     );
     const effect = Effect.scoped(
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const router = yield* HttpRouter.HttpRouter;
         const httpRequest = HttpServerRequest.fromWeb(request);
         const response = yield* router
@@ -55,9 +55,9 @@ const runRequest = (
         return response;
       }),
     );
-    const response = yield* Effect.promise(() =>
-      runtime.runPromise(effect),
-    ).pipe(Effect.ensuring(Effect.promise(() => runtime.dispose())));
+    const response = yield* Effect.promise(() => runtime.runPromise(effect)).pipe(
+      Effect.ensuring(Effect.promise(() => runtime.dispose())),
+    );
     return response;
   });
 
@@ -68,16 +68,16 @@ const mockEvalService = Layer.succeed(
   EvalService.of({
     evaluateSingle: (request: SingleEvalRequest) =>
       Effect.succeed({
-        taskId: request.task,
-        model: request.model,
-        variant: request.variant,
-        pass: true,
         bits: 42,
-        score: 0.95,
-        errors: [],
         elapsedMs: 100,
+        errors: [],
+        model: request.model,
+        pass: true,
+        score: 0.95,
         submission: "answer",
+        taskId: request.task,
         timestamp: new Date().toISOString(),
+        variant: request.variant,
       } as EvalResult),
   }),
 );
@@ -87,49 +87,49 @@ const mockBatchService = Layer.succeed(
   BatchService.of({
     createBatchJob: () =>
       Effect.succeed({
-        id: "job-1",
-        status: "queued",
-        totalTasks: 1,
         completedTasks: 0,
         config: {},
-        results: [],
         createdAt: new Date().toISOString(),
+        id: "job-1",
+        results: [],
+        status: "queued",
+        totalTasks: 1,
       } as BatchJob),
     getBatchJob: () => Effect.succeed(undefined),
-    runBatchJob: () => Effect.succeed(undefined),
     resumeInterruptedJobs: () => Effect.succeed(undefined),
+    runBatchJob: () => Effect.succeed(undefined),
   }),
 );
 
 const mockResultStore = Layer.succeed(
   ResultStore,
   ResultStore.of({
-    insertResult: () => Effect.succeed(undefined),
-    getResultsByRunId: () => Effect.succeed([]),
-    getResultsByJobId: () => Effect.succeed([]),
-    getLatestResults: () => Effect.succeed([]),
-    insertJob: () => Effect.succeed(undefined),
-    updateJobStatus: () => Effect.succeed(undefined),
+    cleanupExpired: () => Effect.succeed({ deletedJobs: 0, deletedResults: 0 }),
+    getActiveModelConfigs: () => Effect.succeed([]),
+    getAllTasks: () => Effect.succeed([]),
     getJob: () => Effect.succeed(undefined),
     getJobsByStatus: () => Effect.succeed([]),
-    insertTask: () => Effect.succeed(undefined),
+    getLatestResults: () => Effect.succeed([]),
+    getResultsByJobId: () => Effect.succeed([]),
+    getResultsByRunId: () => Effect.succeed([]),
     getTask: () => Effect.succeed(undefined),
     getTasksByCategory: () => Effect.succeed([]),
-    getAllTasks: () => Effect.succeed([]),
+    insertJob: () => Effect.succeed(undefined),
     insertModelConfig: () => Effect.succeed(undefined),
-    getActiveModelConfigs: () => Effect.succeed([]),
-    cleanupExpired: () => Effect.succeed({ deletedResults: 0, deletedJobs: 0 }),
+    insertResult: () => Effect.succeed(undefined),
+    insertTask: () => Effect.succeed(undefined),
+    updateJobStatus: () => Effect.succeed(undefined),
   }),
 );
 
 const mockTaskService = Layer.succeed(
   TaskService,
   TaskService.of({
-    loadAndCacheTasks: () => Effect.succeed(undefined),
-    getTask: () => Effect.succeed(undefined),
-    getAllTasks: () => Effect.succeed([]),
-    getTasksByCategory: () => Effect.succeed([]),
     computeRefBits: () => Effect.succeed(undefined),
+    getAllTasks: () => Effect.succeed([]),
+    getTask: () => Effect.succeed(undefined),
+    getTasksByCategory: () => Effect.succeed([]),
+    loadAndCacheTasks: () => Effect.succeed(undefined),
   }),
 );
 
@@ -160,15 +160,14 @@ const makeTestLayer = (
 describe("httpApi", () => {
   it.effect("ApiLayer constructs with all mock service layers", () =>
     Effect.scoped(
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const layer = makeTestLayer();
         yield* Layer.build(layer);
       }),
-    ),
-  );
+    ));
 
   it.effect("health endpoint returns correct shape", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const response = yield* runRequest(
         makeTestLayer(),
         new Request("http://localhost/api/health"),
@@ -183,21 +182,20 @@ describe("httpApi", () => {
       strictEqual(json["db"], "connected");
       assertTrue(typeof json["uptimeSeconds"] === "number");
       assertTrue((json["uptimeSeconds"] as number) >= 0);
-    }),
-  );
+    }));
 
   it.effect("POST /eval/single returns EvalResult", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const response = yield* runRequest(
         makeTestLayer(),
         new Request("http://localhost/api/eval/single", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             model: "test-model",
             task: "test-task",
             variant: "standard",
           }),
+          headers: { "Content-Type": "application/json" },
+          method: "POST",
         }),
       );
 
@@ -211,21 +209,20 @@ describe("httpApi", () => {
       strictEqual(json["pass"], true);
       strictEqual(json["bits"], 42);
       strictEqual(json["score"], 0.95);
-    }),
-  );
+    }));
 
   it.effect("POST /eval/batch returns BatchJob", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const response = yield* runRequest(
         makeTestLayer(),
         new Request("http://localhost/api/eval/batch", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             models: ["test-model"],
             tasks: ["test-task"],
             variant: "standard",
           }),
+          headers: { "Content-Type": "application/json" },
+          method: "POST",
         }),
       );
 
@@ -236,41 +233,40 @@ describe("httpApi", () => {
       strictEqual(json["id"], "job-1");
       strictEqual(json["status"], "queued");
       strictEqual(json["totalTasks"], 1);
-    }),
-  );
+    }));
 
   it.effect(
     "GET /eval/status/:jobId returns job for known ID and 404 for unknown",
     () =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const batchServiceWithJob = Layer.succeed(
           BatchService,
           BatchService.of({
             createBatchJob: () =>
               Effect.succeed({
-                id: "job-1",
-                status: "queued",
-                totalTasks: 1,
                 completedTasks: 0,
                 config: {},
-                results: [],
                 createdAt: new Date().toISOString(),
+                id: "job-1",
+                results: [],
+                status: "queued",
+                totalTasks: 1,
               } as BatchJob),
             getBatchJob: (jobId: string) =>
               Effect.succeed(
                 jobId === "known-job"
                   ? ({
-                      id: "known-job",
-                      status: "completed",
-                      totalTasks: 1,
-                      completedTasks: 1,
-                      results: [],
-                      createdAt: new Date().toISOString(),
-                    } as BatchJob)
+                    completedTasks: 1,
+                    createdAt: new Date().toISOString(),
+                    id: "known-job",
+                    results: [],
+                    status: "completed",
+                    totalTasks: 1,
+                  } as BatchJob)
                   : undefined,
               ),
-            runBatchJob: () => Effect.succeed(undefined),
             resumeInterruptedJobs: () => Effect.succeed(undefined),
+            runBatchJob: () => Effect.succeed(undefined),
           }),
         );
 
@@ -294,45 +290,44 @@ describe("httpApi", () => {
   );
 
   it.effect("GET /api/results returns rankings", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const resultStoreWithData = Layer.succeed(
         ResultStore,
         ResultStore.of({
-          insertResult: () => Effect.succeed(undefined),
-          getResultsByRunId: () => Effect.succeed([]),
-          getResultsByJobId: () => Effect.succeed([]),
+          cleanupExpired: () => Effect.succeed({ deletedJobs: 0, deletedResults: 0 }),
+          getActiveModelConfigs: () => Effect.succeed([]),
+          getAllTasks: () => Effect.succeed([]),
+          getJob: () => Effect.succeed(undefined),
+          getJobsByStatus: () => Effect.succeed([]),
           getLatestResults: () =>
             Effect.succeed([
               {
-                id: 1,
-                runId: "run-1",
-                jobId: null,
-                taskId: "task-1",
-                model: "model-a",
-                variant: "standard",
-                provider: "openrouter",
-                pass: true,
                 bits: 10,
-                score: 1,
-                errors: null,
-                submission: null,
-                elapsedMs: 100,
-                timestamp: new Date().toISOString(),
                 createdAt: null,
+                elapsedMs: 100,
+                errors: null,
+                id: 1,
+                jobId: null,
+                model: "model-a",
+                pass: true,
+                provider: "openrouter",
+                runId: "run-1",
+                score: 1,
+                submission: null,
+                taskId: "task-1",
+                timestamp: new Date().toISOString(),
+                variant: "standard",
               },
             ]),
-          insertJob: () => Effect.succeed(undefined),
-          updateJobStatus: () => Effect.succeed(undefined),
-          getJob: () => Effect.succeed(undefined),
-          getJobsByStatus: () => Effect.succeed([]),
-          insertTask: () => Effect.succeed(undefined),
+          getResultsByJobId: () => Effect.succeed([]),
+          getResultsByRunId: () => Effect.succeed([]),
           getTask: () => Effect.succeed(undefined),
           getTasksByCategory: () => Effect.succeed([]),
-          getAllTasks: () => Effect.succeed([]),
+          insertJob: () => Effect.succeed(undefined),
           insertModelConfig: () => Effect.succeed(undefined),
-          getActiveModelConfigs: () => Effect.succeed([]),
-          cleanupExpired: () =>
-            Effect.succeed({ deletedResults: 0, deletedJobs: 0 }),
+          insertResult: () => Effect.succeed(undefined),
+          insertTask: () => Effect.succeed(undefined),
+          updateJobStatus: () => Effect.succeed(undefined),
         }),
       );
 
@@ -348,55 +343,53 @@ describe("httpApi", () => {
       assertTrue(Array.isArray(json["rankings"]));
       const rankings = json["rankings"] as Array<unknown>;
       strictEqual(rankings.length, 1);
-    }),
-  );
+    }));
 
   it.effect(
     "GET /api/results/:runId returns result for known runId and 404 for unknown",
     () =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const resultStoreWithData = Layer.succeed(
           ResultStore,
           ResultStore.of({
-            insertResult: () => Effect.succeed(undefined),
+            cleanupExpired: () => Effect.succeed({ deletedJobs: 0, deletedResults: 0 }),
+            getActiveModelConfigs: () => Effect.succeed([]),
+            getAllTasks: () => Effect.succeed([]),
+            getJob: () => Effect.succeed(undefined),
+            getJobsByStatus: () => Effect.succeed([]),
+            getLatestResults: () => Effect.succeed([]),
+            getResultsByJobId: () => Effect.succeed([]),
             getResultsByRunId: (runId: string) =>
               Effect.succeed(
                 runId === "run-1"
                   ? [
-                      {
-                        id: 1,
-                        runId: "run-1",
-                        jobId: null,
-                        taskId: "task-1",
-                        model: "model-a",
-                        variant: "standard",
-                        provider: "openrouter",
-                        pass: true,
-                        bits: 10,
-                        score: 1,
-                        errors: null,
-                        submission: null,
-                        elapsedMs: 100,
-                        timestamp: new Date().toISOString(),
-                        createdAt: null,
-                      },
-                    ]
+                    {
+                      bits: 10,
+                      createdAt: null,
+                      elapsedMs: 100,
+                      errors: null,
+                      id: 1,
+                      jobId: null,
+                      model: "model-a",
+                      pass: true,
+                      provider: "openrouter",
+                      runId: "run-1",
+                      score: 1,
+                      submission: null,
+                      taskId: "task-1",
+                      timestamp: new Date().toISOString(),
+                      variant: "standard",
+                    },
+                  ]
                   : [],
               ),
-            getResultsByJobId: () => Effect.succeed([]),
-            getLatestResults: () => Effect.succeed([]),
-            insertJob: () => Effect.succeed(undefined),
-            updateJobStatus: () => Effect.succeed(undefined),
-            getJob: () => Effect.succeed(undefined),
-            getJobsByStatus: () => Effect.succeed([]),
-            insertTask: () => Effect.succeed(undefined),
             getTask: () => Effect.succeed(undefined),
             getTasksByCategory: () => Effect.succeed([]),
-            getAllTasks: () => Effect.succeed([]),
+            insertJob: () => Effect.succeed(undefined),
             insertModelConfig: () => Effect.succeed(undefined),
-            getActiveModelConfigs: () => Effect.succeed([]),
-            cleanupExpired: () =>
-              Effect.succeed({ deletedResults: 0, deletedJobs: 0 }),
+            insertResult: () => Effect.succeed(undefined),
+            insertTask: () => Effect.succeed(undefined),
+            updateJobStatus: () => Effect.succeed(undefined),
           }),
         );
 
@@ -420,27 +413,27 @@ describe("httpApi", () => {
   );
 
   it.effect("GET /api/tasks returns array of tasks", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const taskServiceWithData = Layer.succeed(
         TaskService,
         TaskService.of({
-          loadAndCacheTasks: () => Effect.succeed(undefined),
-          getTask: () => Effect.succeed(undefined),
+          computeRefBits: () => Effect.succeed(undefined),
           getAllTasks: () =>
             Effect.succeed([
               {
-                id: "task-1",
                 category: "algo",
                 categoryName: "Algorithms",
                 description: "Test task",
-                testCount: 2,
-                tests: [{ input: "1", expected: "1" }],
+                id: "task-1",
                 refBits: null,
                 refSolution: null,
+                testCount: 2,
+                tests: [{ expected: "1", input: "1" }],
               },
             ]),
+          getTask: () => Effect.succeed(undefined),
           getTasksByCategory: () => Effect.succeed([]),
-          computeRefBits: () => Effect.succeed(undefined),
+          loadAndCacheTasks: () => Effect.succeed(undefined),
         }),
       );
 
@@ -456,35 +449,34 @@ describe("httpApi", () => {
       strictEqual(json.length, 1);
       const task = json[0] as Record<string, unknown>;
       strictEqual(task["id"], "task-1");
-    }),
-  );
+    }));
 
   it.effect(
     "GET /api/tasks/:taskId returns task for known ID and 404 for unknown",
     () =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const taskServiceWithData = Layer.succeed(
           TaskService,
           TaskService.of({
-            loadAndCacheTasks: () => Effect.succeed(undefined),
+            computeRefBits: () => Effect.succeed(undefined),
+            getAllTasks: () => Effect.succeed([]),
             getTask: (taskId: string) =>
               Effect.succeed(
                 taskId === "task-1"
                   ? {
-                      id: "task-1",
-                      category: "algo",
-                      categoryName: "Algorithms",
-                      description: "Test task",
-                      testCount: 2,
-                      tests: [{ input: "1", expected: "1" }],
-                      refBits: null,
-                      refSolution: null,
-                    }
+                    category: "algo",
+                    categoryName: "Algorithms",
+                    description: "Test task",
+                    id: "task-1",
+                    refBits: null,
+                    refSolution: null,
+                    testCount: 2,
+                    tests: [{ expected: "1", input: "1" }],
+                  }
                   : undefined,
               ),
-            getAllTasks: () => Effect.succeed([]),
             getTasksByCategory: () => Effect.succeed([]),
-            computeRefBits: () => Effect.succeed(undefined),
+            loadAndCacheTasks: () => Effect.succeed(undefined),
           }),
         );
 

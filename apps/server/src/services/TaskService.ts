@@ -1,33 +1,26 @@
-import { Context, Effect, type FileSystem, Layer, type Path } from "effect";
+import { Context, Effect, Layer } from "effect";
+import type { FileSystem, Path } from "effect";
 import type * as PlatformError from "effect/PlatformError";
-import {
-  type LamError,
-  loadAllTasks,
-  type ParseError,
-  referenceBits,
-} from "../check/Check.js";
-import {
-  type DbTask,
-  type InsertTask,
-  ResultStore,
-  type SqlError,
-} from "./ResultStore.js";
+import type { LamError, ParseError } from "../check/Check.js";
+import { loadAllTasks, referenceBits } from "../check/Check.js";
+import type { DbTask, InsertTask, SqlError } from "./ResultStore.js";
+import { ResultStore } from "./ResultStore.js";
 
 // ─── Category mapping ─────────────────────────────────────────────────────────
 
 const CATEGORY_NAMES: Record<string, string> = {
   algo: "Algorithms",
-  cnat: "Church Naturals",
+  cadt: "Church ADTs",
   cbin: "Church Binaries",
   clst: "Church Lists",
+  cnat: "Church Naturals",
   ctre: "Church Trees",
-  cadt: "Church ADTs",
-  snat: "Scott Naturals",
+  ntup: "N-Tuples",
+  sadt: "Scott ADTs",
   sbin: "Scott Binaries",
   slst: "Scott Lists",
+  snat: "Scott Naturals",
   stre: "Scott Trees",
-  sadt: "Scott ADTs",
-  ntup: "N-Tuples",
 };
 
 // ─── Service Definition ───────────────────────────────────────────────────────
@@ -59,16 +52,16 @@ export class TaskService extends Context.Service<
 
 export const TaskServiceLive = Layer.effect(
   TaskService,
-  Effect.gen(function* () {
+  Effect.gen(function*() {
     const store = yield* ResultStore;
 
     const loadAndCacheTasks = Effect.fn("TaskService.loadAndCacheTasks")(
-      function* () {
+      function*() {
         const tasks = yield* loadAllTasks;
 
         yield* Effect.forEach(
           tasks,
-          Effect.fnUntraced(function* (task) {
+          Effect.fnUntraced(function*(task) {
             const existing = yield* store.getTask(task.id);
             if (existing !== undefined) return;
 
@@ -80,17 +73,17 @@ export const TaskServiceLive = Layer.effect(
             const categoryName = CATEGORY_NAMES[category] ?? category;
 
             const insertTask: InsertTask = {
-              id: task.id,
               category,
               categoryName,
               description: task.desc,
-              testCount: task.tests.length,
-              tests: task.tests.map((t) => ({
-                input: t.expr,
-                expected: t.want,
-              })),
+              id: task.id,
               refBits,
               refSolution: undefined,
+              testCount: task.tests.length,
+              tests: task.tests.map((t) => ({
+                expected: t.want,
+                input: t.expr,
+              })),
             };
 
             yield* store.insertTask(insertTask);
@@ -100,34 +93,34 @@ export const TaskServiceLive = Layer.effect(
       },
     );
 
-    const getTask = Effect.fn("TaskService.getTask")(function* (
+    const getTask = Effect.fn("TaskService.getTask")(function*(
       taskId: string,
     ) {
       return yield* store.getTask(taskId);
     });
 
-    const getAllTasks = Effect.fn("TaskService.getAllTasks")(function* () {
+    const getAllTasks = Effect.fn("TaskService.getAllTasks")(function*() {
       return yield* store.getAllTasks();
     });
 
     const getTasksByCategory = Effect.fn("TaskService.getTasksByCategory")(
-      function* (category: string) {
+      function*(category: string) {
         return yield* store.getTasksByCategory(category);
       },
     );
 
-    const computeRefBits = Effect.fn("TaskService.computeRefBits")(function* (
+    const computeRefBits = Effect.fn("TaskService.computeRefBits")(function*(
       taskId: string,
     ) {
       return yield* referenceBits(taskId);
     });
 
     return TaskService.of({
-      loadAndCacheTasks,
-      getTask,
-      getAllTasks,
-      getTasksByCategory,
       computeRefBits,
+      getAllTasks,
+      getTask,
+      getTasksByCategory,
+      loadAndCacheTasks,
     });
   }),
 );

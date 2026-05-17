@@ -14,12 +14,12 @@ Keep state as close to where it's used as possible.
 ```tsx
 // ❌ lifted too high
 function App() {
-  const [isOpen, setIsOpen] = useState(false) // only used in Modal
+  const [isOpen, setIsOpen] = useState(false); // only used in Modal
   return (
     <div>
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} />
     </div>
-  )
+  );
 }
 
 // ✅ colocated
@@ -28,28 +28,28 @@ function App() {
     <div>
       <ModalTrigger />
     </div>
-  )
+  );
 }
 
 function ModalTrigger() {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
   return (
     <>
       <Button onClick={() => setIsOpen(true)}>Open</Button>
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} />
     </>
-  )
+  );
 }
 ```
 
 ## Server State vs Client State
 
-| Type | Tool | Examples |
-|------|------|----------|
-| Server state | TanStack Query | API data, user profile, search results |
-| URL state | TanStack Router | Filters, pagination, sort order |
-| Global client | Effect Atom / Zustand | Auth user, theme, sidebar state |
-| Local client | useState / useReducer | Form inputs, modal open, toggle |
+| Type          | Tool                  | Examples                               |
+| ------------- | --------------------- | -------------------------------------- |
+| Server state  | TanStack Query        | API data, user profile, search results |
+| URL state     | TanStack Router       | Filters, pagination, sort order        |
+| Global client | Effect Atom / Zustand | Auth user, theme, sidebar state        |
+| Local client  | useState / useReducer | Form inputs, modal open, toggle        |
 
 ## useState Patterns
 
@@ -76,25 +76,33 @@ setCount((c) => c + 1)
 ## useReducer for Complex State
 
 ```tsx
-type State = { status: 'idle' | 'loading' | 'success' | 'error'; data: Data | null }
+type State = {
+  status: "idle" | "loading" | "success" | "error";
+  data: Data | null;
+};
 type Action =
-  | { type: 'fetch' }
-  | { type: 'success'; payload: Data }
-  | { type: 'error'; payload: Error }
-  | { type: 'reset' }
+  | { type: "fetch"; }
+  | { type: "success"; payload: Data; }
+  | { type: "error"; payload: Error; }
+  | { type: "reset"; };
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
-    case 'fetch': return { ...state, status: 'loading' }
-    case 'success': return { status: 'success', data: action.payload }
-    case 'error': return { ...state, status: 'error' }
-    case 'reset': return { status: 'idle', data: null }
-    default: return state
+    case "fetch":
+      return { ...state, status: "loading" };
+    case "success":
+      return { status: "success", data: action.payload };
+    case "error":
+      return { ...state, status: "error" };
+    case "reset":
+      return { status: "idle", data: null };
+    default:
+      return state;
   }
-}
+};
 
 function DataFetcher() {
-  const [state, dispatch] = useReducer(reducer, { status: 'idle', data: null })
+  const [state, dispatch] = useReducer(reducer, { status: "idle", data: null });
   // dispatch({ type: 'fetch' })
 }
 ```
@@ -103,14 +111,14 @@ function DataFetcher() {
 
 ```tsx
 // ✅ filter in URL — shareable, back-button works
-const { filter } = route.useSearch()
-const navigate = route.useNavigate()
+const { filter } = route.useSearch();
+const navigate = route.useNavigate();
 
 // Update URL instead of local state
-navigate({ search: (prev) => ({ ...prev, filter: 'active' }) })
+navigate({ search: (prev) => ({ ...prev, filter: "active" }) });
 
 // ❌ local state for filters
-const [filter, setFilter] = useState('all') // lost on refresh
+const [filter, setFilter] = useState("all"); // lost on refresh
 ```
 
 ## Effect Atom for Global State
@@ -118,22 +126,22 @@ const [filter, setFilter] = useState('all') // lost on refresh
 ```tsx
 // ✅ atom for shared server state
 const usersAtom = runtime.atom(
-  Effect.gen(function* () {
-    const api = yield* ApiClient
-    return yield* api.getUsers()
-  })
-)
+  Effect.gen(function*() {
+    const api = yield* ApiClient;
+    return yield* api.getUsers();
+  }),
+);
 
 // ✅ use in any component
 function UserList() {
-  const result = useAtomValue(usersAtom)
+  const result = useAtomValue(usersAtom);
   return AsyncResult.match(result, {
     onInitial: () => <Loading />,
     onFailure: (e) => <Error error={e} />,
     onSuccess: ({ value }) => (
       <div>{value.map((u) => <UserCard key={u.id} user={u} />)}</div>
     ),
-  })
+  });
 }
 ```
 
@@ -141,23 +149,23 @@ function UserList() {
 
 ```tsx
 // ✅ controlled with single state object
-const [fields, setFields] = useState({ email: '', password: '' })
-const [errors, setErrors] = useState<Record<string, string>>({})
+const [fields, setFields] = useState({ email: "", password: "" });
+const [errors, setErrors] = useState<Record<string, string>>({});
 
 // ✅ validation on submit
 const handleSubmit = (e: FormEvent) => {
-  e.preventDefault()
-  const validation = validate(fields)
+  e.preventDefault();
+  const validation = validate(fields);
   if (!validation.ok) {
-    setErrors(validation.errors)
-    return
+    setErrors(validation.errors);
+    return;
   }
-  submit(fields)
-}
+  submit(fields);
+};
 
 // ✅ reset form
 const reset = () => {
-  setFields({ email: '', password: '' })
-  setErrors({})
-}
+  setFields({ email: "", password: "" });
+  setErrors({});
+};
 ```

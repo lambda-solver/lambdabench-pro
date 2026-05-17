@@ -17,8 +17,7 @@ const calculatorTool = Tool.make("calculate", {
  * Echo Tool - Simple echo for testing
  */
 const echoTool = Tool.make("echo", {
-  description:
-    "Echo back a message. Useful for testing tool calling. Example: echo(message: 'Hello, World!')",
+  description: "Echo back a message. Useful for testing tool calling. Example: echo(message: 'Hello, World!')",
   parameters: Schema.Struct({
     message: Schema.String,
   }),
@@ -29,8 +28,7 @@ const echoTool = Tool.make("echo", {
  * Get Current Time Tool - Returns current UTC time
  */
 const getCurrentTimeTool = Tool.make("getCurrentTime", {
-  description:
-    "Get the current date and time in a given timezone. Example: getCurrentTime(timezone: 'UTC')",
+  description: "Get the current date and time in a given timezone. Example: getCurrentTime(timezone: 'UTC')",
   parameters: Tool.EmptyParams,
   success: Schema.String,
 });
@@ -42,10 +40,10 @@ export const SampleToolkit = Toolkit.make(
 );
 
 export const SampleToolkitLive = SampleToolkit.toLayer(
-  Effect.gen(function* () {
+  Effect.gen(function*() {
     return {
       calculate: (params) =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           yield* Effect.log(`Calculating: ${params.expression}`);
 
           // Simple safe evaluation for basic math
@@ -59,6 +57,10 @@ export const SampleToolkitLive = SampleToolkit.toLayer(
           }
 
           return yield* Effect.try({
+            catch: (error) =>
+              new Error(
+                `Invalid expression: ${error instanceof Error ? error.message : String(error)}`,
+              ),
             try: () => {
               const value = Function(`"use strict"; return (${sanitized})`)();
               if (typeof value !== "number" || Number.isNaN(value)) {
@@ -66,23 +68,19 @@ export const SampleToolkitLive = SampleToolkit.toLayer(
               }
               return `${params.expression} = ${value}`;
             },
-            catch: (error) =>
-              new Error(
-                `Invalid expression: ${error instanceof Error ? error.message : String(error)}`,
-              ),
           }).pipe(
             Effect.catch((error) => Effect.succeed(`Error: ${error.message}`)),
           );
         }),
 
       echo: (params) =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           yield* Effect.log(`Echo: ${params.message}`);
           return yield* Effect.succeed(`Echo: ${params.message}`);
         }),
 
       getCurrentTime: () =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const now = new Date();
           const timeString = now.toLocaleString("en-US", {
             timeZone: "UTC",

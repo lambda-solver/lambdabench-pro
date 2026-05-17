@@ -1,6 +1,6 @@
+import { cn } from "@/lib/utils";
 import type { BenchmarkTask, Ranking } from "@repo/domain/Benchmark";
 import { useEffect } from "react";
-import { cn } from "@/lib/utils";
 import { TildeLine, VimLine } from "./VimLine";
 
 interface TaskModalProps {
@@ -79,8 +79,7 @@ export function TaskModal({ task, rankings, onClose }: TaskModalProps) {
           <VimLine n={2}>
             <span className="font-bold text-[var(--sol-orange)]">
               {task.id}
-            </span>
-            {"  "}
+            </span>{"  "}
             <span className="text-[var(--sol-base1)]">{task.categoryName}</span>
           </VimLine>
           <VimLine n={3} />
@@ -97,8 +96,7 @@ export function TaskModal({ task, rankings, onClose }: TaskModalProps) {
               <>
                 <VimLine n={n++} />
                 <VimLine n={n++}>
-                  <span className="text-[var(--sol-violet)]">Tests</span>
-                  {"  "}
+                  <span className="text-[var(--sol-violet)]">Tests</span>{"  "}
                   <span className="text-[var(--sol-base1)]">
                     ({task.tests.length} of {task.testCount})
                   </span>
@@ -128,13 +126,9 @@ export function TaskModal({ task, rankings, onClose }: TaskModalProps) {
                   const passed = r.tasks[task.id];
                   return (
                     <VimLine key={r.model} n={n++}>
-                      {passed ? (
-                        <span className="text-[var(--sol-green)]">✓</span>
-                      ) : (
-                        <span className="text-[var(--sol-red)]">✗</span>
-                      )}
-                      {"  "}
-                      {fmtModel(r.model)}
+                      {passed
+                        ? <span className="text-[var(--sol-green)]">✓</span>
+                        : <span className="text-[var(--sol-red)]">✗</span>}{"  "}{fmtModel(r.model)}
                     </VimLine>
                   );
                 })}

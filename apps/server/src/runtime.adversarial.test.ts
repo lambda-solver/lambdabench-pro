@@ -2,12 +2,12 @@
 // Adversarial security tests for runtime.ts
 // Covers: malformed inputs, boundary violations, injection vectors, concurrency
 
-import { existsSync, unlinkSync } from "node:fs";
 import * as NodeFileSystem from "@effect/platform-node-shared/NodeFileSystem";
 import * as NodePath from "@effect/platform-node-shared/NodePath";
 import { describe, it } from "@effect/vitest";
 import { assertDefined, assertTrue, strictEqual } from "@effect/vitest/utils";
 import { Effect, Layer } from "effect";
+import { existsSync, unlinkSync } from "node:fs";
 import { afterAll, afterEach, beforeAll, expect } from "vitest";
 import { makeRuntime, makeServicesLayer, ServicesLive } from "./runtime";
 import { ResultStore } from "./services/ResultStore";
@@ -30,17 +30,17 @@ const cleanupDbFiles = () => {
   for (const p of paths) {
     try {
       if (existsSync(p)) unlinkSync(p);
-    } catch (_e) {
+    } catch {
       /* ignore */
     }
     try {
       if (existsSync(`${p}-wal`)) unlinkSync(`${p}-wal`);
-    } catch (_e) {
+    } catch {
       /* ignore */
     }
     try {
       if (existsSync(`${p}-shm`)) unlinkSync(`${p}-shm`);
-    } catch (_e) {
+    } catch {
       /* ignore */
     }
   }
@@ -80,7 +80,7 @@ describe("runtime - adversarial", () => {
   });
 
   it.effect("makeServicesLayer with valid dbPath succeeds", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const path = testDbPathA;
       const layer = makeServicesLayer(path).pipe(
         Layer.provideMerge(platformLayer),
@@ -90,13 +90,12 @@ describe("runtime - adversarial", () => {
         exit._tag === "Success",
         "valid dbPath must produce a buildable layer",
       );
-    }),
-  );
+    }));
 
   // ── Vector 2: Extremely long dbPath (10KB+) ────────────────────────────────
 
   it.effect("makeServicesLayer with 10KB dbPath fails on build", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const longPath = `${"x".repeat(10_000)}.db`;
       const layer = makeServicesLayer(longPath).pipe(
         Layer.provideMerge(platformLayer),
@@ -106,8 +105,7 @@ describe("runtime - adversarial", () => {
         exit._tag === "Failure",
         "10KB+ dbPath must not silently succeed — filesystem overflow risk",
       );
-    }),
-  );
+    }));
 
   // ── Vector 3: Path traversal (allowed) ─────────────────────────────────────
 
@@ -121,7 +119,7 @@ describe("runtime - adversarial", () => {
   it.effect(
     "makeServicesLayer with writable traversal path builds successfully",
     () =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const path = "../../../tmp/lambench-adv-traversal.db";
         const layer = makeServicesLayer(path).pipe(
           Layer.provideMerge(platformLayer),
@@ -133,20 +131,20 @@ describe("runtime - adversarial", () => {
         );
         try {
           unlinkSync(path);
-        } catch (_e) {}
+        } catch {}
         try {
           if (existsSync(`${path}-wal`)) unlinkSync(`${path}-wal`);
-        } catch (_e) {}
+        } catch {}
         try {
           if (existsSync(`${path}-shm`)) unlinkSync(`${path}-shm`);
-        } catch (_e) {}
+        } catch {}
       }),
   );
 
   // ── Vector 4: Absolute path (boundary crossing) ────────────────────────────
 
   it.effect("makeServicesLayer with absolute /tmp path does not crash", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const absPath = "/tmp/lambench-adv-absolute.db";
       const layer = makeServicesLayer(absPath).pipe(
         Layer.provideMerge(platformLayer),
@@ -156,25 +154,24 @@ describe("runtime - adversarial", () => {
       if (exit._tag === "Success") {
         try {
           unlinkSync(absPath);
-        } catch (_e) {}
+        } catch {}
         try {
           unlinkSync(`${absPath}-wal`);
-        } catch (_e) {}
+        } catch {}
         try {
           unlinkSync(`${absPath}-shm`);
-        } catch (_e) {}
+        } catch {}
       }
       assertTrue(
         exit._tag === "Success" || exit._tag === "Failure",
         "absolute path should either succeed or fail cleanly, not crash",
       );
-    }),
-  );
+    }));
 
   // ── Vector 5: Null byte injection ──────────────────────────────────────────
 
   it.effect("makeServicesLayer with null byte in dbPath fails", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const pathWithNull = "test\x00hidden.db";
       const layer = makeServicesLayer(pathWithNull).pipe(
         Layer.provideMerge(platformLayer),
@@ -184,17 +181,15 @@ describe("runtime - adversarial", () => {
         exit._tag === "Failure",
         "null byte in dbPath must fail — C-string truncation attack vector",
       );
-    }),
-  );
+    }));
 
   // ── Vector 6: SQL injection in path (must be treated as filename only) ─────
 
   it.effect(
     "makeServicesLayer with SQL-like dbPath treats path as filename",
     () =>
-      Effect.gen(function* () {
-        const sqlPath =
-          "apps/server/test-data/sql_test'; DROP TABLE benchmark_results;--.db";
+      Effect.gen(function*() {
+        const sqlPath = "apps/server/test-data/sql_test'; DROP TABLE benchmark_results;--.db";
         const layer = makeServicesLayer(sqlPath).pipe(
           Layer.provideMerge(platformLayer),
         );
@@ -205,13 +200,13 @@ describe("runtime - adversarial", () => {
           assertTrue(existsSync(sqlPath), "DB file must exist at literal path");
           try {
             unlinkSync(sqlPath);
-          } catch (_e) {}
+          } catch {}
           try {
             unlinkSync(`${sqlPath}-wal`);
-          } catch (_e) {}
+          } catch {}
           try {
             unlinkSync(`${sqlPath}-shm`);
-          } catch (_e) {}
+          } catch {}
         }
         // Either success or failure is fine — critical: no SQL execution
         assertTrue(true);
@@ -220,11 +215,13 @@ describe("runtime - adversarial", () => {
 
   // ── Vector 7: Unicode and emoji in path ────────────────────────────────────
 
-  it.effect.each([
-    { path: "\u6d4b\u8bd5/\u6570\u636e\u5e93.db", desc: "CJK characters" },
-    { path: "test/\uD83D\uDE80-bench.db", desc: "emoji" },
-  ] as const)("makeServicesLayer handles unicode path: $desc", ({ path }) =>
-    Effect.gen(function* () {
+  it.effect.each(
+    [
+      { desc: "CJK characters", path: "\u6d4b\u8bd5/\u6570\u636e\u5e93.db" },
+      { desc: "emoji", path: "test/\uD83D\uDE80-bench.db" },
+    ] as const,
+  )("makeServicesLayer handles unicode path: $desc", ({ path }) =>
+    Effect.gen(function*() {
       const layer = makeServicesLayer(path).pipe(
         Layer.provideMerge(platformLayer),
       );
@@ -235,20 +232,19 @@ describe("runtime - adversarial", () => {
       );
       try {
         unlinkSync(path);
-      } catch (_e) {}
+      } catch {}
       try {
         if (existsSync(`${path}-wal`)) unlinkSync(`${path}-wal`);
-      } catch (_e) {}
+      } catch {}
       try {
         if (existsSync(`${path}-shm`)) unlinkSync(`${path}-shm`);
-      } catch (_e) {}
-    }),
-  );
+      } catch {}
+    }));
 
   // ── Vector 8: Concurrent inserts on same dbPath ────────────────────────────
 
   it.effect("concurrent inserts on same dbPath do not corrupt", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const layer = makeServicesLayer(testDbPathA).pipe(
         Layer.provideMerge(platformLayer),
       );
@@ -257,58 +253,57 @@ describe("runtime - adversarial", () => {
 
       yield* Effect.all(
         [
-          Effect.gen(function* () {
+          Effect.gen(function*() {
             const store = yield* ResultStore;
             yield* store.insertResult({
+              elapsedMs: 100,
+              model: "model-1",
+              pass: true,
+              provider: "openai",
               runId: "adv-concurrent-1",
               taskId: "task-1",
-              model: "model-1",
-              variant: "standard",
-              provider: "openai",
-              pass: true,
-              elapsedMs: 100,
               timestamp: new Date().toISOString(),
+              variant: "standard",
             });
           }),
-          Effect.gen(function* () {
+          Effect.gen(function*() {
             const store = yield* ResultStore;
             yield* store.insertResult({
+              elapsedMs: 200,
+              model: "model-2",
+              pass: false,
+              provider: "openrouter",
               runId: "adv-concurrent-2",
               taskId: "task-2",
-              model: "model-2",
-              variant: "rlm",
-              provider: "openrouter",
-              pass: false,
-              elapsedMs: 200,
               timestamp: new Date().toISOString(),
+              variant: "rlm",
             });
           }),
         ],
         { concurrency: 2 },
       ).pipe(Effect.provide(layer));
 
-      const r1 = yield* Effect.gen(function* () {
+      const r1 = yield* Effect.gen(function*() {
         const store = yield* ResultStore;
         return yield* store.getResultsByRunId("adv-concurrent-1");
       }).pipe(Effect.provide(layer));
       strictEqual(r1.length, 1);
       strictEqual(r1[0]?.pass, true);
 
-      const r2 = yield* Effect.gen(function* () {
+      const r2 = yield* Effect.gen(function*() {
         const store = yield* ResultStore;
         return yield* store.getResultsByRunId("adv-concurrent-2");
       }).pipe(Effect.provide(layer));
       strictEqual(r2.length, 1);
       strictEqual(r2[0]?.pass, false);
-    }),
-  );
+    }));
 
   // ── Vector 9: Double initialization — multiple runtimes, same path ─────────
 
   it.effect(
     "multiple ManagedRuntimes with same dbPath are independently usable",
     () =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const rt1 = makeRuntime(testDbPathA);
         const rt2 = makeRuntime(testDbPathA);
 
@@ -320,21 +315,21 @@ describe("runtime - adversarial", () => {
           Layer.provideMerge(platformLayer),
         );
 
-        yield* Effect.gen(function* () {
+        yield* Effect.gen(function*() {
           const store = yield* ResultStore;
           yield* store.insertResult({
+            elapsedMs: 50,
+            model: "model-double",
+            pass: true,
+            provider: "openai",
             runId: "adv-double-init",
             taskId: "task-double",
-            model: "model-double",
-            variant: "standard",
-            provider: "openai",
-            pass: true,
-            elapsedMs: 50,
             timestamp: new Date().toISOString(),
+            variant: "standard",
           });
         }).pipe(Effect.provide(layer));
 
-        const results = yield* Effect.gen(function* () {
+        const results = yield* Effect.gen(function*() {
           const store = yield* ResultStore;
           return yield* store.getResultsByRunId("adv-double-init");
         }).pipe(
@@ -354,7 +349,7 @@ describe("runtime - adversarial", () => {
   it.effect(
     "ServicesLive can be built (graceful handling if config lacks dbPath)",
     () =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const layer = ServicesLive.pipe(Layer.provideMerge(platformLayer));
         const exit = yield* Layer.build(layer).pipe(Effect.exit);
 
@@ -375,7 +370,7 @@ describe("runtime - adversarial", () => {
   it.effect(
     "makeServicesLayer produces structurally correct layers for valid path",
     () =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const layer = makeServicesLayer(testDbPathA).pipe(
           Layer.provideMerge(platformLayer),
         );
@@ -385,17 +380,17 @@ describe("runtime - adversarial", () => {
           "makeServicesLayer must produce a buildable layer for valid path",
         );
 
-        const results = yield* Effect.gen(function* () {
+        const results = yield* Effect.gen(function*() {
           const store = yield* ResultStore;
           yield* store.insertResult({
+            elapsedMs: 10,
+            model: "model-structural",
+            pass: true,
+            provider: "openai",
             runId: "adv-structural",
             taskId: "task-structural",
-            model: "model-structural",
-            variant: "standard",
-            provider: "openai",
-            pass: true,
-            elapsedMs: 10,
             timestamp: new Date().toISOString(),
+            variant: "standard",
           });
           return yield* store.getResultsByRunId("adv-structural");
         }).pipe(Effect.provide(layer));

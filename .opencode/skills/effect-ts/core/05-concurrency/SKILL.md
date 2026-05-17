@@ -29,11 +29,11 @@ yield* Effect.all(effects, { concurrency: 4, discard: true })
 
 ```typescript
 // Concurrent processing of a list
-const results = yield* Effect.forEach(
+const results = yield * Effect.forEach(
   items,
   (item) => processItem(item),
   { concurrency: 8 },
-)
+);
 ```
 
 ## Ref — shared mutable state inside Effect
@@ -51,31 +51,31 @@ const old = yield* Ref.getAndUpdate(counter, (n) => n + 1)
 
 ```typescript
 // Fork and forget
-yield* Effect.fork(backgroundTask)
+yield * Effect.fork(backgroundTask);
 
 // Fork and join later
-const fiber = yield* Effect.fork(longTask)
-const result = yield* Fiber.join(fiber)
+const fiber = yield * Effect.fork(longTask);
+const result = yield * Fiber.join(fiber);
 
 // Fork scoped — interrupted when scope closes
-yield* Effect.forkScoped(
-  Effect.gen(function* () {
+yield * Effect.forkScoped(
+  Effect.gen(function*() {
     while (true) {
-      yield* Effect.sleep("5 seconds")
-      yield* Effect.log("tick")
+      yield* Effect.sleep("5 seconds");
+      yield* Effect.log("tick");
     }
   }),
-)
+);
 ```
 
 ## Effect.race — first one wins
 
 ```typescript
 // Returns whichever Effect finishes first; interrupts the other
-const result = yield* Effect.race(fastPath, slowPath)
+const result = yield * Effect.race(fastPath, slowPath);
 
 // With timeout
-const result = yield* Effect.timeout(program, "30 seconds")
+const result = yield * Effect.timeout(program, "30 seconds");
 ```
 
 ## Semaphore — bounded concurrency gate
@@ -102,17 +102,17 @@ const stream = Stream.fromPubSub(pubsub)
 ## Scheduling — retry and polling
 
 ```typescript
-import { Schedule } from "effect"
+import { Schedule } from "effect";
 
 // Retry with exponential backoff, max 3 times
 program.pipe(
   Effect.retry(Schedule.exponential("100 millis").pipe(Schedule.upTo(3))),
-)
+);
 
 // Repeat on a fixed interval
 program.pipe(
   Effect.repeat(Schedule.spaced("30 seconds")),
-)
+);
 ```
 
 ## Tail recursion — use Effect.suspend
@@ -124,5 +124,5 @@ recursive effectful loops to avoid stack overflow.
 const loop = (n: number): Effect.Effect<number> =>
   n <= 0
     ? Effect.succeed(0)
-    : Effect.suspend(() => loop(n - 1).pipe(Effect.map((x) => x + 1)))
+    : Effect.suspend(() => loop(n - 1).pipe(Effect.map((x) => x + 1)));
 ```

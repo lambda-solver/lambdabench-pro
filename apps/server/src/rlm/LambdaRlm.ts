@@ -20,17 +20,15 @@
  *     effectiveDepth = max(plan.depth, maxDepth) drives self-correction retries.
  */
 
-import { Effect, type FileSystem, type Path } from "effect";
+import type { FileSystem, Path } from "effect";
+import { Effect } from "effect";
 import type { LanguageModel } from "effect/unstable/ai";
 import type { CheckResult, Task } from "../check/Check";
 import { runTask } from "../check/Check";
-import {
-  buildRetryPrompt,
-  buildSolvePrompt,
-  buildTaskDetectionProbe,
-} from "../llm/LlmPrompts";
+import { buildRetryPrompt, buildSolvePrompt, buildTaskDetectionProbe } from "../llm/LlmPrompts";
 import { guardedGenerate, ModelUnresponsiveError } from "../llm/ModelGuard";
-import { type LambdaPlan, parseTaskType, plan, splitText } from "./LambdaPlan";
+import { parseTaskType, plan, splitText } from "./LambdaPlan";
+import type { LambdaPlan } from "./LambdaPlan";
 import { extractLamCode } from "./LamCodeExtractor";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -44,7 +42,7 @@ export type LlmCheckResult = CheckResult & {
 };
 
 /** Configuration for a single λ-RLM evaluation run. */
-export type LambdaRlmConfig = {
+export interface LambdaRlmConfig {
   /** Model context window in characters (default 100 000). */
   readonly contextWindowChars: number;
   /** Minimum accuracy target α for the accuracy constraint (0–1). */
@@ -59,7 +57,7 @@ export type LambdaRlmConfig = {
    * Overrides plan.depth (which is always 0 for short lambda tasks).
    */
   readonly maxDepth: number;
-};
+}
 
 // ─── Config from env ─────────────────────────────────────────────────────────
 
@@ -71,10 +69,10 @@ export type LambdaRlmConfig = {
  * not by this config — see makeOpenRouterLayer in OpenRouterClient.ts.
  */
 export const defaultConfig = (maxDepth = 3): LambdaRlmConfig => ({
-  contextWindowChars: 100_000,
-  accuracyTarget: 0.8,
-  aLeaf: 0.95,
   aCompose: 0.9,
+  aLeaf: 0.95,
+  accuracyTarget: 0.8,
+  contextWindowChars: 100_000,
   maxDepth,
 });
 
@@ -100,20 +98,19 @@ type PhiEffect = Effect.Effect<
  * replacing a generic LLM-based text merge for this task type.
  */
 const selectBest = (results: ReadonlyArray<LlmCheckResult>): LlmCheckResult => {
-  const passing = results.filter((r) => r.pass);
-  const firstPassing = passing[0];
+  const firstPassing = results.find((r) => r.pass);
   if (firstPassing !== undefined) return firstPassing;
-  const sorted = [...results].sort((a, b) => a.errors.length - b.errors.length);
+  const sorted = [...results].toSorted((a, b) => a.errors.length - b.errors.length);
   const firstSorted = sorted[0];
   if (firstSorted !== undefined) return firstSorted;
   return {
+    attempts: 0,
+    bits: 0,
+    depth: 0,
+    errors: ["no results available"],
     id: "unknown",
     pass: false,
-    bits: 0,
     score: 0,
-    errors: ["no results available"],
-    attempts: 0,
-    depth: 0,
   };
 };
 
@@ -134,17 +131,16 @@ const absorbToCheckResult = (
 ): PhiEffect =>
   eff.pipe(
     Effect.catchIf(
-      (e): e is Exclude<unknown, ModelUnresponsiveError> =>
-        !(e instanceof ModelUnresponsiveError),
+      (e): e is Exclude<unknown, ModelUnresponsiveError> => !(e instanceof ModelUnresponsiveError),
       (_e) =>
         Effect.succeed<LlmCheckResult>({
+          attempts: 1,
+          bits: 0,
+          depth: 0,
+          errors: [`internal error: ${String(_e)}`],
           id: task.id,
           pass: false,
-          bits: 0,
           score: 0,
-          errors: [`internal error: ${String(_e)}`],
-          attempts: 1,
-          depth: 0,
         }),
     ),
   ) as PhiEffect;
@@ -152,14 +148,14 @@ const absorbToCheckResult = (
 // ─── Internal: LeafInput / leafCall ──────────────────────────────────────────
 
 /** Input bundle for a single leaf call in the Φ chain. */
-type LeafInput = {
+interface LeafInput {
   readonly task: Task;
   readonly lambdaPlan: LambdaPlan;
   readonly config: LambdaRlmConfig;
   readonly refBits: number | undefined;
   readonly priorAttempt: string | undefined;
   readonly priorErrors: ReadonlyArray<string>;
-};
+}
 
 /**
  * Leaf node of the Φ combinator chain — the ONLY place a neural call occurs.
@@ -168,21 +164,20 @@ type LeafInput = {
  * retry prompt (when priorAttempt is set), then runs the lam interpreter
  * as the oracle to verify the response.
  */
-const leafCall = Effect.fn("leafCall")(function* (input: LeafInput) {
+const leafCall = Effect.fn("leafCall")(function*(input: LeafInput) {
   const isRetry = input.priorAttempt !== undefined;
-  const prompt =
-    input.priorAttempt !== undefined
-      ? buildRetryPrompt(input.task, input.priorAttempt, input.priorErrors)
-      : buildSolvePrompt(input.task);
+  const prompt = input.priorAttempt !== undefined
+    ? buildRetryPrompt(input.task, input.priorAttempt, input.priorErrors)
+    : buildSolvePrompt(input.task);
 
   yield* Effect.log(
-    `[λ-RLM] ${input.task.id}${isRetry ? " retry" : ""} → prompt (${prompt.length} chars): ${prompt.slice(0, 80).replace(/\n/g, " ")}…`,
+    `[λ-RLM] ${input.task.id}${isRetry ? " retry" : ""} → prompt (${prompt.length} chars): ${
+      prompt.slice(0, 80).replace(/\n/g, " ")
+    }…`,
   );
 
   const rawResponse = yield* guardedGenerate(prompt, "rlm").pipe(
-    Effect.catchTag("ModelUnresponsiveError", (e) =>
-      Effect.fail(new ModelUnresponsiveError(e.model, e.attempts)),
-    ),
+    Effect.catchTag("ModelUnresponsiveError", (e) => Effect.fail(new ModelUnresponsiveError(e.model, e.attempts))),
   );
 
   const submission = extractLamCode(rawResponse);
@@ -201,7 +196,7 @@ const leafCall = Effect.fn("leafCall")(function* (input: LeafInput) {
 // ─── Internal: PhiInput / executeΦ ───────────────────────────────────────────
 
 /** Input bundle for one recursive Φ invocation. */
-type PhiInput = {
+interface PhiInput {
   readonly context: string;
   readonly depthRemaining: number;
   readonly task: Task;
@@ -210,7 +205,7 @@ type PhiInput = {
   readonly refBits: number | undefined;
   readonly priorAttempt: string | undefined;
   readonly priorErrors: ReadonlyArray<string>;
-};
+}
 
 /**
  * Φ(P, depthRemaining) — the pre-verified combinator chain.
@@ -226,20 +221,19 @@ type PhiInput = {
  * Uses Effect.suspend for safe lazy recursion.
  */
 const executeΦ = (input: PhiInput): PhiEffect => {
-  const isLeaf =
-    input.depthRemaining <= 0 ||
-    input.context.length <= input.lambdaPlan.tauStar;
+  const isLeaf = input.depthRemaining <= 0
+    || input.context.length <= input.lambdaPlan.tauStar;
 
   if (isLeaf) {
     return absorbToCheckResult(
       input.task,
       leafCall({
-        task: input.task,
-        lambdaPlan: input.lambdaPlan,
         config: input.config,
-        refBits: input.refBits,
+        lambdaPlan: input.lambdaPlan,
         priorAttempt: input.priorAttempt,
         priorErrors: input.priorErrors,
+        refBits: input.refBits,
+        task: input.task,
       }),
     );
   }
@@ -249,7 +243,7 @@ const executeΦ = (input: PhiInput): PhiEffect => {
 
   return absorbToCheckResult(
     input.task,
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const partials = yield* Effect.all(
         chunks.map(
           (chunk): PhiEffect =>
@@ -258,7 +252,7 @@ const executeΦ = (input: PhiInput): PhiEffect => {
                 ...input,
                 context: chunk,
                 depthRemaining: input.depthRemaining - 1,
-              }),
+              })
             ),
         ),
         { concurrency: input.lambdaPlan.kStar },
@@ -277,11 +271,11 @@ const executeΦ = (input: PhiInput): PhiEffect => {
 // ─── Internal: SelfCorrectState / selfCorrect ─────────────────────────────────
 
 /** Accumulated state for the self-correction recursion. */
-type SelfCorrectState = {
+interface SelfCorrectState {
   readonly result: LlmCheckResult;
   readonly attemptsUsed: number;
   readonly depthRemaining: number;
-};
+}
 
 /**
  * Self-correction loop — pure tail recursion via Effect.suspend.
@@ -309,26 +303,25 @@ const selfCorrect = (
   }
 
   return Effect.suspend(() =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const retryResult = yield* executeΦ({
+        config,
         context: buildSolvePrompt(task),
         depthRemaining: 0, // force leaf on retry
-        task,
         lambdaPlan,
-        config,
-        refBits,
-        priorAttempt:
-          state.result.errors.length > 0
-            ? `(prior attempt — ${state.result.errors.length} error(s))`
-            : undefined,
+        priorAttempt: state.result.errors.length > 0
+          ? `(prior attempt — ${state.result.errors.length} error(s))`
+          : undefined,
         priorErrors: state.result.errors,
+        refBits,
+        task,
       });
 
       return yield* selfCorrect(
         {
-          result: retryResult,
           attemptsUsed: state.attemptsUsed + retryResult.attempts,
           depthRemaining: state.depthRemaining - 1,
+          result: retryResult,
         },
         task,
         lambdaPlan,
@@ -336,7 +329,7 @@ const selfCorrect = (
         refBits,
         effectiveDepth,
       );
-    }),
+    })
   );
 };
 
@@ -356,7 +349,7 @@ const selfCorrect = (
  * Returns a LlmCheckResult with the check outcome plus attempts / depth metadata.
  * Never fails — all errors are absorbed into pass:false results.
  */
-export const rlmEval = Effect.fn("rlmEval")(function* (
+export const rlmEval = Effect.fn("rlmEval")(function*(
   task: Task,
   refBits?: number,
   config?: LambdaRlmConfig,
@@ -386,9 +379,9 @@ export const rlmEval = Effect.fn("rlmEval")(function* (
 
   // ── Phase 4: Log cost estimate ────────────────────────────────────────────
   yield* Effect.log(
-    `[λ-RLM] task=${task.id} type=${taskType} k*=${lambdaPlan.kStar} ` +
-      `τ*=${lambdaPlan.tauStar} plan.depth=${lambdaPlan.depth} ` +
-      `⊕=${lambdaPlan.composeOp} Ĉ≈${lambdaPlan.costEstimate.toFixed(1)}`,
+    `[λ-RLM] task=${task.id} type=${taskType} k*=${lambdaPlan.kStar} `
+      + `τ*=${lambdaPlan.tauStar} plan.depth=${lambdaPlan.depth} `
+      + `⊕=${lambdaPlan.composeOp} Ĉ≈${lambdaPlan.costEstimate.toFixed(1)}`,
   );
 
   // ── Phase 5: Execute Φ + self-correction ─────────────────────────────────
@@ -397,22 +390,22 @@ export const rlmEval = Effect.fn("rlmEval")(function* (
   const effectiveDepth = Math.max(lambdaPlan.depth, cfg.maxDepth);
 
   const firstResult = yield* executeΦ({
+    config: cfg,
     context: context0,
     depthRemaining: effectiveDepth,
-    task,
     lambdaPlan,
-    config: cfg,
-    refBits,
     priorAttempt: undefined,
     priorErrors: [],
+    refBits,
+    task,
   });
 
   // Self-correction: budget = effectiveDepth - 1 (first attempt consumed 1).
   return yield* selfCorrect(
     {
-      result: firstResult,
       attemptsUsed: firstResult.attempts,
       depthRemaining: effectiveDepth - 1,
+      result: firstResult,
     },
     task,
     lambdaPlan,

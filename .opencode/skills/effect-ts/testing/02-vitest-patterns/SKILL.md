@@ -13,9 +13,9 @@ compatibility: opencode
 ## Canonical import pattern
 
 ```typescript
-import { describe, it } from "@effect/vitest"
-import { strictEqual, assertTrue, assertSome } from "@effect/vitest/utils"
-import { Effect, Layer } from "effect"
+import { describe, it } from "@effect/vitest";
+import { assertSome, assertTrue, strictEqual } from "@effect/vitest/utils";
+import { Effect, Layer } from "effect";
 ```
 
 - `it` and `describe` — always from `@effect/vitest`
@@ -27,35 +27,34 @@ import { Effect, Layer } from "effect"
 
 ```typescript
 import {
-  strictEqual,        // strictEqual(actual, expected)
-  deepStrictEqual,    // deep equality via Equal.equals
-  assertTrue,         // assertTrue(value)
-  assertFalse,        // assertFalse(value)
-  assertSome,         // assertSome(option, expected)
-  assertNone,         // assertNone(option)
-  assertDefined,      // assertDefined(value)
-  assertUndefined,    // assertUndefined(value)
-  assertSuccess,      // assertSuccess(result, expected)
-  assertFailure,      // assertFailure(result, expected)
-  assertExitSuccess,  // assertExitSuccess(exit, expected)
-  assertExitFailure,  // assertExitFailure(exit, cause)
-  assertInclude,      // assertInclude(actual, expected)
-  assertMatch,        // assertMatch(actual, regExp)
-  assertInstanceOf,   // assertInstanceOf(value, Constructor)
-  fail,               // fail("message")
-} from "@effect/vitest/utils"
+  assertDefined, // assertDefined(value)
+  assertExitFailure, // assertExitFailure(exit, cause)
+  assertExitSuccess, // assertExitSuccess(exit, expected)
+  assertFailure, // assertFailure(result, expected)
+  assertFalse, // assertFalse(value)
+  assertInclude, // assertInclude(actual, expected)
+  assertInstanceOf, // assertInstanceOf(value, Constructor)
+  assertMatch, // assertMatch(actual, regExp)
+  assertNone, // assertNone(option)
+  assertSome, // assertSome(option, expected)
+  assertSuccess, // assertSuccess(result, expected)
+  assertTrue, // assertTrue(value)
+  assertUndefined, // assertUndefined(value)
+  deepStrictEqual, // deep equality via Equal.equals
+  fail, // fail("message")
+  strictEqual, // strictEqual(actual, expected)
+} from "@effect/vitest/utils";
 ```
 
 ## it.effect — basic Effect test
 
 ```typescript
 it.effect("processes item correctly", () =>
-  Effect.gen(function* () {
-    const svc = yield* MyService
-    const result = yield* svc.process("input")
-    strictEqual(result, "expected")
-  }).pipe(Effect.provide(MyService.layerTest)),
-)
+  Effect.gen(function*() {
+    const svc = yield* MyService;
+    const result = yield* svc.process("input");
+    strictEqual(result, "expected");
+  }).pipe(Effect.provide(MyService.layerTest)));
 ```
 
 ## it.effect with timeout
@@ -64,26 +63,23 @@ Pass timeout (ms) as the last argument:
 
 ```typescript
 it.effect("calls real API", () =>
-  Effect.gen(function* () {
-    const result = yield* callRealApi()
-    assertTrue(result.length > 0)
-  }).pipe(Effect.provide(realLayer)),
-  30_000,
-)
+  Effect.gen(function*() {
+    const result = yield* callRealApi();
+    assertTrue(result.length > 0);
+  }).pipe(Effect.provide(realLayer)), 30_000);
 ```
 
 ## it.scoped — test needs a Scope (resources, temp files)
 
 ```typescript
 it.scoped("cleans up temp file", () =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem
-    const path = yield* fs.makeTempFileScoped()   // auto-cleaned on scope close
-    yield* fs.writeFileString(path, "hello")
-    const content = yield* fs.readFileString(path)
-    strictEqual(content, "hello")
-  }).pipe(Effect.provide(NodeFileSystem.layer)),
-)
+  Effect.gen(function*() {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* fs.makeTempFileScoped(); // auto-cleaned on scope close
+    yield* fs.writeFileString(path, "hello");
+    const content = yield* fs.readFileString(path);
+    strictEqual(content, "hello");
+  }).pipe(Effect.provide(NodeFileSystem.layer)));
 ```
 
 ## it.layer — shared layer for all tests in a describe block
@@ -91,22 +87,21 @@ it.scoped("cleans up temp file", () =>
 Provide a layer once; all `it.effect` / `it.scoped` inside share it:
 
 ```typescript
-import * as NodeFileSystem from "@effect/platform-node-shared/NodeFileSystem"
-import * as NodePath from "@effect/platform-node-shared/NodePath"
+import * as NodeFileSystem from "@effect/platform-node-shared/NodeFileSystem";
+import * as NodePath from "@effect/platform-node-shared/NodePath";
 
-const platformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer)
+const platformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 
 describe("MyService", () => {
   it.layer(platformLayer)((it) => {
     it.effect("reads a file", () =>
-      Effect.gen(function* () {
-        const fs = yield* FileSystem.FileSystem
-        const content = yield* fs.readFileString("/tmp/test.txt")
-        assertDefined(content)
-      }),
-    )
-  })
-})
+      Effect.gen(function*() {
+        const fs = yield* FileSystem.FileSystem;
+        const content = yield* fs.readFileString("/tmp/test.txt");
+        assertDefined(content);
+      }));
+  });
+});
 ```
 
 ## it.effect.skipIf — conditional skip
@@ -115,12 +110,12 @@ describe("MyService", () => {
 it.effect.skipIf(!process.env["OPENROUTER_API_KEY"])(
   "calls real OpenRouter",
   () =>
-    Effect.gen(function* () {
-      const result = yield* LanguageModel.generateText({ prompt: "hello" })
-      assertTrue(result.text.length > 0)
+    Effect.gen(function*() {
+      const result = yield* LanguageModel.generateText({ prompt: "hello" });
+      assertTrue(result.text.length > 0);
     }).pipe(Effect.provide(realLayer)),
   30_000,
-)
+);
 ```
 
 ## it.effect.each — parameterised tests
@@ -129,11 +124,13 @@ it.effect.skipIf(!process.env["OPENROUTER_API_KEY"])(
 it.effect.each([
   { input: " Ada ", expected: "ada" },
   { input: " Lin ", expected: "lin" },
-])("trims and lowercases $input", ({ input, expected }) =>
-  Effect.gen(function* () {
-    strictEqual(input.trim().toLowerCase(), expected)
-  }),
-)
+])(
+  "trims and lowercases $input",
+  ({ input, expected }) =>
+    Effect.gen(function*() {
+      strictEqual(input.trim().toLowerCase(), expected);
+    }),
+);
 ```
 
 ## Loading env vars for integration tests — ConfigProvider
@@ -143,25 +140,28 @@ Do **not** use `vitest.setup.ts` or manual `.env` parsing. Use
 idiomatic Effect way to load env:
 
 ```typescript
-import { ConfigProvider, Effect, Layer } from "effect"
-import { FetchHttpClient } from "effect/unstable/http"
+import { ConfigProvider, Effect, Layer } from "effect";
+import { FetchHttpClient } from "effect/unstable/http";
 
 it.effect.skipIf(!process.env["OPENROUTER_API_KEY"])(
   "calls real OpenRouter",
   () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const layer = makeOpenRouterLayer("minimax/minimax-m2.5:free").pipe(
         Layer.provide(FetchHttpClient.layer),
-      )
-      const result = yield* LanguageModel.generateText({ prompt: "hello" }).pipe(
-        Effect.map((r) => r.text),
-        Effect.provide(layer),
-        Effect.provide(ConfigProvider.layer(ConfigProvider.fromUnknown(process.env))),
-      )
-      assertTrue(result.length > 0)
+      );
+      const result = yield* LanguageModel.generateText({ prompt: "hello" })
+        .pipe(
+          Effect.map((r) => r.text),
+          Effect.provide(layer),
+          Effect.provide(
+            ConfigProvider.layer(ConfigProvider.fromUnknown(process.env)),
+          ),
+        );
+      assertTrue(result.length > 0);
     }),
   30_000,
-)
+);
 ```
 
 Vitest does **not** load `.env` automatically. The key must already be in
@@ -187,10 +187,10 @@ requires `bun:*` native modules unavailable under Node.
 Use subpath imports from `@effect/platform-node-shared` instead:
 
 ```typescript
-import * as NodeFileSystem from "@effect/platform-node-shared/NodeFileSystem"
-import * as NodePath from "@effect/platform-node-shared/NodePath"
+import * as NodeFileSystem from "@effect/platform-node-shared/NodeFileSystem";
+import * as NodePath from "@effect/platform-node-shared/NodePath";
 
-const testLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer)
+const testLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 ```
 
 `@effect/platform-node-shared` must be an **explicit `devDependency`** — it is
@@ -204,6 +204,7 @@ deps from `.bun/` without a direct entry:
 ```
 
 The package has **no barrel `index.js`** — always use subpath imports:
+
 - `@effect/platform-node-shared/NodeFileSystem`
 - `@effect/platform-node-shared/NodePath`
 - `@effect/platform-node-shared/NodeChildProcessSpawner`
@@ -215,42 +216,42 @@ importing via the `@effect/platform-bun` barrel pulls in `BunRedis`. Use
 `FetchHttpClient` directly:
 
 ```typescript
-import { FetchHttpClient } from "effect/unstable/http"
+import { FetchHttpClient } from "effect/unstable/http";
 
 const layer = makeOpenRouterLayer("minimax/minimax-m2.5:free").pipe(
   Layer.provide(FetchHttpClient.layer),
-)
+);
 ```
 
 ## Mock LanguageModel layer
 
 ```typescript
-import { LanguageModel } from "effect/unstable/ai"
+import { LanguageModel } from "effect/unstable/ai";
 
 const mockLmLayer = (
   responses: ReadonlyArray<string>,
 ): Layer.Layer<LanguageModel.LanguageModel> =>
   Layer.effect(
     LanguageModel.LanguageModel,
-    Effect.gen(function* () {
-      const idx = yield* Ref.make(0)
+    Effect.gen(function*() {
+      const idx = yield* Ref.make(0);
       return {
         generateText: (_options: unknown) =>
-          Effect.gen(function* () {
-            const i = yield* Ref.getAndUpdate(idx, (n) => n + 1)
-            const text = responses[Math.min(i, responses.length - 1)] ?? ""
+          Effect.gen(function*() {
+            const i = yield* Ref.getAndUpdate(idx, (n) => n + 1);
+            const text = responses[Math.min(i, responses.length - 1)] ?? "";
             return {
               text,
               usage: { inputTokens: 0, outputTokens: 0 },
               toolCalls: [],
               finishReason: "stop" as const,
-            }
+            };
           }),
         generateObject: () => Effect.die(new Error("not mocked")),
         streamText: () => Effect.die(new Error("not mocked")),
-      } as unknown as LanguageModel.Service
+      } as unknown as LanguageModel.Service;
     }),
-  )
+  );
 ```
 
 ## File structure convention

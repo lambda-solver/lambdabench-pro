@@ -3,8 +3,7 @@ import { Context, Effect, Layer, Ref } from "effect";
 
 type Delimiter = string | ReadonlyArray<string>;
 
-const escapeRegex = (value: string): string =>
-  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const escapeRegex = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 
 const toSplitPattern = (delimiter: Delimiter): string | RegExp => {
   if (typeof delimiter === "string") {
@@ -30,7 +29,7 @@ export class DelimTokenizer extends Context.Service<
   DelimTokenizer,
   Tokenizer["Service"]
 >()("DelimTokenizer", {
-  make: Effect.fn(function* (delimiter: Delimiter, joiner?: string) {
+  make: Effect.fn(function*(delimiter: Delimiter, joiner?: string) {
     const joinDelimiter = getJoinDelimiter(delimiter, joiner);
     const splitPattern = toSplitPattern(delimiter);
     const splitText = (text: string): Array<string> => {
@@ -41,9 +40,9 @@ export class DelimTokenizer extends Context.Service<
     };
 
     const stateRef = yield* Ref.make({
-      vocab: new Map<string, number>(),
-      reverse: new Map<number, string>(),
       nextId: 0,
+      reverse: new Map<number, string>(),
+      vocab: new Map<string, number>(),
     });
 
     const encode = (text: string) =>
@@ -66,15 +65,15 @@ export class DelimTokenizer extends Context.Service<
         return [
           ids,
           {
-            vocab,
-            reverse,
             nextId,
+            reverse,
+            vocab,
           },
         ] as const;
       });
 
     const decode = (tokens: ReadonlyArray<number>) =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const { reverse } = yield* Ref.get(stateRef);
         const tokensArray: Array<string> = [];
         for (const id of tokens) {
@@ -91,10 +90,9 @@ export class DelimTokenizer extends Context.Service<
         return tokensArray.join(joinDelimiter);
       });
 
-    const countTokens = (text: string) =>
-      Effect.succeed(splitText(text).length);
+    const countTokens = (text: string) => Effect.succeed(splitText(text).length);
 
-    return { encode, decode, countTokens } as const;
+    return { countTokens, decode, encode } as const;
   }),
 }) {}
 

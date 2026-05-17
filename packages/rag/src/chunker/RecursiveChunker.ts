@@ -1,31 +1,21 @@
-import {
-  type Chunk,
-  Chunker,
-  Tokenizer,
-  type TokenizerError,
-} from "@repo/domain/Chunk";
+import type { Chunk, TokenizerError } from "@repo/domain/Chunk";
+import { Chunker, Tokenizer } from "@repo/domain/Chunk";
 import { Context, Effect, Layer, Schema } from "effect";
 import { WordTokenizerLive } from "../tokenizer/DelimTokenizer";
-import {
-  buildDelimiterPattern,
-  findDelimiterSpans,
-  IncludeDelim,
-  isBlank,
-  splitTextByMatches,
-} from "./utils";
+import { buildDelimiterPattern, findDelimiterSpans, IncludeDelim, isBlank, splitTextByMatches } from "./utils";
 
 const RecursiveRuleSchema = Schema.Struct({
   delimiters: Schema.optional(Schema.NonEmptyArray(Schema.String)),
-  whitespace: Schema.optional(Schema.Boolean),
   includeDelim: Schema.optional(IncludeDelim),
+  whitespace: Schema.optional(Schema.Boolean),
 }).pipe(
   Schema.check(
     Schema.makeFilter(
       ({ delimiters, whitespace }) =>
-        (delimiters && delimiters.length > 0) ||
-        whitespace === true ||
-        (!delimiters && !whitespace) ||
-        "Rule must define delimiters, whitespace, or be an empty fallback",
+        (delimiters && delimiters.length > 0)
+        || whitespace === true
+        || (!delimiters && !whitespace)
+        || "Rule must define delimiters, whitespace, or be an empty fallback",
     ),
   ),
 );
@@ -47,7 +37,7 @@ export const RecursiveChunkerConfig = Context.Reference<
     rules: [
       { delimiters: ["\n\n"], includeDelim: "prev" },
       { delimiters: ["\n"], includeDelim: "prev" },
-      { whitespace: true, includeDelim: "prev" },
+      { includeDelim: "prev", whitespace: true },
       {},
     ],
   }),
@@ -103,7 +93,7 @@ const mergeSplits = (
   splits: ReadonlyArray<string>,
   tokenCounts: ReadonlyArray<number>,
   chunkSize: number,
-): { mergedSplits: Array<string>; mergedTokenCounts: Array<number> } => {
+): { mergedSplits: Array<string>; mergedTokenCounts: Array<number>; } => {
   if (splits.length === 0) {
     return { mergedSplits: [], mergedTokenCounts: [] };
   }
@@ -139,9 +129,9 @@ const toChunk = (
   tokenCount: number,
   metadata?: Record<string, unknown>,
 ): Chunk => ({
-  text,
-  startIdx,
   endIdx: startIdx + text.length,
+  startIdx,
+  text,
   tokenCount,
   ...(metadata ? { metadata } : {}),
 });
@@ -150,13 +140,14 @@ export class RecursiveChunker extends Context.Service<
   RecursiveChunker,
   Chunker["Service"]
 >()("RecursiveChunker", {
-  make: Effect.gen(function* () {
+  make: Effect.gen(function*() {
     const tokenizer = yield* Tokenizer;
     const config = yield* RecursiveChunkerConfig;
-    const { chunkSize, minCharactersPerChunk, rules } =
-      yield* Schema.decodeEffect(RecursiveChunkerConfigSchema)(config);
+    const { chunkSize, minCharactersPerChunk, rules } = yield* Schema.decodeEffect(RecursiveChunkerConfigSchema)(
+      config,
+    );
 
-    const tokenFallback = Effect.fn(function* (
+    const tokenFallback = Effect.fn(function*(
       text: string,
       startOffset: number,
     ) {
@@ -187,7 +178,7 @@ export class RecursiveChunker extends Context.Service<
       level,
       startOffset,
     ) =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         if (text.length === 0) return [];
         if (level >= rules.length) {
           const tokenCount = yield* tokenizer.countTokens(text);
@@ -219,9 +210,7 @@ export class RecursiveChunker extends Context.Service<
         }
         const splits = splitByRule(text, rule, minCharactersPerChunk);
         if (splits.length === 0) return [];
-        const tokenCounts = yield* Effect.forEach(splits, (split) =>
-          tokenizer.countTokens(split),
-        );
+        const tokenCounts = yield* Effect.forEach(splits, (split) => tokenizer.countTokens(split));
         const { mergedSplits, mergedTokenCounts } = mergeSplits(
           splits,
           tokenCounts,
@@ -229,9 +218,9 @@ export class RecursiveChunker extends Context.Service<
         );
         const ruleType = rule.delimiters
           ? "delimiter"
-          : rule.whitespace
+          : (rule.whitespace
             ? "whitespace"
-            : "fallback";
+            : "fallback");
         const ruleDelims = rule.delimiters?.join("|");
         const out: Array<Chunk> = [];
         let currentOffset = startOffset;
@@ -259,13 +248,13 @@ export class RecursiveChunker extends Context.Service<
         return out;
       });
 
-    const chunk = Effect.fn("RecursiveChunker.chunk")(function* (text: string) {
+    const chunk = Effect.fn("RecursiveChunker.chunk")(function*(text: string) {
       if (isBlank(text)) return [];
       return yield* recursiveChunk(text, 0, 0);
     });
     return {
-      name: "recursive",
       chunk,
+      name: "recursive",
     };
   }),
 }) {}

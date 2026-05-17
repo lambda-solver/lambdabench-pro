@@ -15,21 +15,20 @@ export const getFileExtension = (fileName: string) =>
     parts.length < 2
       ? ""
       : pipe(
-          parts,
-          Array.last,
-          Option.getOrElse(() => ""),
-          String.toLowerCase,
-          (extension) => `.${extension}`,
-        ),
-  );
+        parts,
+        Array.last,
+        Option.getOrElse(() => ""),
+        String.toLowerCase,
+        (extension) => `.${extension}`,
+      ));
 
 export const resolveMimeTypeForFile = (fileName: string) => {
   const extension = getFileExtension(fileName);
   const mimeTypes = {
+    ".csv": "text/csv",
+    ".md": "text/markdown",
     ".pdf": "application/pdf",
     ".txt": "text/plain",
-    ".md": "text/markdown",
-    ".csv": "text/csv",
   } as const;
 
   return pipe(

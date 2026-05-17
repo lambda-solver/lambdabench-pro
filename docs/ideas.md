@@ -1,8 +1,8 @@
 # LamBench Pro — Evolutionary Workflow Synthesis (Ideas Document)
 
-> **Status:** Architecture Exploration  
-> **Date:** 2026-05-04  
-> **Scope:** How to evolve from static λ-RLM evaluation into a self-improving, program-synthesis benchmark platform using evolutionary strategies (GEPA, ES) over composable workflows.  
+> **Status:** Architecture Exploration\
+> **Date:** 2026-05-04\
+> **Scope:** How to evolve from static λ-RLM evaluation into a self-improving, program-synthesis benchmark platform using evolutionary strategies (GEPA, ES) over composable workflows.\
 > **References:** `apps/server/src/rlm/`, `apps/server/src/check/`, `apps/server/src/services/`, `reference/motel/`, `reference/effect-smol/`
 
 ---
@@ -12,6 +12,7 @@
 **Current state:** LamBench Pro evaluates LLMs on lambda-calculus tasks using a fixed λ-RLM pipeline (task detection → analytical planning → Φ combinator chain → self-correction). The pipeline is hand-engineered and domain-specific.
 
 **Target state:** A streaming evaluation platform where:
+
 1. **Evals arrive as input/output pairs** with descriptions (like LAMBADA-style tasks or unit tests).
 2. **A program synthesizer** builds candidate workflows by composing functions (Split, Map, Filter, LLM-call, Oracle-check, Merge, etc.).
 3. **An evolutionary loop** (GEPA / CMA-ES / genetic programming) refines the best workflows over generations.
@@ -28,19 +29,21 @@ This is **program synthesis via evolutionary computation**, where the search spa
 
 A **workflow** is a directed acyclic graph (DAG) of **nodes**. Each node is either:
 
-| Node Type | Role | Example |
-|-----------|------|---------|
-| **Leaf** | LLM call with a prompt template | `llm_solve(task_prompt)` |
-| **Transform** | Pure function on data | `split_text(k)`, `extract_code()`, `parse_json()` |
-| **Compose** | Aggregation over multiple inputs | `select_best(results[])` , `majority_vote(results[])` |
-| **Oracle** | Domain-specific verifier | `lam_check(submission)` , `unit_test_run(code)` |
-| **Meta** | Control flow | `retry_until_pass(max_n)`, `branch_on_type(task_type)` |
+| Node Type     | Role                             | Example                                                |
+| ------------- | -------------------------------- | ------------------------------------------------------ |
+| **Leaf**      | LLM call with a prompt template  | `llm_solve(task_prompt)`                               |
+| **Transform** | Pure function on data            | `split_text(k)`, `extract_code()`, `parse_json()`      |
+| **Compose**   | Aggregation over multiple inputs | `select_best(results[])` , `majority_vote(results[])`  |
+| **Oracle**    | Domain-specific verifier         | `lam_check(submission)` , `unit_test_run(code)`        |
+| **Meta**      | Control flow                     | `retry_until_pass(max_n)`, `branch_on_type(task_type)` |
 
 **Key insight from λ-RLM:** The existing `executeΦ` function in `LambdaRlm.ts` is already a workflow engine:
+
 ```
 Φ(P, depth) = if leaf: LLM(P) → Oracle(P, submission)
               else: Split(P, k) → Map(Φ, chunks) → selectBest(results)
 ```
+
 This is a **recursive workflow** with a fixed topology. We want to make the topology itself evolvable.
 
 ### 2.2 Genome = Workflow Topology + Node Parameters
@@ -72,6 +75,7 @@ type Edge = {
 ```
 
 **Topology constraints:**
+
 - Exactly one **Source** node (receives task input)
 - Exactly one **Sink** node (produces final result)
 - No cycles (DAG)
@@ -85,11 +89,12 @@ The **phenotype** is the realized Effect program produced by compiling a genome:
 type CompiledWorkflow = Effect.Effect<
   WorkflowResult,
   WorkflowError,
-  WorkflowRequirements  // LanguageModel | FileSystem | etc.
+  WorkflowRequirements // LanguageModel | FileSystem | etc.
 >;
 ```
 
 Compilation traverses the DAG and wires nodes using `Effect.gen` and `Effect.all`:
+
 - Sequential edges → `yield*` (generator sequencing)
 - Parallel edges (Map) → `Effect.all(children, { concurrency: k })`
 - Retry edges → `Effect.retry` or `Effect.suspend` loop
@@ -103,11 +108,11 @@ Evaluations arrive as a stream of **eval specimens**:
 ```typescript
 type EvalSpecimen = {
   readonly id: string;
-  readonly description: string;        // Natural language task description
-  readonly input: unknown;              // Task input (code, text, math problem)
-  readonly expectedOutput: unknown;     // Ground truth (for oracle verification)
-  readonly domain: string;              // "lambda-calc", "algorithm", "math", etc.
-  readonly difficulty: number;          // 1–10, for curriculum learning
+  readonly description: string; // Natural language task description
+  readonly input: unknown; // Task input (code, text, math problem)
+  readonly expectedOutput: unknown; // Ground truth (for oracle verification)
+  readonly domain: string; // "lambda-calc", "algorithm", "math", etc.
+  readonly difficulty: number; // 1–10, for curriculum learning
   readonly tags: ReadonlyArray<string>;
 };
 ```
@@ -126,38 +131,42 @@ import { Schema } from "effect";
 // ─── Node Definitions ───────────────────────────────────────────────────────
 
 export const NodeType = Schema.Literals([
-  "source",      // Entry point: receives task input
-  "sink",        // Exit point: produces WorkflowResult
-  "llm_call",    // Leaf: calls LanguageModel.generateText
-  "transform",   // Pure data transformation
-  "compose",     // Aggregation: selectBest, majorityVote, merge
-  "oracle",      // Domain verifier: lam_check, unit_test
-  "branch",      // Conditional routing
-  "loop",        // Retry / iterate until condition
+  "source", // Entry point: receives task input
+  "sink", // Exit point: produces WorkflowResult
+  "llm_call", // Leaf: calls LanguageModel.generateText
+  "transform", // Pure data transformation
+  "compose", // Aggregation: selectBest, majorityVote, merge
+  "oracle", // Domain verifier: lam_check, unit_test
+  "branch", // Conditional routing
+  "loop", // Retry / iterate until condition
 ]);
 
 export const LlmCallParams = Schema.Struct({
-  promptTemplate: Schema.String,        // e.g., "Solve: {{taskDesc}}\n{{input}}"
-  modelId: Schema.String,               // "openai/gpt-4o", "anthropic/claude-3-5-sonnet"
+  promptTemplate: Schema.String, // e.g., "Solve: {{taskDesc}}\n{{input}}"
+  modelId: Schema.String, // "openai/gpt-4o", "anthropic/claude-3-5-sonnet"
   maxTokens: Schema.Number,
-  temperature: Schema.Number,           // Mutable parameter for evolution
+  temperature: Schema.Number, // Mutable parameter for evolution
   systemPrompt: Schema.optional(Schema.String),
 });
 
 export const TransformParams = Schema.Struct({
   operation: Schema.Literals([
-    "split_text", "extract_code", "parse_json",
-    "count_tokens", "truncate", "join"
+    "split_text",
+    "extract_code",
+    "parse_json",
+    "count_tokens",
+    "truncate",
+    "join",
   ]),
   config: Schema.optional(Schema.Record(Schema.String, Schema.Unknown)),
 });
 
 export const ComposeParams = Schema.Struct({
   strategy: Schema.Literals([
-    "select_best",      // Choose highest-scoring result
-    "majority_vote",    // Most common answer
-    "merge_concat",     // Concatenate partials
-    "merge_summarize",  // LLM-based summary of partials
+    "select_best", // Choose highest-scoring result
+    "majority_vote", // Most common answer
+    "merge_concat", // Concatenate partials
+    "merge_summarize", // LLM-based summary of partials
   ]),
   // For select_best: which metric to optimize
   metric: Schema.optional(Schema.Literals(["pass", "score", "bits", "speed"])),
@@ -165,9 +174,9 @@ export const ComposeParams = Schema.Struct({
 
 export const OracleParams = Schema.Struct({
   oracleType: Schema.Literals([
-    "lam_run",          // Existing lambda calculus checker
-    "unit_test",        // Run code against test cases
-    "exact_match",      // String equality
+    "lam_run", // Existing lambda calculus checker
+    "unit_test", // Run code against test cases
+    "exact_match", // String equality
     "semantic_similarity", // Embedding-based similarity
   ]),
   config: Schema.optional(Schema.Record(Schema.String, Schema.Unknown)),
@@ -175,10 +184,10 @@ export const OracleParams = Schema.Struct({
 
 export const BranchParams = Schema.Struct({
   condition: Schema.Literals([
-    "task_type",        // Route based on detected task type
-    "input_size",       // Route based on input length
-    "confidence",       // Route based on LLM confidence score
-    "custom",           // Evaluated by a small classifier LLM call
+    "task_type", // Route based on detected task type
+    "input_size", // Route based on input length
+    "confidence", // Route based on LLM confidence score
+    "custom", // Evaluated by a small classifier LLM call
   ]),
   branches: Schema.Array(Schema.String), // Target node IDs
 });
@@ -186,9 +195,9 @@ export const BranchParams = Schema.Struct({
 export const LoopParams = Schema.Struct({
   maxIterations: Schema.Number,
   condition: Schema.Literals([
-    "until_pass",       // Retry until oracle passes
+    "until_pass", // Retry until oracle passes
     "until_no_improvement", // Retry until score stops improving
-    "fixed_n",          // Exactly N iterations
+    "fixed_n", // Exactly N iterations
   ]),
 });
 
@@ -222,13 +231,13 @@ export const Genome = Schema.Struct({
 // ─── Fitness ────────────────────────────────────────────────────────────────
 
 export const FitnessVector = Schema.Struct({
-  passRate: Schema.Number,        // % of tasks passed
-  avgScore: Schema.Number,        // Normalized score average
-  avgBits: Schema.Number,         // Average solution size (lower = better for lambda)
-  avgTimeMs: Schema.Number,       // Average wall-clock time
-  avgCost: Schema.Number,         // Average API cost per task
-  generalization: Schema.Number,  // Performance on unseen tasks vs training tasks
-  complexity: Schema.Number,      // Workflow node count (parsimony pressure)
+  passRate: Schema.Number, // % of tasks passed
+  avgScore: Schema.Number, // Normalized score average
+  avgBits: Schema.Number, // Average solution size (lower = better for lambda)
+  avgTimeMs: Schema.Number, // Average wall-clock time
+  avgCost: Schema.Number, // Average API cost per task
+  generalization: Schema.Number, // Performance on unseen tasks vs training tasks
+  complexity: Schema.Number, // Workflow node count (parsimony pressure)
 });
 ```
 
@@ -380,7 +389,10 @@ export class EvolutionService extends Context.Service<
     /** Get current population and Pareto frontier */
     getPopulation(runId: string): Effect.Effect<Population, never>;
     /** Get best genome by a specific metric */
-    getBest(runId: string, metric: FitnessMetric): Effect.Effect<Genome | null, never>;
+    getBest(
+      runId: string,
+      metric: FitnessMetric,
+    ): Effect.Effect<Genome | null, never>;
   }
 >()("lambench/EvolutionService") {}
 ```
@@ -413,7 +425,9 @@ export class FitnessEvaluator extends Context.Service<
       specimens: ReadonlyArray<EvalSpecimen>,
     ): Effect.Effect<FitnessVector, FitnessError>;
     /** Compute Pareto frontier from a population */
-    paretoFront(population: Population): Effect.Effect<ReadonlyArray<number>, never>;
+    paretoFront(
+      population: Population,
+    ): Effect.Effect<ReadonlyArray<number>, never>;
     /** Hypervolume indicator for diversity tracking */
     hypervolume(frontier: ReadonlyArray<Genome>): Effect.Effect<number, never>;
   }
@@ -427,7 +441,9 @@ export class VariationOperator extends Context.Service<
   VariationOperator,
   {
     /** Combine two parent genomes into one or more offspring */
-    crossover(parents: [Genome, Genome]): Effect.Effect<ReadonlyArray<Genome>, never>;
+    crossover(
+      parents: [Genome, Genome],
+    ): Effect.Effect<ReadonlyArray<Genome>, never>;
     /** Stochastically modify a genome */
     mutate(genome: Genome, rate: number): Effect.Effect<Genome, never>;
     /** Random initialization for generation 0 */
@@ -443,6 +459,7 @@ export class VariationOperator extends Context.Service<
 ### 5.1 GEPA (Genetic Evolutionary Prompting Algorithm)
 
 GEPA is a **genetic programming** approach where:
+
 - **Individuals** are prompt templates or workflow topologies
 - **Fitness** is task pass rate on an eval set
 - **Crossover** swaps subtrees between workflow DAGs
@@ -453,23 +470,28 @@ GEPA is a **genetic programming** approach where:
   - Add/remove nodes
 
 **Node mutation examples:**
+
 ```typescript
 // Temperature mutation (Gaussian noise)
-mutateParam("temperature", x => clamp(x + N(0, 0.1), 0, 2))
+mutateParam("temperature", x => clamp(x + N(0, 0.1), 0, 2));
 
 // Model mutation (swap to similar-capability model)
-mutateParam("modelId", x => randomFrom(["gpt-4o", "claude-3-5-sonnet", "gemini-1.5-pro"]))
+mutateParam(
+  "modelId",
+  x => randomFrom(["gpt-4o", "claude-3-5-sonnet", "gemini-1.5-pro"]),
+);
 
 // Prompt mutation (paraphrase via LLM)
-mutateParam("promptTemplate", x => llmParaphrase(x))
+mutateParam("promptTemplate", x => llmParaphrase(x));
 
 // Topology mutation (insert a retry loop)
-mutateTopology(g => insertNode(g, "loop", between("nodeA", "nodeB")))
+mutateTopology(g => insertNode(g, "loop", between("nodeA", "nodeB")));
 ```
 
 ### 5.2 CMA-ES for Continuous Parameters
 
 For **fixed-topology** workflows where only continuous parameters vary (temperature, k values, maxTokens), use **CMA-ES** (Covariance Matrix Adaptation):
+
 - Much more sample-efficient than genetic programming
 - Learns correlations between parameters (e.g., higher temperature → need more retries)
 - Can be warm-started from GP-discovered topologies
@@ -477,6 +499,7 @@ For **fixed-topology** workflows where only continuous parameters vary (temperat
 ### 5.3 Coevolution: Workflow × Eval Set
 
 Inspired by **adversarial coevolution**:
+
 - **Population A:** Workflows (getting better at solving tasks)
 - **Population B:** Eval specimens (getting harder to defeat top workflows)
 - Each generation, the hardest specimens for current top workflows are added to the eval set
@@ -485,6 +508,7 @@ Inspired by **adversarial coevolution**:
 ### 5.4 Curriculum Learning
 
 Instead of evaluating on all tasks every generation:
+
 1. **Generation 0–5:** Easy tasks only (difficulty ≤ 3)
 2. **Generation 6–15:** Medium tasks added (difficulty ≤ 6)
 3. **Generation 16+:** Full task suite
@@ -504,21 +528,21 @@ The GenomeCompiler turns a DAG into nested `Effect` expressions. For the existin
 // source → split(k=3) → [llm_call, llm_call, llm_call] → select_best → sink
 
 // Compiled Effect:
-const compiled = Effect.gen(function* () {
-  const input = yield* sourceNode();           // Get task
-  const chunks = splitText(input, 3);          // Transform
-  const partials = yield* Effect.all(          // Parallel Map
-    chunks.map(chunk =>
-      Effect.suspend(() => llmNode(chunk))     // Leaf LLM calls
+const compiled = Effect.gen(function*() {
+  const input = yield* sourceNode(); // Get task
+  const chunks = splitText(input, 3); // Transform
+  const partials = yield* Effect.all( // Parallel Map
+    chunks.map(chunk => Effect.suspend(() => llmNode(chunk)) // Leaf LLM calls
     ),
-    { concurrency: 3 }
+    { concurrency: 3 },
   );
-  const best = selectBest(partials);           // Compose
-  return best;                                 // Sink
+  const best = selectBest(partials); // Compose
+  return best; // Sink
 });
 ```
 
 **Key patterns from `LambdaRlm.ts`:**
+
 - `Effect.suspend` for lazy recursion (avoids eager evaluation / stack overflow)
 - `Effect.all` with `{ concurrency }` for parallel branches
 - `Effect.catchIf` + `absorbToCheckResult` for graceful degradation
@@ -535,7 +559,7 @@ const generationStep = Workflow.Activity.make("generationStep", {
   input: Schema.Struct({ runId: Schema.String, generation: Schema.Number }),
   output: Schema.Struct({ population: Population, hypervolume: Schema.Number }),
   run: ({ runId, generation }) =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const evo = yield* EvolutionService;
       const result = yield* evo.step(runId);
       return result;
@@ -547,14 +571,28 @@ const generationStep = Workflow.Activity.make("generationStep", {
 ```
 
 **Alternative (simpler):** Application-level checkpointing in SQLite:
+
 ```typescript
-const checkpoint = (runId: string, generation: number, population: Population) =>
-  ResultStore.insertCheckpoint({ runId, generation, population: JSON.stringify(population) });
+const checkpoint = (
+  runId: string,
+  generation: number,
+  population: Population,
+) =>
+  ResultStore.insertCheckpoint({
+    runId,
+    generation,
+    population: JSON.stringify(population),
+  });
 
 const resume = (runId: string) =>
-  Effect.gen(function* () {
+  Effect.gen(function*() {
     const last = yield* ResultStore.getLastCheckpoint(runId);
-    if (last) return { generation: last.generation, population: JSON.parse(last.population) };
+    if (last) {
+      return {
+        generation: last.generation,
+        population: JSON.parse(last.population),
+      };
+    }
     return yield* initialize(runId);
   });
 ```
@@ -565,12 +603,14 @@ Leverage Effect's built-in tracing:
 
 ```typescript
 // Each workflow execution gets a span
-const executeWorkflow = Effect.fn("executeWorkflow")(function* (genome, specimen) {
-  yield* Effect.logAnnotate("genomeId", genome.id);
-  yield* Effect.logAnnotate("specimenId", specimen.id);
-  yield* Effect.logAnnotate("generation", genome.generation);
-  // ... execution
-});
+const executeWorkflow = Effect.fn("executeWorkflow")(
+  function*(genome, specimen) {
+    yield* Effect.logAnnotate("genomeId", genome.id);
+    yield* Effect.logAnnotate("specimenId", specimen.id);
+    yield* Effect.logAnnotate("generation", genome.generation);
+    // ... execution
+  },
+);
 
 // Traces show up in the TUI / OpenTelemetry collector
 // Per-node timing, error rates, LLM token usage
@@ -581,21 +621,21 @@ const executeWorkflow = Effect.fn("executeWorkflow")(function* (genome, specimen
 The existing `BatchService.ts` pattern with `Ref` for mutable counters extends to evolution:
 
 ```typescript
-const runGeneration = Effect.gen(function* () {
+const runGeneration = Effect.gen(function*() {
   const completedRef = yield* Ref.make(0);
   const total = population.genomes.length * evalSet.length;
 
   yield* Effect.forEach(
     population.genomes,
     (genome) =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const fitness = yield* evaluateGenome(genome, evalSet);
         yield* Ref.update(completedRef, n => n + evalSet.length);
         const completed = yield* Ref.get(completedRef);
         yield* Effect.log(`Progress: ${completed}/${total} evaluations`);
         return fitness;
       }),
-    { concurrency: config.parallelism }  // Control LLM API parallelism
+    { concurrency: config.parallelism }, // Control LLM API parallelism
   );
 });
 ```
@@ -606,17 +646,17 @@ const runGeneration = Effect.gen(function* () {
 
 ### 7.1 Reuse Existing Infrastructure
 
-| Existing Component | Reuse in Evolution |
-|-------------------|-------------------|
+| Existing Component     | Reuse in Evolution                                                          |
+| ---------------------- | --------------------------------------------------------------------------- |
 | `ResultStore` (SQLite) | Add tables: `genomes`, `populations`, `fitness_history`, `execution_traces` |
-| `TaskService` | Already loads `.tsk` files → use as eval specimen source |
-| `Check.ts` / `lamRun` | Use as `oracle` node type for lambda calculus domain |
-| `LlmPrompts.ts` | Seed prompt templates for initial population |
-| `ModelGuard.ts` | Wrap all LLM calls in `guardedGenerate` (timeout + retry) |
-| `OpenRouterClient.ts` | Provide `LanguageModel` layer per-workflow-node |
-| `BatchService.ts` | Pattern for generational loop: fork as child fiber, track progress |
-| `httpApi.ts` | Add endpoints: `/evolve/*`, `/workflows/*`, `/traces/*` |
-| `runtime.ts` | Add `EvolutionServiceLive`, `GenomeCompilerLive`, etc. to Layer merge |
+| `TaskService`          | Already loads `.tsk` files → use as eval specimen source                    |
+| `Check.ts` / `lamRun`  | Use as `oracle` node type for lambda calculus domain                        |
+| `LlmPrompts.ts`        | Seed prompt templates for initial population                                |
+| `ModelGuard.ts`        | Wrap all LLM calls in `guardedGenerate` (timeout + retry)                   |
+| `OpenRouterClient.ts`  | Provide `LanguageModel` layer per-workflow-node                             |
+| `BatchService.ts`      | Pattern for generational loop: fork as child fiber, track progress          |
+| `httpApi.ts`           | Add endpoints: `/evolve/*`, `/workflows/*`, `/traces/*`                     |
+| `runtime.ts`           | Add `EvolutionServiceLive`, `GenomeCompilerLive`, etc. to Layer merge       |
 
 ### 7.2 Schema Extensions
 
@@ -625,22 +665,28 @@ Extend `packages/domain/src/Api.ts`:
 ```typescript
 export const EvolveGroup = HttpApiBuilder.group("EvolveGroup", (g) =>
   g
-    .post("/evolve/start", { payload: Schema.Struct({ config: EvolutionConfig }) })
+    .post("/evolve/start", {
+      payload: Schema.Struct({ config: EvolutionConfig }),
+    })
     .get("/evolve/:id/status", { path: Schema.Struct({ id: Schema.String }) })
-    .get("/evolve/:id/population", { path: Schema.Struct({ id: Schema.String }) })
+    .get("/evolve/:id/population", {
+      path: Schema.Struct({ id: Schema.String }),
+    })
     .post("/evolve/:id/pause", { path: Schema.Struct({ id: Schema.String }) })
-    .post("/evolve/:id/resume", { path: Schema.Struct({ id: Schema.String }) })
-);
+    .post("/evolve/:id/resume", {
+      path: Schema.Struct({ id: Schema.String }),
+    }));
 
 export const WorkflowGroup = HttpApiBuilder.group("WorkflowGroup", (g) =>
   g
-    .get("/workflows", { query: Schema.Struct({ domain: Schema.optional(Schema.String) }) })
+    .get("/workflows", {
+      query: Schema.Struct({ domain: Schema.optional(Schema.String) }),
+    })
     .get("/workflows/:id", { path: Schema.Struct({ id: Schema.String }) })
     .post("/workflows/:id/run", {
       path: Schema.Struct({ id: Schema.String }),
       payload: Schema.Struct({ specimenId: Schema.String }),
-    })
-);
+    }));
 ```
 
 ---
@@ -648,23 +694,27 @@ export const WorkflowGroup = HttpApiBuilder.group("WorkflowGroup", (g) =>
 ## 8. Implementation Roadmap
 
 ### Phase A: Foundation (2–3 weeks)
+
 1. **Domain types** — `Workflow.ts`, `Evolution.ts` schemas in `packages/domain/`
 2. **GenomeCompiler** — DAG → Effect compilation (reuse `LambdaRlm.ts` patterns)
 3. **Node library** — Implement 5 core node types: `llm_call`, `transform`, `compose`, `oracle`, `branch`
 4. **SQLite schema** — Add `genomes`, `populations`, `execution_traces` tables to `ResultStore`
 
 ### Phase B: Evolution Engine (2–3 weeks)
+
 1. **Variation operators** — Random init, subtree crossover, parameter mutation
 2. **Fitness evaluator** — Multi-objective scoring (pass rate, score, cost, complexity)
 3. **Selection strategies** — Tournament, NSGA-II (multi-objective)
 4. **Generation loop** — `EvolutionService` with checkpointing
 
 ### Phase C: Streaming & UI (2 weeks)
+
 1. **Eval stream ingestion** — HTTP endpoint for streaming eval specimens
 2. **Real-time UI** — Pareto frontier plot, workflow DAG viz, generation curves
 3. **Trace viewer** — Per-node execution inspection
 
 ### Phase D: Advanced Strategies (2–3 weeks)
+
 1. **CMA-ES integration** — For continuous parameter optimization
 2. **Coevolution** — Adversarial eval specimen generator
 3. **Curriculum learning** — Difficulty-based eval set scheduling
@@ -684,33 +734,33 @@ export const WorkflowGroup = HttpApiBuilder.group("WorkflowGroup", (g) =>
 
 ## 10. Key References from Codebase
 
-| File | Pattern to Adopt |
-|------|-----------------|
-| `apps/server/src/rlm/LambdaRlm.ts` | `Effect.suspend` recursion, `Effect.all` parallel mapping, `absorbToCheckResult` error handling |
-| `apps/server/src/rlm/LambdaPlan.ts` | Analytical planning (k*, τ*, cost estimate) as a node type |
-| `apps/server/src/check/Check.ts` | Oracle pattern: `runTask` as domain verifier |
-| `apps/server/src/services/BatchService.ts` | `Ref`-based progress tracking, idempotent job execution |
-| `apps/server/src/services/ResultStore.ts` | SQLite persistence with WAL, JSON columns for complex types |
-| `apps/server/src/llm/ModelGuard.ts` | `guardedGenerate` wrapper for resilient LLM calls |
-| `reference/motel/src/services/TelemetryStore.ts` | Worker-thread offload for heavy writes (ingest eval traces) |
-| `reference/motel/src/services/AsyncIngest.ts` | Bun Worker + RPC pattern for concurrent evaluation |
-| `reference/effect-smol/packages/ai/openrouter/src/OpenRouterLanguageModel.ts` | `LanguageModel.make` for per-node model configuration |
+| File                                                                          | Pattern to Adopt                                                                                |
+| ----------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `apps/server/src/rlm/LambdaRlm.ts`                                            | `Effect.suspend` recursion, `Effect.all` parallel mapping, `absorbToCheckResult` error handling |
+| `apps/server/src/rlm/LambdaPlan.ts`                                           | Analytical planning (k*, τ*, cost estimate) as a node type                                      |
+| `apps/server/src/check/Check.ts`                                              | Oracle pattern: `runTask` as domain verifier                                                    |
+| `apps/server/src/services/BatchService.ts`                                    | `Ref`-based progress tracking, idempotent job execution                                         |
+| `apps/server/src/services/ResultStore.ts`                                     | SQLite persistence with WAL, JSON columns for complex types                                     |
+| `apps/server/src/llm/ModelGuard.ts`                                           | `guardedGenerate` wrapper for resilient LLM calls                                               |
+| `reference/motel/src/services/TelemetryStore.ts`                              | Worker-thread offload for heavy writes (ingest eval traces)                                     |
+| `reference/motel/src/services/AsyncIngest.ts`                                 | Bun Worker + RPC pattern for concurrent evaluation                                              |
+| `reference/effect-smol/packages/ai/openrouter/src/OpenRouterLanguageModel.ts` | `LanguageModel.make` for per-node model configuration                                           |
 
 ---
 
 ## 11. Effect Libraries to Use
 
-| Library | Purpose |
-|---------|---------|
-| `effect` (core) | `Effect.gen`, `Effect.all`, `Effect.suspend`, `Effect.catch`, `Context.Service`, `Layer` |
-| `@effect/platform-bun` | `BunRuntime`, `BunHttpServer`, `BunServices.layer` |
-| `@effect/ai-openrouter` | `LanguageModel` layer factory per-workflow-node |
-| `effect/unstable/workflow` | Durable execution for long-running evolutionary searches (optional) |
-| `effect/unstable/persistence` | `PersistedQueue` for eval specimen backlog (optional) |
-| `@effect/atom-react` | Real-time UI state management (client-side) |
-| `@effect/vitest` | Property-based testing for genome compilation, variation operators |
-| `bun:sqlite` | Persistence for genomes, populations, traces |
+| Library                       | Purpose                                                                                  |
+| ----------------------------- | ---------------------------------------------------------------------------------------- |
+| `effect` (core)               | `Effect.gen`, `Effect.all`, `Effect.suspend`, `Effect.catch`, `Context.Service`, `Layer` |
+| `@effect/platform-bun`        | `BunRuntime`, `BunHttpServer`, `BunServices.layer`                                       |
+| `@effect/ai-openrouter`       | `LanguageModel` layer factory per-workflow-node                                          |
+| `effect/unstable/workflow`    | Durable execution for long-running evolutionary searches (optional)                      |
+| `effect/unstable/persistence` | `PersistedQueue` for eval specimen backlog (optional)                                    |
+| `@effect/atom-react`          | Real-time UI state management (client-side)                                              |
+| `@effect/vitest`              | Property-based testing for genome compilation, variation operators                       |
+| `bun:sqlite`                  | Persistence for genomes, populations, traces                                             |
 
 ---
 
-*This document is a living architecture exploration. As implementation progresses, refine the schemas, add concrete examples, and update the roadmap based on empirical results from early experiments.*
+_This document is a living architecture exploration. As implementation progresses, refine the schemas, add concrete examples, and update the roadmap based on empirical results from early experiments._

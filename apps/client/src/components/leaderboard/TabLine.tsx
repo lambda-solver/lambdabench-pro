@@ -9,7 +9,7 @@ export type TabId =
   | "problems"
   | "matrix";
 
-const TABS: Array<{ id: TabId; label: string }> = [
+const TABS: Array<{ id: TabId; label: string; }> = [
   { id: "intelligence", label: ":intelligence" },
   { id: "speed", label: ":speed" },
   { id: "elegance", label: ":elegance" },

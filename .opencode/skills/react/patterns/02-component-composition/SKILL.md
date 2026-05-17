@@ -35,32 +35,38 @@ compatibility: opencode
 
 ```tsx
 // ❌ index as key — causes reordering bugs
-{items.map((item, i) => <Item key={i} {...item} />)}
+{
+  items.map((item, i) => <Item key={i} {...item} />);
+}
 
 // ✅ stable id
-{items.map((item) => <Item key={item.id} {...item} />)}
+{
+  items.map((item) => <Item key={item.id} {...item} />);
+}
 
 // ✅ fragment with key when multiple children
-{items.map((item) => (
-  <React.Fragment key={item.id}>
-    <dt>{item.name}</dt>
-    <dd>{item.value}</dd>
-  </React.Fragment>
-))}
+{
+  items.map((item) => (
+    <React.Fragment key={item.id}>
+      <dt>{item.name}</dt>
+      <dd>{item.value}</dd>
+    </React.Fragment>
+  ));
+}
 ```
 
 ## Conditional Rendering — Pattern Match
 
 ```tsx
 // ✅ early return for guard clauses
-if (!data) return <Loading />
-if (error) return <Error error={error} />
+if (!data) return <Loading />;
+if (error) return <Error error={error} />;
 
 // ✅ ternary for binary choice
-return isEditing ? <EditForm /> : <DisplayView />
+return isEditing ? <EditForm /> : <DisplayView />;
 
 // ✅ logical AND for simple toggle
-return showBanner && <Banner />
+return showBanner && <Banner />;
 
 // ✅ record lookup for multiple variants
 const variants = {
@@ -68,8 +74,8 @@ const variants = {
   loading: <Loading />,
   success: <Success data={data} />,
   error: <Error error={error} />,
-}
-return variants[status]
+};
+return variants[status];
 ```
 
 ## Compound Components
@@ -83,9 +89,13 @@ Group related components that share state implicitly.
     <Tabs.Trigger value="overview">Overview</Tabs.Trigger>
     <Tabs.Trigger value="details">Details</Tabs.Trigger>
   </Tabs.List>
-  <Tabs.Content value="overview"><Overview /></Tabs.Content>
-  <Tabs.Content value="details"><Details /></Tabs.Content>
-</Tabs>
+  <Tabs.Content value="overview">
+    <Overview />
+  </Tabs.Content>
+  <Tabs.Content value="details">
+    <Details />
+  </Tabs.Content>
+</Tabs>;
 ```
 
 ## Render Props / Slots
@@ -145,8 +155,8 @@ Split components at data boundaries:
 ```tsx
 // ❌ one giant component
 function Page() {
-  const [data, setData] = useState()
-  const [filter, setFilter] = useState()
+  const [data, setData] = useState();
+  const [filter, setFilter] = useState();
   // ... 200 lines of mixed concerns
 }
 
@@ -157,15 +167,15 @@ function Page() {
       <FilterBar />
       <DataList />
     </PageLayout>
-  )
+  );
 }
 
 function DataList() {
-  const data = useData() // custom hook
+  const data = useData(); // custom hook
   return (
     <Stack>
       {data.map((item) => <DataCard key={item.id} {...item} />)}
     </Stack>
-  )
+  );
 }
 ```

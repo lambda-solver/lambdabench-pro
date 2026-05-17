@@ -14,13 +14,13 @@ Bun's built-in test runner replaces Vitest/Jest with zero configuration. Same AP
 
 ## Why bun:test over Vitest
 
-| Feature | bun:test | Vitest |
-|---------|----------|--------|
-| Installation | Built-in | `npm i -D vitest` |
-| Config file | None needed | `vitest.config.ts` |
-| Startup | Instant | ~1-2s |
-| Effect support | Native | Via plugin |
-| DOM testing | Requires happy-dom | Built-in via browser mode |
+| Feature        | bun:test           | Vitest                    |
+| -------------- | ------------------ | ------------------------- |
+| Installation   | Built-in           | `npm i -D vitest`         |
+| Config file    | None needed        | `vitest.config.ts`        |
+| Startup        | Instant            | ~1-2s                     |
+| Effect support | Native             | Via plugin                |
+| DOM testing    | Requires happy-dom | Built-in via browser mode |
 
 **Rule of thumb**: Use `bun:test` for all logic/server tests. Use Storybook for visual component inspection. Skip DOM-heavy component tests.
 
@@ -46,7 +46,7 @@ import { Effect } from "effect";
 
 describe("TaskService", () => {
   test("getTask returns cached task", async () => {
-    const program = Effect.gen(function* () {
+    const program = Effect.gen(function*() {
       const svc = yield* TaskService;
       return yield* svc.getTask("bool_not");
     });
@@ -90,6 +90,7 @@ test.only("run only this", () => { ... });
 ## Test Files
 
 Bun automatically discovers:
+
 - `*.test.ts`
 - `*.test.tsx`
 - `*.spec.ts`
@@ -200,14 +201,14 @@ No config file needed. No setup files. Just `bun test`.
 
 ## Comparison: When to Use What
 
-| Test Type | Tool | Example |
-|-----------|------|---------|
-| Pure functions | `bun:test` | `fmtModel()`, `getBarColor()` |
-| Effect services | `bun:test` | `TaskService.getTask()` |
-| React logic | `bun:test` | Hook utilities, helpers |
-| Visual appearance | Storybook | Component fixtures |
-| Browser behavior | Manual QA | Click flows, responsive |
-| E2E API | `bun:test` + `fetch` | HTTP endpoint tests |
+| Test Type         | Tool                 | Example                       |
+| ----------------- | -------------------- | ----------------------------- |
+| Pure functions    | `bun:test`           | `fmtModel()`, `getBarColor()` |
+| Effect services   | `bun:test`           | `TaskService.getTask()`       |
+| React logic       | `bun:test`           | Hook utilities, helpers       |
+| Visual appearance | Storybook            | Component fixtures            |
+| Browser behavior  | Manual QA            | Click flows, responsive       |
+| E2E API           | `bun:test` + `fetch` | HTTP endpoint tests           |
 
 ## Migrating from Vitest
 

@@ -1,6 +1,6 @@
+import { fmtModel } from "@/lib/fmt";
 import type { BenchmarkData, Ranking } from "@repo/domain/Benchmark";
 import { Array as Arr, Order } from "effect";
-import { fmtModel } from "@/lib/fmt";
 import { BenchmarkRow } from "./BenchmarkRow";
 import { TildeLine, VimLine } from "./VimLine";
 
@@ -9,9 +9,7 @@ interface IntelligencePanelProps {
 }
 
 export function IntelligencePanel({ data }: IntelligencePanelProps) {
-  const byRightDesc = Order.make<Ranking>((a, b) =>
-    b.right > a.right ? 1 : b.right < a.right ? -1 : 0,
-  );
+  const byRightDesc = Order.make<Ranking>((a, b) => b.right > a.right ? 1 : (b.right < a.right ? -1 : 0));
   const sorted = Arr.sort(data.rankings, byRightDesc);
   const maxNameLen = Math.max(
     ...sorted.map((r) => fmtModel(r.model).length),
@@ -32,16 +30,14 @@ export function IntelligencePanel({ data }: IntelligencePanelProps) {
     <div className="text-[var(--sol-base00)]">
       <VimLine n={n++} />
       <VimLine n={n++}>
-        <span className="font-bold text-[var(--sol-yellow)]">LamBench</span>
-        {"  "}
+        <span className="font-bold text-[var(--sol-yellow)]">LamBench</span>{"  "}
         <span className="text-[var(--sol-base1)]">
           -- Lambda Calculus Benchmark for AI
         </span>
       </VimLine>
       <VimLine n={n++} />
       <VimLine n={n++}>
-        <span className="font-bold text-[var(--sol-orange)]">Intelligence</span>
-        {"  "}
+        <span className="font-bold text-[var(--sol-orange)]">Intelligence</span>{"  "}
         <span className="text-[var(--sol-base1)]">-- by problems solved</span>
       </VimLine>
       <VimLine n={n++} />

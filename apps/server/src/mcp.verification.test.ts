@@ -1,16 +1,16 @@
 // apps/server/src/mcp.verification.test.ts
 
-import { resolve } from "node:path";
 import * as NodeFileSystem from "@effect/platform-node-shared/NodeFileSystem";
 import { describe, it } from "@effect/vitest";
 import { assertTrue, strictEqual } from "@effect/vitest/utils";
 import { Effect, FileSystem } from "effect";
+import { resolve } from "node:path";
 
 const platformLayer = NodeFileSystem.layer;
 
 describe("mcp.ts source verification", () => {
   it.effect("evalSingle handler spreads maxTokens, rlmMaxDepth, and mode", () =>
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       const fs = yield* FileSystem.FileSystem;
       const mcpPath = resolve(new URL(".", import.meta.url).pathname, "mcp.ts");
       const content = yield* fs.readFileString(mcpPath);
@@ -30,6 +30,5 @@ describe("mcp.ts source verification", () => {
       assertTrue(evalSingleBlock.includes("maxTokens: 4096"));
       assertTrue(evalSingleBlock.includes("rlmMaxDepth: 3"));
       assertTrue(evalSingleBlock.includes("mode: input.mode"));
-    }).pipe(Effect.provide(platformLayer)),
-  );
+    }).pipe(Effect.provide(platformLayer)));
 });

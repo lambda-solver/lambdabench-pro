@@ -3,16 +3,13 @@ import { Chunker } from "@repo/domain/Chunk";
 import { Cause, Effect, Exit, Layer, Option } from "effect";
 import { SchemaError } from "effect/Schema";
 import { CharacterTokenizerLive } from "../tokenizer/DelimTokenizer";
-import {
-  RecursiveChunker,
-  RecursiveChunkerConfig,
-  type RecursiveRule,
-} from "./RecursiveChunker";
+import { RecursiveChunker, RecursiveChunkerConfig } from "./RecursiveChunker";
+import type { RecursiveRule } from "./RecursiveChunker";
 
 const makeRecursiveChunkerLive = (config: {
   chunkSize: number;
   minCharactersPerChunk: number;
-  rules: readonly [RecursiveRule, ...RecursiveRule[]];
+  rules: readonly [RecursiveRule, ...Array<RecursiveRule>];
 }) =>
   Layer.effect(Chunker)(RecursiveChunker.make).pipe(
     Layer.provide(CharacterTokenizerLive),
@@ -26,7 +23,7 @@ describe("RecursiveChunker", () => {
       rules: [
         { delimiters: ["\n\n"], includeDelim: "prev" },
         { delimiters: ["\n"], includeDelim: "prev" },
-        { whitespace: true, includeDelim: "prev" },
+        { includeDelim: "prev", whitespace: true },
         {},
       ],
     }),
@@ -34,7 +31,7 @@ describe("RecursiveChunker", () => {
     it.effect(
       "Given whitespace-only input, when chunking, then returns empty chunks",
       () =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const chunker = yield* Chunker;
           const chunks = yield* chunker.chunk("   \n\t ");
           expect(chunks).toEqual([]);
@@ -43,10 +40,9 @@ describe("RecursiveChunker", () => {
     it.effect(
       "Given mixed delimiters, when chunking, then offsets reconstruct original text",
       () =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const chunker = yield* Chunker;
-          const text =
-            "Para1 line1.\nPara1 line2.\n\nPara2 line1.\nPara2 line2.";
+          const text = "Para1 line1.\nPara1 line2.\n\nPara2 line1.\nPara2 line2.";
           const chunks = yield* chunker.chunk(text);
           expect(chunks.length).toBeGreaterThan(0);
           const reconstructed = chunks.map((c) => c.text).join("");
@@ -68,7 +64,7 @@ describe("RecursiveChunker", () => {
     it.effect(
       "Given delimiter-free input, when chunking, then falls back to token windows",
       () =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const chunker = yield* Chunker;
           const text = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; // delimiter-free
           const chunks = yield* chunker.chunk(text);
@@ -81,8 +77,8 @@ describe("RecursiveChunker", () => {
   it.effect(
     "Given invalid config, when chunking, then config validation fails",
     () =>
-      Effect.gen(function* () {
-        const program = Effect.gen(function* () {
+      Effect.gen(function*() {
+        const program = Effect.gen(function*() {
           const chunker = yield* Chunker;
           return yield* chunker.chunk("abc");
         }).pipe(
@@ -121,7 +117,7 @@ describe("RecursiveChunker rule metadata", () => {
     it.effect(
       "Given delimiter rules, when chunking, then metadata annotates rule",
       () =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const chunker = yield* Chunker;
           const text = "A|B|";
           const chunks = yield* chunker.chunk(text);
@@ -140,13 +136,13 @@ describe("RecursiveChunker rule metadata", () => {
     makeRecursiveChunkerLive({
       chunkSize: 50,
       minCharactersPerChunk: 1,
-      rules: [{ whitespace: true, includeDelim: "prev" }],
+      rules: [{ includeDelim: "prev", whitespace: true }],
     }),
   )((it) => {
     it.effect(
       "Given whitespace rules, when chunking, then metadata annotates rule",
       () =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const chunker = yield* Chunker;
           const text = "A B C";
           const chunks = yield* chunker.chunk(text);
@@ -172,7 +168,7 @@ describe("RecursiveChunker minimum character enforcement", () => {
     it.effect(
       "Given short splits, when chunking, then min length merges segments",
       () =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const chunker = yield* Chunker;
           const text = "A.\nB.\nLonger.";
           const chunks = yield* chunker.chunk(text);

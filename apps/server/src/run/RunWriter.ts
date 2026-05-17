@@ -18,10 +18,10 @@ export const RES_DIR = `${SERVER_ROOT}/res`;
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-export type RlmMeta = {
+export interface RlmMeta {
   readonly depth: number;
   readonly attempts: number;
-};
+}
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -29,8 +29,8 @@ export type RlmMeta = {
 const formatTimestamp = (d: Date): string => {
   const pad = (n: number) => String(n).padStart(2, "0");
   return (
-    `${d.getFullYear()}y${pad(d.getMonth() + 1)}m${pad(d.getDate())}d` +
-    `.${pad(d.getHours())}h${pad(d.getMinutes())}m${pad(d.getSeconds())}s`
+    `${d.getFullYear()}y${pad(d.getMonth() + 1)}m${pad(d.getDate())}d`
+    + `.${pad(d.getHours())}h${pad(d.getMinutes())}m${pad(d.getSeconds())}s`
   );
 };
 
@@ -43,7 +43,7 @@ const safeModelId = (modelId: string): string => modelId.replace(/[/: ]/g, "_");
  * Write results for one model to res/{timestamp}_{safeModelId}.txt
  * Returns the path of the written file.
  */
-export const writeResultFile = Effect.fn("writeResultFile")(function* (
+export const writeResultFile = Effect.fn("writeResultFile")(function*(
   modelId: string,
   results: ReadonlyArray<TimedCheckResult>,
   variant: "standard" | "rlm",
@@ -63,10 +63,9 @@ export const writeResultFile = Effect.fn("writeResultFile")(function* (
   const right = results.filter((r) => r.pass).length;
   const total = results.length;
 
-  const rlmLines =
-    rlmMeta !== undefined
-      ? [`rlm_depth: ${rlmMeta.depth}`, `rlm_attempts: ${rlmMeta.attempts}`]
-      : [];
+  const rlmLines = rlmMeta !== undefined
+    ? [`rlm_depth: ${rlmMeta.depth}`, `rlm_attempts: ${rlmMeta.attempts}`]
+    : [];
 
   const headerLines = [
     `model: ${modelId}`,

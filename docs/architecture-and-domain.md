@@ -950,49 +950,52 @@ flowchart TD
 ## Appendix A: File Map
 
 ### Domain (`packages/domain/src/`)
-| File | Purpose |
-|------|---------|
+
+| File           | Purpose                                                              |
+| -------------- | -------------------------------------------------------------------- |
 | `Benchmark.ts` | All shared schemas: Task, Ranking, EvalResult, BatchJob, ModelConfig |
-| `Api.ts` | HttpApi groups: Health, Eval, Results, Tasks, Models |
+| `Api.ts`       | HttpApi groups: Health, Eval, Results, Tasks, Models                 |
 
 ### Server (`apps/server/src/`)
-| File | Purpose |
-|------|---------|
-| `server.ts` | Server entry point — `BunRuntime.runMain(Layer.launch(ServerLive))` |
-| `localServer.ts` | BunHttpServer, router, static SPA fallback, middleware |
-| `httpApi.ts` | Typed Effect HTTP API with OpenAPI auto-generation (`/openapi.json`) |
-| `httpApi.test.ts` | Integration tests for all API endpoints (32 tests) |
-| `runtime.ts` | ManagedRuntime with Layer composition and `dbPath` validation |
-| `index.ts` | CLI entry point (eval / run / build commands) |
-| `services/ResultStore.ts` | SQLite persistence service (CRUD + retention) |
-| `services/TaskService.ts` | Load .tsk/.lam files, cache in SQLite |
-| `services/EvalService.ts` | Single evaluation orchestration |
-| `services/BatchService.ts` | Batch job creation, execution, resumption |
-| `services/LamConfig.ts` | Environment variable configuration |
-| `check/Check.ts` | Task parser, lam interpreter, scorer, LLM-based runner |
-| `lamb/Lamb.ts` | Lambda calculus AST, parser, evaluator, printer, BLC encoder |
-| `rlm/LambdaRlm.ts` | λ-RLM 5-phase algorithm |
-| `rlm/LambdaPlan.ts` | Optimal decomposition planner (pure math) |
-| `rlm/LamCodeExtractor.ts` | Extract lambda code from raw LLM output |
-| `llm/OpenRouterClient.ts` | Layer factory for @effect/ai-openrouter |
-| `llm/ModelGuard.ts` | Timeout, retry, exclusion logic |
-| `llm/LlmPrompts.ts` | Pure prompt builder functions |
-| `eval/EvalRunner.ts` | Fetch top models from OpenRouter |
-| `eval/ModelEvalRunner.ts` | Standard + RLM eval per model |
-| `build/BuildResults.ts` | Aggregate res/*.txt → results.json |
-| `run/RunWriter.ts` | Write eval results to res/*.txt |
-| `config/BenchConfig.ts` | Load and validate bench.config.json |
+
+| File                       | Purpose                                                              |
+| -------------------------- | -------------------------------------------------------------------- |
+| `server.ts`                | Server entry point — `BunRuntime.runMain(Layer.launch(ServerLive))`  |
+| `localServer.ts`           | BunHttpServer, router, static SPA fallback, middleware               |
+| `httpApi.ts`               | Typed Effect HTTP API with OpenAPI auto-generation (`/openapi.json`) |
+| `httpApi.test.ts`          | Integration tests for all API endpoints (32 tests)                   |
+| `runtime.ts`               | ManagedRuntime with Layer composition and `dbPath` validation        |
+| `index.ts`                 | CLI entry point (eval / run / build commands)                        |
+| `services/ResultStore.ts`  | SQLite persistence service (CRUD + retention)                        |
+| `services/TaskService.ts`  | Load .tsk/.lam files, cache in SQLite                                |
+| `services/EvalService.ts`  | Single evaluation orchestration                                      |
+| `services/BatchService.ts` | Batch job creation, execution, resumption                            |
+| `services/LamConfig.ts`    | Environment variable configuration                                   |
+| `check/Check.ts`           | Task parser, lam interpreter, scorer, LLM-based runner               |
+| `lamb/Lamb.ts`             | Lambda calculus AST, parser, evaluator, printer, BLC encoder         |
+| `rlm/LambdaRlm.ts`         | λ-RLM 5-phase algorithm                                              |
+| `rlm/LambdaPlan.ts`        | Optimal decomposition planner (pure math)                            |
+| `rlm/LamCodeExtractor.ts`  | Extract lambda code from raw LLM output                              |
+| `llm/OpenRouterClient.ts`  | Layer factory for @effect/ai-openrouter                              |
+| `llm/ModelGuard.ts`        | Timeout, retry, exclusion logic                                      |
+| `llm/LlmPrompts.ts`        | Pure prompt builder functions                                        |
+| `eval/EvalRunner.ts`       | Fetch top models from OpenRouter                                     |
+| `eval/ModelEvalRunner.ts`  | Standard + RLM eval per model                                        |
+| `build/BuildResults.ts`    | Aggregate res/*.txt → results.json                                   |
+| `run/RunWriter.ts`         | Write eval results to res/*.txt                                      |
+| `config/BenchConfig.ts`    | Load and validate bench.config.json                                  |
 
 ### Client (`apps/client/src/`)
-| File | Purpose |
-|------|---------|
-| `app.tsx` | Shell: tab state, AsyncResult.match, statusline |
-| `lib/atoms/benchmark-atom.ts` | Effect Atom that fetches + decodes results.json |
-| `lib/atom.ts` | Atom runtime with FetchHttpClient layer |
-| `components/leaderboard/*.tsx` | Six panels + VimLine + BarChart + TaskModal |
-| `components/theme-toggle.tsx` | Solarized light/dark toggle |
-| `main.tsx` | React 19 entry point |
+
+| File                           | Purpose                                         |
+| ------------------------------ | ----------------------------------------------- |
+| `app.tsx`                      | Shell: tab state, AsyncResult.match, statusline |
+| `lib/atoms/benchmark-atom.ts`  | Effect Atom that fetches + decodes results.json |
+| `lib/atom.ts`                  | Atom runtime with FetchHttpClient layer         |
+| `components/leaderboard/*.tsx` | Six panels + VimLine + BarChart + TaskModal     |
+| `components/theme-toggle.tsx`  | Solarized light/dark toggle                     |
+| `main.tsx`                     | React 19 entry point                            |
 
 ---
 
-*Document generated from codebase analysis. Covers Phase 1 (foundation services), Phase 2 (HTTP API + local server), and planned Phases 3–6 (MCP, provider refactor, web UI refresh, agent mode).*
+_Document generated from codebase analysis. Covers Phase 1 (foundation services), Phase 2 (HTTP API + local server), and planned Phases 3–6 (MCP, provider refactor, web UI refresh, agent mode)._

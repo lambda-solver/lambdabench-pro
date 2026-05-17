@@ -18,18 +18,18 @@ bun add -D @tanstack/router-devtools @tanstack/router-vite-plugin
 
 ```tsx
 // main.tsx
-import { createRouter, RouterProvider } from '@tanstack/react-router'
-import { routeTree } from './routeTree.gen' // generated
+import { createRouter, RouterProvider } from "@tanstack/react-router";
+import { routeTree } from "./routeTree.gen"; // generated
 
-const router = createRouter({ routeTree })
+const router = createRouter({ routeTree });
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface Register {
-    router: typeof router
+    router: typeof router;
   }
 }
 
-render(<RouterProvider router={router} />, document.getElementById('root'))
+render(<RouterProvider router={router} />, document.getElementById("root"));
 ```
 
 ## File-Based Routes
@@ -38,7 +38,7 @@ render(<RouterProvider router={router} />, document.getElementById('root'))
 // src/routes/__root.tsx — root layout
 export const Route = createRootRoute({
   component: RootComponent,
-})
+});
 
 function RootComponent() {
   return (
@@ -47,24 +47,24 @@ function RootComponent() {
       <Outlet />
       <TanStackRouterDevtools />
     </>
-  )
+  );
 }
 
 // src/routes/index.tsx — home page
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute("/")({
   component: HomePage,
-})
+});
 
 // src/routes/users.$userId.tsx — dynamic segment
-export const Route = createFileRoute('/users/$userId')({
+export const Route = createFileRoute("/users/$userId")({
   component: UserPage,
   loader: ({ params }) => fetchUser(params.userId),
-})
+});
 
 // src/routes/users.index.tsx — users list (when no $userId)
-export const Route = createFileRoute('/users/')({
+export const Route = createFileRoute("/users/")({
   component: UsersListPage,
-})
+});
 ```
 
 ## Type-Safe Links
@@ -91,72 +91,72 @@ export const Route = createFileRoute('/users/')({
 
 ```tsx
 // Define search schema
-import { z } from 'zod'
+import { z } from "zod";
 
 const usersSearchSchema = z.object({
   page: z.number().default(1),
-  filter: z.enum(['all', 'active', 'inactive']).default('all'),
+  filter: z.enum(["all", "active", "inactive"]).default("all"),
   q: z.string().optional(),
-})
+});
 
-export const Route = createFileRoute('/users/')({
+export const Route = createFileRoute("/users/")({
   validateSearch: usersSearchSchema,
   component: UsersPage,
-})
+});
 
 // Use in component
 function UsersPage() {
-  const { page, filter, q } = Route.useSearch()
-  const navigate = Route.useNavigate()
+  const { page, filter, q } = Route.useSearch();
+  const navigate = Route.useNavigate();
 
   const setFilter = (filter: string) => {
-    navigate({ search: (prev) => ({ ...prev, filter, page: 1 }) })
-  }
+    navigate({ search: (prev) => ({ ...prev, filter, page: 1 }) });
+  };
 
   return (
     <div>
       <FilterSelect value={filter} onChange={setFilter} />
       <UserList page={page} filter={filter} query={q} />
     </div>
-  )
+  );
 }
 ```
 
 ## Data Loading
 
 ```tsx
-export const Route = createFileRoute('/users/$userId')({
+export const Route = createFileRoute("/users/$userId")({
   loader: async ({ params }) => {
-    const user = await fetchUser(params.userId)
-    return { user }
+    const user = await fetchUser(params.userId);
+    return { user };
   },
   component: UserPage,
-})
+});
 
 function UserPage() {
-  const { user } = Route.useLoaderData()
-  return <UserProfile user={user} />
+  const { user } = Route.useLoaderData();
+  return <UserProfile user={user} />;
 }
 
 // With TanStack Query integration
-export const Route = createFileRoute('/users/$userId')({
+export const Route = createFileRoute("/users/$userId")({
   loader: async ({ params, context }) => {
     await context.queryClient.ensureQueryData({
-      queryKey: ['users', params.userId],
+      queryKey: ["users", params.userId],
       queryFn: () => fetchUser(params.userId),
-    })
+    });
   },
   component: UserPage,
-})
+});
 ```
 
 ## Nested Layouts
 
 ```tsx
 // src/routes/dashboard.tsx — layout
-export const Route = createFileRoute('/dashboard')({
+export const Route = createFileRoute("/dashboard")({
   component: DashboardLayout,
-})
+});
 
 function DashboardLayout() {
   return (
@@ -166,7 +166,7 @@ function DashboardLayout() {
         <Outlet />
       </main>
     </div>
-  )
+  );
 }
 
 // src/routes/dashboard.index.tsx — /dashboard

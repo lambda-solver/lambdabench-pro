@@ -63,10 +63,10 @@ export const C_IN = 1.0;
 // ─── Pipeline flags ───────────────────────────────────────────────────────────
 
 /** Controls which optional combinators are included in the Φ chain. */
-export type PipelineFlags = {
+export interface PipelineFlags {
   /** When true, a relevance Filter step is inserted before Map(Φ). */
   readonly useFilter: boolean;
-};
+}
 
 /** Maps each TaskType to its pipeline configuration. */
 export const PLAN_TABLE: Record<TaskType, PipelineFlags> = {
@@ -97,7 +97,7 @@ export const TASK_DIGIT_MAP: Record<number, TaskType> = {
  * Falls back to GENERAL when no valid digit is found.
  */
 export const parseTaskType = (response: string): TaskType => {
-  const digit = response.split("").find((ch) => /\d/.test(ch));
+  const digit = [...response].find((ch) => /\d/.test(ch));
   if (digit === undefined) return TaskType.GENERAL;
   return TASK_DIGIT_MAP[parseInt(digit, 10)] ?? TaskType.GENERAL;
 };
@@ -105,7 +105,7 @@ export const parseTaskType = (response: string): TaskType => {
 // ─── LambdaPlan ───────────────────────────────────────────────────────────────
 
 /** Result of Phase 3 optimal planning. All fields are read-only. */
-export type LambdaPlan = {
+export interface LambdaPlan {
   readonly taskType: TaskType;
   readonly composeOp: ComposeOp;
   readonly pipeline: PipelineFlags;
@@ -119,7 +119,7 @@ export type LambdaPlan = {
   readonly costEstimate: number;
   /** Total input length n (chars). */
   readonly n: number;
-};
+}
 
 // ─── plan() ───────────────────────────────────────────────────────────────────
 
@@ -133,9 +133,9 @@ const initialKStar = (n: number, K: number, cCompose: number): number => {
   const K_STAR_MAX = 20;
   return cCompose > 0.1
     ? Math.min(
-        K_STAR_MAX,
-        Math.max(2, Math.ceil(Math.sqrt((n * C_IN) / cCompose))),
-      )
+      K_STAR_MAX,
+      Math.max(2, Math.ceil(Math.sqrt((n * C_IN) / cCompose))),
+    )
     : Math.min(K_STAR_MAX, Math.max(2, Math.ceil(n / K)));
 };
 
@@ -155,10 +155,10 @@ const satisfyAccuracyConstraint = (
   aLeaf: number,
   aCompose: number,
   accuracyTarget: number,
-): { kStar: number; d: number } => {
+): { kStar: number; d: number; } => {
   const maxK = Math.max(2, Math.floor(n / K));
   if (aLeaf ** d * aCompose ** d >= accuracyTarget || kStar >= maxK) {
-    return { kStar, d };
+    return { d, kStar };
   }
   const nextK = kStar + 1;
   return satisfyAccuracyConstraint(
@@ -203,14 +203,14 @@ export const plan = (
   // Fast-path: fits in one context window — no splitting needed.
   if (n <= K) {
     return {
-      taskType,
       composeOp,
-      pipeline,
-      kStar: 1,
-      tauStar: n,
-      depth: 0,
       costEstimate: C_IN * n + C_IN * 500,
+      depth: 0,
+      kStar: 1,
       n,
+      pipeline,
+      taskType,
+      tauStar: n,
     };
   }
 
@@ -227,18 +227,17 @@ export const plan = (
   );
 
   const tauStar = Math.min(K, Math.max(1, Math.floor(n / kStar)));
-  const costEstimate =
-    kStar ** d * C_IN * tauStar + d * cCompose * kStar + C_IN * 500;
+  const costEstimate = kStar ** d * C_IN * tauStar + d * cCompose * kStar + C_IN * 500;
 
   return {
-    taskType,
     composeOp,
-    pipeline,
-    kStar,
-    tauStar,
-    depth: d,
     costEstimate,
+    depth: d,
+    kStar,
     n,
+    pipeline,
+    taskType,
+    tauStar,
   };
 };
 
@@ -269,13 +268,14 @@ const buildChunks = (
 ): ReadonlyArray<string> =>
   Array.from({ length: k }, (_, i) => i)
     .reduce<{
-      chunks: string[];
+      chunks: Array<string>;
       start: number;
     }>(
       ({ chunks, start }, i) => {
         if (start >= text.length) return { chunks, start };
-        if (i === k - 1)
+        if (i === k - 1) {
           return { chunks: [...chunks, text.slice(start)], start: text.length };
+        }
         const end = snappedEnd(text, start, chunkSize);
         return { chunks: [...chunks, text.slice(start, end)], start: end };
       },

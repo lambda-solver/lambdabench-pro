@@ -2,17 +2,14 @@ import { describe, expect, it } from "@effect/vitest";
 import { Chunker } from "@repo/domain/Chunk";
 import { Cause, Effect, Exit, Layer, Option } from "effect";
 import { SchemaError } from "effect/Schema";
-import {
-  CharacterTokenizerLive,
-  WordTokenizerLive,
-} from "../tokenizer/DelimTokenizer";
+import { CharacterTokenizerLive, WordTokenizerLive } from "../tokenizer/DelimTokenizer";
 import { SentenceChunker, SentenceChunkerConfig } from "./SentenceChunker";
 
 const makeSentenceChunkerLive = (
   config: {
     chunkSize: number;
     chunkOverlap: number;
-    delimiters: readonly [string, ...string[]];
+    delimiters: readonly [string, ...Array<string>];
     includeDelim: "prev" | "next" | null;
   },
   tokenizerLive = WordTokenizerLive,
@@ -26,8 +23,8 @@ describe("SentenceChunker", () => {
   it.layer(
     makeSentenceChunkerLive(
       {
-        chunkSize: 40,
         chunkOverlap: 10,
+        chunkSize: 40,
         delimiters: [". ", "! ", "? "],
         includeDelim: "prev",
       },
@@ -37,10 +34,9 @@ describe("SentenceChunker", () => {
     it.effect(
       "Given sentence delimiters and overlap, when chunking, then windows overlap by sentence",
       () =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const chunker = yield* Chunker;
-          const text =
-            "Alpha is first. Beta is second! Gamma is third? Delta is fourth.";
+          const text = "Alpha is first. Beta is second! Gamma is third? Delta is fourth.";
           const chunks = yield* chunker.chunk(text);
 
           expect(chunks.map((chunk) => chunk.text)).toEqual([
@@ -58,7 +54,7 @@ describe("SentenceChunker", () => {
     it.effect(
       "Given whitespace-only input, when chunking, then returns empty chunks",
       () =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const chunker = yield* Chunker;
           const chunks = yield* chunker.chunk("   \n\t  ");
 
@@ -69,7 +65,7 @@ describe("SentenceChunker", () => {
     it.effect(
       "Given same input and config, when chunking twice, then output is deterministic",
       () =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const chunker = yield* Chunker;
           const text = "One. Two. Three. Four.";
 
@@ -84,15 +80,15 @@ describe("SentenceChunker", () => {
   it.effect(
     "Given overlap equals chunk size, when chunking, then config validation fails",
     () =>
-      Effect.gen(function* () {
-        const program = Effect.gen(function* () {
+      Effect.gen(function*() {
+        const program = Effect.gen(function*() {
           const chunker = yield* Chunker;
           return yield* chunker.chunk("A. B.");
         }).pipe(
           Effect.provide(
             makeSentenceChunkerLive({
-              chunkSize: 5,
               chunkOverlap: 5,
+              chunkSize: 5,
               delimiters: [". "],
               includeDelim: "prev",
             }),
@@ -120,8 +116,8 @@ describe("SentenceChunker delimiter coverage", () => {
   it.layer(
     makeSentenceChunkerLive(
       {
-        chunkSize: 20,
         chunkOverlap: 0,
+        chunkSize: 20,
         delimiters: ["."],
         includeDelim: "prev",
       },
@@ -131,7 +127,7 @@ describe("SentenceChunker delimiter coverage", () => {
     it.effect(
       "Given no delimiters present, when chunking, then returns a single span",
       () =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const chunker = yield* Chunker;
           const text = "Alpha beta";
           const chunks = yield* chunker.chunk(text);
@@ -154,18 +150,18 @@ describe("SentenceChunker delimiter and sentence rules", () => {
   it.effect(
     "Given includeDelim policy, when chunking, then delimiters attach as configured",
     () =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const text = "Alpha. Beta.";
 
-        const prevChunks = yield* Effect.gen(function* () {
+        const prevChunks = yield* Effect.gen(function*() {
           const chunker = yield* Chunker;
           return yield* chunker.chunk(text);
         }).pipe(
           Effect.provide(
             makeSentenceChunkerLive(
               {
-                chunkSize: 7,
                 chunkOverlap: 0,
+                chunkSize: 7,
                 delimiters: [". "],
                 includeDelim: "prev",
               },
@@ -174,15 +170,15 @@ describe("SentenceChunker delimiter and sentence rules", () => {
           ),
         );
 
-        const nextChunks = yield* Effect.gen(function* () {
+        const nextChunks = yield* Effect.gen(function*() {
           const chunker = yield* Chunker;
           return yield* chunker.chunk(text);
         }).pipe(
           Effect.provide(
             makeSentenceChunkerLive(
               {
-                chunkSize: 7,
                 chunkOverlap: 0,
+                chunkSize: 7,
                 delimiters: [". "],
                 includeDelim: "next",
               },
@@ -191,15 +187,15 @@ describe("SentenceChunker delimiter and sentence rules", () => {
           ),
         );
 
-        const nullChunks = yield* Effect.gen(function* () {
+        const nullChunks = yield* Effect.gen(function*() {
           const chunker = yield* Chunker;
           return yield* chunker.chunk(text);
         }).pipe(
           Effect.provide(
             makeSentenceChunkerLive(
               {
-                chunkSize: 5,
                 chunkOverlap: 0,
+                chunkSize: 5,
                 delimiters: [". "],
                 includeDelim: null,
               },

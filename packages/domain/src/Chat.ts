@@ -26,18 +26,18 @@ export const ChatStreamPart = Schema.Union([
 
   // Tool call lifecycle
   Schema.TaggedStruct("tool-call-start", {
+    description: Schema.optional(Schema.String),
     id: Schema.String,
     name: Schema.String,
-    description: Schema.optional(Schema.String),
   }),
   Schema.TaggedStruct("tool-call-delta", {
-    id: Schema.String,
     argumentsDelta: Schema.String,
+    id: Schema.String,
   }),
   Schema.TaggedStruct("tool-call-complete", {
+    arguments: Schema.Unknown,
     id: Schema.String,
     name: Schema.String,
-    arguments: Schema.Unknown,
   }),
   Schema.TaggedStruct("tool-execution-start", {
     id: Schema.String,
@@ -55,8 +55,8 @@ export const ChatStreamPart = Schema.Union([
     finishReason: Schema.String,
     usage: Schema.optional(
       Schema.Struct({
-        promptTokens: Schema.Number,
         completionTokens: Schema.Number,
+        promptTokens: Schema.Number,
         totalTokens: Schema.Number,
       }),
     ),
@@ -76,8 +76,8 @@ export type ChatStreamPart = Schema.Schema.Type<typeof ChatStreamPart>;
 // ============================================================================
 
 export const ChatMessage = Schema.Struct({
-  role: Schema.Literals(["user", "assistant", "system"]),
   content: Schema.String,
+  role: Schema.Literals(["user", "assistant", "system"]),
 });
 
 export type ChatMessage = Schema.Schema.Type<typeof ChatMessage>;
@@ -87,12 +87,12 @@ export type ChatMessage = Schema.Schema.Type<typeof ChatMessage>;
 // ============================================================================
 
 export const ToolCall = Schema.Struct({
-  id: Schema.String,
-  name: Schema.String,
   arguments: Schema.Unknown,
   argumentsText: Schema.String,
-  status: Schema.Literals(["proposed", "executing", "complete", "failed"]),
+  id: Schema.String,
+  name: Schema.String,
   result: Schema.optional(Schema.String),
+  status: Schema.Literals(["proposed", "executing", "complete", "failed"]),
   success: Schema.optional(Schema.Boolean),
 });
 
@@ -111,8 +111,8 @@ export const MessageSegment = Schema.Union([
 export type MessageSegment = Schema.Schema.Type<typeof MessageSegment>;
 
 export const UsageMetadata = Schema.Struct({
-  promptTokens: Schema.Number,
   completionTokens: Schema.Number,
+  promptTokens: Schema.Number,
   totalTokens: Schema.Number,
 });
 
@@ -128,18 +128,18 @@ export type ErrorMetadata = Schema.Schema.Type<typeof ErrorMetadata>;
 export const ChatResponse = Schema.Union([
   Schema.TaggedStruct("initial", {}),
   Schema.TaggedStruct("streaming", {
+    currentIteration: Schema.NullOr(Schema.Number),
     segments: Schema.Array(MessageSegment),
     thinking: Schema.optional(Schema.String),
-    currentIteration: Schema.NullOr(Schema.Number),
   }),
   Schema.TaggedStruct("complete", {
+    finishReason: Schema.String,
     segments: Schema.Array(MessageSegment),
     usage: Schema.optional(UsageMetadata),
-    finishReason: Schema.String,
   }),
   Schema.TaggedStruct("error", {
-    segments: Schema.Array(MessageSegment),
     error: ErrorMetadata,
+    segments: Schema.Array(MessageSegment),
   }),
 ]);
 

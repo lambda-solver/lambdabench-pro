@@ -3,10 +3,9 @@ import { Effect } from "effect";
 import { LamBenchClient } from "./client/LamBenchClient.js";
 
 const parseFlag = (
-  args: readonly string[],
+  args: ReadonlyArray<string>,
   prefix: string,
-): string | undefined =>
-  args.find((a) => a.startsWith(prefix))?.slice(prefix.length);
+): string | undefined => args.find((a) => a.startsWith(prefix))?.slice(prefix.length);
 
 const printUsage = (): Effect.Effect<void> =>
   Effect.sync(() => {
@@ -27,7 +26,7 @@ const printUsage = (): Effect.Effect<void> =>
     console.error("  gepa optimize <taskId>");
   });
 
-export const runCli = Effect.fn("runCli")(function* (args: readonly string[]) {
+export const runCli = Effect.fn("runCli")(function*(args: ReadonlyArray<string>) {
   const client = yield* LamBenchClient;
 
   if (args.length === 0) {
@@ -54,20 +53,20 @@ export const runCli = Effect.fn("runCli")(function* (args: readonly string[]) {
         }
 
         const result = yield* client.evalSingle({
+          maxTokens: 4096,
+          mode: "direct",
           model,
+          provider: provider as "openrouter" | "opencode-go",
+          rlmMaxDepth: 3,
           task,
           variant: variant as "standard" | "rlm",
-          provider: provider as "openrouter" | "opencode-go",
-          maxTokens: 4096,
-          rlmMaxDepth: 3,
-          mode: "direct",
         });
         console.log(JSON.stringify(result, null, 2));
         return;
       }
 
       if (subCommand === "batch") {
-        const models: string[] = [];
+        const models: Array<string> = [];
         let idx = 2;
         while (idx < args.length) {
           const arg = args[idx];
@@ -89,11 +88,11 @@ export const runCli = Effect.fn("runCli")(function* (args: readonly string[]) {
         }
 
         const result = yield* client.evalBatch({
+          concurrency: 2,
+          mode: "both",
           models,
           tasks,
           variant: variant as "standard" | "rlm" | "both",
-          concurrency: 2,
-          mode: "both",
         });
         console.log(JSON.stringify(result, null, 2));
         return;

@@ -13,14 +13,14 @@ A lambda calculus benchmark leaderboard for AI models. Evaluates the top OpenRou
 
 ## Leaderboard Panels
 
-| Tab | Metric |
-|-----|--------|
-| `:intelligence` | Models ranked by pass rate (problems solved) |
-| `:speed` | Models ranked by average response time |
-| `:elegance` | Models ranked by solution brevity vs. reference |
-| `:value` | Pass rate per dollar (cost efficiency) |
-| `:problems` | Browse tasks by category, click for details |
-| `:matrix` | Full model × task pass/fail grid |
+| Tab             | Metric                                          |
+| --------------- | ----------------------------------------------- |
+| `:intelligence` | Models ranked by pass rate (problems solved)    |
+| `:speed`        | Models ranked by average response time          |
+| `:elegance`     | Models ranked by solution brevity vs. reference |
+| `:value`        | Pass rate per dollar (cost efficiency)          |
+| `:problems`     | Browse tasks by category, click for details     |
+| `:matrix`       | Full model × task pass/fail grid                |
 
 ## Project Structure
 
@@ -114,15 +114,15 @@ bun apps/server/src/index.ts cli tasks
 
 ### Environment Variables
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `DEV_MODE` | `true` | Skip live fetch, use mock models — no API key needed |
-| `OPENROUTER_API_KEY` | — | Required for all LLM calls |
-| `TOP_MODELS` | — | Comma-separated model IDs to override auto-fetch |
-| `VITE_BASE_URL` | `/` | Base path for the client (set to `/lambdabench-pro/` for Pages) |
-| `LAMBENCH_PORT` | `9000` | API server port |
-| `LAMBENCH_DB_PATH` | `.lambench-data/benchmark.sqlite` | SQLite database path |
-| `LAMBENCH_API_URL` | `http://127.0.0.1:9000` | Base URL for CLI client |
+| Variable             | Default                           | Description                                                     |
+| -------------------- | --------------------------------- | --------------------------------------------------------------- |
+| `DEV_MODE`           | `true`                            | Skip live fetch, use mock models — no API key needed            |
+| `OPENROUTER_API_KEY` | —                                 | Required for all LLM calls                                      |
+| `TOP_MODELS`         | —                                 | Comma-separated model IDs to override auto-fetch                |
+| `VITE_BASE_URL`      | `/`                               | Base path for the client (set to `/lambdabench-pro/` for Pages) |
+| `LAMBENCH_PORT`      | `9000`                            | API server port                                                 |
+| `LAMBENCH_DB_PATH`   | `.lambench-data/benchmark.sqlite` | SQLite database path                                            |
+| `LAMBENCH_API_URL`   | `http://127.0.0.1:9000`           | Base URL for CLI client                                         |
 
 ## HTTP API
 
@@ -130,18 +130,18 @@ The server exposes a typed REST API built with Effect `HttpApiBuilder`. OpenAPI 
 
 ### Endpoints
 
-| Group | Method | Path | Description |
-|-------|--------|------|-------------|
-| health | GET | `/api/health` | Server status, version, uptime |
-| eval | POST | `/api/eval/single` | Run a single evaluation |
-| eval | POST | `/api/eval/batch` | Create a batch evaluation job |
-| eval | GET | `/api/eval/status/:jobId` | Get batch job status |
-| results | GET | `/api/results` | List rankings |
-| results | GET | `/api/results/:runId` | Result detail by run ID |
-| tasks | GET | `/api/tasks` | List all tasks |
-| tasks | GET | `/api/tasks/:taskId` | Task detail by ID |
-| models | GET | `/api/models` | List active model configs |
-| models | POST | `/api/models/test` | Test a model connection |
+| Group   | Method | Path                      | Description                    |
+| ------- | ------ | ------------------------- | ------------------------------ |
+| health  | GET    | `/api/health`             | Server status, version, uptime |
+| eval    | POST   | `/api/eval/single`        | Run a single evaluation        |
+| eval    | POST   | `/api/eval/batch`         | Create a batch evaluation job  |
+| eval    | GET    | `/api/eval/status/:jobId` | Get batch job status           |
+| results | GET    | `/api/results`            | List rankings                  |
+| results | GET    | `/api/results/:runId`     | Result detail by run ID        |
+| tasks   | GET    | `/api/tasks`              | List all tasks                 |
+| tasks   | GET    | `/api/tasks/:taskId`      | Task detail by ID              |
+| models  | GET    | `/api/models`             | List active model configs      |
+| models  | POST   | `/api/models/test`        | Test a model connection        |
 
 ### Example: Single Evaluation
 
@@ -183,16 +183,16 @@ bun apps/server/src/index.ts cli <command> [options]
 
 ### Commands
 
-| Command | Description |
-|---------|-------------|
-| `eval single <model> <task> [--variant=standard\|rlm] [--provider=openrouter\|opencode-go]` | Run single evaluation |
-| `eval batch <models...> [--tasks=<task1,task2>] [--variant=both\|standard\|rlm]` | Run batch evaluation |
-| `status <jobId>` | Check batch job status |
-| `results [--model=<model>] [--task=<task>] [--limit=<n>]` | List results with optional filters |
-| `tasks [--task=<taskId>]` | List tasks or get task detail |
-| `models` | List active model configs |
-| `server` | Print server start hint |
-| `gepa optimize <taskId>` | GEPA optimizer (placeholder) |
+| Command                                                                                     | Description                        |
+| ------------------------------------------------------------------------------------------- | ---------------------------------- |
+| `eval single <model> <task> [--variant=standard\|rlm] [--provider=openrouter\|opencode-go]` | Run single evaluation              |
+| `eval batch <models...> [--tasks=<task1,task2>] [--variant=both\|standard\|rlm]`            | Run batch evaluation               |
+| `status <jobId>`                                                                            | Check batch job status             |
+| `results [--model=<model>] [--task=<task>] [--limit=<n>]`                                   | List results with optional filters |
+| `tasks [--task=<taskId>]`                                                                   | List tasks or get task detail      |
+| `models`                                                                                    | List active model configs          |
+| `server`                                                                                    | Print server start hint            |
+| `gepa optimize <taskId>`                                                                    | GEPA optimizer (placeholder)       |
 
 ### Example
 
@@ -212,14 +212,14 @@ bun apps/server/src/index.ts mcp
 
 ### Available Tools
 
-| Tool | Description | Readonly |
-|------|-------------|----------|
-| `lambench_eval_single` | Run a single benchmark evaluation | No |
-| `lambench_list_tasks` | List all available tasks | Yes |
-| `lambench_list_results` | List results with optional filters | Yes |
-| `lambench_get_task` | Get full task details | Yes |
-| `lambench_list_prompt_versions` | List GEPA prompt versions | Yes |
-| `lambench_trigger_gepa` | Trigger GEPA optimization | No |
+| Tool                            | Description                        | Readonly |
+| ------------------------------- | ---------------------------------- | -------- |
+| `lambench_eval_single`          | Run a single benchmark evaluation  | No       |
+| `lambench_list_tasks`           | List all available tasks           | Yes      |
+| `lambench_list_results`         | List results with optional filters | Yes      |
+| `lambench_get_task`             | Get full task details              | Yes      |
+| `lambench_list_prompt_versions` | List GEPA prompt versions          | Yes      |
+| `lambench_trigger_gepa`         | Trigger GEPA optimization          | No       |
 
 ## CI / GitHub Pages
 
@@ -234,40 +234,41 @@ The `benchmark.yml` workflow runs every **Monday at 04:00 UTC** (and on `workflo
 To trigger a deploy without running the benchmark (e.g. after a UI change), use `workflow_dispatch` with `skip_benchmark: true`.
 
 To set up in your own fork:
+
 1. Add `OPENROUTER_API_KEY` as a repository secret (`Settings → Secrets → Actions`)
 2. Enable GitHub Pages via Actions (`Settings → Pages → Source: GitHub Actions`)
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Runtime | Bun 1.2+ |
-| Language | TypeScript 5.9 |
-| UI framework | React 19 + Vite 8 |
-| State management | Effect Atom (`@effect/atom-react`) |
-| Schema / validation | Effect Schema 4-beta |
-| HTTP API | Effect Platform (`@effect/platform-bun`, `HttpApiBuilder`) |
-| Database | SQLite via `bun:sqlite` (WAL mode) |
-| Styling | Tailwind CSS 4 + Solarized palette |
-| Monorepo | Turborepo |
-| Linting / formatting | Biome 2.4 |
-| Tests | Vitest 4 (38 unit tests) |
+| Layer                | Technology                                                 |
+| -------------------- | ---------------------------------------------------------- |
+| Runtime              | Bun 1.2+                                                   |
+| Language             | TypeScript 5.9                                             |
+| UI framework         | React 19 + Vite 8                                          |
+| State management     | Effect Atom (`@effect/atom-react`)                         |
+| Schema / validation  | Effect Schema 4-beta                                       |
+| HTTP API             | Effect Platform (`@effect/platform-bun`, `HttpApiBuilder`) |
+| Database             | SQLite via `bun:sqlite` (WAL mode)                         |
+| Styling              | Tailwind CSS 4 + Solarized palette                         |
+| Monorepo             | Turborepo                                                  |
+| Linting / formatting | Biome 2.4                                                  |
+| Tests                | Vitest 4 (38 unit tests)                                   |
 
 ## Development Commands
 
-| Command | Description |
-|---------|-------------|
-| `bun install` | Install all dependencies |
-| `bun dev` | Start full stack (client:3000 + server:9000) |
-| `bun dev --filter=client` | Start UI dev server (port 3000, HMR) |
-| `bun dev --filter=server` | Start API server with watch mode (port 9000) |
-| `bun run build --filter=client` | Production build |
-| `bun run build --filter=server` | Compile server to `dist/` |
-| `bun test` | Run all tests (Vitest) |
-| `bun test --filter=server` | Run server tests only |
-| `bun lint` | Lint with Biome |
-| `bun format` | Format with Biome |
-| `bun run type-check` | TypeScript check across all packages |
+| Command                         | Description                                  |
+| ------------------------------- | -------------------------------------------- |
+| `bun install`                   | Install all dependencies                     |
+| `bun dev`                       | Start full stack (client:3000 + server:9000) |
+| `bun dev --filter=client`       | Start UI dev server (port 3000, HMR)         |
+| `bun dev --filter=server`       | Start API server with watch mode (port 9000) |
+| `bun run build --filter=client` | Production build                             |
+| `bun run build --filter=server` | Compile server to `dist/`                    |
+| `bun test`                      | Run all tests (Vitest)                       |
+| `bun test --filter=server`      | Run server tests only                        |
+| `bun lint`                      | Lint with Biome                              |
+| `bun format`                    | Format with Biome                            |
+| `bun run type-check`            | TypeScript check across all packages         |
 
 > **Tip:** Run `bun dev --filter=client` in a separate terminal while using OpenCode. Vite's HMR picks up every file save and updates the browser in ~100 ms.
 
@@ -277,12 +278,12 @@ To set up in your own fork:
 
 The following Biome rules are enforced at error level. Code must pass `bun lint` before merging:
 
-| Rule | What it means | Pattern to use |
-|------|---------------|----------------|
-| `noArrayIndexKey` | Never use `key={i}` in React `.map()` | Use content-based keys (`key={item.id}`) or inline static arrays |
-| `useLiteralKeys` | Prefer dot notation for known properties | `obj.field` for known keys; `obj["dynamic"]` only for `Record<string, …>` index access |
-| `noExplicitAny` | Ban the `any` type | Use `unknown` + `as unknown as T` for necessary coercion |
-| `useYield` | Only use `yield*` inside generators | Simple mock returns should be plain arrows, not `Effect.fnUntraced(function* () { … })` |
+| Rule              | What it means                            | Pattern to use                                                                          |
+| ----------------- | ---------------------------------------- | --------------------------------------------------------------------------------------- |
+| `noArrayIndexKey` | Never use `key={i}` in React `.map()`    | Use content-based keys (`key={item.id}`) or inline static arrays                        |
+| `useLiteralKeys`  | Prefer dot notation for known properties | `obj.field` for known keys; `obj["dynamic"]` only for `Record<string, …>` index access  |
+| `noExplicitAny`   | Ban the `any` type                       | Use `unknown` + `as unknown as T` for necessary coercion                                |
+| `useYield`        | Only use `yield*` inside generators      | Simple mock returns should be plain arrows, not `Effect.fnUntraced(function* () { … })` |
 
 ### Type-Safe Environment Variables
 
@@ -313,11 +314,10 @@ const myLayer = Layer.effect(MyService, MyService.make);
 describe("MyService", () => {
   it.layer(myLayer)((it) => {
     it.effect("does something", () =>
-      Effect.gen(function* () {
+      Effect.gen(function*() {
         const service = yield* MyService;
         // ...
-      }),
-    );
+      }));
   });
 });
 ```

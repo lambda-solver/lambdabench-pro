@@ -40,7 +40,7 @@ export class EvalRunnerError {
 export const parseRankingsHtml = (html: string): ReadonlyArray<string> => {
   const pattern = /href="\/models\/([\w-]+\/[\w.-]+)"/g;
   const seen = new Set<string>();
-  const ordered: string[] = [];
+  const ordered: Array<string> = [];
   for (const match of html.matchAll(pattern)) {
     const id = match[1] ?? "";
     if (!seen.has(id)) {
@@ -65,7 +65,7 @@ export const DEV_MOCK_MODELS: ReadonlyArray<TopModel> = [
 
 // ─── Effects ─────────────────────────────────────────────────────────────────
 
-export const fetchModels = Effect.fn("fetchModels")(function* (apiKey: string) {
+export const fetchModels = Effect.fn("fetchModels")(function*(apiKey: string) {
   const client = yield* HttpClient.HttpClient;
   const request = HttpClientRequest.get(
     "https://openrouter.ai/api/v1/models",
@@ -81,7 +81,7 @@ export const fetchModels = Effect.fn("fetchModels")(function* (apiKey: string) {
   return decoded.data;
 });
 
-export const fetchRankings = Effect.fn("fetchRankings")(function* () {
+export const fetchRankings = Effect.fn("fetchRankings")(function*() {
   const client = yield* HttpClient.HttpClient;
   const response = yield* client.execute(
     HttpClientRequest.get("https://openrouter.ai/rankings?view=coding"),
@@ -90,7 +90,7 @@ export const fetchRankings = Effect.fn("fetchRankings")(function* () {
   return parseRankingsHtml(html);
 });
 
-export const getTopModels = Effect.fn("getTopModels")(function* (
+export const getTopModels = Effect.fn("getTopModels")(function*(
   apiKey: string,
   n: number,
 ) {
@@ -103,7 +103,7 @@ export const getTopModels = Effect.fn("getTopModels")(function* (
     allModels.map((m) => [m.id, parseFloat(m.pricing.completion) * 1_000_000]),
   );
 
-  const top: TopModel[] = [];
+  const top: Array<TopModel> = [];
   for (const id of rankedIds) {
     if (top.length >= n) break;
     const price = priceMap.get(id);
@@ -146,18 +146,18 @@ export const resolveTopModels = (
     return fallbackEnv
       ? Effect.succeed(topModelsFromEnv(fallbackEnv))
       : Effect.fail(
-          new EvalRunnerError(
-            "OPENROUTER_API_KEY not set and no TOP_MODELS fallback. Set DEV_MODE=true for local dev.",
-          ),
-        );
+        new EvalRunnerError(
+          "OPENROUTER_API_KEY not set and no TOP_MODELS fallback. Set DEV_MODE=true for local dev.",
+        ),
+      );
   }
   return getTopModels(apiKey, 2).pipe(
     Effect.catch((e) =>
       fallbackEnv
         ? Effect.succeed(topModelsFromEnv(fallbackEnv))
         : Effect.fail(
-            new EvalRunnerError(e instanceof Error ? e.message : String(e)),
-          ),
+          new EvalRunnerError(e instanceof Error ? e.message : String(e)),
+        )
     ),
   );
 };

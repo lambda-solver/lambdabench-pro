@@ -13,8 +13,8 @@ const readMetadataString = (
  * List Document Tool - Lists documents in a collection
  */
 const listDocumentsTool = Tool.make("listDocuments", {
-  description:
-    "List documents in a collection. Example: listDocuments(collection: 'uploads')",
+  description: "List documents in a collection. Example: listDocuments(collection: 'uploads')",
+  failure: Schema.String,
   parameters: Schema.Struct({
     query: Schema.String.pipe(
       Schema.annotate({
@@ -25,49 +25,47 @@ const listDocumentsTool = Tool.make("listDocuments", {
   success: Schema.Struct({
     documents: Schema.Array(
       Schema.Struct({
-        id: Schema.NullOr(Schema.String),
         document: Schema.String,
         fileName: Schema.NullOr(Schema.String),
+        id: Schema.NullOr(Schema.String),
         metadata: Schema.NullOr(DocumentMetadata),
       }),
     ),
   }),
-  failure: Schema.String,
 });
 
 const RetrieverTool = Tool.make("retriever", {
   description:
     "Retrieve documents from a collection based on a query. Example: retriever(collection: 'uploads', query: 'What is in the collection?')",
+  failure: Schema.String,
   parameters: Schema.Struct({
+    filename: Schema.NullOr(Schema.String).pipe(
+      Schema.annotate({
+        description: "(optional) The name of the file to retrieve documents from.",
+      }),
+    ),
     query: Schema.String.pipe(
       Schema.annotate({
         description: "The query to use for retrieving documents.",
-      }),
-    ),
-    filename: Schema.NullOr(Schema.String).pipe(
-      Schema.annotate({
-        description:
-          "(optional) The name of the file to retrieve documents from.",
       }),
     ),
   }),
   success: Schema.Struct({
     documents: Schema.Array(
       Schema.Struct({
-        id: Schema.NullOr(Schema.String),
         document: Schema.String,
-        score: Schema.NullishOr(Schema.Number),
         fileName: Schema.NullOr(Schema.String),
+        id: Schema.NullOr(Schema.String),
         metadata: Schema.NullOr(DocumentMetadata),
+        score: Schema.NullishOr(Schema.Number),
       }),
     ),
   }),
-  failure: Schema.String,
 });
 
 const DeleteCollectionTool = Tool.make("deleteCollection", {
-  description:
-    "Delete a collection by name. Example: deleteCollection(collection: 'uploads')",
+  description: "Delete a collection by name. Example: deleteCollection(collection: 'uploads')",
+  failure: Schema.String,
   parameters: Schema.Struct({
     collection: Schema.String.pipe(
       Schema.annotate({
@@ -79,7 +77,6 @@ const DeleteCollectionTool = Tool.make("deleteCollection", {
   success: Schema.Struct({
     collection: Schema.String,
   }),
-  failure: Schema.String,
 });
 
 export const RagToolkit = Toolkit.make(
@@ -89,12 +86,24 @@ export const RagToolkit = Toolkit.make(
 );
 
 export const RagToolkitLive = RagToolkit.toLayer(
-  Effect.gen(function* () {
+  Effect.gen(function*() {
     const rag = yield* RagService;
     const embedder = yield* EmbeddingModel.EmbeddingModel;
     return {
+      deleteCollection: (params) =>
+        Effect.gen(function*() {
+          return yield* rag.deleteCollection({
+            collection: params.collection,
+          });
+        }).pipe(
+          Effect.catch((error) =>
+            Effect.fail(
+              `Error deleting collection '${params.collection}': ${String(error)}`,
+            )
+          ),
+        ),
       listDocuments: (params) =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const listResult = yield* rag.listDocuments({
             collection: "uploads",
             limit: 5,
@@ -102,22 +111,21 @@ export const RagToolkitLive = RagToolkit.toLayer(
           });
           return {
             documents: listResult.documents.map((doc) => ({
-              id: doc.id,
               document: doc.document ?? "",
               fileName: readMetadataString(doc.metadata, "fileName"),
+              id: doc.id,
               metadata: doc.metadata,
             })),
           };
         }).pipe(
           Effect.catch((error) =>
             Effect.fail(
-              "Error listing documents in collection 'uploads': " +
-                String(error),
-            ),
+              `Error listing documents in collection 'uploads': ${String(error)}`,
+            )
           ),
         ),
       retriever: (params) =>
-        Effect.gen(function* () {
+        Effect.gen(function*() {
           const embedded = yield* embedder.embed(params.query);
           yield* Effect.log(
             `[RagToolkit] Retrieve embed: queryLength=${params.query.length}, embeddingDims=${embedded.vector.length}`,
@@ -134,36 +142,19 @@ export const RagToolkitLive = RagToolkit.toLayer(
             `[RagToolkit] Retrieve result: hits=${retrieveResult.hits.length}`,
           );
           return {
-            documents:
-              retrieveResult.hits.map((hit) => ({
-                id: hit.id,
-                document: hit.document || "",
-                score: hit.score,
-                fileName: readMetadataString(hit.metadata, "fileName"),
-                metadata: hit.metadata,
-              })) ?? [],
+            documents: retrieveResult.hits.map((hit) => ({
+              document: hit.document || "",
+              fileName: readMetadataString(hit.metadata, "fileName"),
+              id: hit.id,
+              metadata: hit.metadata,
+              score: hit.score,
+            })) ?? [],
           };
         }).pipe(
           Effect.catch((error) =>
             Effect.fail(
-              "Error retrieving documents from collection 'uploads': " +
-                String(error),
-            ),
-          ),
-        ),
-      deleteCollection: (params) =>
-        Effect.gen(function* () {
-          return yield* rag.deleteCollection({
-            collection: params.collection,
-          });
-        }).pipe(
-          Effect.catch((error) =>
-            Effect.fail(
-              "Error deleting collection '" +
-                params.collection +
-                "': " +
-                String(error),
-            ),
+              `Error retrieving documents from collection 'uploads': ${String(error)}`,
+            )
           ),
         ),
     };

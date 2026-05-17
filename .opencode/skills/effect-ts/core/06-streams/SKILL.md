@@ -10,33 +10,34 @@ compatibility: opencode
 ## Creating streams
 
 ```typescript
-import { Effect, Schedule, Stream } from "effect"
+import { Effect, Schedule, Stream } from "effect";
 
-Stream.fromIterable([1, 2, 3])
+Stream.fromIterable([1, 2, 3]);
 
 // Polling on a schedule
 Stream.fromEffectSchedule(
   Effect.sync(() => Date.now()),
   Schedule.spaced("30 seconds"),
-)
+);
 
 // Paginated API
 Stream.paginate(0, (page) =>
   fetchPage(page).pipe(
-    Effect.map((res) => [res.items, res.hasMore ? Option.some(page + 1) : Option.none()] as const),
-  ),
-)
+    Effect.map((res) =>
+      [res.items, res.hasMore ? Option.some(page + 1) : Option.none()] as const
+    ),
+  ));
 
 // Async iterable
-Stream.fromAsyncIterable(asyncIterable(), (e) => new StreamError({ cause: e }))
+Stream.fromAsyncIterable(asyncIterable(), (e) => new StreamError({ cause: e }));
 
 // Callback / event emitter
-Stream.callback<Event>(Effect.fnUntraced(function* (queue) {
+Stream.callback<Event>(Effect.fnUntraced(function*(queue) {
   yield* Effect.acquireRelease(
     Effect.sync(() => source.on("data", (e) => Queue.offerUnsafe(queue, e))),
     () => Effect.sync(() => source.removeAllListeners()),
-  )
-}))
+  );
+}));
 ```
 
 ## Transforming streams
@@ -51,7 +52,7 @@ stream.pipe(
   Stream.drop(1),
   Stream.takeWhile((x) => x < 100),
   Stream.tap((x) => Effect.log("item:", x)),
-)
+);
 ```
 
 ## Consuming streams
@@ -70,22 +71,22 @@ yield* stream.pipe(Stream.run(Sink.sum))              // with Sink
 
 ```typescript
 stream.pipe(
-  Stream.rechunk(64),            // rechunk to size 64
-  Stream.chunks,                 // emit raw Chunk<A> elements
-  Stream.unchunks,               // flatten chunks back to stream
-)
+  Stream.rechunk(64), // rechunk to size 64
+  Stream.chunks, // emit raw Chunk<A> elements
+  Stream.unchunks, // flatten chunks back to stream
+);
 ```
 
 ## NDJSON / binary encoding
 
 ```typescript
-import { Ndjson } from "effect/unstable/encoding"
+import { Ndjson } from "effect/unstable/encoding";
 
 // Decode NDJSON bytes → typed objects
-stream.pipe(Stream.pipeThroughChannel(Ndjson.decodeSchema(MySchema)))
+stream.pipe(Stream.pipeThroughChannel(Ndjson.decodeSchema(MySchema)));
 
 // Encode typed objects → NDJSON bytes
-stream.pipe(Stream.pipeThroughChannel(Ndjson.encodeSchema(MySchema)))
+stream.pipe(Stream.pipeThroughChannel(Ndjson.encodeSchema(MySchema)));
 ```
 
 ## Error handling in streams
@@ -94,13 +95,13 @@ stream.pipe(Stream.pipeThroughChannel(Ndjson.encodeSchema(MySchema)))
 stream.pipe(
   // Recover from typed error with a fallback stream
   Stream.catchTag("FetchError", (_e) => Stream.fromIterable(cachedItems)),
-
   // Retry failed elements
   Stream.mapEffect(
-    (item) => processItem(item).pipe(
-      Effect.retry(Schedule.exponential("100 millis").pipe(Schedule.upTo(3))),
-    ),
+    (item) =>
+      processItem(item).pipe(
+        Effect.retry(Schedule.exponential("100 millis").pipe(Schedule.upTo(3))),
+      ),
     { concurrency: 4 },
   ),
-)
+);
 ```

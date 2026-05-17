@@ -1,7 +1,7 @@
 import { Database } from "bun:sqlite";
+import { Context, Effect, Layer } from "effect";
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
-import { Context, Effect, Layer } from "effect";
 
 // ─── Error ───────────────────────────────────────────────────────────────────
 
@@ -151,7 +151,7 @@ export class ResultStore extends Context.Service<
     cleanupExpired(
       retentionDays: number,
       maxDbSizeMb: number,
-    ): Effect.Effect<{ deletedResults: number; deletedJobs: number }, SqlError>;
+    ): Effect.Effect<{ deletedResults: number; deletedJobs: number; }, SqlError>;
   }
 >()("app/ResultStore") {}
 
@@ -253,23 +253,23 @@ const mapDbResult = (row: Record<string, unknown>): DbResult => {
     created_at: unknown;
   };
   return {
-    id: r.id as number,
-    runId: r.run_id as string,
-    jobId: (r.job_id as string | null) ?? null,
-    taskId: r.task_id as string,
-    model: r.model as string,
-    variant: r.variant as string,
-    provider: r.provider as string,
-    pass: toBoolean(r.pass as number),
     bits: (r.bits as number | null) ?? null,
-    score: (r.score as number | null) ?? null,
+    createdAt: (r.created_at as string | null) ?? null,
+    elapsedMs: r.elapsed_ms as number,
     errors: safeJsonParse(
       r.errors as string | null,
     ) as ReadonlyArray<string> | null,
+    id: r.id as number,
+    jobId: (r.job_id as string | null) ?? null,
+    model: r.model as string,
+    pass: toBoolean(r.pass as number),
+    provider: r.provider as string,
+    runId: r.run_id as string,
+    score: (r.score as number | null) ?? null,
     submission: (r.submission as string | null) ?? null,
-    elapsedMs: r.elapsed_ms as number,
+    taskId: r.task_id as string,
     timestamp: r.timestamp as string,
-    createdAt: (r.created_at as string | null) ?? null,
+    variant: r.variant as string,
   };
 };
 
@@ -284,13 +284,13 @@ const mapDbJob = (row: Record<string, unknown>): DbJob => {
     completed_at: unknown;
   };
   return {
+    completedAt: (r.completed_at as string | null) ?? null,
+    completedTasks: r.completed_tasks as number,
+    config: safeJsonParse(r.config as string | null),
+    createdAt: (r.created_at as string | null) ?? null,
     id: r.id as string,
     status: r.status as DbJob["status"],
-    config: safeJsonParse(r.config as string | null),
     totalTasks: r.total_tasks as number,
-    completedTasks: r.completed_tasks as number,
-    createdAt: (r.created_at as string | null) ?? null,
-    completedAt: (r.completed_at as string | null) ?? null,
   };
 };
 
@@ -306,17 +306,16 @@ const mapDbTask = (row: Record<string, unknown>): DbTask => {
     ref_solution: unknown;
   };
   return {
-    id: r.id as string,
     category: r.category as string,
     categoryName: r.category_name as string,
     description: r.description as string,
-    testCount: r.test_count as number,
-    tests:
-      (safeJsonParse(
-        r.tests as string | null,
-      ) as ReadonlyArray<unknown> | null) ?? [],
+    id: r.id as string,
     refBits: (r.ref_bits as number | null) ?? null,
     refSolution: (r.ref_solution as string | null) ?? null,
+    testCount: r.test_count as number,
+    tests: (safeJsonParse(
+      r.tests as string | null,
+    ) as ReadonlyArray<unknown> | null) ?? [],
   };
 };
 
@@ -330,12 +329,12 @@ const mapDbModelConfig = (row: Record<string, unknown>): DbModelConfig => {
     created_at: unknown;
   };
   return {
-    id: r.id as string,
-    provider: r.provider as string,
-    displayName: (r.display_name as string | null) ?? null,
-    pricePerMOutput: (r.price_per_m_output as number | null) ?? null,
-    isActive: toBoolean(r.is_active as number),
     createdAt: (r.created_at as string | null) ?? null,
+    displayName: (r.display_name as string | null) ?? null,
+    id: r.id as string,
+    isActive: toBoolean(r.is_active as number),
+    pricePerMOutput: (r.price_per_m_output as number | null) ?? null,
+    provider: r.provider as string,
   };
 };
 
@@ -344,7 +343,7 @@ const mapDbModelConfig = (row: Record<string, unknown>): DbModelConfig => {
 export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
   Layer.effect(
     ResultStore,
-    Effect.gen(function* () {
+    Effect.gen(function*() {
       mkdirSync(dirname(dbPath), { recursive: true });
       const db = new Database(dbPath, { create: true });
       db.exec("PRAGMA journal_mode = WAL");
@@ -353,12 +352,11 @@ export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
 
       const runSql = <A>(fn: () => A): Effect.Effect<A, SqlError> =>
         Effect.try({
+          catch: (e) => new SqlError(e instanceof Error ? e.message : String(e)),
           try: fn,
-          catch: (e) =>
-            new SqlError(e instanceof Error ? e.message : String(e)),
         });
 
-      const insertResult = Effect.fnUntraced(function* (result: InsertResult) {
+      const insertResult = Effect.fnUntraced(function*(result: InsertResult) {
         const stmt = db.query(`
           INSERT INTO benchmark_results (
             run_id, job_id, task_id, model, variant, provider, pass, bits, score, errors, submission, elapsed_ms, timestamp
@@ -379,11 +377,11 @@ export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
             result.submission ?? null,
             result.elapsedMs,
             result.timestamp,
-          ),
+          )
         );
       });
 
-      const getResultsByRunId = Effect.fnUntraced(function* (runId: string) {
+      const getResultsByRunId = Effect.fnUntraced(function*(runId: string) {
         const stmt = db.query(
           "SELECT * FROM benchmark_results WHERE run_id = ? ORDER BY timestamp DESC",
         );
@@ -393,7 +391,7 @@ export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
         return rows.map(mapDbResult);
       });
 
-      const getResultsByJobId = Effect.fnUntraced(function* (jobId: string) {
+      const getResultsByJobId = Effect.fnUntraced(function*(jobId: string) {
         const stmt = db.query(
           "SELECT * FROM benchmark_results WHERE job_id = ? ORDER BY timestamp DESC",
         );
@@ -403,7 +401,7 @@ export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
         return rows.map(mapDbResult);
       });
 
-      const getLatestResults = Effect.fnUntraced(function* () {
+      const getLatestResults = Effect.fnUntraced(function*() {
         const stmt = db.query(
           "SELECT * FROM benchmark_results ORDER BY timestamp DESC LIMIT 100",
         );
@@ -413,7 +411,7 @@ export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
         return rows.map(mapDbResult);
       });
 
-      const insertJob = Effect.fnUntraced(function* (job: InsertJob) {
+      const insertJob = Effect.fnUntraced(function*(job: InsertJob) {
         const stmt = db.query(`
           INSERT INTO batch_jobs (id, status, config, total_tasks, completed_tasks)
           VALUES (?, ?, ?, ?, ?)
@@ -425,24 +423,21 @@ export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
             JSON.stringify(job.config),
             job.totalTasks,
             job.completedTasks ?? 0,
-          ),
+          )
         );
       });
 
-      const updateJobStatus = Effect.fnUntraced(function* (
+      const updateJobStatus = Effect.fnUntraced(function*(
         jobId: string,
         status: string,
         completedTasks?: number,
       ) {
         if (completedTasks !== undefined) {
-          const completedAt =
-            status === "completed" ? new Date().toISOString() : null;
+          const completedAt = status === "completed" ? new Date().toISOString() : null;
           const stmt = db.query(`
             UPDATE batch_jobs SET status = ?, completed_tasks = ?, completed_at = ? WHERE id = ?
           `);
-          yield* runSql(() =>
-            stmt.run(status, completedTasks, completedAt, jobId),
-          );
+          yield* runSql(() => stmt.run(status, completedTasks, completedAt, jobId));
         } else if (status === "completed") {
           const completedAt = new Date().toISOString();
           const stmt = db.query(`
@@ -457,7 +452,7 @@ export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
         }
       });
 
-      const getJob = Effect.fnUntraced(function* (jobId: string) {
+      const getJob = Effect.fnUntraced(function*(jobId: string) {
         const stmt = db.query("SELECT * FROM batch_jobs WHERE id = ?");
         const row = yield* runSql(
           () => stmt.get(jobId) as Record<string, unknown> | null,
@@ -465,7 +460,7 @@ export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
         return row ? mapDbJob(row) : undefined;
       });
 
-      const getJobsByStatus = Effect.fnUntraced(function* (status: string) {
+      const getJobsByStatus = Effect.fnUntraced(function*(status: string) {
         const stmt = db.query(
           "SELECT * FROM batch_jobs WHERE status = ? ORDER BY created_at DESC",
         );
@@ -475,7 +470,7 @@ export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
         return rows.map(mapDbJob);
       });
 
-      const insertTask = Effect.fnUntraced(function* (task: InsertTask) {
+      const insertTask = Effect.fnUntraced(function*(task: InsertTask) {
         const stmt = db.query(`
           INSERT INTO tasks (id, category, category_name, description, test_count, tests, ref_bits, ref_solution)
           VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -490,11 +485,11 @@ export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
             JSON.stringify(task.tests),
             task.refBits ?? null,
             task.refSolution ?? null,
-          ),
+          )
         );
       });
 
-      const getTask = Effect.fnUntraced(function* (taskId: string) {
+      const getTask = Effect.fnUntraced(function*(taskId: string) {
         const stmt = db.query("SELECT * FROM tasks WHERE id = ?");
         const row = yield* runSql(
           () => stmt.get(taskId) as Record<string, unknown> | null,
@@ -502,7 +497,7 @@ export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
         return row ? mapDbTask(row) : undefined;
       });
 
-      const getTasksByCategory = Effect.fnUntraced(function* (
+      const getTasksByCategory = Effect.fnUntraced(function*(
         category: string,
       ) {
         const stmt = db.query(
@@ -514,7 +509,7 @@ export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
         return rows.map(mapDbTask);
       });
 
-      const getAllTasks = Effect.fnUntraced(function* () {
+      const getAllTasks = Effect.fnUntraced(function*() {
         const stmt = db.query("SELECT * FROM tasks ORDER BY id");
         const rows = yield* runSql(
           () => stmt.all() as Array<Record<string, unknown>>,
@@ -522,7 +517,7 @@ export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
         return rows.map(mapDbTask);
       });
 
-      const insertModelConfig = Effect.fnUntraced(function* (
+      const insertModelConfig = Effect.fnUntraced(function*(
         config: InsertModelConfig,
       ) {
         const stmt = db.query(`
@@ -536,11 +531,11 @@ export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
             config.displayName ?? null,
             config.pricePerMOutput ?? null,
             fromBoolean(config.isActive ?? true),
-          ),
+          )
         );
       });
 
-      const getActiveModelConfigs = Effect.fnUntraced(function* () {
+      const getActiveModelConfigs = Effect.fnUntraced(function*() {
         const stmt = db.query(
           "SELECT * FROM model_configs WHERE is_active = 1 ORDER BY id",
         );
@@ -550,7 +545,7 @@ export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
         return rows.map(mapDbModelConfig);
       });
 
-      const cleanupExpired = Effect.fnUntraced(function* (
+      const cleanupExpired = Effect.fnUntraced(function*(
         retentionDays: number,
         maxDbSizeMb: number,
       ) {
@@ -562,7 +557,7 @@ export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
         );
         yield* runSql(() => deleteResultsStmt.run(retentionDays));
         deletedResults = (
-          db.query("SELECT changes() as c").get() as { c: number }
+          db.query("SELECT changes() as c").get() as { c: number; }
         ).c;
 
         // Delete old completed batch_jobs
@@ -571,7 +566,7 @@ export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
         );
         yield* runSql(() => deleteJobsStmt.run(retentionDays));
         const deletedJobs = (
-          db.query("SELECT changes() as c").get() as { c: number }
+          db.query("SELECT changes() as c").get() as { c: number; }
         ).c;
 
         // Check DB size and delete oldest 20% of completed results if needed
@@ -585,7 +580,7 @@ export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
             "SELECT COUNT(*) as count FROM benchmark_results WHERE pass = 1",
           );
           const countRow = yield* runSql(
-            () => countStmt.get() as { count: number } | null,
+            () => countStmt.get() as { count: number; } | null,
           );
           const completedCount = countRow?.count ?? 0;
           const limit = Math.floor(completedCount * 0.2);
@@ -596,7 +591,7 @@ export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
             );
             yield* runSql(() => pruneStmt.run(limit));
             deletedResults += (
-              db.query("SELECT changes() as c").get() as { c: number }
+              db.query("SELECT changes() as c").get() as { c: number; }
             ).c;
           }
         }
@@ -604,25 +599,25 @@ export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
         // WAL checkpoint
         yield* runSql(() => db.exec("PRAGMA wal_checkpoint(TRUNCATE)"));
 
-        return { deletedResults, deletedJobs };
+        return { deletedJobs, deletedResults };
       });
 
       return ResultStore.of({
-        insertResult,
-        getResultsByRunId,
-        getResultsByJobId,
-        getLatestResults,
-        insertJob,
-        updateJobStatus,
+        cleanupExpired,
+        getActiveModelConfigs,
+        getAllTasks,
         getJob,
         getJobsByStatus,
-        insertTask,
+        getLatestResults,
+        getResultsByJobId,
+        getResultsByRunId,
         getTask,
         getTasksByCategory,
-        getAllTasks,
+        insertJob,
         insertModelConfig,
-        getActiveModelConfigs,
-        cleanupExpired,
+        insertResult,
+        insertTask,
+        updateJobStatus,
       });
     }),
   );
