@@ -6,8 +6,9 @@
  * Uses Effect FileSystem + Path instead of Node fs/path.
  */
 
-import type { BenchmarkCategory, BenchmarkData, BenchmarkTask, Ranking } from "@repo/domain/Benchmark";
 import { Array as Arr, Effect, FileSystem, Option, Path } from "effect";
+import type { BenchmarkCategory, BenchmarkData, BenchmarkTask, Ranking } from "@repo/domain/Benchmark";
+
 import type { TopModel } from "../eval/EvalRunner";
 
 // ─── Paths ───────────────────────────────────────────────────────────────────
@@ -62,32 +63,45 @@ const CATEGORY_NAMES: Record<string, string> = {
 
 const parseResultFile = (filename: string, text: string): RunResult => {
   const lines = text.split("\n");
-  const model = lines.find(l => l.startsWith("model:"))?.slice("model:".length).trim() ?? "unknown";
-  const rightMatch = lines.find(l => l.startsWith("right:"))?.match(/right:\s*(\d+)\/(\d+)/);
+  const model =
+    lines
+      .find((l) => l.startsWith("model:"))
+      ?.slice("model:".length)
+      .trim() ?? "unknown";
+  const rightMatch = lines.find((l) => l.startsWith("right:"))?.match(/right:\s*(\d+)\/(\d+)/);
   const right = rightMatch ? parseInt(rightMatch[1]!) : 0;
   const total = rightMatch ? parseInt(rightMatch[2]!) : 120;
 
-  const variantRaw = lines.find(l => l.startsWith("variant:"))?.slice("variant:".length).trim();
+  const variantRaw = lines
+    .find((l) => l.startsWith("variant:"))
+    ?.slice("variant:".length)
+    .trim();
   const variant: "standard" | "rlm" = variantRaw === "rlm" ? "rlm" : "standard";
 
-  const rlmDepthRaw = lines.find(l => l.startsWith("rlm_depth:"))?.slice("rlm_depth:".length).trim();
+  const rlmDepthRaw = lines
+    .find((l) => l.startsWith("rlm_depth:"))
+    ?.slice("rlm_depth:".length)
+    .trim();
   const rlmDepth = rlmDepthRaw !== undefined ? parseInt(rlmDepthRaw, 10) : undefined;
 
-  const rlmAttemptsRaw = lines.find(l => l.startsWith("rlm_attempts:"))?.slice("rlm_attempts:".length).trim();
+  const rlmAttemptsRaw = lines
+    .find((l) => l.startsWith("rlm_attempts:"))
+    ?.slice("rlm_attempts:".length)
+    .trim();
   const rlmAttempts = rlmAttemptsRaw !== undefined ? parseInt(rlmAttemptsRaw, 10) : undefined;
 
-  const tasks: Array<TaskResult> = lines.flatMap(line => {
-    const m = line.match(
-      /^- (\w+):\s+\S+\s+(pass|fail)\s+time=([\d.]+)s(?:\s+bits=(\d+))?(?:\s+ref=(\d+))?/,
-    );
+  const tasks: Array<TaskResult> = lines.flatMap((line) => {
+    const m = line.match(/^- (\w+):\s+\S+\s+(pass|fail)\s+time=([\d.]+)s(?:\s+bits=(\d+))?(?:\s+ref=(\d+))?/);
     if (!m) return [];
-    return [{
-      bits: m[4] ? parseInt(m[4]) : undefined,
-      id: m[1]!,
-      pass: m[2] === "pass",
-      ref: m[5] ? parseInt(m[5]) : undefined,
-      time: parseFloat(m[3]!),
-    }];
+    return [
+      {
+        bits: m[4] ? parseInt(m[4]) : undefined,
+        id: m[1]!,
+        pass: m[2] === "pass",
+        ref: m[5] ? parseInt(m[5]) : undefined,
+        time: parseFloat(m[3]!),
+      },
+    ];
   });
 
   const tsMatch = filename.match(/^(\d{4}y\d{2}m\d{2}d\.\d{2}h\d{2}m\d{2}s)/);
@@ -107,7 +121,7 @@ const parseTaskFile = (id: string, text: string): BenchmarkTask => {
 
   const testLines = testSection.split("\n");
   const tests = Array.from({ length: testLines.length }, (_, i) => i).reduce<{
-    pairs: Array<{ input: string; expected: string; }>;
+    pairs: Array<{ input: string; expected: string }>;
     skip: boolean;
   }>(
     ({ pairs, skip }, i) => {
@@ -136,70 +150,62 @@ const parseTaskFile = (id: string, text: string): BenchmarkTask => {
 
 // ─── Loaders ─────────────────────────────────────────────────────────────────
 
-const loadAllResults = Effect.gen(function*() {
+const loadAllResults = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const exists = yield* fs.exists(RES_DIR);
   if (!exists) return [] as ReadonlyArray<RunResult>;
-  const files = (yield* fs.readDirectory(RES_DIR)).filter(f => f.endsWith(".txt")).toSorted();
+  const files = (yield* fs.readDirectory(RES_DIR)).filter((f) => f.endsWith(".txt")).toSorted();
   return yield* Effect.forEach(files, (f) =>
-    fs.readFileString(path.join(RES_DIR, f)).pipe(
-      Effect.map(text => parseResultFile(f, text)),
-    ));
+    fs.readFileString(path.join(RES_DIR, f)).pipe(Effect.map((text) => parseResultFile(f, text))),
+  );
 });
 
 const latestPerModel = (runs: ReadonlyArray<RunResult>): ReadonlyArray<RunResult> =>
   [
     ...runs
-      .reduce<Map<string, RunResult>>(
-        (map, run) => map.set(run.model, run),
-        new Map<string, RunResult>(),
-      )
+      .reduce<Map<string, RunResult>>((map, run) => map.set(run.model, run), new Map<string, RunResult>())
       .values(),
-  ]
-    .toSorted((a, b) => b.right - a.right || a.model.localeCompare(b.model));
+  ].toSorted((a, b) => b.right - a.right || a.model.localeCompare(b.model));
 
-const loadAllTasks = Effect.gen(function*() {
+const loadAllTasks = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const files = (yield* fs.readDirectory(TSK_DIR)).filter(f => f.endsWith(".tsk")).toSorted();
+  const files = (yield* fs.readDirectory(TSK_DIR)).filter((f) => f.endsWith(".tsk")).toSorted();
   return yield* Effect.forEach(files, (f) =>
-    fs.readFileString(path.join(TSK_DIR, f)).pipe(
-      Effect.map(text => parseTaskFile(path.basename(f, ".tsk"), text)),
-    ));
+    fs.readFileString(path.join(TSK_DIR, f)).pipe(Effect.map((text) => parseTaskFile(path.basename(f, ".tsk"), text))),
+  );
 });
 
 const loadTopModels = (flagPath?: string) =>
-  Effect.gen(function*() {
+  Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const candidates = [flagPath, TOP_MODELS_FILE].filter(Boolean) as Array<string>;
     const found = yield* Effect.forEach(candidates, (p) =>
-      Effect.gen(function*() {
+      Effect.gen(function* () {
         const exists = yield* fs.exists(p);
         if (!exists) return Option.none<Map<string, number>>();
         const text = yield* fs.readFileString(p);
         const data = JSON.parse(text) as Array<TopModel>;
         return Option.some(new Map(data.map((m) => [m.modelId, m.pricePerMOutput])));
-      }));
-    return Option.getOrElse(
-      Option.flatten(Arr.findFirst(found, Option.isSome)),
-      () => new Map<string, number>(),
+      }),
     );
+    return Option.getOrElse(Option.flatten(Arr.findFirst(found, Option.isSome)), () => new Map<string, number>());
   });
 
 /** Load rankings from the existing results.json, if present. Used as fallback when res/ is empty. */
-const loadExistingRankings = Effect.gen(function*() {
+const loadExistingRankings = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
   const exists = yield* fs.exists(OUT_FILE);
   if (!exists) return [] as ReadonlyArray<Ranking>;
   const text = yield* fs.readFileString(OUT_FILE);
-  const data = JSON.parse(text) as { rankings?: Array<Ranking>; };
+  const data = JSON.parse(text) as { rankings?: Array<Ranking> };
   return (data.rankings ?? []) as ReadonlyArray<Ranking>;
 });
 
 // ─── Builder ─────────────────────────────────────────────────────────────────
 
-export const build = Effect.fn("build")(function*(topModelsPath?: string) {
+export const build = Effect.fn("build")(function* (topModelsPath?: string) {
   const fs = yield* FileSystem.FileSystem;
 
   const runs = yield* loadAllResults;
@@ -207,9 +213,7 @@ export const build = Effect.fn("build")(function*(topModelsPath?: string) {
   const tasks = yield* loadAllTasks;
   const priceMap = yield* loadTopModels(topModelsPath);
 
-  const categories: Array<BenchmarkCategory> = Object.entries(CATEGORY_NAMES).map(
-    ([id, name]) => ({ id, name }),
-  );
+  const categories: Array<BenchmarkCategory> = Object.entries(CATEGORY_NAMES).map(([id, name]) => ({ id, name }));
 
   // When no res/ data exists, fall back to the existing results.json rankings
   // so a bare `build` command never wipes committed data.
@@ -231,32 +235,27 @@ export const build = Effect.fn("build")(function*(topModelsPath?: string) {
     yield* Effect.log("No res/ data and no existing results.json — writing empty rankings");
   }
 
-  const rankings: Array<Ranking> = latest.map(run => {
-    const timed = run.tasks.filter(t => t.time > 0);
-    const avgTime = timed.length
-      ? Arr.reduce(timed, 0, (s, t) => s + t.time) / timed.length
-      : 0;
+  const rankings: Array<Ranking> = latest.map((run) => {
+    const timed = run.tasks.filter((t) => t.time > 0);
+    const avgTime = timed.length ? Arr.reduce(timed, 0, (s, t) => s + t.time) / timed.length : 0;
     const price = priceMap.get(run.model) ?? 0;
 
-    return {
+    const ranking: Ranking = {
       avgTime: Number(avgTime.toFixed(1)),
       model: run.model,
       pct: ((run.right / run.total) * 100).toFixed(1),
       pricePerMOutputTokens: price,
       right: run.right,
-      taskBits: Object.fromEntries(
-        run.tasks.filter(t => t.pass && t.bits !== undefined).map(t => [t.id, t.bits!]),
-      ),
-      taskRefs: Object.fromEntries(
-        run.tasks.filter(t => t.ref !== undefined).map(t => [t.id, t.ref!]),
-      ),
-      tasks: Object.fromEntries(run.tasks.map(t => [t.id, t.pass])),
+      taskBits: Object.fromEntries(run.tasks.filter((t) => t.pass && t.bits !== undefined).map((t) => [t.id, t.bits!])),
+      taskRefs: Object.fromEntries(run.tasks.filter((t) => t.ref !== undefined).map((t) => [t.id, t.ref!])),
+      tasks: Object.fromEntries(run.tasks.map((t) => [t.id, t.pass])),
       timestamp: run.timestamp,
       total: run.total,
-      ...(run.variant === "rlm" ? { rlm: true } : {}),
-      ...(run.rlmDepth !== undefined ? { rlmDepth: run.rlmDepth } : {}),
-      ...(run.rlmAttempts !== undefined ? { rlmAttempts: run.rlmAttempts } : {}),
     };
+    if (run.variant === "rlm") Object.assign(ranking, { rlm: true });
+    if (run.rlmDepth !== undefined) Object.assign(ranking, { rlmDepth: run.rlmDepth });
+    if (run.rlmAttempts !== undefined) Object.assign(ranking, { rlmAttempts: run.rlmAttempts });
+    return ranking;
   });
 
   const data: BenchmarkData = {
@@ -270,8 +269,7 @@ export const build = Effect.fn("build")(function*(topModelsPath?: string) {
   yield* fs.writeFileString(OUT_FILE, `${JSON.stringify(data, null, 2)}\n`);
 
   yield* Effect.log(`Written ${rankings.length} models · ${tasks.length} tasks → ${OUT_FILE}`);
-  yield* Effect.forEach(
-    rankings,
-    r => Effect.log(`  ${r.model}: ${r.right}/${r.total} (${r.pct}%) price=$${r.pricePerMOutputTokens}/1M`),
+  yield* Effect.forEach(rankings, (r) =>
+    Effect.log(`  ${r.model}: ${r.right}/${r.total} (${r.pct}%) price=$${r.pricePerMOutputTokens}/1M`),
   );
 });

@@ -14,11 +14,7 @@
  */
 
 import { Effect, Layer, pipe, Schema } from "effect";
-import {
-  FetchHttpClient,
-  HttpClient,
-  HttpClientRequest,
-} from "effect/unstable/http";
+import { FetchHttpClient, HttpClient, HttpClientRequest } from "effect/unstable/http";
 import { writeFileSync } from "fs";
 
 // ─── Schemas ──────────────────────────────────────────────────────────────────
@@ -67,17 +63,13 @@ const parseRankingsHtml = (html: string): ReadonlyArray<string> => {
 const fetchModels = (apiKey: string) =>
   Effect.gen(function* () {
     const client = yield* HttpClient.HttpClient;
-    const request = HttpClientRequest.get(
-      "https://openrouter.ai/api/v1/models",
-    ).pipe(
+    const request = HttpClientRequest.get("https://openrouter.ai/api/v1/models").pipe(
       HttpClientRequest.setHeader("Authorization", `Bearer ${apiKey}`),
       HttpClientRequest.setHeader("Content-Type", "application/json"),
     );
     const response = yield* client.execute(request);
     const body = yield* response.json;
-    const decoded = yield* Schema.decodeUnknownEffect(OpenRouterModelsResponse)(
-      body,
-    );
+    const decoded = yield* Schema.decodeUnknownEffect(OpenRouterModelsResponse)(body);
     return decoded.data;
   });
 
@@ -85,9 +77,7 @@ const fetchModels = (apiKey: string) =>
 const fetchRankings = () =>
   Effect.gen(function* () {
     const client = yield* HttpClient.HttpClient;
-    const request = HttpClientRequest.get(
-      "https://openrouter.ai/rankings?view=coding",
-    );
+    const request = HttpClientRequest.get("https://openrouter.ai/rankings?view=coding");
     const response = yield* client.execute(request);
     const html = yield* response.text;
     return parseRankingsHtml(html);
@@ -97,10 +87,7 @@ const fetchRankings = () =>
 const getTopModels = (apiKey: string, n: number) =>
   Effect.gen(function* () {
     // Run both fetches concurrently
-    const [rankedIds, allModels] = yield* Effect.all(
-      [fetchRankings(), fetchModels(apiKey)],
-      { concurrency: 2 },
-    );
+    const [rankedIds, allModels] = yield* Effect.all([fetchRankings(), fetchModels(apiKey)], { concurrency: 2 });
 
     // Build a price lookup by model id
     const priceMap = new Map(
@@ -162,9 +149,7 @@ const resolveTopModels = (
 ): Effect.Effect<ReadonlyArray<TopModel>, Error, HttpClient.HttpClient> => {
   if (devMode) {
     return Effect.andThen(
-      Effect.log(
-        "[dev] DEV_MODE=true — using mock top-models, skipping live fetch",
-      ),
+      Effect.log("[dev] DEV_MODE=true — using mock top-models, skipping live fetch"),
       Effect.succeed(DEV_MOCK_MODELS),
     );
   }
@@ -215,10 +200,4 @@ if (import.meta.main) {
   });
 }
 
-export {
-  fetchModels,
-  fetchRankings,
-  getTopModels,
-  parseRankingsHtml,
-  topModelsFromEnv,
-};
+export { fetchModels, fetchRankings, getTopModels, parseRankingsHtml, topModelsFromEnv };

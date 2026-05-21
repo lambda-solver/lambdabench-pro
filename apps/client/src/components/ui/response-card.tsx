@@ -1,7 +1,9 @@
-import { Badge } from "@/components/ui/badge";
-import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 import type * as React from "react";
+
+import { Card, CardAction, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 export type ResponseState = "loading" | "completed" | "error";
 
@@ -36,54 +38,30 @@ const stateLabels = {
   loading: "Event Received",
 } as const;
 
-export function ResponseCard({
-  title,
-  state,
-  children,
-  className,
-}: ResponseCardProps) {
+export function ResponseCard({ title, state, children, className }: ResponseCardProps) {
   return (
     <Card className={cn("min-h-42", className)}>
       <CardHeader className="border-b border-border">
-        <CardTitle className="text-xs uppercase tracking-wide text-muted-foreground">
-          {title}
-        </CardTitle>
+        <CardTitle className="text-xs uppercase tracking-wide text-muted-foreground">{title}</CardTitle>
         {state && (
           <CardAction>
-            <Badge
-              variant={state === "error" ? "destructive" : "outline"}
-              className={stateStyles[state].badge}
-            >
+            <Badge variant={state === "error" ? "destructive" : "outline"} className={stateStyles[state].badge}>
               {stateLabels[state]}
             </Badge>
           </CardAction>
         )}
       </CardHeader>
       <CardContent className="pt-4">
-        {state
-          ? (
-            <div
-              className={cn(
-                "rounded-none border p-4",
-                stateStyles[state].container,
-              )}
-            >
-              <div className="flex items-start gap-2">
-                <div
-                  className={cn(
-                    "mt-1.5 h-2 w-2 rounded-full",
-                    stateStyles[state].dot,
-                  )}
-                />
-                <div className="flex-1 text-xs text-foreground">{children}</div>
-              </div>
+        {state ? (
+          <div className={cn("rounded-none border p-4", stateStyles[state].container)}>
+            <div className="flex items-start gap-2">
+              <div className={cn("mt-1.5 h-2 w-2 rounded-full", stateStyles[state].dot)} />
+              <div className="flex-1 text-xs text-foreground">{children}</div>
             </div>
-          )
-          : (
-            <div className="flex items-center justify-center py-8 text-muted-foreground text-xs">
-              {children}
-            </div>
-          )}
+          </div>
+        ) : (
+          <div className="flex items-center justify-center py-8 text-muted-foreground text-xs">{children}</div>
+        )}
       </CardContent>
     </Card>
   );

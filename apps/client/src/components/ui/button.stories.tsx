@@ -1,18 +1,15 @@
+import type { Meta, StoryObj } from "@storybook/react";
+
+import { Button } from "./button";
 import { buttonFixtures } from "@/fixtures/button";
 import { createFixtureDecorator } from "@/fixtures/decorator";
-import type { Meta, StoryObj } from "@storybook/react";
-import { Button } from "./button";
 
 const meta = {
   component: Button,
   decorators: [
     createFixtureDecorator(buttonFixtures, (fixture) => (
       <div className="p-4">
-        <Button
-          variant={fixture.variant}
-          size={fixture.size}
-          disabled={fixture.disabled}
-        >
+        <Button variant={fixture.variant} size={fixture.size} disabled={fixture.disabled}>
           {fixture.label}
         </Button>
       </div>

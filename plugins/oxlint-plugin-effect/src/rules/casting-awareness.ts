@@ -1,16 +1,11 @@
-import type { ESTree } from "effect-oxlint";
-
 import * as Effect from "effect/Effect";
 
 import { Diagnostic, Rule, RuleContext } from "effect-oxlint";
 
+import type { ESTree } from "effect-oxlint";
+
 export default Rule.define({
-  name: "casting-awareness",
-  meta: Rule.meta({
-    type: "suggestion",
-    description: "Flag type assertions (as T) — verify the cast is necessary or improve upstream types",
-  }),
-  create: function*() {
+  create: function* () {
     const ctx = yield* RuleContext;
     return {
       TSAsExpression: (node: ESTree.Node) => {
@@ -30,10 +25,7 @@ export default Rule.define({
         }
 
         // Skip `as any` and `as unknown` — handled by avoid-any
-        if (
-          tsAs.typeAnnotation.type === "TSAnyKeyword"
-          || tsAs.typeAnnotation.type === "TSUnknownKeyword"
-        ) {
+        if (tsAs.typeAnnotation.type === "TSAnyKeyword" || tsAs.typeAnnotation.type === "TSUnknownKeyword") {
           return Effect.void;
         }
 
@@ -46,10 +38,15 @@ export default Rule.define({
           Diagnostic.make({
             node,
             message:
-              "Type assertion `as T` tells the compiler \"trust me.\" Before casting, check: (1) is the cast redundant? (2) can generics or Schema.decode replace it? (3) does the upstream type need fixing? `as const` is always acceptable.",
+              'Type assertion `as T` tells the compiler "trust me." Before casting, check: (1) is the cast redundant? (2) can generics or Schema.decode replace it? (3) does the upstream type need fixing? `as const` is always acceptable.',
           }),
         );
       },
     };
   },
+  meta: Rule.meta({
+    type: "suggestion",
+    description: "Flag type assertions (as T) — verify the cast is necessary or improve upstream types",
+  }),
+  name: "casting-awareness",
 });

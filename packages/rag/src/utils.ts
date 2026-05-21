@@ -1,4 +1,4 @@
-import { Array, Option, pipe, Record, String } from "effect";
+import { Array, Option, Record, String, pipe } from "effect";
 
 export const normalizeWhitespace = (text: string) =>
   pipe(
@@ -15,12 +15,13 @@ export const getFileExtension = (fileName: string) =>
     parts.length < 2
       ? ""
       : pipe(
-        parts,
-        Array.last,
-        Option.getOrElse(() => ""),
-        String.toLowerCase,
-        (extension) => `.${extension}`,
-      ));
+          parts,
+          Array.last,
+          Option.getOrElse(() => ""),
+          String.toLowerCase,
+          (extension) => `.${extension}`,
+        ),
+  );
 
 export const resolveMimeTypeForFile = (fileName: string) => {
   const extension = getFileExtension(fileName);

@@ -14,32 +14,29 @@
  * since the call shape itself is the smell.
  */
 
-import type { ESTree } from "effect-oxlint";
-
 import * as Effect from "effect/Effect";
-import { pipe } from "effect/Function";
 import * as Option from "effect/Option";
 import * as Schema from "effect/Schema";
 
 import { AST, Diagnostic, Rule, RuleContext, Visitor } from "effect-oxlint";
+
+import type { ESTree } from "effect-oxlint";
+import { pipe } from "effect/Function";
 
 // ---------------------------------------------------------------------------
 // Domain
 // ---------------------------------------------------------------------------
 
 const OsImportSource = Schema.Literals(["os", "node:os"]).annotate({
-  title: "OsImportSource",
   description: "Import sources for Node's built-in `os` module that expose `tmpdir()`.",
+  title: "OsImportSource",
 });
 
 const isOsImportSource = Schema.is(OsImportSource);
 
-const UnscopedTempApiName = Schema.Literals([
-  "makeTempFile",
-  "makeTempDirectory",
-]).annotate({
-  title: "UnscopedTempApiName",
+const UnscopedTempApiName = Schema.Literals(["makeTempFile", "makeTempDirectory"]).annotate({
   description: "Effect platform FileSystem APIs that allocate a temp resource without binding cleanup to a scope.",
+  title: "UnscopedTempApiName",
 });
 
 const isUnscopedTempApiName = Schema.is(UnscopedTempApiName);
@@ -54,12 +51,10 @@ const isUnscopedTempApiName = Schema.is(UnscopedTempApiName);
  * Returns `Option<UnscopedTempApiName>` so the diagnostic can name the
  * specific API.
  */
-const matchUnscopedTempMember = (
-  node: ESTree.MemberExpression,
-): Option.Option<string> =>
+const matchUnscopedTempMember = (node: ESTree.MemberExpression): Option.Option<string> =>
   pipe(
     AST.memberNames(node),
-    Option.flatMap(([, prop]) => isUnscopedTempApiName(prop) ? Option.some(prop) : Option.none()),
+    Option.flatMap(([, prop]) => (isUnscopedTempApiName(prop) ? Option.some(prop) : Option.none())),
   );
 
 // ---------------------------------------------------------------------------
@@ -76,22 +71,15 @@ const unscopedMessage = (api: string): string =>
   `Avoid \`${api}\` — the unscoped variant requires manual cleanup. Use \`${api}Scoped\` so the resource is finalized when its scope closes.`;
 
 export default Rule.define({
-  name: "use-temp-file-scoped",
-  meta: Rule.meta({
-    type: "suggestion",
-    description:
-      "Disallow `os`/`os.tmpdir()` and the unscoped `makeTempFile` / `makeTempDirectory` FileSystem APIs — prefer their `*Scoped` siblings so cleanup is bound to scope finalization.",
-  }),
-  create: function*() {
+  create: function* () {
     const ctx = yield* RuleContext;
 
     return Visitor.merge(
       Visitor.on("ImportDeclaration", (node) =>
         isOsImportSource(AST.importSource(node))
-          ? ctx.report(
-            Diagnostic.make({ node, message: IMPORT_MESSAGE }),
-          )
-          : Effect.void),
+          ? ctx.report(Diagnostic.make({ node, message: IMPORT_MESSAGE }))
+          : Effect.void,
+      ),
       Visitor.on("MemberExpression", (node) =>
         pipe(
           AST.matchMember(node, "os", "tmpdir"),
@@ -105,7 +93,8 @@ export default Rule.define({
                 }),
               ),
           }),
-        )),
+        ),
+      ),
       Visitor.on("CallExpression", (node) =>
         pipe(
           AST.narrow(node.callee, "MemberExpression"),
@@ -120,7 +109,14 @@ export default Rule.define({
                 }),
               ),
           }),
-        )),
+        ),
+      ),
     );
   },
+  meta: Rule.meta({
+    type: "suggestion",
+    description:
+      "Disallow `os`/`os.tmpdir()` and the unscoped `makeTempFile` / `makeTempDirectory` FileSystem APIs — prefer their `*Scoped` siblings so cleanup is bound to scope finalization.",
+  }),
+  name: "use-temp-file-scoped",
 });

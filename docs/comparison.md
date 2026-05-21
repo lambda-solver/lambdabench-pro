@@ -85,31 +85,21 @@ export const TraceSpanItem = Schema.Struct({
       description: "Instrumentation scope (e.g. module or library name)",
     }),
   ),
-  operationName: Schema.String.pipe(
-    Schema.annotateKey({ description: "The operation this span represents" }),
-  ),
-  startTime: DateFromString.pipe(
-    Schema.annotateKey({ description: "ISO 8601 timestamp" }),
-  ),
+  operationName: Schema.String.pipe(Schema.annotateKey({ description: "The operation this span represents" })),
+  startTime: DateFromString.pipe(Schema.annotateKey({ description: "ISO 8601 timestamp" })),
   isRunning: Schema.Boolean.pipe(
     Schema.annotateKey({
       description: "True when the span has not reported an end timestamp yet",
     }),
   ),
-  durationMs: Schema.Number.pipe(
-    Schema.annotateKey({ description: "Wall-clock duration in milliseconds" }),
-  ),
-  status: TraceSpanStatus.pipe(
-    Schema.annotateKey({ description: "ok or error" }),
-  ),
+  durationMs: Schema.Number.pipe(Schema.annotateKey({ description: "Wall-clock duration in milliseconds" })),
+  status: TraceSpanStatus.pipe(Schema.annotateKey({ description: "ok or error" })),
   depth: Schema.Number.pipe(
     Schema.annotateKey({
       description: "Nesting depth in the span tree (root = 0)",
     }),
   ),
-  tags: StringRecord.pipe(
-    Schema.annotateKey({ description: "Span attributes as key-value pairs" }),
-  ),
+  tags: StringRecord.pipe(Schema.annotateKey({ description: "Span attributes as key-value pairs" })),
   warnings: Schema.Array(Schema.String).pipe(
     Schema.annotateKey({
       description: "Structural warnings (e.g. missing parent span)",
@@ -147,10 +137,9 @@ export class AgentStart extends Schema.TaggedClass<AgentStart>()("AgentStart", {
   }
 }
 
-export class AgentFinished extends Schema.TaggedErrorClass<AgentFinished>()(
-  "AgentFinished",
-  { summary: Schema.String },
-) {}
+export class AgentFinished extends Schema.TaggedErrorClass<AgentFinished>()("AgentFinished", {
+  summary: Schema.String,
+}) {}
 ```
 
 The `AgentOutput` union composes 11 distinct tagged classes into a single `Schema.Union`, enabling pattern matching across the entire output stream. Tool parameters use `Schema.Struct` with `.annotate({ documentation: "..." })` for tool descriptions consumed by LLMs.
@@ -185,9 +174,7 @@ export class ResultStore extends Context.Service<
   ResultStore,
   {
     insertResult(result: InsertResult): Effect.Effect<void, SqlError>;
-    getResultsByRunId(
-      runId: string,
-    ): Effect.Effect<ReadonlyArray<DbResult>, SqlError>;
+    getResultsByRunId(runId: string): Effect.Effect<ReadonlyArray<DbResult>, SqlError>;
     // ... 18 additional methods
   }
 >()("app/ResultStore") {}
@@ -223,10 +210,8 @@ export class TelemetryStore extends Context.Service<
   {
     readonly ingestTraces: (
       payload: OtlpTraceExportRequest,
-    ) => Effect.Effect<{ readonly insertedSpans: number; }, Error>;
-    readonly searchTraces: (
-      input: TraceSearch,
-    ) => Effect.Effect<readonly TraceItem[], Error>;
+    ) => Effect.Effect<{ readonly insertedSpans: number }, Error>;
+    readonly searchTraces: (input: TraceSearch) => Effect.Effect<readonly TraceItem[], Error>;
     // ... 20+ additional methods
   }
 >()("motel/TelemetryStore") {}
@@ -262,11 +247,9 @@ Resource management is sophisticated. The `TelemetryStore` layer uses `Effect.ac
 The runtime (`reference/motel/src/runtime.ts`) composes these into a `ManagedRuntime`:
 
 ```typescript
-const QueryServicesLive = Layer.mergeAll(
-  TraceQueryServiceLive,
-  LogQueryServiceLive,
-)
-  .pipe(Layer.provideMerge(TelemetryStoreReadonlyLive));
+const QueryServicesLive = Layer.mergeAll(TraceQueryServiceLive, LogQueryServiceLive).pipe(
+  Layer.provideMerge(TelemetryStoreReadonlyLive),
+);
 
 export const queryRuntime = ManagedRuntime.make(QueryRuntimeLive);
 export const storeRuntime = ManagedRuntime.make(TelemetryStoreLive);
@@ -279,12 +262,10 @@ Clanka uses both `Context.Service` and `Context.Reference` for different lifecyc
 ```typescript
 export const Agent = Context.Service<Agent>("clanka/Agent");
 
-export class ConversationMode extends Context.Reference<boolean>(
-  "clanka/Agent/ConversationMode",
-  { defaultValue: () => false },
-) {
-  static readonly layer = (enabled: boolean) =>
-    Layer.succeed(ConversationMode, enabled);
+export class ConversationMode extends Context.Reference<boolean>("clanka/Agent/ConversationMode", {
+  defaultValue: () => false,
+}) {
+  static readonly layer = (enabled: boolean) => Layer.succeed(ConversationMode, enabled);
 }
 ```
 
@@ -318,9 +299,7 @@ export const AgentTools = Toolkit.make(
 Layer composition chains tool handlers through `Layer.provide`:
 
 ```typescript
-export const AgentToolHandlers = AgentToolHandlersNoDeps.pipe(
-  Layer.provide([ExaSearch.layer, WebToMarkdown.layer]),
-);
+export const AgentToolHandlers = AgentToolHandlersNoDeps.pipe(Layer.provide([ExaSearch.layer, WebToMarkdown.layer]));
 ```
 
 ### 3.4 Service Architecture Comparison Table
@@ -403,9 +382,7 @@ Motel uses three triggers on the `span_attr_fts` external-content FTS table (ins
 
 ```typescript
 try {
-  db.exec(
-    `ALTER TABLE trace_summaries ADD COLUMN active_span_count INTEGER NOT NULL DEFAULT 0`,
-  );
+  db.exec(`ALTER TABLE trace_summaries ADD COLUMN active_span_count INTEGER NOT NULL DEFAULT 0`);
 } catch {
   // Existing databases may already have the column.
 }
@@ -423,7 +400,7 @@ Clanka uses the official Effect SQL package rather than raw `bun:sqlite`:
 export const SqliteLayer = (database: string) =>
   SqliteMigrator.layer({
     loader: SqliteMigrator.fromRecord({
-      "0001_create_chunks": Effect.gen(function*() {
+      "0001_create_chunks": Effect.gen(function* () {
         const sql = yield* SqlClient.SqlClient;
         yield* sql`CREATE TABLE IF NOT EXISTS chunks (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -439,7 +416,7 @@ export const SqliteLayer = (database: string) =>
   }).pipe(
     Layer.provide(
       Layer.effectDiscard(
-        Effect.gen(function*() {
+        Effect.gen(function* () {
           const client = yield* SqliteClient.SqliteClient;
           yield* client.loadExtension(getExtensionPath());
         }),
@@ -488,8 +465,7 @@ LamBench defines its API in `packages/domain/src/Api.ts` using `effect/unstable/
 ```typescript
 export class HealthGroup extends HttpApiGroup.make("health")
   .add(HttpApiEndpoint.get("get", "/health", { success: HealthStatus }))
-  .prefix("/api")
-{}
+  .prefix("/api") {}
 
 export class EvalGroup extends HttpApiGroup.make("eval")
   .add(
@@ -510,8 +486,7 @@ export class EvalGroup extends HttpApiGroup.make("eval")
       params: Schema.Struct({ jobId: Schema.String }),
     }),
   )
-  .prefix("/api")
-{}
+  .prefix("/api") {}
 
 export const Api = HttpApi.make("Api")
   .add(HealthGroup)
@@ -551,23 +526,14 @@ Motel's API (`reference/motel/src/httpApi.ts`) is significantly more mature:
 export const MotelHttpApi = HttpApi.make("MotelTelemetry")
   .annotate(OpenApi.Title, "Motel Telemetry API")
   .annotate(OpenApi.Version, "1.0.0")
-  .annotate(
-    OpenApi.Description,
-    "Local OpenTelemetry ingest, query, and debugging API...",
-  )
+  .annotate(OpenApi.Description, "Local OpenTelemetry ingest, query, and debugging API...")
   .add(
     HttpApiGroup.make("telemetry")
-      .annotate(
-        OpenApi.Description,
-        "Query traces, spans, logs, and service metadata...",
-      )
+      .annotate(OpenApi.Description, "Query traces, spans, logs, and service metadata...")
       .add(
         HttpApiEndpoint.get("health", "/api/health", { success: Health })
           .annotate(OpenApi.Summary, "Health check and identity handshake")
-          .annotate(
-            OpenApi.Description,
-            "Returns liveness plus identity fields...",
-          ),
+          .annotate(OpenApi.Description, "Returns liveness plus identity fields..."),
         // ... 25+ additional endpoints
       ),
   );
@@ -593,15 +559,11 @@ Clanka has no HTTP server. Communication is entirely programmatic through:
 export const McpClient = Context.Service<
   McpClient,
   {
-    connect(
-      options: { readonly url: string; },
-    ): Effect.Effect<void, McpClientError>;
-    toolCall(
-      options: {
-        readonly name: string;
-        readonly arguments: Record<string, unknown>;
-      },
-    ): Effect.Effect<unknown, McpClientError>;
+    connect(options: { readonly url: string }): Effect.Effect<void, McpClientError>;
+    toolCall(options: {
+      readonly name: string;
+      readonly arguments: Record<string, unknown>;
+    }): Effect.Effect<unknown, McpClientError>;
   }
 >()("clanka/McpClient");
 ```
@@ -675,23 +637,19 @@ Clanka acts as an MCP **client**, not a server. It connects to external MCP serv
 ```typescript
 export const layer = Layer.effect(
   McpClient,
-  Effect.gen(function*() {
+  Effect.gen(function* () {
     const client = yield* Effect.acquireRelease(
       Effect.sync(() => new Client({ name: "clanka", version: "0.1.0" })),
       (client) => Effect.promise(() => client.close()),
     );
 
-    const connect = Effect.fn("McpClient.connect")(
-      function*(options: { readonly url: string; }) {
-        const transport = new StreamableHTTPClientTransport(
-          new URL(options.url),
-        );
-        return yield* Effect.tryPromise({
-          try: (signal) => client.connect(transport as Transport, { signal }),
-          catch: (cause) => new McpClientError({ cause }),
-        });
-      },
-    );
+    const connect = Effect.fn("McpClient.connect")(function* (options: { readonly url: string }) {
+      const transport = new StreamableHTTPClientTransport(new URL(options.url));
+      return yield* Effect.tryPromise({
+        try: (signal) => client.connect(transport as Transport, { signal }),
+        catch: (cause) => new McpClientError({ cause }),
+      });
+    });
 
     return McpClient.of({
       connect,
@@ -705,7 +663,7 @@ export const layer = Layer.effect(
             return response.structuredContent ?? response.content;
           },
           catch: (cause) => new McpClientError({ cause }),
-        })
+        }),
       ),
     });
   }),
@@ -933,11 +891,9 @@ Effect.gen(function* () {
 **Clanka**:
 
 ```typescript
-Effect.gen(function*() {
+Effect.gen(function* () {
   const executor = yield* AgentExecutor.AgentExecutor;
-  const singleTool = yield* SingleTools.asEffect().pipe(
-    Effect.provide(SingleToolHandlers),
-  );
+  const singleTool = yield* SingleTools.asEffect().pipe(Effect.provide(SingleToolHandlers));
   // ...
 });
 ```

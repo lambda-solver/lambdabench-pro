@@ -1,9 +1,9 @@
-import type { ESTree } from "effect-oxlint";
-
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 
 import { AST, Diagnostic, Rule, RuleContext } from "effect-oxlint";
+
+import type { ESTree } from "effect-oxlint";
 
 const REACT_HOOKS = new Set([
   "useState",
@@ -23,12 +23,7 @@ const REACT_HOOKS = new Set([
 ]);
 
 export default Rule.define({
-  name: "avoid-react-hooks",
-  meta: Rule.meta({
-    type: "suggestion",
-    description: "Disallow React hooks — use View Models with Effect Atom instead",
-  }),
-  create: function*() {
+  create: function* () {
     const ctx = yield* RuleContext;
     return {
       CallExpression: (node: ESTree.Node) => {
@@ -38,15 +33,19 @@ export default Rule.define({
           onSome: (name) =>
             REACT_HOOKS.has(name)
               ? ctx.report(
-                Diagnostic.make({
-                  node,
-                  message:
-                    `Avoid \`${name}\` — use View Models with Effect Atom instead. State belongs in atoms, effects in actions, components as pure renderers.`,
-                }),
-              )
+                  Diagnostic.make({
+                    node,
+                    message: `Avoid \`${name}\` — use View Models with Effect Atom instead. State belongs in atoms, effects in actions, components as pure renderers.`,
+                  }),
+                )
               : Effect.void,
         });
       },
     };
   },
+  meta: Rule.meta({
+    type: "suggestion",
+    description: "Disallow React hooks — use View Models with Effect Atom instead",
+  }),
+  name: "avoid-react-hooks",
 });

@@ -55,7 +55,9 @@ function UserList() {
   if (error) return <Error error={error} />;
   return (
     <ul>
-      {data.map((user) => <li key={user.id}>{user.name}</li>)}
+      {data.map((user) => (
+        <li key={user.id}>{user.name}</li>
+      ))}
     </ul>
   );
 }
@@ -65,13 +67,12 @@ function UserList() {
 
 ```tsx
 // ✅ hierarchical, deterministic keys
-["users"] // all users
-  ["users", { page: 1, limit: 10 }] // paginated
-  ["users", userId] // single user
-  ["users", userId, "posts"] // user's posts
+["users"][("users", { page: 1, limit: 10 })][("users", userId)][("users", userId, "posts")][ // all users // paginated // single user // user's posts
   // ❌ non-deterministic
-  ["users", new Date()] // never caches
-  [`users-${random()}`]; // never caches
+  ("users", new Date())
+][ // never caches
+  `users-${random()}`
+]; // never caches
 ```
 
 ## Mutations
@@ -99,9 +100,7 @@ function CreateUser() {
         mutation.mutate({ name: "Alice" });
       }}
     >
-      <button disabled={mutation.isPending}>
-        {mutation.isPending ? "Creating..." : "Create"}
-      </button>
+      <button disabled={mutation.isPending}>{mutation.isPending ? "Creating..." : "Create"}</button>
     </form>
   );
 }
@@ -115,10 +114,7 @@ const mutation = useMutation({
   onMutate: async (newTodo) => {
     await queryClient.cancelQueries({ queryKey: ["todos"] });
     const previous = queryClient.getQueryData(["todos"]);
-    queryClient.setQueryData(
-      ["todos"],
-      (old) => old.map((t) => t.id === newTodo.id ? newTodo : t),
-    );
+    queryClient.setQueryData(["todos"], (old) => old.map((t) => (t.id === newTodo.id ? newTodo : t)));
     return { previous };
   },
   onError: (err, newTodo, context) => {
@@ -134,25 +130,23 @@ const mutation = useMutation({
 
 ```tsx
 function PostList() {
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useInfiniteQuery({
-      queryKey: ["posts"],
-      queryFn: ({ pageParam = 1 }) => fetchPosts(pageParam),
-      getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,
-      initialPageParam: 1,
-    });
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
+    queryKey: ["posts"],
+    queryFn: ({ pageParam = 1 }) => fetchPosts(pageParam),
+    getNextPageParam: (lastPage) => lastPage.nextPage ?? undefined,
+    initialPageParam: 1,
+  });
 
   return (
     <>
       {data?.pages.map((page, i) => (
         <Fragment key={i}>
-          {page.posts.map((post) => <PostCard key={post.id} {...post} />)}
+          {page.posts.map((post) => (
+            <PostCard key={post.id} {...post} />
+          ))}
         </Fragment>
       ))}
-      <button
-        onClick={() => fetchNextPage()}
-        disabled={!hasNextPage || isFetchingNextPage}
-      >
+      <button onClick={() => fetchNextPage()} disabled={!hasNextPage || isFetchingNextPage}>
         {isFetchingNextPage ? "Loading..." : "Load More"}
       </button>
     </>
@@ -167,7 +161,7 @@ function PostList() {
 import { Effect } from "effect";
 
 const queryFn = async () => {
-  const program = Effect.gen(function*() {
+  const program = Effect.gen(function* () {
     const api = yield* ApiClient;
     return yield* api.getUsers();
   });
@@ -182,7 +176,7 @@ function UserList() {
     queryKey: ["users"],
     queryFn: () =>
       Effect.runPromise(
-        Effect.gen(function*() {
+        Effect.gen(function* () {
           const api = yield* ApiClient;
           return yield* api.getUsers();
         }).pipe(Effect.provide(runtime)),

@@ -95,7 +95,7 @@ Group related components that share state implicitly.
   <Tabs.Content value="details">
     <Details />
   </Tabs.Content>
-</Tabs>;
+</Tabs>
 ```
 
 ## Render Props / Slots
@@ -174,7 +174,9 @@ function DataList() {
   const data = useData(); // custom hook
   return (
     <Stack>
-      {data.map((item) => <DataCard key={item.id} {...item} />)}
+      {data.map((item) => (
+        <DataCard key={item.id} {...item} />
+      ))}
     </Stack>
   );
 }

@@ -1,8 +1,9 @@
 // apps/server/src/mcp.test.ts
 
-import { describe, it } from "@effect/vitest";
-import { assertTrue, strictEqual } from "@effect/vitest/utils";
 import { Effect, Schema } from "effect";
+import { assertTrue, strictEqual } from "@effect/vitest/utils";
+import { describe, it } from "@effect/vitest";
+
 import type { Toolkit } from "effect/unstable/ai";
 import { vi } from "vitest";
 
@@ -10,36 +11,34 @@ import { vi } from "vitest";
 
 // Mock @effect/platform-bun so tests can run in Node.js (not Bun runtime)
 vi.doMock("@effect/platform-bun", async () => {
-  const { Layer, Effect, Stream, Sink } = await import("effect");
+  const effectLib = await import("effect");
   // Create a minimal Stdio mock layer manually
   const Stdio = (await import("effect/Stdio")).Stdio;
   const mockStdio = {
-    args: Effect.succeed([]),
-    stderr: () => Sink.drain,
-    stdin: Stream.empty,
-    stdout: () => Sink.drain,
+    args: effectLib.Effect.succeed([]),
+    stderr: () => effectLib.Sink.drain,
+    stdin: effectLib.Stream.empty,
+    stdout: () => effectLib.Sink.drain,
   } as never;
   return {
     BunRuntime: { runMain: () => {} },
     BunStdio: {
-      layer: Layer.succeed(Stdio, mockStdio),
+      layer: effectLib.Layer.succeed(Stdio, mockStdio),
     },
   };
 });
 
 vi.doMock("./client/LamBenchClient.js", async () => {
-  const { LamBenchClient, ApiError } = await import(
-    "./client/LamBenchClient.js"
-  );
-  const { Effect, Layer } = await import("effect");
+  const { LamBenchClient, ApiError } = await import("./client/LamBenchClient.js");
+  const effectLib = await import("effect");
 
   class MockLamBenchClient extends LamBenchClient {
     static override readonly layer = () =>
-      Layer.succeed(
+      effectLib.Layer.succeed(
         LamBenchClient,
         LamBenchClient.of({
           evalBatch: () =>
-            Effect.succeed({
+            effectLib.Effect.succeed({
               completedTasks: 0,
               createdAt: new Date().toISOString(),
               id: "job-1",
@@ -54,7 +53,7 @@ vi.doMock("./client/LamBenchClient.js", async () => {
               model: string;
               variant: string;
             };
-            return Effect.succeed({
+            return effectLib.Effect.succeed({
               bits: 42,
               elapsedMs: 100,
               errors: [] as ReadonlyArray<string>,
@@ -69,7 +68,7 @@ vi.doMock("./client/LamBenchClient.js", async () => {
           },
 
           evalStatus: () =>
-            Effect.succeed({
+            effectLib.Effect.succeed({
               completedTasks: 0,
               createdAt: new Date().toISOString(),
               id: "job-1",
@@ -79,17 +78,17 @@ vi.doMock("./client/LamBenchClient.js", async () => {
             }),
 
           health: () =>
-            Effect.succeed({
+            effectLib.Effect.succeed({
               db: "connected" as const,
               status: "ok" as const,
               uptimeSeconds: 0,
               version: "1.0.0",
             }),
 
-          models: () => Effect.succeed([]),
+          models: () => effectLib.Effect.succeed([]),
 
           resultDetail: () =>
-            Effect.succeed({
+            effectLib.Effect.succeed({
               bits: 10,
               elapsedMs: 100,
               errors: [],
@@ -103,7 +102,7 @@ vi.doMock("./client/LamBenchClient.js", async () => {
             }),
 
           results: () =>
-            Effect.succeed({
+            effectLib.Effect.succeed({
               categories: [],
               generatedAt: new Date().toISOString(),
               rankings: [],
@@ -111,7 +110,7 @@ vi.doMock("./client/LamBenchClient.js", async () => {
             }),
 
           taskDetail: () =>
-            Effect.succeed({
+            effectLib.Effect.succeed({
               category: "algo",
               categoryName: "Algorithms",
               description: "Test task",
@@ -120,10 +119,10 @@ vi.doMock("./client/LamBenchClient.js", async () => {
               tests: [],
             }),
 
-          tasks: () => Effect.succeed([]),
+          tasks: () => effectLib.Effect.succeed([]),
 
           testModel: () =>
-            Effect.succeed({
+            effectLib.Effect.succeed({
               latencyMs: 0,
               ok: true,
             }),
@@ -147,7 +146,8 @@ describe("mcp", () => {
     Effect.sync(() => {
       // Verify ServerLayer is a valid Layer object (has the Layer shape)
       assertTrue(typeof ServerLayer === "object" && ServerLayer !== null);
-    }));
+    }),
+  );
 
   it.effect("LambenchToolkit contains all expected tools", () =>
     Effect.sync(() => {
@@ -161,7 +161,8 @@ describe("mcp", () => {
       assertTrue(toolNames.includes("lambench_get_task"));
       assertTrue(toolNames.includes("lambench_list_prompt_versions"));
       assertTrue(toolNames.includes("lambench_trigger_gepa"));
-    }));
+    }),
+  );
 
   it.effect("EvalSingleTool has correct name and valid schemas", () =>
     Effect.sync(() => {
@@ -172,7 +173,8 @@ describe("mcp", () => {
       strictEqual(tool.name, "lambench_eval_single");
       assertTrue(Schema.isSchema(tool.parametersSchema));
       assertTrue(Schema.isSchema(tool.successSchema));
-    }));
+    }),
+  );
 
   it.effect("ListTasksTool has correct name and valid schemas", () =>
     Effect.sync(() => {
@@ -183,7 +185,8 @@ describe("mcp", () => {
       strictEqual(tool.name, "lambench_list_tasks");
       assertTrue(Schema.isSchema(tool.parametersSchema));
       assertTrue(Schema.isSchema(tool.successSchema));
-    }));
+    }),
+  );
 
   it.effect("ListResultsTool has correct name and valid schemas", () =>
     Effect.sync(() => {
@@ -194,7 +197,8 @@ describe("mcp", () => {
       strictEqual(tool.name, "lambench_list_results");
       assertTrue(Schema.isSchema(tool.parametersSchema));
       assertTrue(Schema.isSchema(tool.successSchema));
-    }));
+    }),
+  );
 
   it.effect("GetTaskTool has correct name and valid schemas", () =>
     Effect.sync(() => {
@@ -205,5 +209,6 @@ describe("mcp", () => {
       strictEqual(tool.name, "lambench_get_task");
       assertTrue(Schema.isSchema(tool.parametersSchema));
       assertTrue(Schema.isSchema(tool.successSchema));
-    }));
+    }),
+  );
 });

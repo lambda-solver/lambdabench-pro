@@ -1,5 +1,6 @@
-import { cn } from "@/lib/utils";
 import { useLayoutEffect, useState } from "react";
+
+import { cn } from "@/lib/utils";
 
 interface ControlBarProps {
   muted: boolean;
@@ -19,9 +20,7 @@ export function ControlBar({ muted, onToggleMusic }: ControlBarProps) {
 
   useLayoutEffect(() => {
     const storedTheme = localStorage.getItem("theme");
-    const prefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)",
-    ).matches;
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const shouldUseDark = storedTheme ? storedTheme === "dark" : prefersDark;
     document.documentElement.classList.toggle("dark", shouldUseDark);
     setIsDark(shouldUseDark);
@@ -44,9 +43,7 @@ export function ControlBar({ muted, onToggleMusic }: ControlBarProps) {
         className={cn(
           "font-mono text-sm leading-[1.8] px-[1ch] cursor-pointer border-none",
           "transition-colors bg-transparent",
-          muted
-            ? "text-[var(--sol-base1)]"
-            : "text-[var(--sol-cyan,var(--sol-blue))]",
+          muted ? "text-[var(--sol-base1)]" : "text-[var(--sol-cyan,var(--sol-blue))]",
           "hover:text-[var(--sol-base00)]",
         )}
       >

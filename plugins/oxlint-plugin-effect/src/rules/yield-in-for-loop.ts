@@ -1,17 +1,12 @@
-import type { ESTree } from "effect-oxlint";
-
 import * as Effect from "effect/Effect";
 import * as Ref from "effect/Ref";
 
 import { Diagnostic, Rule, RuleContext, Visitor } from "effect-oxlint";
 
+import type { ESTree } from "effect-oxlint";
+
 export default Rule.define({
-  name: "yield-in-for-loop",
-  meta: Rule.meta({
-    type: "suggestion",
-    description: "Disallow yield* inside for loops — use Effect.forEach for declarative effectful iteration",
-  }),
-  create: function*() {
+  create: function* () {
     const ctx = yield* RuleContext;
     const forLoopDepth = yield* Ref.make(0);
 
@@ -20,7 +15,7 @@ export default Rule.define({
       Visitor.tracked("ForInStatement", () => true, forLoopDepth),
       Visitor.tracked("ForOfStatement", () => true, forLoopDepth),
       Visitor.on("YieldExpression", (node) =>
-        Effect.gen(function*() {
+        Effect.gen(function* () {
           const depth = yield* Ref.get(forLoopDepth);
           const yieldNode = node as ESTree.YieldExpression;
           if (depth > 0 && yieldNode.delegate) {
@@ -32,7 +27,13 @@ export default Rule.define({
               }),
             );
           }
-        })),
+        }),
+      ),
     );
   },
+  meta: Rule.meta({
+    type: "suggestion",
+    description: "Disallow yield* inside for loops — use Effect.forEach for declarative effectful iteration",
+  }),
+  name: "yield-in-for-loop",
 });

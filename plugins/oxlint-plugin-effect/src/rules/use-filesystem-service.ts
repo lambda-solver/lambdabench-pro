@@ -11,15 +11,10 @@ import * as Schema from "effect/Schema";
 
 import { Rule } from "effect-oxlint";
 
-const FsImportSource = Schema.Literals([
-  "fs",
-  "node:fs",
-  "fs/promises",
-  "node:fs/promises",
-]).annotate({
-  title: "FsImportSource",
+const FsImportSource = Schema.Literals(["fs", "node:fs", "fs/promises", "node:fs/promises"]).annotate({
   description:
     "Node `fs` module import specifiers — both the legacy callback/sync API and the Promise-based variant. Use `FileSystem` from `@effect/platform` instead.",
+  title: "FsImportSource",
 });
 
 const isFsImportSource = Schema.is(FsImportSource);

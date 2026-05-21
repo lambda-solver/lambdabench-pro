@@ -1,6 +1,7 @@
-import { Schema } from "effect";
-import { describe, expect, it } from "vitest";
 import { BatchJob, EvalResult, ModelConfig } from "./Benchmark";
+import { describe, expect, it } from "vitest";
+
+import { Schema } from "effect";
 
 describe("EvalResult schema", () => {
   it("decodes a valid eval result", () => {

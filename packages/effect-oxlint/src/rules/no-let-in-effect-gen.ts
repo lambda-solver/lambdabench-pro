@@ -1,6 +1,7 @@
-import { AST, Diagnostic, Rule, RuleContext } from "effect-oxlint";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
+
+import { AST, Diagnostic, Rule, RuleContext, Visitor } from "effect-oxlint";
 
 /**
  * Rule: no-let-in-effect-gen
@@ -11,12 +12,7 @@ import * as Option from "effect/Option";
  * From skill: 01-best-practices — "No mutations: no let reassignment inside Effect.gen"
  */
 export const noLetInEffectGen = Rule.define({
-  name: "no-let-in-effect-gen",
-  meta: Rule.meta({
-    type: "error",
-    description: "No let reassignment inside Effect.gen — use Ref, SynchronizedRef, or Effect.cached",
-  }),
-  create: function*() {
+  create: function* () {
     const ctx = yield* RuleContext;
     let inEffectGen = false;
 
@@ -53,6 +49,11 @@ export const noLetInEffectGen = Rule.define({
           }),
         );
       },
-    };
+    } as Visitor.TypedEffectVisitor;
   },
+  meta: Rule.meta({
+    type: "problem",
+    description: "No let reassignment inside Effect.gen — use Ref, SynchronizedRef, or Effect.cached",
+  }),
+  name: "no-let-in-effect-gen",
 });

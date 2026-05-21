@@ -1,7 +1,8 @@
-import { cn } from "@/lib/utils";
 import type { BenchmarkData, BenchmarkTask } from "@repo/domain/Benchmark";
-import { useState } from "react";
 import { TildeLine, VimLine } from "./VimLine";
+
+import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 interface ProblemsPanelProps {
   data: BenchmarkData;
@@ -23,9 +24,7 @@ function pad(s: string, n: number): string {
 export function ProblemsPanel({ data, onTaskClick }: ProblemsPanelProps) {
   const [activeFilter, setActiveFilter] = useState("all");
 
-  const filteredTasks = activeFilter === "all"
-    ? data.tasks
-    : data.tasks.filter((t) => t.category === activeFilter);
+  const filteredTasks = activeFilter === "all" ? data.tasks : data.tasks.filter((t) => t.category === activeFilter);
 
   return (
     <div className="text-[var(--sol-base00)]">
@@ -53,17 +52,15 @@ export function ProblemsPanel({ data, onTaskClick }: ProblemsPanelProps) {
       {/* Task list */}
       {filteredTasks.map((task, i) => {
         const dots = data.rankings.map((r) =>
-          r.tasks[task.id]
-            ? (
-              <span key={r.model} className="text-[var(--sol-green)]">
-                ●
-              </span>
-            )
-            : (
-              <span key={r.model} className="text-[var(--sol-red)]">
-                ●
-              </span>
-            )
+          r.tasks[task.id] ? (
+            <span key={r.model} className="text-[var(--sol-green)]">
+              ●
+            </span>
+          ) : (
+            <span key={r.model} className="text-[var(--sol-red)]">
+              ●
+            </span>
+          ),
         );
 
         const desc = task.description.split("\n")[0] ?? "";
@@ -76,14 +73,12 @@ export function ProblemsPanel({ data, onTaskClick }: ProblemsPanelProps) {
             className="w-full text-left cursor-pointer group"
             onClick={() => onTaskClick(task)}
           >
-            <VimLine
-              n={rpad(String(i + 1), 3)}
-              className="group-hover:bg-[var(--sol-base2)]"
-            >
-              <span className="text-[var(--sol-green)]">
-                {pad(task.id, 10)}
-              </span>{"  "}
-              {dots}{"  "}<span className="text-[var(--sol-base1)]">{truncated}</span>
+            <VimLine n={rpad(String(i + 1), 3)} className="group-hover:bg-[var(--sol-base2)]">
+              <span className="text-[var(--sol-green)]">{pad(task.id, 10)}</span>
+              {"  "}
+              {dots}
+              {"  "}
+              <span className="text-[var(--sol-base1)]">{truncated}</span>
             </VimLine>
           </button>
         );

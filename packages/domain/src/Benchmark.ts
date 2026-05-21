@@ -132,9 +132,7 @@ export type BatchJob = Schema.Schema.Type<typeof BatchJob>;
 export const ModelConfig = Schema.Struct({
   displayName: Schema.optional(Schema.String),
   id: Schema.String,
-  isActive: Schema.Boolean.pipe(
-    Schema.withDecodingDefaultKey(Effect.succeed(true)),
-  ),
+  isActive: Schema.Boolean.pipe(Schema.withDecodingDefaultKey(Effect.succeed(true))),
   pricePerMOutput: Schema.optional(Schema.Number),
   provider: Schema.Literals(["openrouter", "opencode-go"]),
 });

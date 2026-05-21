@@ -116,7 +116,7 @@ Key rules:
 Uses a single `█` glyph repeated for both filled and empty portions — **never mix `█` and `░`** as they have different vertical metrics in JetBrains Mono and will misalign. The empty portion is rendered at reduced opacity.
 
 ```tsx
-<BarChart pct={75} width={28} />;
+<BarChart pct={75} width={28} />
 ```
 
 ## VimLine
@@ -128,7 +128,7 @@ Every content row is a `<VimLine n={lineNum}>`. Provides the line-number gutter 
   <span className="text-[var(--sol-blue)]">model-name</span>
   <BarChart pct={pct} />
   <span className="text-[var(--sol-magenta)]">95/120</span>
-</VimLine>;
+</VimLine>
 ```
 
 ## Data File

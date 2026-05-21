@@ -1,7 +1,9 @@
+import { TildeLine, VimLine } from "./VimLine";
+
+import type { BenchmarkData } from "@repo/domain/Benchmark";
+
 import { computeValueEntries } from "@/lib/atoms/benchmark-atom";
 import { fmtModel } from "@/lib/fmt";
-import type { BenchmarkData } from "@repo/domain/Benchmark";
-import { TildeLine, VimLine } from "./VimLine";
 
 interface ValuePanelProps {
   data: BenchmarkData;
@@ -29,17 +31,15 @@ export function ValuePanel({ data }: ValuePanelProps) {
     <div className="text-[var(--sol-base00)]">
       <VimLine n={n++} />
       <VimLine n={n++}>
-        <span className="font-bold text-[var(--sol-yellow)]">LamBench</span>{"  "}
-        <span className="text-[var(--sol-base1)]">
-          -- Lambda Calculus Benchmark for AI
-        </span>
+        <span className="font-bold text-[var(--sol-yellow)]">LamBench</span>
+        {"  "}
+        <span className="text-[var(--sol-base1)]">-- Lambda Calculus Benchmark for AI</span>
       </VimLine>
       <VimLine n={n++} />
       <VimLine n={n++}>
-        <span className="font-bold text-[var(--sol-orange)]">Value</span>{"  "}
-        <span className="text-[var(--sol-base1)]">
-          -- intelligence per dollar (higher = better value)
-        </span>
+        <span className="font-bold text-[var(--sol-orange)]">Value</span>
+        {"  "}
+        <span className="text-[var(--sol-base1)]">-- intelligence per dollar (higher = better value)</span>
       </VimLine>
       <VimLine n={n++} />
 
@@ -58,28 +58,13 @@ export function ValuePanel({ data }: ValuePanelProps) {
 
       {entries.map((e) => (
         <VimLine key={e.model} n={n++}>
-          <div
-            className="grid"
-            style={{ columnGap: gridGap, gridTemplateColumns }}
-          >
+          <div className="grid" style={{ columnGap: gridGap, gridTemplateColumns }}>
             <span className="text-[var(--sol-blue)]">{fmtModel(e.model)}</span>
-            <span className="text-[var(--sol-magenta)]">
-              {`${e.passRate.toFixed(1)}%`}
+            <span className="text-[var(--sol-magenta)]">{`${e.passRate.toFixed(1)}%`}</span>
+            <span className={e.pricePerMOutput > 0 ? "text-[var(--sol-cyan)]" : "text-[var(--sol-base1)]"}>
+              {e.pricePerMOutput > 0 ? `$${e.pricePerMOutput.toFixed(2)}` : "N/A"}
             </span>
-            <span
-              className={e.pricePerMOutput > 0
-                ? "text-[var(--sol-cyan)]"
-                : "text-[var(--sol-base1)]"}
-            >
-              {e.pricePerMOutput > 0
-                ? `$${e.pricePerMOutput.toFixed(2)}`
-                : "N/A"}
-            </span>
-            <span
-              className={e.pricePerMOutput > 0
-                ? "text-[var(--sol-green)]"
-                : "text-[var(--sol-base1)]"}
-            >
+            <span className={e.pricePerMOutput > 0 ? "text-[var(--sol-green)]" : "text-[var(--sol-base1)]"}>
               {e.pricePerMOutput > 0 ? e.passPerDollar.toFixed(3) : "—"}
             </span>
           </div>
@@ -88,9 +73,7 @@ export function ValuePanel({ data }: ValuePanelProps) {
 
       <VimLine n={n++} />
       <VimLine n={n++}>
-        <span className="text-[var(--sol-base1)]">
-          {"-- pass/dollar = pass_rate% / price_per_1M_output_tokens"}
-        </span>
+        <span className="text-[var(--sol-base1)]">{"-- pass/dollar = pass_rate% / price_per_1M_output_tokens"}</span>
       </VimLine>
       <TildeLine />
       <TildeLine />

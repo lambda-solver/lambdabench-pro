@@ -18,13 +18,7 @@ export interface VimLineFixture {
 
 export interface ButtonFixture {
   readonly name: string;
-  readonly variant:
-    | "default"
-    | "outline"
-    | "secondary"
-    | "ghost"
-    | "destructive"
-    | "link";
+  readonly variant: "default" | "outline" | "secondary" | "ghost" | "destructive" | "link";
   readonly size?: "default" | "xs" | "sm" | "lg" | "icon";
   readonly disabled?: boolean;
   readonly label: string;

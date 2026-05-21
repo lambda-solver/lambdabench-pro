@@ -1,8 +1,8 @@
-import type { ESTree } from "effect-oxlint";
-
 import * as Effect from "effect/Effect";
 
 import { Diagnostic, Rule, RuleContext } from "effect-oxlint";
+
+import type { ESTree } from "effect-oxlint";
 
 /**
  * Packages where barrel imports (named imports from package root) should
@@ -11,12 +11,7 @@ import { Diagnostic, Rule, RuleContext } from "effect-oxlint";
 const BARREL_PACKAGES = new Set(["effect"]);
 
 export default Rule.define({
-  name: "no-barrel-imports",
-  meta: Rule.meta({
-    type: "suggestion",
-    description: "Disallow named imports from barrel packages — use submodule namespace imports instead",
-  }),
-  create: function*() {
+  create: function* () {
     const ctx = yield* RuleContext;
     return {
       ImportDeclaration: (node: ESTree.Node) => {
@@ -41,8 +36,7 @@ export default Rule.define({
           return ctx.report(
             Diagnostic.make({
               node,
-              message:
-                `Prefer \`import * as ${name} from "${src}/${name}"\` over named import from barrel package "${src}". Barrel imports are slower and bypass tree-shaking.`,
+              message: `Prefer \`import * as ${name} from "${src}/${name}"\` over named import from barrel package "${src}". Barrel imports are slower and bypass tree-shaking.`,
             }),
           );
         }
@@ -51,4 +45,9 @@ export default Rule.define({
       },
     };
   },
+  meta: Rule.meta({
+    type: "suggestion",
+    description: "Disallow named imports from barrel packages — use submodule namespace imports instead",
+  }),
+  name: "no-barrel-imports",
 });

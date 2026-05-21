@@ -36,15 +36,15 @@ function parse_result_file(path: string): RunResult {
   const text = readFileSync(path, "utf-8");
   const lines = text.split("\n");
 
-  const model_line = lines.find(l => l.startsWith("model:"));
+  const model_line = lines.find((l) => l.startsWith("model:"));
   const model = model_line ? model_line.slice("model:".length).trim() : "unknown";
 
-  const right_line = lines.find(l => l.startsWith("right:"));
+  const right_line = lines.find((l) => l.startsWith("right:"));
   const right_match = right_line?.match(/right:\s*(\d+)\/(\d+)/);
   const right = right_match ? parseInt(right_match[1]) : 0;
   const total = right_match ? parseInt(right_match[2]) : 120;
 
-  const score_line = lines.find(l => l.startsWith("score:"));
+  const score_line = lines.find((l) => l.startsWith("score:"));
   const score = score_line ? parseFloat(score_line.slice("score:".length).trim()) : 0;
 
   const tasks: TaskResult[] = [];
@@ -72,9 +72,9 @@ function parse_result_file(path: string): RunResult {
 
 function load_all_results(): RunResult[] {
   const files = readdirSync(RES_DIR)
-    .filter(f => f.endsWith(".txt"))
+    .filter((f) => f.endsWith(".txt"))
     .sort();
-  return files.map(f => parse_result_file(join(RES_DIR, f)));
+  return files.map((f) => parse_result_file(join(RES_DIR, f)));
 }
 
 // Keep only the latest run per model (by filename sort = chronological)
@@ -86,7 +86,7 @@ function latest_per_model(runs: RunResult[]): RunResult[] {
   }
   // Drop runs with zero passes, then sort by right desc, then by model name
   return [...map.values()]
-    .filter(r => r.right > 0)
+    .filter((r) => r.right > 0)
     .sort((a, b) => b.right - a.right || a.model.localeCompare(b.model));
 }
 
@@ -149,9 +149,9 @@ function parse_task_file(path: string): Task {
 
 function load_all_tasks(): Task[] {
   const files = readdirSync(TSK_DIR)
-    .filter(f => f.endsWith(".tsk"))
+    .filter((f) => f.endsWith(".tsk"))
     .sort();
-  return files.map(f => parse_task_file(join(TSK_DIR, f)));
+  return files.map((f) => parse_task_file(join(TSK_DIR, f)));
 }
 
 // ── Build per-task model results map ────────────────────────────────
@@ -169,13 +169,15 @@ function build_task_model_map(rankings: RunResult[]): Record<string, Record<stri
 
 // ── Generate HTML ───────────────────────────────────────────────────
 
-function generate_html(rankings: RunResult[], tasks: Task[], taskModelMap: Record<string, Record<string, boolean>>): string {
+function generate_html(
+  rankings: RunResult[],
+  tasks: Task[],
+  taskModelMap: Record<string, Record<string, boolean>>,
+): string {
   const data = JSON.stringify({
-    rankings: rankings.map(r => {
-      const passing = r.tasks.filter(t => t.pass);
-      const avgTime = passing.length
-        ? passing.reduce((s, t) => s + t.time, 0) / passing.length
-        : 0;
+    rankings: rankings.map((r) => {
+      const passing = r.tasks.filter((t) => t.pass);
+      const avgTime = passing.length ? passing.reduce((s, t) => s + t.time, 0) / passing.length : 0;
       return {
         model: r.model,
         right: r.right,
@@ -183,20 +185,12 @@ function generate_html(rankings: RunResult[], tasks: Task[], taskModelMap: Recor
         pct: ((r.right / r.total) * 100).toFixed(1),
         avgTime: Number(avgTime.toFixed(1)),
         timestamp: r.timestamp,
-        tasks: Object.fromEntries(r.tasks.map(t => [t.id, t.pass])),
-        taskBits: Object.fromEntries(
-          r.tasks
-            .filter(t => t.pass && t.bits !== undefined)
-            .map(t => [t.id, t.bits])
-        ),
-        taskRefs: Object.fromEntries(
-          r.tasks
-            .filter(t => t.ref !== undefined)
-            .map(t => [t.id, t.ref])
-        ),
+        tasks: Object.fromEntries(r.tasks.map((t) => [t.id, t.pass])),
+        taskBits: Object.fromEntries(r.tasks.filter((t) => t.pass && t.bits !== undefined).map((t) => [t.id, t.bits])),
+        taskRefs: Object.fromEntries(r.tasks.filter((t) => t.ref !== undefined).map((t) => [t.id, t.ref])),
       };
     }),
-    tasks: tasks.map(t => ({
+    tasks: tasks.map((t) => ({
       id: t.id,
       category: t.category,
       categoryName: CATEGORY_NAMES[t.category] || t.category,

@@ -11,26 +11,13 @@ compatibility: opencode
 
 ```typescript
 import { Schema } from "effect";
-import {
-  HttpApi,
-  HttpApiEndpoint,
-  HttpApiGroup,
-} from "effect/unstable/httpapi";
+import { HttpApi, HttpApiEndpoint, HttpApiGroup } from "effect/unstable/httpapi";
 
 class UsersGroup extends HttpApiGroup.make("users")
   .add(HttpApiEndpoint.get("list", "/").addSuccess(Schema.Array(User)))
-  .add(
-    HttpApiEndpoint.get("get", "/:id")
-      .addSuccess(User)
-      .addError(NotFoundError),
-  )
-  .add(
-    HttpApiEndpoint.post("create", "/")
-      .setPayload(CreateUserInput)
-      .addSuccess(User),
-  )
-  .prefix("/users")
-{}
+  .add(HttpApiEndpoint.get("get", "/:id").addSuccess(User).addError(NotFoundError))
+  .add(HttpApiEndpoint.post("create", "/").setPayload(CreateUserInput).addSuccess(User))
+  .prefix("/users") {}
 
 export const Api = HttpApi.make("Api").add(UsersGroup);
 ```
@@ -38,25 +25,25 @@ export const Api = HttpApi.make("Api").add(UsersGroup);
 ## HttpApiClient — generated typed client
 
 ```typescript
-import { HttpApiClient } from "effect/unstable/httpapi"
-import { HttpClient, HttpClientRequest, Schedule } from "effect/unstable/http"
+import { HttpApiClient } from "effect/unstable/httpapi";
+import { HttpClient, HttpClientRequest, Schedule } from "effect/unstable/http";
 
-const client = yield* HttpApiClient.make(Api, {
-  transformClient: (c) =>
-    c.pipe(
-      HttpClient.mapRequest(
-        HttpClientRequest.prependUrl("http://localhost:3000"),
+const client =
+  yield *
+  HttpApiClient.make(Api, {
+    transformClient: (c) =>
+      c.pipe(
+        HttpClient.mapRequest(HttpClientRequest.prependUrl("http://localhost:3000")),
+        HttpClient.retryTransient({
+          schedule: Schedule.exponential("100 millis"),
+          times: 3,
+        }),
       ),
-      HttpClient.retryTransient({
-        schedule: Schedule.exponential("100 millis"),
-        times: 3,
-      }),
-    ),
-})
+  });
 
-const users = yield* client.users.list()
-const user  = yield* client.users.get({ path: { id: "123" } })
-const newUser = yield* client.users.create({ body: { name: "Ada" } })
+const users = yield * client.users.list();
+const user = yield * client.users.get({ path: { id: "123" } });
+const newUser = yield * client.users.create({ body: { name: "Ada" } });
 ```
 
 ## RPC — streaming / request-response
@@ -107,24 +94,17 @@ export type BenchmarkData = Schema.Schema.Type<typeof BenchmarkData>;
 ## Error schemas for API boundaries
 
 ```typescript
-export class NotFoundError extends Schema.TaggedErrorClass<NotFoundError>()(
-  "NotFoundError",
-  { id: Schema.String },
-) {}
+export class NotFoundError extends Schema.TaggedErrorClass<NotFoundError>()("NotFoundError", { id: Schema.String }) {}
 
-export class ValidationError extends Schema.TaggedErrorClass<ValidationError>()(
-  "ValidationError",
-  { field: Schema.String, message: Schema.String },
-) {}
+export class ValidationError extends Schema.TaggedErrorClass<ValidationError>()("ValidationError", {
+  field: Schema.String,
+  message: Schema.String,
+}) {}
 ```
 
 ## Layer.provide for API server
 
 ```typescript
-const AppLayer = Layer.mergeAll(
-  HttpApiServer.layer,
-  UsersHandler.layer,
-  DbPool.layer,
-);
+const AppLayer = Layer.mergeAll(HttpApiServer.layer, UsersHandler.layer, DbPool.layer);
 BunRuntime.runMain(Layer.launch(AppLayer));
 ```

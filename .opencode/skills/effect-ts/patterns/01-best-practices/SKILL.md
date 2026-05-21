@@ -13,7 +13,7 @@ Every exported function that returns an Effect must use `Effect.fn`.
 It adds span tracing, stack frames, and the name appears in traces.
 
 ```typescript
-export const processItem = Effect.fn("processItem")(function*(id: string) {
+export const processItem = Effect.fn("processItem")(function* (id: string) {
   yield* Effect.log("processing:", id);
   return yield* doWork(id);
 });
@@ -42,7 +42,7 @@ For private/internal functions where tracing adds no value.
 
 ```typescript
 // ✅ simpler — no name string needed
-const buildPayload = Effect.fnUntraced(function*(id: string) {
+const buildPayload = Effect.fnUntraced(function* (id: string) {
   const data = yield* loadData(id);
   return { id, data };
 });
@@ -56,15 +56,16 @@ The reference codebase (effect-smol) uses only `Context.Service`.
 ```typescript
 import { Context, Effect, Layer } from "effect";
 
-export class MyService extends Context.Service<MyService, {
-  doThing(input: string): Effect.Effect<Result, MyError>;
-}>()(
-  "myapp/MyService",
-) {
+export class MyService extends Context.Service<
+  MyService,
+  {
+    doThing(input: string): Effect.Effect<Result, MyError>;
+  }
+>()("myapp/MyService") {
   static readonly layer = Layer.effect(
     MyService,
-    Effect.gen(function*() {
-      const doThing = Effect.fn("MyService.doThing")(function*(input: string) {
+    Effect.gen(function* () {
+      const doThing = Effect.fn("MyService.doThing")(function* (input: string) {
         return yield* compute(input);
       });
       return MyService.of({ doThing });
@@ -96,7 +97,7 @@ Extract each branch as a helper Effect; bind once with `const`.
 
 ```typescript
 // ❌ let reassignment obscures which branch ran
-const program = Effect.gen(function*() {
+const program = Effect.gen(function* () {
   let result: string;
   if (condition) result = yield* branchA();
   else result = yield* branchB();
@@ -104,9 +105,9 @@ const program = Effect.gen(function*() {
 });
 
 // ✅ const, no mutation
-const resolveResult = (condition: boolean) => condition ? branchA() : branchB();
+const resolveResult = (condition: boolean) => (condition ? branchA() : branchB());
 
-const program = Effect.gen(function*() {
+const program = Effect.gen(function* () {
   const result = yield* resolveResult(condition);
   return result;
 });

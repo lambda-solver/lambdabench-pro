@@ -1,11 +1,13 @@
 "use client";
 
-import { toggleVariants } from "@/components/ui/toggle";
-import { cn } from "@/lib/utils";
+import * as React from "react";
 import { Toggle as TogglePrimitive } from "@base-ui/react/toggle";
 import { ToggleGroup as ToggleGroupPrimitive } from "@base-ui/react/toggle-group";
 import type { VariantProps } from "class-variance-authority";
-import * as React from "react";
+
+import { cn } from "@/lib/utils";
+
+import { toggleVariants } from "@/components/ui/toggle";
 
 const ToggleGroupContext = React.createContext<
   VariantProps<typeof toggleVariants> & {
@@ -27,14 +29,16 @@ function ToggleGroup({
   orientation = "horizontal",
   children,
   ...props
-}:
-  & ToggleGroupPrimitive.Props
-  & VariantProps<typeof toggleVariants>
-  & {
+}: ToggleGroupPrimitive.Props &
+  VariantProps<typeof toggleVariants> & {
     spacing?: number;
     orientation?: "horizontal" | "vertical";
-  })
-{
+  }) {
+  const contextValue = React.useMemo(
+    () => ({ orientation, size, spacing, variant }),
+    [orientation, size, spacing, variant],
+  );
+
   return (
     <ToggleGroupPrimitive
       data-slot="toggle-group"
@@ -49,9 +53,7 @@ function ToggleGroup({
       )}
       {...props}
     >
-      <ToggleGroupContext.Provider
-        value={{ orientation, size, spacing, variant }}
-      >
+      <ToggleGroupContext.Provider value={contextValue}>
         {children}
       </ToggleGroupContext.Provider>
     </ToggleGroupPrimitive>

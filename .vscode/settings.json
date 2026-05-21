@@ -13,5 +13,8 @@
   "[typescriptreact]": {
     "editor.defaultFormatter": "dprint.dprint"
   },
-  "js/ts.tsdk.path": "node_modules/typescript/lib"
+  "js/ts.tsdk.path": "node_modules/typescript/lib",
+  "js/ts.experimental.useTsgo": true,
+  "typescript.experimental.useTsgo": true,
+  "typescript.native-preview.tsdk": "node_modules/@typescript/native-preview"
 }

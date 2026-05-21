@@ -135,33 +135,45 @@ describe("loadConfig", () => {
   });
 
   test("parseBoolean handles true-like strings for DEV_MODE", async () => {
-    for (const val of ["1", "true", "yes", "on", "TRUE", "Yes", "ON"]) {
-      clearEnvVars();
-      vi.resetModules();
-      vi.stubEnv("DEV_MODE", val);
-      const { loadConfig } = await import("./LamConfig");
-      expect(loadConfig().devMode).toBe(true);
-    }
+    await ["1", "true", "yes", "on", "TRUE", "Yes", "ON"].reduce(
+      (prev, val) =>
+        prev.then(async () => {
+          clearEnvVars();
+          vi.resetModules();
+          vi.stubEnv("DEV_MODE", val);
+          const { loadConfig } = await import("./LamConfig");
+          expect(loadConfig().devMode).toBe(true);
+        }),
+      Promise.resolve(),
+    );
   });
 
   test("parseBoolean handles false-like strings for DEV_MODE", async () => {
-    for (const val of ["0", "false", "no", "off", "FALSE", "No", "OFF"]) {
-      clearEnvVars();
-      vi.resetModules();
-      vi.stubEnv("DEV_MODE", val);
-      const { loadConfig } = await import("./LamConfig");
-      expect(loadConfig().devMode).toBe(false);
-    }
+    await ["0", "false", "no", "off", "FALSE", "No", "OFF"].reduce(
+      (prev, val) =>
+        prev.then(async () => {
+          clearEnvVars();
+          vi.resetModules();
+          vi.stubEnv("DEV_MODE", val);
+          const { loadConfig } = await import("./LamConfig");
+          expect(loadConfig().devMode).toBe(false);
+        }),
+      Promise.resolve(),
+    );
   });
 
   test("parseBoolean handles empty/undefined DEV_MODE with default", async () => {
-    for (const val of [undefined, "", "   "]) {
-      clearEnvVars();
-      vi.resetModules();
-      if (val !== undefined) vi.stubEnv("DEV_MODE", val);
-      const { loadConfig } = await import("./LamConfig");
-      expect(loadConfig().devMode).toBe(false);
-    }
+    await [undefined, "", "   "].reduce(
+      (prev, val) =>
+        prev.then(async () => {
+          clearEnvVars();
+          vi.resetModules();
+          if (val !== undefined) vi.stubEnv("DEV_MODE", val);
+          const { loadConfig } = await import("./LamConfig");
+          expect(loadConfig().devMode).toBe(false);
+        }),
+      Promise.resolve(),
+    );
   });
 });
 

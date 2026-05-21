@@ -1,7 +1,7 @@
 import { Effect } from "effect";
 import { RagService } from "./src";
 
-const main = Effect.gen(function*() {
+const main = Effect.gen(function* () {
   yield* Effect.log("Hello, Rag Scratchpad!");
   const rag = yield* RagService;
 
@@ -19,7 +19,7 @@ const main = Effect.gen(function*() {
     documents,
     ids,
   });
-  console.log("Ingest result:", inputResult);
+  yield* Effect.log(`Ingest result: ${JSON.stringify(inputResult)}`);
 
   const query = "What is the capital of France?";
 
@@ -29,7 +29,7 @@ const main = Effect.gen(function*() {
     topK: 2,
   });
 
-  console.log("Retrieval results:", outputResults);
+  yield* Effect.log(`Retrieval results: ${JSON.stringify(outputResults)}`);
 
   // List documents in the collection
   const listedDocuments = yield* rag.listDocuments({
@@ -37,12 +37,10 @@ const main = Effect.gen(function*() {
     limit: 2,
   });
 
-  console.log("Listed documents:", listedDocuments.documents);
+  yield* Effect.log(`Listed documents: ${JSON.stringify(listedDocuments.documents)}`);
 });
 
-Effect.runPromise(main.pipe(Effect.provide(RagService.Default))).catch(
-  (error) => {
-    console.error("Error in Rag Scratchpad:", error);
-    process.exit(1);
-  },
-);
+Effect.runPromise(main.pipe(Effect.provide(RagService.Default))).catch((error) => {
+  process.stderr.write(`Error in Rag Scratchpad: ${String(error)}\n`);
+  process.exit(1);
+});

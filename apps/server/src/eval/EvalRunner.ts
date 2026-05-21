@@ -65,43 +65,29 @@ export const DEV_MOCK_MODELS: ReadonlyArray<TopModel> = [
 
 // ─── Effects ─────────────────────────────────────────────────────────────────
 
-export const fetchModels = Effect.fn("fetchModels")(function*(apiKey: string) {
+export const fetchModels = Effect.fn("fetchModels")(function* (apiKey: string) {
   const client = yield* HttpClient.HttpClient;
-  const request = HttpClientRequest.get(
-    "https://openrouter.ai/api/v1/models",
-  ).pipe(
+  const request = HttpClientRequest.get("https://openrouter.ai/api/v1/models").pipe(
     HttpClientRequest.setHeader("Authorization", `Bearer ${apiKey}`),
     HttpClientRequest.setHeader("Content-Type", "application/json"),
   );
   const response = yield* client.execute(request);
   const body = yield* response.json;
-  const decoded = yield* Schema.decodeUnknownEffect(OpenRouterModelsResponse)(
-    body,
-  );
+  const decoded = yield* Schema.decodeUnknownEffect(OpenRouterModelsResponse)(body);
   return decoded.data;
 });
 
-export const fetchRankings = Effect.fn("fetchRankings")(function*() {
+export const fetchRankings = Effect.fn("fetchRankings")(function* () {
   const client = yield* HttpClient.HttpClient;
-  const response = yield* client.execute(
-    HttpClientRequest.get("https://openrouter.ai/rankings?view=coding"),
-  );
+  const response = yield* client.execute(HttpClientRequest.get("https://openrouter.ai/rankings?view=coding"));
   const html = yield* response.text;
   return parseRankingsHtml(html);
 });
 
-export const getTopModels = Effect.fn("getTopModels")(function*(
-  apiKey: string,
-  n: number,
-) {
-  const [rankedIds, allModels] = yield* Effect.all(
-    [fetchRankings(), fetchModels(apiKey)],
-    { concurrency: 2 },
-  );
+export const getTopModels = Effect.fn("getTopModels")(function* (apiKey: string, n: number) {
+  const [rankedIds, allModels] = yield* Effect.all([fetchRankings(), fetchModels(apiKey)], { concurrency: 2 });
 
-  const priceMap = new Map(
-    allModels.map((m) => [m.id, parseFloat(m.pricing.completion) * 1_000_000]),
-  );
+  const priceMap = new Map(allModels.map((m) => [m.id, parseFloat(m.pricing.completion) * 1_000_000]));
 
   const top: Array<TopModel> = [];
   for (const id of rankedIds) {
@@ -131,33 +117,24 @@ export const resolveTopModels = (
   devMode: boolean,
   apiKey: string | undefined,
   fallbackEnv: string | undefined,
-): Effect.Effect<
-  ReadonlyArray<TopModel>,
-  EvalRunnerError,
-  HttpClient.HttpClient
-> => {
+): Effect.Effect<ReadonlyArray<TopModel>, EvalRunnerError, HttpClient.HttpClient> => {
   if (devMode) {
-    return Effect.andThen(
-      Effect.log("[dev] DEV_MODE=true — using mock top-models"),
-      Effect.succeed(DEV_MOCK_MODELS),
-    );
+    return Effect.andThen(Effect.log("[dev] DEV_MODE=true — using mock top-models"), Effect.succeed(DEV_MOCK_MODELS));
   }
   if (!apiKey) {
     return fallbackEnv
       ? Effect.succeed(topModelsFromEnv(fallbackEnv))
       : Effect.fail(
-        new EvalRunnerError(
-          "OPENROUTER_API_KEY not set and no TOP_MODELS fallback. Set DEV_MODE=true for local dev.",
-        ),
-      );
+          new EvalRunnerError(
+            "OPENROUTER_API_KEY not set and no TOP_MODELS fallback. Set DEV_MODE=true for local dev.",
+          ),
+        );
   }
   return getTopModels(apiKey, 2).pipe(
     Effect.catch((e) =>
       fallbackEnv
         ? Effect.succeed(topModelsFromEnv(fallbackEnv))
-        : Effect.fail(
-          new EvalRunnerError(e instanceof Error ? e.message : String(e)),
-        )
+        : Effect.fail(new EvalRunnerError(e instanceof Error ? e.message : String(e))),
     ),
   );
 };

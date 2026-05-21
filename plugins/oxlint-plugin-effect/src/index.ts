@@ -1,7 +1,6 @@
 import type { CreateRule } from "@oxlint/plugins";
 
 import { Plugin } from "effect-oxlint";
-
 import avoidAny from "./rules/avoid-any.ts";
 import avoidDataTaggedError from "./rules/avoid-data-tagged-error.ts";
 import avoidDirectJson from "./rules/avoid-direct-json.ts";
@@ -147,7 +146,5 @@ const rules: Record<string, CreateRule> = {
 
 export default Plugin.define({
   name: "effect",
-  rules: Object.fromEntries(
-    Object.entries(rules).map(([name, rule]) => [name, recommend(rule)]),
-  ),
+  rules: Object.fromEntries(Object.entries(rules).map(([name, rule]) => [name, recommend(rule)])),
 });

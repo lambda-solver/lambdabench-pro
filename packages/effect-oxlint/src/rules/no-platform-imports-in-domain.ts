@@ -1,5 +1,6 @@
-import { Diagnostic, Rule, RuleContext } from "effect-oxlint";
 import * as Effect from "effect/Effect";
+
+import { Diagnostic, Rule, RuleContext, Visitor } from "effect-oxlint";
 
 /**
  * Rule: no-platform-imports-in-domain
@@ -10,12 +11,7 @@ import * as Effect from "effect/Effect";
  * From skill: 01-best-practices — "Domain package — no platform imports"
  */
 export const noPlatformImportsInDomain = Rule.define({
-  name: "no-platform-imports-in-domain",
-  meta: Rule.meta({
-    type: "error",
-    description: "Domain package must not import platform-specific modules — only import from 'effect'",
-  }),
-  create: function*() {
+  create: function* () {
     const ctx = yield* RuleContext;
     return {
       ImportDeclaration: (node) => {
@@ -26,11 +22,12 @@ export const noPlatformImportsInDomain = Rule.define({
         const source = node.source.value as string;
 
         // Check for platform-specific imports
-        const isPlatformImport = source.startsWith("effect/unstable/")
-          || source.startsWith("@effect/platform")
-          || source.startsWith("@effect/platform-bun")
-          || source.startsWith("@effect/platform-node")
-          || source.startsWith("@effect/platform-browser");
+        const isPlatformImport =
+          source.startsWith("effect/unstable/") ||
+          source.startsWith("@effect/platform") ||
+          source.startsWith("@effect/platform-bun") ||
+          source.startsWith("@effect/platform-node") ||
+          source.startsWith("@effect/platform-browser");
 
         if (!isPlatformImport) return Effect.void;
 
@@ -41,6 +38,11 @@ export const noPlatformImportsInDomain = Rule.define({
           }),
         );
       },
-    };
+    } as Visitor.TypedEffectVisitor;
   },
+  meta: Rule.meta({
+    type: "problem",
+    description: "Domain package must not import platform-specific modules — only import from 'effect'",
+  }),
+  name: "no-platform-imports-in-domain",
 });

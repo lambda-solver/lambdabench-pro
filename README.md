@@ -314,10 +314,11 @@ const myLayer = Layer.effect(MyService, MyService.make);
 describe("MyService", () => {
   it.layer(myLayer)((it) => {
     it.effect("does something", () =>
-      Effect.gen(function*() {
+      Effect.gen(function* () {
         const service = yield* MyService;
         // ...
-      }));
+      }),
+    );
   });
 });
 ```

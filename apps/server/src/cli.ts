@@ -2,31 +2,33 @@ import { BunRuntime } from "@effect/platform-bun";
 import { Effect } from "effect";
 import { LamBenchClient } from "./client/LamBenchClient.js";
 
-const parseFlag = (
-  args: ReadonlyArray<string>,
-  prefix: string,
-): string | undefined => args.find((a) => a.startsWith(prefix))?.slice(prefix.length);
+const parseFlag = (args: ReadonlyArray<string>, prefix: string): string | undefined =>
+  args.find((a) => a.startsWith(prefix))?.slice(prefix.length);
+
+const stdout = (msg: string): Effect.Effect<void> =>
+  Effect.sync(() => void process.stdout.write(`${msg}\n`));
+
+const stderr = (msg: string): Effect.Effect<void> =>
+  Effect.sync(() => void process.stderr.write(`${msg}\n`));
 
 const printUsage = (): Effect.Effect<void> =>
-  Effect.sync(() => {
-    console.error("Usage: bun cli.ts <command> [options]");
-    console.error("");
-    console.error("Commands:");
-    console.error(
+  stderr(
+    [
+      "Usage: bun cli.ts <command> [options]",
+      "",
+      "Commands:",
       "  eval single <model> <task> [--variant=standard|rlm] [--provider=openrouter|opencode-go]",
-    );
-    console.error(
       "  eval batch <models...> [--tasks=<task1,task2>] [--variant=both|standard|rlm]",
-    );
-    console.error("  status <jobId>");
-    console.error("  results [--model=<model>] [--task=<task>] [--limit=<n>]");
-    console.error("  tasks [--task=<taskId>]");
-    console.error("  models");
-    console.error("  server");
-    console.error("  gepa optimize <taskId>");
-  });
+      "  status <jobId>",
+      "  results [--model=<model>] [--task=<task>] [--limit=<n>]",
+      "  tasks [--task=<taskId>]",
+      "  models",
+      "  server",
+      "  gepa optimize <taskId>",
+    ].join("\n"),
+  );
 
-export const runCli = Effect.fn("runCli")(function*(args: ReadonlyArray<string>) {
+export const runCli = Effect.fn("runCli")(function* (args: ReadonlyArray<string>) {
   const client = yield* LamBenchClient;
 
   if (args.length === 0) {
@@ -47,7 +49,7 @@ export const runCli = Effect.fn("runCli")(function*(args: ReadonlyArray<string>)
         const provider = parseFlag(args, "--provider=") ?? "openrouter";
 
         if (!model || !task) {
-          console.error("Error: model and task are required for 'eval single'");
+          yield* stderr("Error: model and task are required for 'eval single'");
           yield* printUsage();
           return;
         }
@@ -61,7 +63,7 @@ export const runCli = Effect.fn("runCli")(function*(args: ReadonlyArray<string>)
           task,
           variant: variant as "standard" | "rlm",
         });
-        console.log(JSON.stringify(result, null, 2));
+        yield* stdout(JSON.stringify(result, null, 2));
         return;
       }
 
@@ -80,9 +82,7 @@ export const runCli = Effect.fn("runCli")(function*(args: ReadonlyArray<string>)
         const variant = parseFlag(args, "--variant=") ?? "both";
 
         if (models.length === 0) {
-          console.error(
-            "Error: at least one model is required for 'eval batch'",
-          );
+          yield* stderr("Error: at least one model is required for 'eval batch'");
           yield* printUsage();
           return;
         }
@@ -94,11 +94,11 @@ export const runCli = Effect.fn("runCli")(function*(args: ReadonlyArray<string>)
           tasks,
           variant: variant as "standard" | "rlm" | "both",
         });
-        console.log(JSON.stringify(result, null, 2));
+        yield* stdout(JSON.stringify(result, null, 2));
         return;
       }
 
-      console.error(`Error: unknown eval subcommand '${subCommand}'`);
+      yield* stderr(`Error: unknown eval subcommand '${subCommand}'`);
       yield* printUsage();
       return;
     }
@@ -106,12 +106,12 @@ export const runCli = Effect.fn("runCli")(function*(args: ReadonlyArray<string>)
     case "status": {
       const jobId = args[1];
       if (!jobId) {
-        console.error("Error: jobId is required for 'status'");
+        yield* stderr("Error: jobId is required for 'status'");
         yield* printUsage();
         return;
       }
       const result = yield* client.evalStatus(jobId);
-      console.log(JSON.stringify(result, null, 2));
+      yield* stdout(JSON.stringify(result, null, 2));
       return;
     }
 
@@ -138,7 +138,7 @@ export const runCli = Effect.fn("runCli")(function*(args: ReadonlyArray<string>)
         data = { ...result, rankings: filtered };
       }
 
-      console.log(JSON.stringify(data, null, 2));
+      yield* stdout(JSON.stringify(data, null, 2));
       return;
     }
 
@@ -146,38 +146,38 @@ export const runCli = Effect.fn("runCli")(function*(args: ReadonlyArray<string>)
       const taskId = parseFlag(args, "--task=");
       if (taskId) {
         const result = yield* client.taskDetail(taskId);
-        console.log(JSON.stringify(result, null, 2));
+        yield* stdout(JSON.stringify(result, null, 2));
         return;
       }
       const result = yield* client.tasks();
-      console.log(JSON.stringify(result, null, 2));
+      yield* stdout(JSON.stringify(result, null, 2));
       return;
     }
 
     case "models": {
       const result = yield* client.models();
-      console.log(JSON.stringify(result, null, 2));
+      yield* stdout(JSON.stringify(result, null, 2));
       return;
     }
 
     case "server": {
-      console.log("Start the server with: bun dev --filter=server");
+      yield* stdout("Start the server with: bun dev --filter=server");
       return;
     }
 
     case "gepa": {
       const gepaSub = args[1];
       if (gepaSub === "optimize") {
-        console.log("GEPA optimizer: not yet implemented");
+        yield* stdout("GEPA optimizer: not yet implemented");
         return;
       }
-      console.error(`Error: unknown gepa subcommand '${gepaSub}'`);
+      yield* stderr(`Error: unknown gepa subcommand '${gepaSub}'`);
       yield* printUsage();
       return;
     }
 
     default: {
-      console.error(`Error: unknown command '${command}'`);
+      yield* stderr(`Error: unknown command '${command}'`);
       yield* printUsage();
       return;
     }
@@ -187,9 +187,5 @@ export const runCli = Effect.fn("runCli")(function*(args: ReadonlyArray<string>)
 const baseUrl = process.env.LAMBENCH_API_URL ?? "http://127.0.0.1:9000";
 
 if (import.meta.main) {
-  BunRuntime.runMain(
-    runCli(process.argv.slice(2)).pipe(
-      Effect.provide(LamBenchClient.layer(baseUrl)),
-    ),
-  );
+  BunRuntime.runMain(runCli(process.argv.slice(2)).pipe(Effect.provide(LamBenchClient.layer(baseUrl))));
 }

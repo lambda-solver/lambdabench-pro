@@ -4,12 +4,7 @@ import { Schema } from "effect";
 // Accepted document types
 // ============================================================================
 
-export const ACCEPTED_MIME_TYPES = [
-  "application/pdf",
-  "text/plain",
-  "text/markdown",
-  "text/csv",
-] as const;
+export const ACCEPTED_MIME_TYPES = ["application/pdf", "text/plain", "text/markdown", "text/csv"] as const;
 
 export const ACCEPTED_EXTENSIONS = [".pdf", ".txt", ".md", ".csv"] as const;
 
@@ -24,13 +19,7 @@ export const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100 MB
 // Upload state per file
 // ============================================================================
 
-export const FileUploadStatus = Schema.Literals([
-  "pending",
-  "reading",
-  "uploading",
-  "complete",
-  "error",
-]);
+export const FileUploadStatus = Schema.Literals(["pending", "reading", "uploading", "complete", "error"]);
 
 export type FileUploadStatus = Schema.Schema.Type<typeof FileUploadStatus>;
 

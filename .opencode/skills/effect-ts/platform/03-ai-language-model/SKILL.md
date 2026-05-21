@@ -47,9 +47,7 @@ import { LanguageModel } from "effect/unstable/ai";
  * OpenRouter model ID. Provide BunHttpClient.layer (or FetchHttpClient.layer)
  * before composing into the app layer.
  */
-export const makeOpenRouterLayer = (
-  model: string,
-): Layer.Layer<LanguageModel.LanguageModel, never, never> =>
+export const makeOpenRouterLayer = (model: string): Layer.Layer<LanguageModel.LanguageModel, never, never> =>
   OpenAiLanguageModel.layer({ model }).pipe(
     Layer.provide(
       OpenAiClient.layer({
@@ -67,10 +65,7 @@ export const makeOpenRouterLayer = (
 const appLayer = Layer.mergeAll(
   BunServices.layer,
   BunHttpClient.layer,
-  makeOpenRouterLayer(process.env["LLM_MODEL"] ?? "minimax/minimax-m2.5:free")
-    .pipe(
-      Layer.provide(BunHttpClient.layer),
-    ),
+  makeOpenRouterLayer(process.env["LLM_MODEL"] ?? "minimax/minimax-m2.5:free").pipe(Layer.provide(BunHttpClient.layer)),
 );
 BunRuntime.runMain(program.pipe(Effect.provide(appLayer)));
 ```
@@ -80,13 +75,9 @@ BunRuntime.runMain(program.pipe(Effect.provide(appLayer)));
 When evaluating multiple models, build and provide a fresh layer per run:
 
 ```typescript
-const llmLayer = makeOpenRouterLayer(model.modelId).pipe(
-  Layer.provide(BunHttpClient.layer),
-);
+const llmLayer = makeOpenRouterLayer(model.modelId).pipe(Layer.provide(BunHttpClient.layer));
 
-const results = yield * runAllTasksForModel(tasks, refBitsMap).pipe(
-  Effect.provide(llmLayer),
-);
+const results = yield * runAllTasksForModel(tasks, refBitsMap).pipe(Effect.provide(llmLayer));
 ```
 
 ## Callers use LanguageModel directly — no modelId parameter
@@ -118,11 +109,7 @@ Functions that call `LanguageModel.generateText` require
 `LanguageModel.LanguageModel` in their `R` (requirements) parameter:
 
 ```typescript
-type PhiEffect = Effect.Effect<
-  Result,
-  never,
-  LanguageModel.LanguageModel | FileSystem.FileSystem | Path.Path
->;
+type PhiEffect = Effect.Effect<Result, never, LanguageModel.LanguageModel | FileSystem.FileSystem | Path.Path>;
 ```
 
 ## Mocking in tests
@@ -133,15 +120,13 @@ type PhiEffect = Effect.Effect<
 ```typescript
 import { LanguageModel } from "effect/unstable/ai";
 
-const mockLmLayer = (
-  responses: ReadonlyArray<string>,
-): Layer.Layer<LanguageModel.LanguageModel> =>
+const mockLmLayer = (responses: ReadonlyArray<string>): Layer.Layer<LanguageModel.LanguageModel> =>
   Layer.effect(
     LanguageModel.LanguageModel,
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const idx = yield* Ref.make(0);
       return {
-        generateText: Effect.fnUntraced(function*(_options) {
+        generateText: Effect.fnUntraced(function* (_options) {
           const i = yield* Ref.getAndUpdate(idx, (n) => n + 1);
           return {
             text: responses[Math.min(i, responses.length - 1)] ?? "",

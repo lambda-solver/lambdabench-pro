@@ -5,26 +5,15 @@
  */
 
 /** Find the index of the first @helper block that precedes @main, walking up. */
-const helperBlockStart = (
-  lines: ReadonlyArray<string>,
-  mainIdx: number,
-): number =>
-  mainIdx === 0 || !lines[mainIdx - 1]?.trim().startsWith("@")
-    ? mainIdx
-    : helperBlockStart(lines, mainIdx - 1);
+const helperBlockStart = (lines: ReadonlyArray<string>, mainIdx: number): number =>
+  mainIdx === 0 || !lines[mainIdx - 1]?.trim().startsWith("@") ? mainIdx : helperBlockStart(lines, mainIdx - 1);
 
 /**
  * Collect all lines from blockStart until the first blank line after @main.
  * Uses Array.from + slice instead of a for loop — pure accumulation.
  */
-const collectBlock = (
-  lines: ReadonlyArray<string>,
-  blockStart: number,
-  mainIdx: number,
-): ReadonlyArray<string> => {
-  const afterBlock = lines
-    .slice(blockStart)
-    .findIndex((l, i) => l.trim() === "" && blockStart + i > mainIdx);
+const collectBlock = (lines: ReadonlyArray<string>, blockStart: number, mainIdx: number): ReadonlyArray<string> => {
+  const afterBlock = lines.slice(blockStart).findIndex((l, i) => l.trim() === "" && blockStart + i > mainIdx);
   const end = afterBlock === -1 ? lines.length : blockStart + afterBlock;
   return lines.slice(blockStart, end);
 };

@@ -1,9 +1,10 @@
 import { Layer, ManagedRuntime } from "effect";
+
 import { BatchServiceLive } from "./services/BatchService.js";
 import { EvalServiceLive } from "./services/EvalService.js";
-import { config } from "./services/LamConfig.js";
 import { ResultStoreLive } from "./services/ResultStore.js";
 import { TaskServiceLive } from "./services/TaskService.js";
+import { config } from "./services/LamConfig.js";
 
 const validateDbPath = (dbPath: string) => {
   if (dbPath.trim().length === 0) {

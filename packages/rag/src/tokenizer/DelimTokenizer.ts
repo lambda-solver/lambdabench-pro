@@ -1,5 +1,5 @@
-import { Tokenizer, TokenizerError } from "@repo/domain/Chunk";
 import { Context, Effect, Layer, Ref } from "effect";
+import { Tokenizer, TokenizerError } from "@repo/domain/Chunk";
 
 type Delimiter = string | ReadonlyArray<string>;
 
@@ -25,18 +25,13 @@ const getJoinDelimiter = (delimiter: Delimiter, joiner?: string): string => {
   return delimiter[0] ?? "";
 };
 
-export class DelimTokenizer extends Context.Service<
-  DelimTokenizer,
-  Tokenizer["Service"]
->()("DelimTokenizer", {
-  make: Effect.fn(function*(delimiter: Delimiter, joiner?: string) {
+export class DelimTokenizer extends Context.Service<DelimTokenizer, Tokenizer["Service"]>()("DelimTokenizer", {
+  make: Effect.fn(function* (delimiter: Delimiter, joiner?: string) {
     const joinDelimiter = getJoinDelimiter(delimiter, joiner);
     const splitPattern = toSplitPattern(delimiter);
     const splitText = (text: string): Array<string> => {
       const tokens = text.split(splitPattern);
-      return Array.isArray(delimiter)
-        ? tokens.filter((token) => token.length > 0)
-        : tokens;
+      return Array.isArray(delimiter) ? tokens.filter((token) => token.length > 0) : tokens;
     };
 
     const stateRef = yield* Ref.make({
@@ -73,7 +68,7 @@ export class DelimTokenizer extends Context.Service<
       });
 
     const decode = (tokens: ReadonlyArray<number>) =>
-      Effect.gen(function*() {
+      Effect.gen(function* () {
         const { reverse } = yield* Ref.get(stateRef);
         const tokensArray: Array<string> = [];
         for (const id of tokens) {
@@ -96,12 +91,8 @@ export class DelimTokenizer extends Context.Service<
   }),
 }) {}
 
-export const CharacterTokenizerLive = Layer.effect(Tokenizer)(
-  DelimTokenizer.make(""),
-);
-export const WordTokenizerLive = Layer.effect(Tokenizer)(
-  DelimTokenizer.make(" "),
-);
+export const CharacterTokenizerLive = Layer.effect(Tokenizer)(DelimTokenizer.make(""));
+export const WordTokenizerLive = Layer.effect(Tokenizer)(DelimTokenizer.make(" "));
 export const SentenceTokenizerLive = Layer.effect(Tokenizer)(
   DelimTokenizer.make(["!\n", ". ", "? ", "\n", ".", "?", "!"], ". "),
 );

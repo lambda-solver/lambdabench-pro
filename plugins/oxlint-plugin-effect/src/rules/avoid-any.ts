@@ -1,16 +1,11 @@
-import type { ESTree } from "effect-oxlint";
-
 import * as Effect from "effect/Effect";
 
 import { Diagnostic, Rule, RuleContext } from "effect-oxlint";
 
+import type { ESTree } from "effect-oxlint";
+
 export default Rule.define({
-  name: "avoid-any",
-  meta: Rule.meta({
-    type: "suggestion",
-    description: "Disallow `as any` and `as unknown as T` type assertions",
-  }),
-  create: function*() {
+  create: function* () {
     const ctx = yield* RuleContext;
     return {
       TSAsExpression: (node: ESTree.Node) => {
@@ -28,10 +23,7 @@ export default Rule.define({
         }
 
         // Flag `expr as unknown as T` — the inner `as unknown` step
-        if (
-          tsAs.typeAnnotation.type === "TSUnknownKeyword"
-          && tsAs.parent.type === "TSAsExpression"
-        ) {
+        if (tsAs.typeAnnotation.type === "TSUnknownKeyword" && tsAs.parent.type === "TSAsExpression") {
           return ctx.report(
             Diagnostic.make({
               node,
@@ -45,4 +37,9 @@ export default Rule.define({
       },
     };
   },
+  meta: Rule.meta({
+    type: "suggestion",
+    description: "Disallow `as any` and `as unknown as T` type assertions",
+  }),
+  name: "avoid-any",
 });

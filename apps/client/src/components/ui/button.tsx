@@ -1,6 +1,6 @@
-import { cn } from "@/lib/utils";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import type { VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
 import { cva } from "class-variance-authority";
 
 const buttonVariants = cva(
@@ -18,10 +18,8 @@ const buttonVariants = cva(
         "icon-sm": "size-7 rounded-none",
         "icon-xs": "size-6 rounded-none [&_svg:not([class*='size-'])]:size-3",
         lg: "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3",
-        sm:
-          "h-7 gap-1 rounded-none px-2.5 has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
-        xs:
-          "h-6 gap-1 rounded-none px-2 text-xs has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
+        sm: "h-7 gap-1 rounded-none px-2.5 has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
+        xs: "h-6 gap-1 rounded-none px-2 text-xs has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
       },
       variant: {
         default: "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
@@ -45,13 +43,7 @@ function Button({
   size = "default",
   ...props
 }: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
-  return (
-    <ButtonPrimitive
-      data-slot="button"
-      className={cn(buttonVariants({ className, size, variant }))}
-      {...props}
-    />
-  );
+  return <ButtonPrimitive data-slot="button" className={cn(buttonVariants({ className, size, variant }))} {...props} />;
 }
 
 export { Button, buttonVariants };

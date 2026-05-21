@@ -7,21 +7,15 @@ import { fmtModel } from "./fmt";
 
 describe("fmtModel", () => {
   test("strips openrouter/ prefix", () => {
-    expect(fmtModel("openrouter/google/gemini-2.5-pro")).toBe(
-      "google/gemini-2.5-pro",
-    );
+    expect(fmtModel("openrouter/google/gemini-2.5-pro")).toBe("google/gemini-2.5-pro");
   });
 
   test("appends [rlm] when id ends with /rlm", () => {
-    expect(fmtModel("minimax/minimax-m2.5:free/rlm")).toBe(
-      "minimax/minimax-m2.5:free [rlm]",
-    );
+    expect(fmtModel("minimax/minimax-m2.5:free/rlm")).toBe("minimax/minimax-m2.5:free [rlm]");
   });
 
   test("strips openrouter/ prefix AND appends [rlm]", () => {
-    expect(fmtModel("openrouter/minimax/minimax-m2.5:free/rlm")).toBe(
-      "minimax/minimax-m2.5:free [rlm]",
-    );
+    expect(fmtModel("openrouter/minimax/minimax-m2.5:free/rlm")).toBe("minimax/minimax-m2.5:free [rlm]");
   });
 
   test("no openrouter/ prefix — returned as-is", () => {
@@ -33,8 +27,6 @@ describe("fmtModel", () => {
   });
 
   test("openrouter/minimax/minimax-m2.5:free stays without [rlm]", () => {
-    expect(fmtModel("openrouter/minimax/minimax-m2.5:free")).toBe(
-      "minimax/minimax-m2.5:free",
-    );
+    expect(fmtModel("openrouter/minimax/minimax-m2.5:free")).toBe("minimax/minimax-m2.5:free");
   });
 });

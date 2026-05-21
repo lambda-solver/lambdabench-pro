@@ -2,8 +2,8 @@
  * LambdaPlan.test.ts — Pure unit tests for the λ-RLM planning algorithm.
  */
 
+import { ComposeOp, TaskType, plan } from "./LambdaPlan";
 import { describe, expect, it } from "vitest";
-import { ComposeOp, plan, TaskType } from "./LambdaPlan";
 
 describe("plan — short input (lambda task, fits in window)", () => {
   it("depth=0 kStar=1 for n << K", () => {
@@ -53,14 +53,7 @@ describe("plan — large input (requires splitting)", () => {
   });
 
   it("accuracy constraint bumps kStar when aLeaf/aCompose are low", () => {
-    const unconstrained = plan(
-      TaskType.GENERAL,
-      500_000,
-      100_000,
-      0.8,
-      0.95,
-      0.9,
-    );
+    const unconstrained = plan(TaskType.GENERAL, 500_000, 100_000, 0.8, 0.95, 0.9);
     const constrained = plan(TaskType.GENERAL, 500_000, 100_000, 0.8, 0.5, 0.5);
     expect(constrained.kStar).toBeGreaterThanOrEqual(unconstrained.kStar);
   });

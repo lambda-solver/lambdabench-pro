@@ -19,7 +19,7 @@ Nothing runs until you call a `run*` function or `Layer.launch`.
 ```typescript
 import { Effect } from "effect";
 
-const program = Effect.gen(function*() {
+const program = Effect.gen(function* () {
   yield* Effect.log("starting");
   const result = yield* someEffect;
   return result;
@@ -62,7 +62,7 @@ Simpler syntax — no name string required.
 import { Effect } from "effect";
 
 // ✅ for private / internal helpers
-const buildPayload = Effect.fnUntraced(function*(id: string) {
+const buildPayload = Effect.fnUntraced(function* (id: string) {
   const data = yield* loadData(id);
   return { id, data };
 });
@@ -79,10 +79,11 @@ Effect.try({
   catch: (e) => new ParseError({ cause: e }),
 });
 Effect.tryPromise({
-  try: () => fetch(url).then(r => r.json()),
+  try: () => fetch(url).then((r) => r.json()),
   catch: (e) => new FetchError({ url, cause: e }),
 });
-Effect.callback<number>((resume) => { // callback-based APIs
+Effect.callback<number>((resume) => {
+  // callback-based APIs
   const id = setTimeout(() => resume(Effect.succeed(42)), 100);
   return Effect.sync(() => clearTimeout(id)); // finalizer on interruption
 });
@@ -104,8 +105,8 @@ Effect.runSync(program); // sync-only programs
 
 ```typescript
 program.pipe(
-  Effect.map(x => x * 2),
-  Effect.flatMap(n => Effect.succeed(n + 1)),
+  Effect.map((x) => x * 2),
+  Effect.flatMap((n) => Effect.succeed(n + 1)),
   Effect.catchTag("ParseError", () => Effect.succeed(0)),
   Effect.withSpan("myOp"),
 );
@@ -116,7 +117,7 @@ program.pipe(
 TypeScript must see the `return` to know execution stops at that point:
 
 ```typescript
-export const load = Effect.fn("load")(function*(id: string) {
+export const load = Effect.fn("load")(function* (id: string) {
   if (!id) return yield* new NotFoundError(); // return = TS knows it stops here
   return yield* fetchById(id);
 });

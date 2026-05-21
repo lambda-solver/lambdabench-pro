@@ -14,32 +14,29 @@
  * almost never read like tag discrimination at the call site.
  */
 
-import type { ESTree } from "effect-oxlint";
-
 import * as Effect from "effect/Effect";
-import { pipe } from "effect/Function";
 import * as Option from "effect/Option";
 import * as Schema from "effect/Schema";
 
 import { AST, Diagnostic, Rule, RuleContext, Visitor } from "effect-oxlint";
+
+import type { ESTree } from "effect-oxlint";
+import { pipe } from "effect/Function";
 
 // ---------------------------------------------------------------------------
 // Domain
 // ---------------------------------------------------------------------------
 
 const TagEqualityOperator = Schema.Literals(["===", "!=="]).annotate({
-  title: "TagEqualityOperator",
   description: "Strict-equality operators that participate in `._tag` discrimination checks.",
+  title: "TagEqualityOperator",
 });
 
 const isTagEqualityOperator = Schema.is(TagEqualityOperator);
 
-const TagLiteralNodeType = Schema.Literals([
-  "Literal",
-  "TemplateLiteral",
-]).annotate({
+const TagLiteralNodeType = Schema.Literals(["Literal", "TemplateLiteral"]).annotate({
+  description: 'AST node types that count as a "literal" tag value when comparing against `._tag`.',
   title: "TagLiteralNodeType",
-  description: "AST node types that count as a \"literal\" tag value when comparing against `._tag`.",
 });
 
 const isTagLiteralNodeType = Schema.is(TagLiteralNodeType);
@@ -65,24 +62,17 @@ const isLiteralLikeNode = (node: ESTree.Node): boolean => isTagLiteralNodeType(n
  * count.
  */
 const isTagComparisonPair = (left: ESTree.Node, right: ESTree.Node): boolean =>
-  (isTagAccess(left) && isLiteralLikeNode(right))
-  || (isTagAccess(right) && isLiteralLikeNode(left));
+  (isTagAccess(left) && isLiteralLikeNode(right)) || (isTagAccess(right) && isLiteralLikeNode(left));
 
 // ---------------------------------------------------------------------------
 // Rule
 // ---------------------------------------------------------------------------
 
 const MESSAGE =
-  "Avoid direct `._tag === \"...\"` checks. Use `$is(\"Tag\")` for type guards, `$match` for exhaustive pattern matching, or `Match.value(...).pipe(Match.when(...))` for composable branching. (EF-7)";
+  'Avoid direct `._tag === "..."` checks. Use `$is("Tag")` for type guards, `$match` for exhaustive pattern matching, or `Match.value(...).pipe(Match.when(...))` for composable branching. (EF-7)';
 
 export default Rule.define({
-  name: "avoid-direct-tag-checks",
-  meta: Rule.meta({
-    type: "suggestion",
-    description:
-      "Disallow direct `._tag === '...'` / `!== '...'` checks and `switch(_._tag)` discrimination — use `$is`, `$match`, or `Match` instead.",
-  }),
-  create: function*() {
+  create: function* () {
     const ctx = yield* RuleContext;
 
     return Visitor.merge(
@@ -94,9 +84,14 @@ export default Rule.define({
         return ctx.report(Diagnostic.make({ node, message: MESSAGE }));
       }),
       Visitor.on("SwitchStatement", (node) =>
-        isTagAccess(node.discriminant)
-          ? ctx.report(Diagnostic.make({ node, message: MESSAGE }))
-          : Effect.void),
+        isTagAccess(node.discriminant) ? ctx.report(Diagnostic.make({ node, message: MESSAGE })) : Effect.void,
+      ),
     );
   },
+  meta: Rule.meta({
+    type: "suggestion",
+    description:
+      "Disallow direct `._tag === '...'` / `!== '...'` checks and `switch(_._tag)` discrimination — use `$is`, `$match`, or `Match` instead.",
+  }),
+  name: "avoid-direct-tag-checks",
 });

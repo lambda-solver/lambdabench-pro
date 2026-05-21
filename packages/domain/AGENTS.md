@@ -51,8 +51,7 @@ const data: typeof ApiResponse.Type = { message: "Hello", success: true };
 // HTTP API endpoints
 export class HelloGroup extends HttpApiGroup.make("hello")
   .add(HttpApiEndpoint.get("get", "/").addSuccess(ApiResponse))
-  .prefix("/hello")
-{}
+  .prefix("/hello") {}
 
 export const Api = HttpApi.make("Api").add(HelloGroup);
 

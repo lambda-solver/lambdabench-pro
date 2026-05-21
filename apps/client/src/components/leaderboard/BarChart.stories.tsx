@@ -1,25 +1,21 @@
+import type { Meta, StoryObj } from "@storybook/react";
+
+import { BarChart } from "./BarChart";
 import { barChartFixtures } from "@/fixtures/barChart";
 import { createFixtureDecorator } from "@/fixtures/decorator";
-import type { Meta, StoryObj } from "@storybook/react";
-import { BarChart } from "./BarChart";
 
 const meta = {
   component: BarChart,
   decorators: [
     createFixtureDecorator(barChartFixtures, (fixture) => (
       <div className="p-4">
-        {fixture.fluid
-          ? (
-            <div className="w-64">
-              <BarChart pct={fixture.pct} fluid />
-            </div>
-          )
-          : (
-            <BarChart
-              pct={fixture.pct}
-              {...(fixture.width !== undefined && { width: fixture.width })}
-            />
-          )}
+        {fixture.fluid ? (
+          <div className="w-64">
+            <BarChart pct={fixture.pct} fluid />
+          </div>
+        ) : (
+          <BarChart pct={fixture.pct} {...(fixture.width !== undefined && { width: fixture.width })} />
+        )}
       </div>
     )),
   ],

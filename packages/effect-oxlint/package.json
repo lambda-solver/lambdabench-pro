@@ -3,22 +3,22 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
     "./plugin": "./src/plugin.ts"
   },
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
   "scripts": {
     "type-check": "tsc --noEmit",
     "clean": "git clean -xdf .cache .turbo dist node_modules tsconfig.tsbuildinfo"
   },
   "dependencies": {
-    "effect": "4.0.0-beta.52",
+    "effect": "4.0.0-beta.59",
     "effect-oxlint": "latest"
   },
   "devDependencies": {
-    "@repo/config-typescript": "workspace:*",
-    "@effect/vitest": "latest"
+    "@effect/vitest": "4.0.0-beta.52",
+    "@repo/config-typescript": "workspace:*"
   }
 }

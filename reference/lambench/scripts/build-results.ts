@@ -17,11 +17,11 @@ import { readdirSync, readFileSync, writeFileSync, mkdirSync, existsSync } from 
 import { join, basename } from "path";
 import type { BenchmarkData, Ranking, BenchmarkTask, BenchmarkCategory } from "@repo/domain/Benchmark";
 
-const ROOT       = join(import.meta.dir, "..");
-const RES_DIR    = join(ROOT, "res");
-const TSK_DIR    = join(ROOT, "tsk");
+const ROOT = join(import.meta.dir, "..");
+const RES_DIR = join(ROOT, "res");
+const TSK_DIR = join(ROOT, "tsk");
 const CLIENT_DIR = join(ROOT, "..", "..", "apps", "client");
-const OUT_FILE   = join(CLIENT_DIR, "public", "data", "results.json");
+const OUT_FILE = join(CLIENT_DIR, "public", "data", "results.json");
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -52,36 +52,34 @@ type TopModel = {
 
 const parseResultFile = (path: string): RunResult =>
   Effect.gen(function* () {
-    const text  = readFileSync(path, "utf-8");
+    const text = readFileSync(path, "utf-8");
     const lines = text.split("\n");
 
-    const modelLine = lines.find(l => l.startsWith("model:"));
-    const model     = modelLine ? modelLine.slice("model:".length).trim() : "unknown";
+    const modelLine = lines.find((l) => l.startsWith("model:"));
+    const model = modelLine ? modelLine.slice("model:".length).trim() : "unknown";
 
-    const rightLine  = lines.find(l => l.startsWith("right:"));
+    const rightLine = lines.find((l) => l.startsWith("right:"));
     const rightMatch = rightLine?.match(/right:\s*(\d+)\/(\d+)/);
-    const right      = rightMatch ? parseInt(rightMatch[1]) : 0;
-    const total      = rightMatch ? parseInt(rightMatch[2]) : 120;
+    const right = rightMatch ? parseInt(rightMatch[1]) : 0;
+    const total = rightMatch ? parseInt(rightMatch[2]) : 120;
 
     const taskResults: TaskResult[] = [];
     for (const line of lines) {
-      const m = line.match(
-        /^- (\w+):\s+[\d.]+\s+(pass|fail)\s+time=([\d.]+)s(?:\s+bits=(\d+))?(?:\s+ref=(\d+))?/,
-      );
+      const m = line.match(/^- (\w+):\s+[\d.]+\s+(pass|fail)\s+time=([\d.]+)s(?:\s+bits=(\d+))?(?:\s+ref=(\d+))?/);
       if (m) {
         taskResults.push({
-          id:   m[1],
+          id: m[1],
           pass: m[2] === "pass",
           time: parseFloat(m[3]),
           bits: m[4] ? parseInt(m[4]) : undefined,
-          ref:  m[5] ? parseInt(m[5]) : undefined,
+          ref: m[5] ? parseInt(m[5]) : undefined,
         });
       }
     }
 
-    const fn          = basename(path);
-    const tsMatch     = fn.match(/^(\d{4}y\d{2}m\d{2}d\.\d{2}h\d{2}m\d{2}s)/);
-    const timestamp   = tsMatch ? tsMatch[1] : fn;
+    const fn = basename(path);
+    const tsMatch = fn.match(/^(\d{4}y\d{2}m\d{2}d\.\d{2}h\d{2}m\d{2}s)/);
+    const timestamp = tsMatch ? tsMatch[1] : fn;
 
     return { filename: fn, timestamp, model, right, total, tasks: taskResults } satisfies RunResult;
   }) as unknown as RunResult;
@@ -90,9 +88,9 @@ const parseResultFile = (path: string): RunResult =>
 const loadAllResults = (): RunResult[] => {
   if (!existsSync(RES_DIR)) return [];
   return readdirSync(RES_DIR)
-    .filter(f => f.endsWith(".txt"))
+    .filter((f) => f.endsWith(".txt"))
     .sort()
-    .map(f => parseResultFile(join(RES_DIR, f)));
+    .map((f) => parseResultFile(join(RES_DIR, f)));
 };
 
 /** Keep only the latest run per model (files sorted chronologically). */
@@ -100,7 +98,7 @@ const latestPerModel = (runs: RunResult[]): RunResult[] => {
   const map = new Map<string, RunResult>();
   for (const run of runs) map.set(run.model, run);
   return [...map.values()]
-    .filter(r => r.right > 0)
+    .filter((r) => r.right > 0)
     .sort((a, b) => b.right - a.right || a.model.localeCompare(b.model));
 };
 
@@ -120,10 +118,10 @@ const CATEGORY_NAMES: Record<string, string> = {
 };
 
 const parseTaskFile = (path: string): BenchmarkTask => {
-  const id       = basename(path, ".tsk");
-  const text     = readFileSync(path, "utf-8").trim();
+  const id = basename(path, ".tsk");
+  const text = readFileSync(path, "utf-8").trim();
   const category = id.split("_")[0];
-  const sep      = text.indexOf("\n---\n");
+  const sep = text.indexOf("\n---\n");
   const description = sep >= 0 ? text.slice(0, sep).trim() : text;
   const testSection = sep >= 0 ? text.slice(sep + 5).trim() : "";
 
@@ -152,20 +150,17 @@ const parseTaskFile = (path: string): BenchmarkTask => {
 
 const loadAllTasks = (): BenchmarkTask[] =>
   readdirSync(TSK_DIR)
-    .filter(f => f.endsWith(".tsk"))
+    .filter((f) => f.endsWith(".tsk"))
     .sort()
-    .map(f => parseTaskFile(join(TSK_DIR, f)));
+    .map((f) => parseTaskFile(join(TSK_DIR, f)));
 
 const loadTopModels = (flagPath?: string): Map<string, number> => {
-  const paths = [
-    flagPath,
-    join(ROOT, "top-models.json"),
-  ].filter(Boolean) as string[];
+  const paths = [flagPath, join(ROOT, "top-models.json")].filter(Boolean) as string[];
 
   for (const p of paths) {
     if (existsSync(p)) {
       const data: TopModel[] = JSON.parse(readFileSync(p, "utf-8"));
-      return new Map(data.map(m => [m.modelId, m.pricePerMOutput]));
+      return new Map(data.map((m) => [m.modelId, m.pricePerMOutput]));
     }
   }
   return new Map();
@@ -175,38 +170,30 @@ const loadTopModels = (flagPath?: string): Map<string, number> => {
 
 const build = Effect.gen(function* () {
   const topModelsFlagIdx = process.argv.indexOf("--top-models");
-  const topModelsPath    = topModelsFlagIdx >= 0 ? process.argv[topModelsFlagIdx + 1] : undefined;
+  const topModelsPath = topModelsFlagIdx >= 0 ? process.argv[topModelsFlagIdx + 1] : undefined;
 
-  const runs       = loadAllResults();
-  const latest     = latestPerModel(runs);
-  const tasks      = loadAllTasks();
-  const priceMap   = loadTopModels(topModelsPath);
+  const runs = loadAllResults();
+  const latest = latestPerModel(runs);
+  const tasks = loadAllTasks();
+  const priceMap = loadTopModels(topModelsPath);
 
-  const categories: BenchmarkCategory[] = Object.entries(CATEGORY_NAMES).map(
-    ([id, name]) => ({ id, name }),
-  );
+  const categories: BenchmarkCategory[] = Object.entries(CATEGORY_NAMES).map(([id, name]) => ({ id, name }));
 
-  const rankings: Ranking[] = latest.map(run => {
-    const passing   = run.tasks.filter(t => t.pass);
-    const avgTime   = passing.length
-      ? passing.reduce((s, t) => s + t.time, 0) / passing.length
-      : 0;
+  const rankings: Ranking[] = latest.map((run) => {
+    const passing = run.tasks.filter((t) => t.pass);
+    const avgTime = passing.length ? passing.reduce((s, t) => s + t.time, 0) / passing.length : 0;
     const price = priceMap.get(run.model) ?? 0;
 
     return {
-      model:               run.model,
-      right:               run.right,
-      total:               run.total,
-      pct:                 ((run.right / run.total) * 100).toFixed(1),
-      avgTime:             Number(avgTime.toFixed(1)),
-      timestamp:           run.timestamp,
-      tasks:               Object.fromEntries(run.tasks.map(t => [t.id, t.pass])),
-      taskBits:            Object.fromEntries(
-        run.tasks.filter(t => t.pass && t.bits !== undefined).map(t => [t.id, t.bits!]),
-      ),
-      taskRefs:            Object.fromEntries(
-        run.tasks.filter(t => t.ref !== undefined).map(t => [t.id, t.ref!]),
-      ),
+      model: run.model,
+      right: run.right,
+      total: run.total,
+      pct: ((run.right / run.total) * 100).toFixed(1),
+      avgTime: Number(avgTime.toFixed(1)),
+      timestamp: run.timestamp,
+      tasks: Object.fromEntries(run.tasks.map((t) => [t.id, t.pass])),
+      taskBits: Object.fromEntries(run.tasks.filter((t) => t.pass && t.bits !== undefined).map((t) => [t.id, t.bits!])),
+      taskRefs: Object.fromEntries(run.tasks.filter((t) => t.ref !== undefined).map((t) => [t.id, t.ref!])),
       pricePerMOutputTokens: price,
     };
   });

@@ -1,12 +1,5 @@
 import { spawnSync } from "child_process";
-import {
-  existsSync,
-  mkdirSync,
-  readdirSync,
-  readFileSync,
-  statSync,
-  writeFileSync,
-} from "fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "fs";
 import { basename, join } from "path";
 
 // ── Types ───────────────────────────────────────────────────────────
@@ -158,9 +151,7 @@ function clean_lam_error(msg: string): string {
     .map((line) => line.trim())
     .filter(Boolean);
   var hit =
-    lines.find((line) =>
-      /^(RangeError|SyntaxError|TypeError|Error):/.test(line),
-    ) ??
+    lines.find((line) => /^(RangeError|SyntaxError|TypeError|Error):/.test(line)) ??
     lines.find((line) => /^Expected /.test(line)) ??
     lines.find((line) => /^error:/.test(line)) ??
     lines[0] ??
@@ -174,15 +165,10 @@ function clean_lam_error(msg: string): string {
 // Per-task score:
 // reference bits = 0.5, each halving -> +0.25, each doubling -> x0.5
 export function task_score(bits: number, reference_bits: number): number {
-  return bits <= reference_bits
-    ? 1 - bits / (2 * reference_bits)
-    : reference_bits / (2 * bits);
+  return bits <= reference_bits ? 1 - bits / (2 * reference_bits) : reference_bits / (2 * bits);
 }
 
-export function reference_bits(
-  task_id: string,
-  timeout = LAM_TIMEOUT_MS,
-): number | undefined {
+export function reference_bits(task_id: string, timeout = LAM_TIMEOUT_MS): number | undefined {
   var path = join(REF_DIR, task_id + ".lam");
   if (!existsSync(path)) return undefined;
   return bin_size(readFileSync(path, "utf-8").trim(), timeout);
@@ -202,12 +188,7 @@ function is_timeout_error(error: any): boolean {
   return msg.includes("timed out") || msg.includes("ETIMEDOUT");
 }
 
-export function run_task(
-  task: Task,
-  submission: string,
-  ref_bits?: number,
-  options: RunTaskOptions = {},
-): Result {
+export function run_task(task: Task, submission: string, ref_bits?: number, options: RunTaskOptions = {}): Result {
   var errors: string[] = [];
 
   for (var t of task.tests) {
@@ -235,11 +216,7 @@ export function run_task(
       score = task_score(bits, ref_bits ?? bits);
     } catch (e: any) {
       pass = false;
-      errors.push(
-        is_timeout_error(e)
-          ? "task timed out"
-          : "failed to compute binary size",
-      );
+      errors.push(is_timeout_error(e) ? "task timed out" : "failed to compute binary size");
     }
   }
 

@@ -107,10 +107,10 @@ git add apps/client/public/data/results.json
 
 Our project uses **oxlint** for linting and **dprint** for formatting (not ESLint/Prettier/Biome). Two commands sound similar but do different things:
 
-| Command            | Script                        | What it does                                     | Speed |
-| ------------------ | ----------------------------- | ------------------------------------------------ | ----- |
-| `bun lint`         | `oxlint --config oxlint.json` | Runs lint rules (correctness, suspicious, style) | Fast  |
-| `bun format:check` | `dprint check`                | Checks formatting only                           | Fast  |
+| Command            | Script                           | What it does                                     | Speed |
+| ------------------ | -------------------------------- | ------------------------------------------------ | ----- |
+| `bun lint`         | `oxlint --config .oxlintrc.json` | Runs lint rules (correctness, suspicious, style) | Fast  |
+| `bun format:check` | `dprint check`                   | Checks formatting only                           | Fast  |
 
 **When to use each:**
 

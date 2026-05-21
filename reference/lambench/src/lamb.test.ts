@@ -59,22 +59,12 @@ describe("normalize", () => {
   });
 
   test("bool not: @not(@false) = true", () => {
-    const src = [
-      "@true=λt.λf.t",
-      "@false=λt.λf.f",
-      "@not=λb.λt.λf.b(f,t)",
-      "@_=@not(@false)",
-    ].join("\n");
+    const src = ["@true=λt.λf.t", "@false=λt.λf.f", "@not=λb.λt.λf.b(f,t)", "@_=@not(@false)"].join("\n");
     expect(eval_src(src)).toBe("λa.λb.a");
   });
 
   test("bool not: @not(@true) = false", () => {
-    const src = [
-      "@true=λt.λf.t",
-      "@false=λt.λf.f",
-      "@not=λb.λt.λf.b(f,t)",
-      "@_=@not(@true)",
-    ].join("\n");
+    const src = ["@true=λt.λf.t", "@false=λt.λf.f", "@not=λb.λt.λf.b(f,t)", "@_=@not(@true)"].join("\n");
     expect(eval_src(src)).toBe("λa.λb.b");
   });
 
@@ -84,14 +74,12 @@ describe("normalize", () => {
   });
 
   test("cnat_add(1,1) = λa.λb.a(a(b))  (Church two)", () => {
-    const src =
-      "@main=λa.λb.λc.λd.a(c,b(c,d))\n@_=@main(λf.λx.f(x),λf.λx.f(x))";
+    const src = "@main=λa.λb.λc.λd.a(c,b(c,d))\n@_=@main(λf.λx.f(x),λf.λx.f(x))";
     expect(eval_src(src)).toBe("λa.λb.a(a(b))");
   });
 
   test("cnat_add(2,3) = Church five", () => {
-    const src =
-      "@main=λa.λb.λc.λd.a(c,b(c,d))\n@_=@main(λf.λx.f(f(x)),λf.λx.f(f(f(x))))";
+    const src = "@main=λa.λb.λc.λd.a(c,b(c,d))\n@_=@main(λf.λx.f(f(x)),λf.λx.f(f(f(x))))";
     expect(eval_src(src)).toBe("λa.λb.a(a(a(a(a(b)))))");
   });
 

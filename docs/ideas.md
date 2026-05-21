@@ -150,14 +150,7 @@ export const LlmCallParams = Schema.Struct({
 });
 
 export const TransformParams = Schema.Struct({
-  operation: Schema.Literals([
-    "split_text",
-    "extract_code",
-    "parse_json",
-    "count_tokens",
-    "truncate",
-    "join",
-  ]),
+  operation: Schema.Literals(["split_text", "extract_code", "parse_json", "count_tokens", "truncate", "join"]),
   config: Schema.optional(Schema.Record(Schema.String, Schema.Unknown)),
 });
 
@@ -269,14 +262,16 @@ export const ExecutionTrace = Schema.Struct({
   genomeId: Schema.String,
   specimenId: Schema.String,
   /** Per-node execution results */
-  nodeExecutions: Schema.Array(Schema.Struct({
-    nodeId: Schema.String,
-    nodeType: NodeType,
-    input: Schema.Unknown,
-    output: Schema.Unknown,
-    elapsedMs: Schema.Number,
-    error: Schema.optional(Schema.String),
-  })),
+  nodeExecutions: Schema.Array(
+    Schema.Struct({
+      nodeId: Schema.String,
+      nodeType: NodeType,
+      input: Schema.Unknown,
+      output: Schema.Unknown,
+      elapsedMs: Schema.Number,
+      error: Schema.optional(Schema.String),
+    }),
+  ),
   finalResult: WorkflowResult,
   totalElapsedMs: Schema.Number,
   totalCost: Schema.Number,
@@ -389,10 +384,7 @@ export class EvolutionService extends Context.Service<
     /** Get current population and Pareto frontier */
     getPopulation(runId: string): Effect.Effect<Population, never>;
     /** Get best genome by a specific metric */
-    getBest(
-      runId: string,
-      metric: FitnessMetric,
-    ): Effect.Effect<Genome | null, never>;
+    getBest(runId: string, metric: FitnessMetric): Effect.Effect<Genome | null, never>;
   }
 >()("lambench/EvolutionService") {}
 ```
@@ -420,14 +412,9 @@ export class GenomeCompiler extends Context.Service<
 export class FitnessEvaluator extends Context.Service<
   FitnessEvaluator,
   {
-    evaluate(
-      genome: Genome,
-      specimens: ReadonlyArray<EvalSpecimen>,
-    ): Effect.Effect<FitnessVector, FitnessError>;
+    evaluate(genome: Genome, specimens: ReadonlyArray<EvalSpecimen>): Effect.Effect<FitnessVector, FitnessError>;
     /** Compute Pareto frontier from a population */
-    paretoFront(
-      population: Population,
-    ): Effect.Effect<ReadonlyArray<number>, never>;
+    paretoFront(population: Population): Effect.Effect<ReadonlyArray<number>, never>;
     /** Hypervolume indicator for diversity tracking */
     hypervolume(frontier: ReadonlyArray<Genome>): Effect.Effect<number, never>;
   }
@@ -441,9 +428,7 @@ export class VariationOperator extends Context.Service<
   VariationOperator,
   {
     /** Combine two parent genomes into one or more offspring */
-    crossover(
-      parents: [Genome, Genome],
-    ): Effect.Effect<ReadonlyArray<Genome>, never>;
+    crossover(parents: [Genome, Genome]): Effect.Effect<ReadonlyArray<Genome>, never>;
     /** Stochastically modify a genome */
     mutate(genome: Genome, rate: number): Effect.Effect<Genome, never>;
     /** Random initialization for generation 0 */
@@ -473,19 +458,16 @@ GEPA is a **genetic programming** approach where:
 
 ```typescript
 // Temperature mutation (Gaussian noise)
-mutateParam("temperature", x => clamp(x + N(0, 0.1), 0, 2));
+mutateParam("temperature", (x) => clamp(x + N(0, 0.1), 0, 2));
 
 // Model mutation (swap to similar-capability model)
-mutateParam(
-  "modelId",
-  x => randomFrom(["gpt-4o", "claude-3-5-sonnet", "gemini-1.5-pro"]),
-);
+mutateParam("modelId", (x) => randomFrom(["gpt-4o", "claude-3-5-sonnet", "gemini-1.5-pro"]));
 
 // Prompt mutation (paraphrase via LLM)
-mutateParam("promptTemplate", x => llmParaphrase(x));
+mutateParam("promptTemplate", (x) => llmParaphrase(x));
 
 // Topology mutation (insert a retry loop)
-mutateTopology(g => insertNode(g, "loop", between("nodeA", "nodeB")));
+mutateTopology((g) => insertNode(g, "loop", between("nodeA", "nodeB")));
 ```
 
 ### 5.2 CMA-ES for Continuous Parameters
@@ -528,11 +510,13 @@ The GenomeCompiler turns a DAG into nested `Effect` expressions. For the existin
 // source → split(k=3) → [llm_call, llm_call, llm_call] → select_best → sink
 
 // Compiled Effect:
-const compiled = Effect.gen(function*() {
+const compiled = Effect.gen(function* () {
   const input = yield* sourceNode(); // Get task
   const chunks = splitText(input, 3); // Transform
-  const partials = yield* Effect.all( // Parallel Map
-    chunks.map(chunk => Effect.suspend(() => llmNode(chunk)) // Leaf LLM calls
+  const partials = yield* Effect.all(
+    // Parallel Map
+    chunks.map(
+      (chunk) => Effect.suspend(() => llmNode(chunk)), // Leaf LLM calls
     ),
     { concurrency: 3 },
   );
@@ -559,7 +543,7 @@ const generationStep = Workflow.Activity.make("generationStep", {
   input: Schema.Struct({ runId: Schema.String, generation: Schema.Number }),
   output: Schema.Struct({ population: Population, hypervolume: Schema.Number }),
   run: ({ runId, generation }) =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const evo = yield* EvolutionService;
       const result = yield* evo.step(runId);
       return result;
@@ -573,11 +557,7 @@ const generationStep = Workflow.Activity.make("generationStep", {
 **Alternative (simpler):** Application-level checkpointing in SQLite:
 
 ```typescript
-const checkpoint = (
-  runId: string,
-  generation: number,
-  population: Population,
-) =>
+const checkpoint = (runId: string, generation: number, population: Population) =>
   ResultStore.insertCheckpoint({
     runId,
     generation,
@@ -585,7 +565,7 @@ const checkpoint = (
   });
 
 const resume = (runId: string) =>
-  Effect.gen(function*() {
+  Effect.gen(function* () {
     const last = yield* ResultStore.getLastCheckpoint(runId);
     if (last) {
       return {
@@ -603,14 +583,12 @@ Leverage Effect's built-in tracing:
 
 ```typescript
 // Each workflow execution gets a span
-const executeWorkflow = Effect.fn("executeWorkflow")(
-  function*(genome, specimen) {
-    yield* Effect.logAnnotate("genomeId", genome.id);
-    yield* Effect.logAnnotate("specimenId", specimen.id);
-    yield* Effect.logAnnotate("generation", genome.generation);
-    // ... execution
-  },
-);
+const executeWorkflow = Effect.fn("executeWorkflow")(function* (genome, specimen) {
+  yield* Effect.logAnnotate("genomeId", genome.id);
+  yield* Effect.logAnnotate("specimenId", specimen.id);
+  yield* Effect.logAnnotate("generation", genome.generation);
+  // ... execution
+});
 
 // Traces show up in the TUI / OpenTelemetry collector
 // Per-node timing, error rates, LLM token usage
@@ -621,16 +599,16 @@ const executeWorkflow = Effect.fn("executeWorkflow")(
 The existing `BatchService.ts` pattern with `Ref` for mutable counters extends to evolution:
 
 ```typescript
-const runGeneration = Effect.gen(function*() {
+const runGeneration = Effect.gen(function* () {
   const completedRef = yield* Ref.make(0);
   const total = population.genomes.length * evalSet.length;
 
   yield* Effect.forEach(
     population.genomes,
     (genome) =>
-      Effect.gen(function*() {
+      Effect.gen(function* () {
         const fitness = yield* evaluateGenome(genome, evalSet);
-        yield* Ref.update(completedRef, n => n + evalSet.length);
+        yield* Ref.update(completedRef, (n) => n + evalSet.length);
         const completed = yield* Ref.get(completedRef);
         yield* Effect.log(`Progress: ${completed}/${total} evaluations`);
         return fitness;
@@ -675,7 +653,8 @@ export const EvolveGroup = HttpApiBuilder.group("EvolveGroup", (g) =>
     .post("/evolve/:id/pause", { path: Schema.Struct({ id: Schema.String }) })
     .post("/evolve/:id/resume", {
       path: Schema.Struct({ id: Schema.String }),
-    }));
+    }),
+);
 
 export const WorkflowGroup = HttpApiBuilder.group("WorkflowGroup", (g) =>
   g
@@ -686,7 +665,8 @@ export const WorkflowGroup = HttpApiBuilder.group("WorkflowGroup", (g) =>
     .post("/workflows/:id/run", {
       path: Schema.Struct({ id: Schema.String }),
       payload: Schema.Struct({ specimenId: Schema.String }),
-    }));
+    }),
+);
 ```
 
 ---

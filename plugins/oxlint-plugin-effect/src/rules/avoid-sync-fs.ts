@@ -1,9 +1,9 @@
-import type { ESTree } from "effect-oxlint";
-
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 
 import { AST, Diagnostic, Rule, RuleContext } from "effect-oxlint";
+
+import type { ESTree } from "effect-oxlint";
 
 const SYNC_FS_METHODS = new Set([
   "readFileSync",
@@ -20,12 +20,7 @@ const SYNC_FS_METHODS = new Set([
 ]);
 
 export default Rule.define({
-  name: "avoid-sync-fs",
-  meta: Rule.meta({
-    type: "suggestion",
-    description: "Disallow synchronous fs operations — use Effect FileSystem service for async I/O",
-  }),
-  create: function*() {
+  create: function* () {
     const ctx = yield* RuleContext;
     return {
       CallExpression: (node: ESTree.Node) => {
@@ -36,15 +31,14 @@ export default Rule.define({
           onNone: () => {
             // Match `fs.readFileSync(...)` member calls
             if (
-              call.callee.type === "MemberExpression"
-              && call.callee.property.type === "Identifier"
-              && SYNC_FS_METHODS.has(call.callee.property.name)
+              call.callee.type === "MemberExpression" &&
+              call.callee.property.type === "Identifier" &&
+              SYNC_FS_METHODS.has(call.callee.property.name)
             ) {
               return ctx.report(
                 Diagnostic.make({
                   node,
-                  message:
-                    `Avoid synchronous \`${call.callee.property.name}\` — it blocks the event loop. Use Effect's \`FileSystem\` service for async, composable file operations.`,
+                  message: `Avoid synchronous \`${call.callee.property.name}\` — it blocks the event loop. Use Effect's \`FileSystem\` service for async, composable file operations.`,
                 }),
               );
             }
@@ -53,15 +47,19 @@ export default Rule.define({
           onSome: (name) =>
             SYNC_FS_METHODS.has(name)
               ? ctx.report(
-                Diagnostic.make({
-                  node,
-                  message:
-                    `Avoid synchronous \`${name}\` — it blocks the event loop. Use Effect's \`FileSystem\` service for async, composable file operations.`,
-                }),
-              )
+                  Diagnostic.make({
+                    node,
+                    message: `Avoid synchronous \`${name}\` — it blocks the event loop. Use Effect's \`FileSystem\` service for async, composable file operations.`,
+                  }),
+                )
               : Effect.void,
         });
       },
     };
   },
+  meta: Rule.meta({
+    type: "suggestion",
+    description: "Disallow synchronous fs operations — use Effect FileSystem service for async I/O",
+  }),
+  name: "avoid-sync-fs",
 });

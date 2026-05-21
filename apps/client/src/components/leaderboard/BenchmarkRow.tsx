@@ -32,22 +32,14 @@ export function BenchmarkRow({
 }: BenchmarkRowProps) {
   return (
     <div className="flex items-center min-w-0 flex-1 gap-[1ch]">
-      <span className="shrink-0 text-[var(--sol-blue)] whitespace-pre">
-        {name}
-      </span>
+      <span className="shrink-0 text-[var(--sol-blue)] whitespace-pre">{name}</span>
       <span className="flex-1 min-w-0">
         <BarChart pct={pct} fluid />
       </span>
-      <span
-        className="shrink-0 text-right"
-        style={{ color: statColor, width: `${statWidth}ch` }}
-      >
+      <span className="shrink-0 text-right" style={{ color: statColor, width: `${statWidth}ch` }}>
         {stat}
       </span>
-      <span
-        className="shrink-0 text-[var(--sol-base1)]"
-        style={{ width: `${labelWidth}ch` }}
-      >
+      <span className="shrink-0 text-[var(--sol-base1)]" style={{ width: `${labelWidth}ch` }}>
         {label}
       </span>
     </div>

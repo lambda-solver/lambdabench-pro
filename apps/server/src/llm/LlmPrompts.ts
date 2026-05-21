@@ -17,9 +17,7 @@ import type { Task } from "../check/Check";
  * `@main = <lambda-expression>` — no prose, no markdown fences.
  */
 export const buildSolvePrompt = (task: Task): string => {
-  const testLines = task.tests
-    .map((t) => `  ${t.expr}\n  = ${t.want}`)
-    .join("\n\n");
+  const testLines = task.tests.map((t) => `  ${t.expr}\n  = ${t.want}`).join("\n\n");
 
   return [
     `You are solving a lambda calculus task. Reply with ONLY the lambda expression — no explanation, no markdown, no prose.`,
@@ -46,14 +44,8 @@ export const buildSolvePrompt = (task: Task): string => {
  * lines. Used by the λ-RLM self-correction loop (Phase 5, depth > 0) to
  * feed checker feedback back to the model as context.
  */
-export const buildRetryPrompt = (
-  task: Task,
-  priorAttempt: string,
-  errors: ReadonlyArray<string>,
-): string => {
-  const testLines = task.tests
-    .map((t) => `  ${t.expr}\n  = ${t.want}`)
-    .join("\n\n");
+export const buildRetryPrompt = (task: Task, priorAttempt: string, errors: ReadonlyArray<string>): string => {
+  const testLines = task.tests.map((t) => `  ${t.expr}\n  = ${t.want}`).join("\n\n");
 
   const errorLines = errors.map((e) => `  ${e}`).join("\n");
 
@@ -92,10 +84,7 @@ export const buildRetryPrompt = (
  * Mirrors the reference `_TASK_DETECTION_PROMPT` with metadata adapted
  * for lambda calculus task descriptions.
  */
-export const buildTaskDetectionProbe = (
-  taskPreview: string,
-  n: number,
-): string => {
+export const buildTaskDetectionProbe = (taskPreview: string, n: number): string => {
   const metadata = `length=${n}, preview=${JSON.stringify(taskPreview.slice(0, 150))}`;
 
   return [

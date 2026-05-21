@@ -2,13 +2,17 @@
 
 import * as NodeFileSystem from "@effect/platform-node-shared/NodeFileSystem";
 import * as NodePath from "@effect/platform-node-shared/NodePath";
-import { describe, it } from "@effect/vitest";
-import { assertDefined, assertInclude, assertTrue, strictEqual } from "@effect/vitest/utils";
+
 import { Effect, Layer } from "effect";
-import { existsSync, unlinkSync } from "node:fs";
-import { afterAll, afterEach, beforeAll } from "vitest";
-import { ResultStoreLive } from "./ResultStore.js";
+
 import { TaskService, TaskServiceLive } from "./TaskService";
+
+import { afterAll, afterEach, beforeAll } from "vitest";
+import { assertDefined, assertInclude, assertTrue, strictEqual } from "@effect/vitest/utils";
+import { describe, it } from "@effect/vitest";
+import { existsSync, unlinkSync } from "node:fs";
+
+import { ResultStoreLive } from "./ResultStore.js";
 
 const testDbPath = "apps/server/test-data/TaskService.test.db";
 
@@ -24,16 +28,12 @@ const cleanupDbFiles = () => {
 const platformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 
 const makeTestLayer = (dbPath: string) =>
-  TaskServiceLive.pipe(
-    Layer.provide(ResultStoreLive(dbPath)),
-    Layer.provide(platformLayer),
-  );
+  TaskServiceLive.pipe(Layer.provide(ResultStoreLive(dbPath)), Layer.provide(platformLayer));
 
-const runWithTestLayer = (dbPath: string) => <A, E, R>(effect: Effect.Effect<A, E, R>) =>
-  effect.pipe(
-    Effect.provide(makeTestLayer(dbPath)),
-    Effect.provide(platformLayer),
-  );
+const runWithTestLayer =
+  (dbPath: string) =>
+  <A, E, R>(effect: Effect.Effect<A, E, R>) =>
+    effect.pipe(Effect.provide(makeTestLayer(dbPath)), Effect.provide(platformLayer));
 
 describe("TaskService", () => {
   beforeAll(() => {
@@ -53,7 +53,7 @@ describe("TaskService", () => {
   it.effect(
     "loadAndCacheTasks loads all 120 .tsk files into SQLite",
     () =>
-      Effect.gen(function*() {
+      Effect.gen(function* () {
         const svc = yield* TaskService;
         yield* svc.loadAndCacheTasks();
 
@@ -66,7 +66,7 @@ describe("TaskService", () => {
   // ─── getTask ────────────────────────────────────────────────────────────────
 
   it.effect("getTask retrieves a cached task by ID", () =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const svc = yield* TaskService;
       yield* svc.loadAndCacheTasks();
 
@@ -78,32 +78,34 @@ describe("TaskService", () => {
       assertInclude(task.description, "Add two Scott nats. Return A + B.");
       assertTrue(task.testCount > 0);
       strictEqual(task.tests.length, task.testCount);
-    }).pipe(runWithTestLayer(testDbPath)));
+    }).pipe(runWithTestLayer(testDbPath)),
+  );
 
   it.effect("getTask returns undefined for unknown task ID", () =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const svc = yield* TaskService;
       yield* svc.loadAndCacheTasks();
 
       const task = yield* svc.getTask("nonexistent_task");
       strictEqual(task, undefined);
-    }).pipe(runWithTestLayer(testDbPath)));
+    }).pipe(runWithTestLayer(testDbPath)),
+  );
 
   // ─── getAllTasks ────────────────────────────────────────────────────────────
 
   it.effect("getAllTasks returns all cached tasks with correct shape", () =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const svc = yield* TaskService;
       yield* svc.loadAndCacheTasks();
 
       const all = yield* svc.getAllTasks();
       strictEqual(all.length, 120);
 
-      const ids = all.map((t) => t.id).toSorted();
-      assertTrue(ids.includes("snat_add"));
-      assertTrue(ids.includes("algo_maz"));
-      assertTrue(ids.includes("cbin_log"));
-      assertTrue(ids.includes("ctre_bfs"));
+      const ids = new Set(all.map((t) => t.id));
+      assertTrue(ids.has("snat_add"));
+      assertTrue(ids.has("algo_maz"));
+      assertTrue(ids.has("cbin_log"));
+      assertTrue(ids.has("ctre_bfs"));
 
       const first = all[0];
       assertDefined(first);
@@ -113,73 +115,66 @@ describe("TaskService", () => {
       assertDefined(first.description);
       assertDefined(first.tests);
       assertTrue(first.testCount >= 0);
-    }).pipe(runWithTestLayer(testDbPath)));
+    }).pipe(runWithTestLayer(testDbPath)),
+  );
 
   // ─── getTasksByCategory ─────────────────────────────────────────────────────
 
-  it.effect(
-    "getTasksByCategory returns tasks filtered by category prefix",
-    () =>
-      Effect.gen(function*() {
-        const svc = yield* TaskService;
-        yield* svc.loadAndCacheTasks();
+  it.effect("getTasksByCategory returns tasks filtered by category prefix", () =>
+    Effect.gen(function* () {
+      const svc = yield* TaskService;
+      yield* svc.loadAndCacheTasks();
 
-        const snatTasks = yield* svc.getTasksByCategory("snat");
-        assertTrue(snatTasks.length > 0);
-        for (const t of snatTasks) {
-          strictEqual(t.category, "snat");
-          strictEqual(t.categoryName, "Scott Naturals");
-        }
+      const snatTasks = yield* svc.getTasksByCategory("snat");
+      assertTrue(snatTasks.length > 0);
+      for (const t of snatTasks) {
+        strictEqual(t.category, "snat");
+        strictEqual(t.categoryName, "Scott Naturals");
+      }
 
-        const algoTasks = yield* svc.getTasksByCategory("algo");
-        assertTrue(algoTasks.length > 0);
-        for (const t of algoTasks) {
-          strictEqual(t.category, "algo");
-          strictEqual(t.categoryName, "Algorithms");
-        }
+      const algoTasks = yield* svc.getTasksByCategory("algo");
+      assertTrue(algoTasks.length > 0);
+      for (const t of algoTasks) {
+        strictEqual(t.category, "algo");
+        strictEqual(t.categoryName, "Algorithms");
+      }
 
-        const empty = yield* svc.getTasksByCategory("xyz");
-        strictEqual(empty.length, 0);
-      }).pipe(runWithTestLayer(testDbPath)),
+      const empty = yield* svc.getTasksByCategory("xyz");
+      strictEqual(empty.length, 0);
+    }).pipe(runWithTestLayer(testDbPath)),
   );
 
   // ─── computeRefBits ─────────────────────────────────────────────────────────
 
-  it.effect(
-    "computeRefBits returns positive bit size for tasks with a .lam reference",
-    () =>
-      Effect.gen(function*() {
-        const svc = yield* TaskService;
+  it.effect("computeRefBits returns positive bit size for tasks with a .lam reference", () =>
+    Effect.gen(function* () {
+      const svc = yield* TaskService;
 
-        const bits = yield* svc.computeRefBits("cnat_add");
-        assertDefined(bits);
-        assertTrue(bits > 0);
-      }).pipe(runWithTestLayer(testDbPath)),
+      const bits = yield* svc.computeRefBits("cnat_add");
+      assertDefined(bits);
+      assertTrue(bits > 0);
+    }).pipe(runWithTestLayer(testDbPath)),
   );
 
-  it.effect(
-    "computeRefBits returns undefined for tasks without a .lam reference",
-    () =>
-      Effect.gen(function*() {
-        const svc = yield* TaskService;
+  it.effect("computeRefBits returns undefined for tasks without a .lam reference", () =>
+    Effect.gen(function* () {
+      const svc = yield* TaskService;
 
-        const bits = yield* svc.computeRefBits("nonexistent_task");
-        strictEqual(bits, undefined);
-      }).pipe(runWithTestLayer(testDbPath)),
+      const bits = yield* svc.computeRefBits("nonexistent_task");
+      strictEqual(bits, undefined);
+    }).pipe(runWithTestLayer(testDbPath)),
   );
 
   // ─── Idempotency ────────────────────────────────────────────────────────────
 
-  it.effect(
-    "loadAndCacheTasks twice does not duplicate entries in the database",
-    () =>
-      Effect.gen(function*() {
-        const svc = yield* TaskService;
-        yield* svc.loadAndCacheTasks();
-        yield* svc.loadAndCacheTasks();
+  it.effect("loadAndCacheTasks twice does not duplicate entries in the database", () =>
+    Effect.gen(function* () {
+      const svc = yield* TaskService;
+      yield* svc.loadAndCacheTasks();
+      yield* svc.loadAndCacheTasks();
 
-        const all = yield* svc.getAllTasks();
-        strictEqual(all.length, 120);
-      }).pipe(runWithTestLayer(testDbPath)),
+      const all = yield* svc.getAllTasks();
+      strictEqual(all.length, 120);
+    }).pipe(runWithTestLayer(testDbPath)),
   );
 });

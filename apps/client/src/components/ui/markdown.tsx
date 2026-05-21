@@ -1,5 +1,5 @@
-import { memo } from "react";
 import ReactMarkdown from "react-markdown";
+import { memo } from "react";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
 
@@ -26,37 +26,26 @@ export const Markdown = memo(({ content }: MarkdownProps) => (
       },
       blockquote({ children, ...props }) {
         return (
-          <blockquote
-            className="border-l-4 border-muted-foreground/20 pl-4 italic text-muted-foreground"
-            {...props}
-          >
+          <blockquote className="border-l-4 border-muted-foreground/20 pl-4 italic text-muted-foreground" {...props}>
             {children}
           </blockquote>
         );
       },
       code({ className, children, ...props }) {
         const match = /language-(\w+)/.exec(className || "");
-        return match
-          ? (
-            <code className={className} {...props}>
-              {children}
-            </code>
-          )
-          : (
-            <code
-              className="bg-muted px-1.5 py-0.5 rounded-none text-xs font-mono"
-              {...props}
-            >
-              {children}
-            </code>
-          );
+        return match ? (
+          <code className={className} {...props}>
+            {children}
+          </code>
+        ) : (
+          <code className="bg-muted px-1.5 py-0.5 rounded-none text-xs font-mono" {...props}>
+            {children}
+          </code>
+        );
       },
       h1({ children, ...props }) {
         return (
-          <h1
-            className="text-xl font-extrabold mt-6 mb-3 tracking-tight"
-            {...props}
-          >
+          <h1 className="text-xl font-extrabold mt-6 mb-3 tracking-tight" {...props}>
             {children}
           </h1>
         );
@@ -77,10 +66,7 @@ export const Markdown = memo(({ content }: MarkdownProps) => (
       },
       ol({ children, ...props }) {
         return (
-          <ol
-            className="list-decimal list-outside ml-6 space-y-2 my-4"
-            {...props}
-          >
+          <ol className="list-decimal list-outside ml-6 space-y-2 my-4" {...props}>
             {children}
           </ol>
         );
@@ -94,20 +80,14 @@ export const Markdown = memo(({ content }: MarkdownProps) => (
       },
       pre({ children, ...props }) {
         return (
-          <pre
-            className="bg-muted p-4 rounded-none overflow-x-auto my-4 border border-border"
-            {...props}
-          >
-              {children}
+          <pre className="bg-muted p-4 rounded-none overflow-x-auto my-4 border border-border" {...props}>
+            {children}
           </pre>
         );
       },
       ul({ children, ...props }) {
         return (
-          <ul
-            className="list-disc list-outside ml-6 space-y-2 my-4"
-            {...props}
-          >
+          <ul className="list-disc list-outside ml-6 space-y-2 my-4" {...props}>
             {children}
           </ul>
         );

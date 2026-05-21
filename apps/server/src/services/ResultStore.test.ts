@@ -1,11 +1,12 @@
 // apps/server/src/services/ResultStore.test.ts
 
-import { describe, it } from "@effect/vitest";
-import { assertDefined, assertTrue, assertUndefined, deepStrictEqual, strictEqual } from "@effect/vitest/utils";
-import { Effect } from "effect";
-import { existsSync, unlinkSync } from "node:fs";
-import { afterAll, afterEach, beforeAll } from "vitest";
 import { ResultStore, ResultStoreLive, SqlError } from "./ResultStore";
+import { afterAll, afterEach, beforeAll } from "vitest";
+import { assertDefined, assertTrue, assertUndefined, deepStrictEqual, strictEqual } from "@effect/vitest/utils";
+import { describe, it } from "@effect/vitest";
+import { existsSync, unlinkSync } from "node:fs";
+
+import { Effect } from "effect";
 
 const testDbPath = "apps/server/test-data/ResultStore.test.db";
 
@@ -34,7 +35,7 @@ describe("ResultStore", () => {
   // ─── Layer creation ───────────────────────────────────────────────────────
 
   it.effect("creates SQLite file, WAL mode, and all tables", () =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const store = yield* ResultStore;
 
       // Verify file was created on disk
@@ -49,12 +50,13 @@ describe("ResultStore", () => {
 
       const configs = yield* store.getActiveModelConfigs();
       deepStrictEqual(configs, []);
-    }).pipe(Effect.provide(ResultStoreLive(testDbPath))));
+    }).pipe(Effect.provide(ResultStoreLive(testDbPath))),
+  );
 
   // ─── Results ──────────────────────────────────────────────────────────────
 
   it.effect("insertResult + getResultsByRunId", () =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const store = yield* ResultStore;
 
       yield* store.insertResult({
@@ -87,10 +89,11 @@ describe("ResultStore", () => {
       strictEqual(results[0]?.elapsedMs, 1234);
       strictEqual(results[0]?.timestamp, "2025-01-01T00:00:00Z");
       assertDefined(results[0]?.id);
-    }).pipe(Effect.provide(ResultStoreLive(testDbPath))));
+    }).pipe(Effect.provide(ResultStoreLive(testDbPath))),
+  );
 
   it.effect("getResultsByJobId", () =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const store = yield* ResultStore;
 
       yield* store.insertResult({
@@ -121,12 +124,13 @@ describe("ResultStore", () => {
       strictEqual(results.length, 2);
       strictEqual(results[0]?.runId, "run-3");
       strictEqual(results[1]?.runId, "run-2");
-    }).pipe(Effect.provide(ResultStoreLive(testDbPath))));
+    }).pipe(Effect.provide(ResultStoreLive(testDbPath))),
+  );
 
   // ─── Jobs ─────────────────────────────────────────────────────────────────
 
   it.effect("insertJob + getJob + updateJobStatus", () =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const store = yield* ResultStore;
 
       yield* store.insertJob({
@@ -152,12 +156,13 @@ describe("ResultStore", () => {
       strictEqual(updated.status, "completed");
       strictEqual(updated.completedTasks, 10);
       assertDefined(updated.completedAt);
-    }).pipe(Effect.provide(ResultStoreLive(testDbPath))));
+    }).pipe(Effect.provide(ResultStoreLive(testDbPath))),
+  );
 
   // ─── Tasks ────────────────────────────────────────────────────────────────
 
   it.effect("insertTask + getTask + getAllTasks", () =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const store = yield* ResultStore;
 
       yield* store.insertTask({
@@ -195,12 +200,13 @@ describe("ResultStore", () => {
       strictEqual(all.length, 2);
       strictEqual(all[0]?.id, "task-1");
       strictEqual(all[1]?.id, "task-2");
-    }).pipe(Effect.provide(ResultStoreLive(testDbPath))));
+    }).pipe(Effect.provide(ResultStoreLive(testDbPath))),
+  );
 
   // ─── Model Configs ────────────────────────────────────────────────────────
 
   it.effect("insertModelConfig + getActiveModelConfigs", () =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const store = yield* ResultStore;
 
       yield* store.insertModelConfig({
@@ -226,12 +232,13 @@ describe("ResultStore", () => {
       strictEqual(active[0]?.displayName, "GPT-4");
       strictEqual(active[0]?.pricePerMOutput, 30);
       strictEqual(active[0]?.isActive, true);
-    }).pipe(Effect.provide(ResultStoreLive(testDbPath))));
+    }).pipe(Effect.provide(ResultStoreLive(testDbPath))),
+  );
 
   // ─── Retention ────────────────────────────────────────────────────────────
 
   it.effect("cleanupExpired deletes old results and jobs", () =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const store = yield* ResultStore;
 
       yield* store.insertResult({
@@ -257,16 +264,10 @@ describe("ResultStore", () => {
       strictEqual(resultBefore.length, 1);
 
       // Backdate rows so retention policy picks them up
-      const { DatabaseSync } = yield* Effect.promise(
-        () => import("node:sqlite"),
-      );
+      const { DatabaseSync } = yield* Effect.promise(() => import("node:sqlite"));
       const rawDb = new DatabaseSync(testDbPath);
-      rawDb.exec(
-        "UPDATE benchmark_results SET created_at = datetime('now', '-1 days')",
-      );
-      rawDb.exec(
-        "UPDATE batch_jobs SET created_at = datetime('now', '-1 days')",
-      );
+      rawDb.exec("UPDATE benchmark_results SET created_at = datetime('now', '-1 days')");
+      rawDb.exec("UPDATE batch_jobs SET created_at = datetime('now', '-1 days')");
       rawDb.close();
 
       const cleanup = yield* store.cleanupExpired(0, 1000);
@@ -278,12 +279,13 @@ describe("ResultStore", () => {
 
       const jobAfter = yield* store.getJob("old-job");
       assertUndefined(jobAfter);
-    }).pipe(Effect.provide(ResultStoreLive(testDbPath))));
+    }).pipe(Effect.provide(ResultStoreLive(testDbPath))),
+  );
 
   // ─── getJobsByStatus ──────────────────────────────────────────────────────
 
   it.effect("getJobsByStatus filters by status", () =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const store = yield* ResultStore;
 
       yield* store.insertJob({
@@ -315,12 +317,13 @@ describe("ResultStore", () => {
       const running = yield* store.getJobsByStatus("running");
       strictEqual(running.length, 1);
       strictEqual(running[0]?.id, "job-running-1");
-    }).pipe(Effect.provide(ResultStoreLive(testDbPath))));
+    }).pipe(Effect.provide(ResultStoreLive(testDbPath))),
+  );
 
   // ─── getTasksByCategory ───────────────────────────────────────────────────
 
   it.effect("getTasksByCategory filters tasks", () =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const store = yield* ResultStore;
 
       yield* store.insertTask({
@@ -351,19 +354,20 @@ describe("ResultStore", () => {
       });
 
       const mathTasks = yield* store.getTasksByCategory("math");
-      const mathIds = mathTasks.map((t) => t.id);
-      assertTrue(mathIds.includes("task-math-1"));
-      assertTrue(mathIds.includes("task-math-2"));
+      const mathIds = new Set(mathTasks.map((t) => t.id));
+      assertTrue(mathIds.has("task-math-1"));
+      assertTrue(mathIds.has("task-math-2"));
 
       const logicTasks = yield* store.getTasksByCategory("logic");
       strictEqual(logicTasks.length, 1);
       strictEqual(logicTasks[0]?.id, "task-logic-1");
-    }).pipe(Effect.provide(ResultStoreLive(testDbPath))));
+    }).pipe(Effect.provide(ResultStoreLive(testDbPath))),
+  );
 
   // ─── Error handling ───────────────────────────────────────────────────────
 
   it.effect("SqlError is returned (not thrown) on duplicate primary key", () =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const store = yield* ResultStore;
 
       yield* store.insertJob({
@@ -385,5 +389,6 @@ describe("ResultStore", () => {
       const error = yield* Effect.flip(exit);
       assertTrue(error instanceof SqlError);
       assertTrue(error.message.includes("UNIQUE constraint failed"));
-    }).pipe(Effect.provide(ResultStoreLive(testDbPath))));
+    }).pipe(Effect.provide(ResultStoreLive(testDbPath))),
+  );
 });

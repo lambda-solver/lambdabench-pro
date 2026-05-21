@@ -1,7 +1,8 @@
-import { Schema } from "effect";
-import { Rpc, RpcGroup } from "effect/unstable/rpc";
 import { ChatMessage, ChatStreamPart } from "./Chat";
+import { Rpc, RpcGroup } from "effect/unstable/rpc";
 import { UploadChunk, UploadIngestEvent } from "./Upload";
+
+import { Schema } from "effect";
 
 // Define Event RPC
 

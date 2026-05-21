@@ -1,27 +1,17 @@
-import type { ESTree } from "effect-oxlint";
-
 import * as Effect from "effect/Effect";
 
 import { Diagnostic, Rule, RuleContext } from "effect-oxlint";
 
+import type { ESTree } from "effect-oxlint";
+
 export default Rule.define({
-  name: "prefer-option-over-null",
-  meta: Rule.meta({
-    type: "suggestion",
-    description:
-      "Flag | null and | undefined in type unions — consider using Option<T> instead for explicit absence modeling (EF-2)",
-  }),
-  create: function*() {
+  create: function* () {
     const ctx = yield* RuleContext;
     return {
       TSUnionType: (node: ESTree.Node) => {
         const union = node as ESTree.TSUnionType;
-        const hasNull = union.types.some(
-          (t) => t.type === "TSNullKeyword",
-        );
-        const hasUndefined = union.types.some(
-          (t) => t.type === "TSUndefinedKeyword",
-        );
+        const hasNull = union.types.some((t) => t.type === "TSNullKeyword");
+        const hasUndefined = union.types.some((t) => t.type === "TSUndefinedKeyword");
 
         if (hasNull && hasUndefined) {
           return ctx.report(
@@ -53,4 +43,10 @@ export default Rule.define({
       },
     };
   },
+  meta: Rule.meta({
+    type: "suggestion",
+    description:
+      "Flag | null and | undefined in type unions — consider using Option<T> instead for explicit absence modeling (EF-2)",
+  }),
+  name: "prefer-option-over-null",
 });

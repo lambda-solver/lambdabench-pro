@@ -1,26 +1,18 @@
-import type { ESTree } from "effect-oxlint";
-
 import * as Effect from "effect/Effect";
 
 import { Diagnostic, Rule, RuleContext, SourceCode } from "effect-oxlint";
 
+import type { ESTree } from "effect-oxlint";
+
 export default Rule.define({
-  name: "avoid-ts-ignore",
-  meta: Rule.meta({
-    type: "problem",
-    description: "Disallow @ts-ignore and @ts-expect-error comments — fix the underlying type issue",
-  }),
-  create: function*() {
+  create: function* () {
     const ctx = yield* RuleContext;
     return {
       Program: (node: ESTree.Node) =>
-        Effect.gen(function*() {
+        Effect.gen(function* () {
           const comments = yield* SourceCode.getAllComments();
           for (const comment of comments) {
-            if (
-              comment.value.includes("@ts-ignore")
-              || comment.value.includes("@ts-expect-error")
-            ) {
+            if (comment.value.includes("@ts-ignore") || comment.value.includes("@ts-expect-error")) {
               yield* ctx.report(
                 Diagnostic.make({
                   node,
@@ -33,4 +25,9 @@ export default Rule.define({
         }),
     };
   },
+  meta: Rule.meta({
+    type: "problem",
+    description: "Disallow @ts-ignore and @ts-expect-error comments — fix the underlying type issue",
+  }),
+  name: "avoid-ts-ignore",
 });

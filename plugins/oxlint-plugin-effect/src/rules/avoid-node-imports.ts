@@ -12,10 +12,7 @@ const SPECIFIC_SOURCES = new Set([
   "node:https",
 ]);
 
-export default Rule.banImport(
-  (src) => src.startsWith("node:") && !SPECIFIC_SOURCES.has(src),
-  {
-    message:
-      "Avoid `node:*` imports in domain code. Use `@effect/platform` abstractions (`FileSystem`, `Path`, `CommandExecutor`, `HttpClient`) for portable, testable code. (EF-41)",
-  },
-);
+export default Rule.banImport((src) => src.startsWith("node:") && !SPECIFIC_SOURCES.has(src), {
+  message:
+    "Avoid `node:*` imports in domain code. Use `@effect/platform` abstractions (`FileSystem`, `Path`, `CommandExecutor`, `HttpClient`) for portable, testable code. (EF-41)",
+});

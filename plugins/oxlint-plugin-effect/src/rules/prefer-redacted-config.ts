@@ -21,17 +21,17 @@
  * AssignmentTargetProperty) that hits the `Property` visitor.
  */
 
-import type { ESTree } from "effect-oxlint";
-
 import * as Arr from "effect/Array";
 import * as Effect from "effect/Effect";
-import { pipe } from "effect/Function";
 import * as Option from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as Schema from "effect/Schema";
 
 import { AST, Diagnostic, Rule, RuleContext, Visitor } from "effect-oxlint";
+
+import type { ESTree } from "effect-oxlint";
+import { pipe } from "effect/Function";
 
 // ---------------------------------------------------------------------------
 // Domain: secret-shaped names, redaction-bearing APIs
@@ -47,41 +47,35 @@ const SECRET_KEY_PATTERN =
 
 const SecretKeyName = Schema.String.check(
   Schema.isPattern(SECRET_KEY_PATTERN, {
-    identifier: "SecretKeyNameCheck",
-    title: "Secret-Looking Key Name",
     description:
       "A configuration key whose name conventionally identifies a secret value (api key, auth token, password, private key, client secret, DSN, etc.).",
+    identifier: "SecretKeyNameCheck",
     message: "Key name matches a secret-value convention",
+    title: "Secret-Looking Key Name",
   }),
 ).pipe(
   Schema.brand("SecretKeyName"),
   Schema.annotate({
-    title: "SecretKeyName",
     description:
       "Configuration key name that conventionally identifies a secret value. Such values must be loaded via `Config.redacted` or wrapped in `Schema.Redacted` so they stay redacted from logs and `toString`.",
+    title: "SecretKeyName",
   }),
 );
 
 const isSecretKeyName = Schema.is(SecretKeyName);
 
-const ConfigPrimitiveApi = Schema.Literals([
-  "string",
-  "nonEmptyString",
-]).annotate({
-  title: "ConfigPrimitiveApi",
+const ConfigPrimitiveApi = Schema.Literals(["string", "nonEmptyString"]).annotate({
   description:
     "`Config.*` primitive string loaders whose secret-looking key names should switch to `Config.redacted` to keep the loaded value redacted from logs.",
+  title: "ConfigPrimitiveApi",
 });
 
 const isConfigPrimitiveApi = Schema.is(ConfigPrimitiveApi);
 
-const PlainStringSchemaName = Schema.Literals([
-  "String",
-  "NonEmptyString",
-]).annotate({
-  title: "PlainStringSchemaName",
+const PlainStringSchemaName = Schema.Literals(["String", "NonEmptyString"]).annotate({
   description:
     "`Schema.String` and `Schema.NonEmptyString` — the unredacted shapes that should be wrapped in `Schema.Redacted(...)` when modelling secret-looking fields inside `Config.schema(...)`.",
+  title: "PlainStringSchemaName",
 });
 
 const isPlainStringSchemaName = Schema.is(PlainStringSchemaName);
@@ -94,9 +88,7 @@ const isPlainStringSchemaName = Schema.is(PlainStringSchemaName);
  * Extract the static name of an object property's key. Identifier keys and
  * string-literal keys both qualify; computed and other shapes do not.
  */
-const propertyKeyName = (
-  prop: ESTree.ObjectProperty,
-): Option.Option<string> => {
+const propertyKeyName = (prop: ESTree.ObjectProperty): Option.Option<string> => {
   if (prop.computed) return Option.none();
   return pipe(
     AST.narrow(prop.key, "Identifier"),
@@ -104,12 +96,8 @@ const propertyKeyName = (
     Option.orElse(() =>
       pipe(
         AST.narrow(prop.key, "Literal"),
-        Option.flatMap((lit) =>
-          P.isString(lit.value)
-            ? Option.some(lit.value)
-            : Option.none<string>()
-        ),
-      )
+        Option.flatMap((lit) => (P.isString(lit.value) ? Option.some(lit.value) : Option.none<string>())),
+      ),
     ),
   );
 };
@@ -124,9 +112,7 @@ const isPlainStringSchemaMember = (node: ESTree.Node): boolean =>
   pipe(
     AST.narrow(node, "MemberExpression"),
     Option.flatMap(AST.memberNames),
-    Option.exists(
-      ([obj, prop]) => obj === "Schema" && isPlainStringSchemaName(prop),
-    ),
+    Option.exists(([obj, prop]) => obj === "Schema" && isPlainStringSchemaName(prop)),
   );
 
 /**
@@ -135,18 +121,13 @@ const isPlainStringSchemaMember = (node: ESTree.Node): boolean =>
  * argument, non-Struct schema, computed args, etc.) so the rule only fires
  * on the literal-struct case it can statically analyse.
  */
-const matchConfigSchemaStruct = (
-  call: ESTree.CallExpression,
-): Option.Option<ESTree.ObjectExpression> =>
+const matchConfigSchemaStruct = (call: ESTree.CallExpression): Option.Option<ESTree.ObjectExpression> =>
   pipe(
     AST.matchCallOf(call, "Config", "schema"),
     Option.flatMap((c) => Option.fromNullishOr(c.arguments[0])),
     Option.flatMap(AST.narrow("CallExpression")),
     Option.filter((inner) =>
-      pipe(
-        AST.narrow(inner.callee, "MemberExpression"),
-        Option.exists(AST.isMember("Schema", "Struct")),
-      )
+      pipe(AST.narrow(inner.callee, "MemberExpression"), Option.exists(AST.isMember("Schema", "Struct"))),
     ),
     Option.flatMap((inner) => Option.fromNullishOr(inner.arguments[0])),
     Option.flatMap(AST.narrow("ObjectExpression")),
@@ -162,9 +143,7 @@ const matchPrimitiveSecretCall = (
   pipe(
     AST.narrow(call.callee, "MemberExpression"),
     Option.flatMap(AST.memberNames),
-    Option.filter(
-      ([obj, prop]) => obj === "Config" && isConfigPrimitiveApi(prop),
-    ),
+    Option.filter(([obj, prop]) => obj === "Config" && isConfigPrimitiveApi(prop)),
     Option.flatMap(([, apiName]) =>
       pipe(
         Option.fromNullishOr(call.arguments[0]),
@@ -172,9 +151,9 @@ const matchPrimitiveSecretCall = (
         Option.flatMap((lit) =>
           P.isString(lit.value) && isSecretKeyName(lit.value)
             ? Option.some([apiName, lit.value] as const)
-            : Option.none<readonly [string, string]>()
+            : Option.none<readonly [string, string]>(),
         ),
-      )
+      ),
     ),
   );
 
@@ -192,12 +171,12 @@ const findSecretSchemaFields = (
       p.type !== "Property"
         ? Result.fail(undefined)
         : pipe(
-          propertyKeyName(p),
-          Option.filter(isSecretKeyName),
-          Option.filter(() => isPlainStringSchemaMember(p.value)),
-          Option.map((key) => [p, key] as const),
-          Result.fromOption(() => undefined),
-        )
+            propertyKeyName(p),
+            Option.filter(isSecretKeyName),
+            Option.filter(() => isPlainStringSchemaMember(p.value)),
+            Option.map((key) => [p, key] as const),
+            Result.fromOption(() => undefined),
+          ),
     ),
   );
 
@@ -212,20 +191,10 @@ const schemaFieldMessageFor = (key: string): string =>
   `Field \`${key}\` inside \`Config.schema(...)\` looks like a secret. Wrap its inner schema in \`Schema.Redacted(...)\` (e.g. \`Schema.Redacted(Schema.String)\`) so the value stays redacted from logs and \`toString\`. (EF-29)`;
 
 export default Rule.define({
-  name: "prefer-redacted-config",
-  meta: Rule.meta({
-    type: "suggestion",
-    description:
-      "Flag secret-shaped configuration values that escape redaction: `Config.string(\"API_KEY\")` / `Config.nonEmptyString(\"TOKEN\")` should use `Config.redacted`, and `Schema.String` / `Schema.NonEmptyString` fields inside `Config.schema(Schema.Struct({...}))` should be wrapped in `Schema.Redacted`.",
-  }),
-  create: function*() {
+  create: function* () {
     const ctx = yield* RuleContext;
 
-    const reportPrimitive = (
-      call: ESTree.CallExpression,
-      apiName: string,
-      key: string,
-    ) =>
+    const reportPrimitive = (call: ESTree.CallExpression, apiName: string, key: string) =>
       ctx.report(
         Diagnostic.make({
           node: call,
@@ -242,7 +211,7 @@ export default Rule.define({
       );
 
     return Visitor.on("CallExpression", (node) =>
-      Effect.gen(function*() {
+      Effect.gen(function* () {
         // Detection 1 — primitive loader with secret-shaped key literal.
         yield* pipe(
           matchPrimitiveSecretCall(node),
@@ -258,13 +227,19 @@ export default Rule.define({
           Option.match({
             onNone: () => Effect.void,
             onSome: (struct) =>
-              Effect.forEach(
-                findSecretSchemaFields(struct),
-                ([prop, key]) => reportSchemaField(prop, key),
-                { concurrency: 1, discard: true },
-              ),
+              Effect.forEach(findSecretSchemaFields(struct), ([prop, key]) => reportSchemaField(prop, key), {
+                concurrency: 1,
+                discard: true,
+              }),
           }),
         );
-      }));
+      }),
+    );
   },
+  meta: Rule.meta({
+    type: "suggestion",
+    description:
+      'Flag secret-shaped configuration values that escape redaction: `Config.string("API_KEY")` / `Config.nonEmptyString("TOKEN")` should use `Config.redacted`, and `Schema.String` / `Schema.NonEmptyString` fields inside `Config.schema(Schema.Struct({...}))` should be wrapped in `Schema.Redacted`.',
+  }),
+  name: "prefer-redacted-config",
 });

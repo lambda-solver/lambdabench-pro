@@ -1,17 +1,17 @@
 {
   "name": "client",
-  "private": true,
   "version": "0.0.0",
-  "type": "module",
+  "private": true,
   "description": "LamBench leaderboard — Lambda Calculus Benchmark for AI models.",
   "keywords": [
-    "lambda-calculus",
     "benchmark",
-    "leaderboard",
     "effect",
+    "lambda-calculus",
+    "leaderboard",
     "react",
     "vite"
   ],
+  "type": "module",
   "scripts": {
     "build": "vite build",
     "clean": "git clean -xdf .cache .turbo dist node_modules",
@@ -24,9 +24,9 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.3.0",
-    "@fontsource-variable/jetbrains-mono": "^5.2.8",
     "@effect/atom-react": "4.0.0-beta.52",
     "@effect/platform-browser": "4.0.0-beta.52",
+    "@fontsource-variable/jetbrains-mono": "^5.2.8",
     "@repo/domain": "workspace:*",
     "@tailwindcss/vite": "^4.2.2",
     "class-variance-authority": "^0.7.1",

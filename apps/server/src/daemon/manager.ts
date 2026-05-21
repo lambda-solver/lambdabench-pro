@@ -4,11 +4,12 @@
 // Implements port conflict detection (FR-005) and warm start (FR-006).
 
 import { Context, Effect, Layer, Ref } from "effect";
-import { checkHealth } from "./health";
 import type { ProcessConfig, SpawnedProcess } from "./process";
-import { isProcessAlive, ProcessError, spawnProcess, stopProcess, waitForPort } from "./process";
 import type { ProcessEntry, RegistryError } from "./registry";
 import { addProcess, getProcess, listProcesses, removeProcess } from "./registry";
+import { isProcessAlive, ProcessError, spawnProcess, stopProcess, waitForPort } from "./process";
+
+import { checkHealth } from "./health";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -24,23 +25,14 @@ export interface DaemonConfig {
 
 export interface DaemonStatus {
   readonly running: boolean;
-  readonly server: { pid: number | null; healthy: boolean; port: number; };
-  readonly client: { pid: number | null; healthy: boolean; port: number; };
+  readonly server: { pid: number | null; healthy: boolean; port: number };
+  readonly client: { pid: number | null; healthy: boolean; port: number };
 }
 
 // ─── Default Config ────────────────────────────────────────────────────────
 
 export const defaultConfig: DaemonConfig = {
-  clientCommand: [
-    "bun",
-    "run",
-    "vite",
-    "--port",
-    "3000",
-    "--host",
-    "--clearScreen",
-    "false",
-  ],
+  clientCommand: ["bun", "run", "vite", "--port", "3000", "--host", "--clearScreen", "false"],
   clientLogFile: ".lambench-data/logs/client.log",
   clientPort: 3000,
   cwd: process.cwd(),
@@ -63,17 +55,10 @@ const initialState: ManagerState = { client: null, server: null };
 export class ProcessManager extends Context.Service<
   ProcessManager,
   {
-    readonly spawn: (
-      config: ProcessConfig,
-    ) => Effect.Effect<SpawnedProcess, ProcessError>;
-    readonly stop: (
-      spawned: SpawnedProcess,
-    ) => Effect.Effect<void, ProcessError>;
+    readonly spawn: (config: ProcessConfig) => Effect.Effect<SpawnedProcess, ProcessError>;
+    readonly stop: (spawned: SpawnedProcess) => Effect.Effect<void, ProcessError>;
     readonly isAlive: (pid: number) => Effect.Effect<boolean, never>;
-    readonly waitForPort: (
-      port: number,
-      timeoutMs?: number,
-    ) => Effect.Effect<void, ProcessError>;
+    readonly waitForPort: (port: number, timeoutMs?: number) => Effect.Effect<void, ProcessError>;
     readonly checkHealth: (port: number) => Effect.Effect<boolean, never>;
     readonly tryConnect: (port: number) => Effect.Effect<boolean, never>;
   }
@@ -83,21 +68,21 @@ export class ProcessManager extends Context.Service<
     ProcessManager.of({
       checkHealth: (port) => checkHealth(port),
       isAlive: (pid) => isProcessAlive(pid),
-      spawn: (config) => spawnProcess(config),
-      stop: (spawned) => stopProcess(spawned),
+      spawn: (config) =>
+        spawnProcess(config).pipe(Effect.catch((e) => Effect.fail(new ProcessError(`Process error: ${e.message}`)))),
+      stop: (spawned) =>
+        stopProcess(spawned).pipe(Effect.catch((e) => Effect.fail(new ProcessError(`Process error: ${e.message}`)))),
       tryConnect: (port) =>
-        Effect.tryPromise({
-          catch: () => false,
-          try: () =>
-            fetch(`http://127.0.0.1:${port}`, {
-              signal: AbortSignal.timeout(500),
+        Effect.tryPromise(() =>
+          fetch(`http://127.0.0.1:${port}`, {
+            signal: AbortSignal.timeout(500),
+          })
+            .then((r) => {
+              r.text().catch(() => {});
+              return true;
             })
-              .then((r) => {
-                r.text().catch(() => {});
-                return true;
-              })
-              .catch(() => false),
-        }),
+            .catch(() => false),
+        ).pipe(Effect.catch(() => Effect.succeed(false))),
       waitForPort: (port, timeoutMs) => waitForPort(port, timeoutMs),
     }),
   );
@@ -110,17 +95,10 @@ export class ProcessManager extends Context.Service<
 export class RegistryService extends Context.Service<
   RegistryService,
   {
-    readonly listProcesses: () => Effect.Effect<
-      ReadonlyArray<ProcessEntry>,
-      RegistryError
-    >;
-    readonly addProcess: (
-      entry: ProcessEntry,
-    ) => Effect.Effect<void, RegistryError>;
+    readonly listProcesses: () => Effect.Effect<ReadonlyArray<ProcessEntry>, RegistryError>;
+    readonly addProcess: (entry: ProcessEntry) => Effect.Effect<void, RegistryError>;
     readonly removeProcess: (pid: number) => Effect.Effect<void, RegistryError>;
-    readonly getProcess: (
-      pid: number,
-    ) => Effect.Effect<ProcessEntry | null, RegistryError>;
+    readonly getProcess: (pid: number) => Effect.Effect<ProcessEntry | null, RegistryError>;
   }
 >()("daemon/RegistryService") {
   static readonly live: Layer.Layer<RegistryService> = Layer.succeed(
@@ -152,12 +130,8 @@ export class DaemonManager extends Context.Service<
  * Helper: convert a `RegistryError` (from registry operations) into a
  * `ProcessError` so the public API keeps a single error type.
  */
-const convertRegistryError = <A>(
-  effect: Effect.Effect<A, RegistryError>,
-): Effect.Effect<A, ProcessError> =>
-  effect.pipe(
-    Effect.catch((e) => Effect.fail(new ProcessError(`Registry error: ${e.message}`))),
-  );
+const convertRegistryError = <A>(effect: Effect.Effect<A, RegistryError>): Effect.Effect<A, ProcessError> =>
+  effect.pipe(Effect.catch((e) => Effect.fail(new ProcessError(`Registry error: ${e.message}`))));
 
 const entryToSpawnedProcess = (entry: ProcessEntry): SpawnedProcess => ({
   config: {
@@ -194,189 +168,171 @@ const entryToSpawnedProcess = (entry: ProcessEntry): SpawnedProcess => ({
  * );
  * ```
  */
-export const DaemonManagerLive: Layer.Layer<
-  DaemonManager,
-  ProcessError,
-  ProcessManager | RegistryService
-> = Layer.effect(
-  DaemonManager,
-  Effect.gen(function*() {
-    const config = defaultConfig;
-    const stateRef = yield* Ref.make<ManagerState>(initialState);
-    const pm = yield* ProcessManager;
-    const rs = yield* RegistryService;
+export const DaemonManagerLive: Layer.Layer<DaemonManager, ProcessError, ProcessManager | RegistryService> =
+  Layer.effect(
+    DaemonManager,
+    Effect.gen(function* () {
+      const config = defaultConfig;
+      const stateRef = yield* Ref.make<ManagerState>(initialState);
+      const pm = yield* ProcessManager;
+      const rs = yield* RegistryService;
 
-    // ── helpers (use service instances so they are mockable) ────────────
+      // ── helpers (use service instances so they are mockable) ────────────
 
-    const buildStatus = Effect.fnUntraced(function*(
-      state: ManagerState,
-      cfg: DaemonConfig,
-    ): Effect.Effect<DaemonStatus, never> {
-      const serverAlive = state.server !== null ? yield* pm.isAlive(state.server.pid) : false;
-      const clientAlive = state.client !== null ? yield* pm.isAlive(state.client.pid) : false;
+      const buildStatus = Effect.fnUntraced(function* (state: ManagerState, cfg: DaemonConfig) {
+        const serverAlive = state.server !== null ? yield* pm.isAlive(state.server.pid) : false;
+        const clientAlive = state.client !== null ? yield* pm.isAlive(state.client.pid) : false;
 
-      const [serverHealthy, clientHealthy] = yield* Effect.all(
-        [
-          serverAlive && state.server !== null
-            ? pm.checkHealth(state.server.config.port)
-            : Effect.succeed(false),
-          clientAlive && state.client !== null
-            ? pm.checkHealth(state.client.config.port)
-            : Effect.succeed(false),
-        ],
-        { concurrency: 2 },
-      );
+        const [serverHealthy, clientHealthy] = yield* Effect.all(
+          [
+            serverAlive && state.server !== null ? pm.checkHealth(state.server.config.port) : Effect.succeed(false),
+            clientAlive && state.client !== null ? pm.checkHealth(state.client.config.port) : Effect.succeed(false),
+          ],
+          { concurrency: 2 },
+        );
 
-      return {
-        client: {
-          healthy: clientAlive && clientHealthy,
-          pid: state.client?.pid ?? null,
-          port: state.client?.config.port ?? cfg.clientPort,
-        },
-        running: serverAlive || clientAlive,
-        server: {
-          healthy: serverAlive && serverHealthy,
-          pid: state.server?.pid ?? null,
-          port: state.server?.config.port ?? cfg.serverPort,
-        },
-      };
-    });
+        return {
+          client: {
+            healthy: clientAlive && clientHealthy,
+            pid: state.client?.pid ?? null,
+            port: state.client?.config.port ?? cfg.clientPort,
+          },
+          running: serverAlive || clientAlive,
+          server: {
+            healthy: serverAlive && serverHealthy,
+            pid: state.server?.pid ?? null,
+            port: state.server?.config.port ?? cfg.serverPort,
+          },
+        };
+      });
 
-    const resolvePort = Effect.fn("DaemonManager.resolvePort")(function*(
-      port: number,
-    ): Effect.Effect<SpawnedProcess | null, ProcessError> {
-      const processes = yield* convertRegistryError(rs.listProcesses());
-      const entry = [...processes].find((p) => p.port === port);
+      const resolvePort = Effect.fn("DaemonManager.resolvePort")(function* (port: number) {
+        const processes = yield* convertRegistryError(rs.listProcesses());
+        const entry = [...processes].find((p) => p.port === port);
 
-      // ── Case 1 & 3: known entry ──────────────────────────────────────
-      if (entry !== undefined) {
-        const alive = yield* pm.isAlive(entry.pid);
-        if (alive) {
-          yield* Effect.log(
-            `Warm start — reusing process on port ${port} (pid ${entry.pid})`,
-          );
-          return entryToSpawnedProcess(entry);
+        // ── Case 1 & 3: known entry ──────────────────────────────────────
+        if (entry !== undefined) {
+          const alive = yield* pm.isAlive(entry.pid);
+          if (alive) {
+            yield* Effect.log(`Warm start — reusing process on port ${port} (pid ${entry.pid})`);
+            return entryToSpawnedProcess(entry);
+          }
+
+          // Process died — clean up registry entry, skip conflict check
+          yield* convertRegistryError(rs.removeProcess(entry.pid));
+          yield* Effect.log(`Removed dead registry entry for port ${port} (pid ${entry.pid})`);
+          return null;
         }
 
-        // Process died — clean up registry entry, skip conflict check
-        yield* convertRegistryError(rs.removeProcess(entry.pid));
-        yield* Effect.log(
-          `Removed dead registry entry for port ${port} (pid ${entry.pid})`,
-        );
+        // ── Case 4: unknown entry — check for port conflict ──────────────
+        const occupied = yield* pm.tryConnect(port);
+        if (occupied) {
+          return yield* Effect.fail(
+            new ProcessError(`Port ${port} is in use by a different process — not in daemon registry`),
+          );
+        }
+
+        // ── Case 5: port is free, caller should spawn ────────────────────
         return null;
-      }
+      });
 
-      // ── Case 4: unknown entry — check for port conflict ──────────────
-      const occupied = yield* pm.tryConnect(port);
-      if (occupied) {
-        return yield* Effect.fail(
-          new ProcessError(
-            `Port ${port} is in use by a different process — not in daemon registry`,
-          ),
-        );
-      }
+      // ── start ──────────────────────────────────────────────────────────
 
-      // ── Case 5: port is free, caller should spawn ────────────────────
-      return null;
-    });
+      const start = Effect.fn("DaemonManager.start")(function* () {
+        // 1. Check in-memory state for already-running processes
+        let state = yield* Ref.get(stateRef);
 
-    // ── start ──────────────────────────────────────────────────────────
+        if (state.server !== null && state.client !== null) {
+          const serverAlive = yield* pm.isAlive(state.server.pid);
+          const clientAlive = yield* pm.isAlive(state.client.pid);
 
-    const start = Effect.fn("DaemonManager.start")(function*() {
-      // 1. Check in-memory state for already-running processes
-      let state = yield* Ref.get(stateRef);
+          if (serverAlive && clientAlive) {
+            yield* Effect.log("DaemonManager: warm start — both processes already running");
+            return yield* buildStatus(state, config);
+          }
 
-      if (state.server !== null && state.client !== null) {
-        const serverAlive = yield* pm.isAlive(state.server.pid);
-        const clientAlive = yield* pm.isAlive(state.client.pid);
-
-        if (serverAlive && clientAlive) {
-          yield* Effect.log(
-            "DaemonManager: warm start — both processes already running",
-          );
-          return yield* buildStatus(state, config);
+          // Clean up stale in-memory references
+          if (!serverAlive) {
+            yield* convertRegistryError(rs.removeProcess(state.server.pid));
+          }
+          if (!clientAlive) {
+            yield* convertRegistryError(rs.removeProcess(state.client.pid));
+          }
+          state = { client: null, server: null };
+          yield* Ref.set(stateRef, state);
         }
 
-        // Clean up stale in-memory references
-        if (!serverAlive) {
-          yield* convertRegistryError(rs.removeProcess(state.server.pid));
+        // 2. Resolve each port (warm start + conflict detection)
+        const serverResolved = yield* resolvePort(config.serverPort);
+        const clientResolved = yield* resolvePort(config.clientPort);
+
+        // 3. Spawn processes that aren't running yet
+        const serverFinal: SpawnedProcess =
+          serverResolved ??
+          (yield* pm.spawn({
+            command: config.serverCommand,
+            cwd: config.cwd,
+            logFile: config.serverLogFile,
+            port: config.serverPort,
+          }));
+
+        const clientFinal: SpawnedProcess =
+          clientResolved ??
+          (yield* pm.spawn({
+            command: config.clientCommand,
+            cwd: config.cwd,
+            logFile: config.clientLogFile,
+            port: config.clientPort,
+          }));
+
+        // 4. Wait for both to be ready
+        yield* pm.waitForPort(config.serverPort);
+        yield* pm.waitForPort(config.clientPort);
+
+        // 5. Persist new state
+        const newState: ManagerState = {
+          client: clientFinal,
+          server: serverFinal,
+        };
+        yield* Ref.set(stateRef, newState);
+
+        return yield* buildStatus(newState, config);
+      });
+
+      // ── stop ───────────────────────────────────────────────────────────
+
+      const stop = Effect.fn("DaemonManager.stop")(function* () {
+        const state = yield* Ref.get(stateRef);
+
+        if (state.client !== null) {
+          yield* pm.stop(state.client);
         }
-        if (!clientAlive) {
-          yield* convertRegistryError(rs.removeProcess(state.client.pid));
+        if (state.server !== null) {
+          yield* pm.stop(state.server);
         }
-        state = { client: null, server: null };
-        yield* Ref.set(stateRef, state);
-      }
 
-      // 2. Resolve each port (warm start + conflict detection)
-      const serverResolved = yield* resolvePort(config.serverPort);
-      const clientResolved = yield* resolvePort(config.clientPort);
+        yield* Ref.set(stateRef, { client: null, server: null });
 
-      // 3. Spawn processes that aren't running yet
-      const serverFinal: SpawnedProcess = serverResolved
-        ?? (yield* pm.spawn({
-          command: config.serverCommand,
-          cwd: config.cwd,
-          logFile: config.serverLogFile,
-          port: config.serverPort,
-        }));
+        return yield* buildStatus({ client: null, server: null }, config);
+      });
 
-      const clientFinal: SpawnedProcess = clientResolved
-        ?? (yield* pm.spawn({
-          command: config.clientCommand,
-          cwd: config.cwd,
-          logFile: config.clientLogFile,
-          port: config.clientPort,
-        }));
+      // ── restart ────────────────────────────────────────────────────────
 
-      // 4. Wait for both to be ready
-      yield* pm.waitForPort(config.serverPort);
-      yield* pm.waitForPort(config.clientPort);
+      const restart = Effect.fn("DaemonManager.restart")(function* () {
+        yield* stop();
+        return yield* start();
+      });
 
-      // 5. Persist new state
-      const newState: ManagerState = {
-        client: clientFinal,
-        server: serverFinal,
-      };
-      yield* Ref.set(stateRef, newState);
+      // ── status ─────────────────────────────────────────────────────────
 
-      return yield* buildStatus(newState, config);
-    });
+      const status = Effect.fn("DaemonManager.status")(function* () {
+        const state = yield* Ref.get(stateRef);
+        return yield* buildStatus(state, config);
+      });
 
-    // ── stop ───────────────────────────────────────────────────────────
-
-    const stop = Effect.fn("DaemonManager.stop")(function*() {
-      const state = yield* Ref.get(stateRef);
-
-      if (state.client !== null) {
-        yield* pm.stop(state.client);
-      }
-      if (state.server !== null) {
-        yield* pm.stop(state.server);
-      }
-
-      yield* Ref.set(stateRef, { client: null, server: null });
-
-      return yield* buildStatus({ client: null, server: null }, config);
-    });
-
-    // ── restart ────────────────────────────────────────────────────────
-
-    const restart = Effect.fn("DaemonManager.restart")(function*() {
-      yield* stop();
-      return yield* start();
-    });
-
-    // ── status ─────────────────────────────────────────────────────────
-
-    const status = Effect.fn("DaemonManager.status")(function*() {
-      const state = yield* Ref.get(stateRef);
-      return yield* buildStatus(state, config);
-    });
-
-    return DaemonManager.of({ restart, start, status, stop });
-  }),
-);
+      return DaemonManager.of({ restart, start, status, stop });
+    }),
+  );
 
 /**
  * Pre-composed production layer that wires `DaemonManager` with the real

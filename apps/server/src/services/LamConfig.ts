@@ -23,10 +23,7 @@ const parseBoolean = (value: string | undefined, defaultValue: boolean) => {
   return !["0", "false", "no", "off"].includes(normalized);
 };
 
-export const parsePositiveInt = (
-  value: string | undefined,
-  defaultValue: number,
-) => {
+export const parsePositiveInt = (value: string | undefined, defaultValue: number) => {
   const parsed = Number.parseInt(value ?? "", 10);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : defaultValue;
 };
@@ -56,19 +53,20 @@ export const loadConfig = (): LamConfig => ({
   port: parsePositiveInt(process.env.LAMBENCH_PORT, 9000),
   retentionDays: parsePositiveInt(process.env.RETENTION_DAYS, 90),
   rlmMaxDepth: parsePositiveInt(process.env.RLM_MAX_DEPTH, 3),
-  topModels: process.env.TOP_MODELS?.trim()
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean) || [],
+  topModels:
+    process.env.TOP_MODELS?.trim()
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean) || [],
 });
 
-let _cachedConfig: LamConfig | undefined;
+let cachedConfig: LamConfig | undefined;
 
 export const config: LamConfig = new Proxy({} as LamConfig, {
   get(_target, prop) {
-    if (_cachedConfig === undefined) {
-      _cachedConfig = loadConfig();
+    if (cachedConfig === undefined) {
+      cachedConfig = loadConfig();
     }
-    return (_cachedConfig as unknown as Record<string | symbol, unknown>)[prop];
+    return (cachedConfig as unknown as Record<string | symbol, unknown>)[prop];
   },
 });

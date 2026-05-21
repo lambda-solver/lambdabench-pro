@@ -1,25 +1,19 @@
+import { BatchJob, BenchmarkData, BenchmarkTask, EvalResult, ModelConfig } from "./Benchmark";
 import { Effect, Schema } from "effect";
 import { HttpApi, HttpApiEndpoint, HttpApiGroup } from "effect/unstable/httpapi";
-import { BatchJob, BenchmarkData, BenchmarkTask, EvalResult, ModelConfig } from "./Benchmark";
 
 // ============================================================================
 // Request / Response Schemas
 // ============================================================================
 
 export const SingleEvalRequest = Schema.Struct({
-  maxTokens: Schema.Number.pipe(
-    Schema.withDecodingDefaultKey(Effect.succeed(4096)),
-  ),
-  mode: Schema.Literals(["direct", "agent"]).pipe(
-    Schema.withDecodingDefaultKey(Effect.succeed("direct" as const)),
-  ),
+  maxTokens: Schema.Number.pipe(Schema.withDecodingDefaultKey(Effect.succeed(4096))),
+  mode: Schema.Literals(["direct", "agent"]).pipe(Schema.withDecodingDefaultKey(Effect.succeed("direct" as const))),
   model: Schema.String,
   provider: Schema.Literals(["openrouter", "opencode-go"]).pipe(
     Schema.withDecodingDefaultKey(Effect.succeed("openrouter" as const)),
   ),
-  rlmMaxDepth: Schema.Number.pipe(
-    Schema.withDecodingDefaultKey(Effect.succeed(3)),
-  ),
+  rlmMaxDepth: Schema.Number.pipe(Schema.withDecodingDefaultKey(Effect.succeed(3))),
   task: Schema.String,
   variant: Schema.Literals(["standard", "rlm"]).pipe(
     Schema.withDecodingDefaultKey(Effect.succeed("standard" as const)),
@@ -28,16 +22,12 @@ export const SingleEvalRequest = Schema.Struct({
 export type SingleEvalRequest = Schema.Schema.Type<typeof SingleEvalRequest>;
 
 export const BatchEvalRequest = Schema.Struct({
-  concurrency: Schema.Number.pipe(
-    Schema.withDecodingDefaultKey(Effect.succeed(2)),
-  ),
+  concurrency: Schema.Number.pipe(Schema.withDecodingDefaultKey(Effect.succeed(2))),
   mode: Schema.Literals(["direct", "agent", "both"]).pipe(
     Schema.withDecodingDefaultKey(Effect.succeed("both" as const)),
   ),
   models: Schema.Array(Schema.String),
-  tasks: Schema.Array(Schema.String).pipe(
-    Schema.withDecodingDefaultKey(Effect.succeed([] as const)),
-  ),
+  tasks: Schema.Array(Schema.String).pipe(Schema.withDecodingDefaultKey(Effect.succeed([] as const))),
   variant: Schema.Literals(["standard", "rlm", "both"]).pipe(
     Schema.withDecodingDefaultKey(Effect.succeed("both" as const)),
   ),
@@ -70,8 +60,7 @@ export type ModelTestResponse = Schema.Schema.Type<typeof ModelTestResponse>;
 
 export class HealthGroup extends HttpApiGroup.make("health")
   .add(HttpApiEndpoint.get("get", "/health", { success: HealthStatus }))
-  .prefix("/api")
-{}
+  .prefix("/api") {}
 
 export class EvalGroup extends HttpApiGroup.make("eval")
   .add(
@@ -92,8 +81,7 @@ export class EvalGroup extends HttpApiGroup.make("eval")
       success: BatchJob,
     }),
   )
-  .prefix("/api")
-{}
+  .prefix("/api") {}
 
 export class ResultsGroup extends HttpApiGroup.make("results")
   .add(HttpApiEndpoint.get("list", "/results", { success: BenchmarkData }))
@@ -103,8 +91,7 @@ export class ResultsGroup extends HttpApiGroup.make("results")
       success: EvalResult,
     }),
   )
-  .prefix("/api")
-{}
+  .prefix("/api") {}
 
 export class TasksGroup extends HttpApiGroup.make("tasks")
   .add(
@@ -118,8 +105,7 @@ export class TasksGroup extends HttpApiGroup.make("tasks")
       success: BenchmarkTask,
     }),
   )
-  .prefix("/api")
-{}
+  .prefix("/api") {}
 
 export class ModelsGroup extends HttpApiGroup.make("models")
   .add(
@@ -133,8 +119,7 @@ export class ModelsGroup extends HttpApiGroup.make("models")
       success: ModelTestResponse,
     }),
   )
-  .prefix("/api")
-{}
+  .prefix("/api") {}
 
 export const Api = HttpApi.make("Api")
   .add(HealthGroup)

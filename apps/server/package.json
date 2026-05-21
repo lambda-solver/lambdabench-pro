@@ -1,16 +1,16 @@
 {
   "name": "server",
   "version": "0.0.1",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "description": "Effect Platform HTTP API for the LamBench Pro benchmark server.",
   "keywords": [
-    "lambda-calculus",
     "benchmark",
-    "effect",
     "bun",
+    "effect",
+    "lambda-calculus",
     "server"
   ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "bun build src/index.ts --outdir=dist --target=bun --minify --sourcemap",
     "build:types": "tsc --emitDeclarationOnly",

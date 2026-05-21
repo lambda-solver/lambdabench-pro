@@ -4,7 +4,7 @@ import { computeValueEntries } from "./benchmark-atom";
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────
 
-function makeRanking(overrides: Partial<Ranking> & { model: string; }): Ranking {
+function makeRanking(overrides: Partial<Ranking> & { model: string }): Ranking {
   return {
     avgTime: 5,
     pct: "10.0",
@@ -64,9 +64,7 @@ describe("computeValueEntries", () => {
   });
 
   test("computes passPerDollar correctly", () => {
-    const data = makeData([
-      makeRanking({ model: "org/a", pct: "50.0", pricePerMOutputTokens: 5 }),
-    ]);
+    const data = makeData([makeRanking({ model: "org/a", pct: "50.0", pricePerMOutputTokens: 5 })]);
     const entries = computeValueEntries(data);
     // passRate = 50.0, price = 5, ratio = 10.0
     expect(entries[0]?.passPerDollar).toBeCloseTo(10, 5);
@@ -82,9 +80,7 @@ describe("computeValueEntries", () => {
   });
 
   test("passRate is parsed from pct string", () => {
-    const data = makeData([
-      makeRanking({ model: "org/x", pct: "72.5", pricePerMOutputTokens: 1 }),
-    ]);
+    const data = makeData([makeRanking({ model: "org/x", pct: "72.5", pricePerMOutputTokens: 1 })]);
     expect(computeValueEntries(data)[0]?.passRate).toBeCloseTo(72.5, 5);
   });
 

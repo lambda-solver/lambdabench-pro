@@ -10,8 +10,9 @@
  *   // layer: Layer<LanguageModel, ConfigError, HttpClient>
  */
 
-import { OpenRouterClient, OpenRouterLanguageModel } from "@effect/ai-openrouter";
 import { Config, Layer } from "effect";
+import { OpenRouterClient, OpenRouterLanguageModel } from "@effect/ai-openrouter";
+
 import { FetchHttpClient } from "effect/unstable/http";
 
 // ─── Re-exports used by absorb boundaries in LambdaRlm and Check ─────────────

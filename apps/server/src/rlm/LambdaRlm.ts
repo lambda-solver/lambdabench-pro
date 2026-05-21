@@ -20,16 +20,18 @@
  *     effectiveDepth = max(plan.depth, maxDepth) drives self-correction retries.
  */
 
-import type { FileSystem, Path } from "effect";
-import { Effect } from "effect";
-import type { LanguageModel } from "effect/unstable/ai";
 import type { CheckResult, Task } from "../check/Check";
-import { runTask } from "../check/Check";
+import type { FileSystem, Path } from "effect";
+import { ModelUnresponsiveError, guardedGenerate } from "../llm/ModelGuard";
 import { buildRetryPrompt, buildSolvePrompt, buildTaskDetectionProbe } from "../llm/LlmPrompts";
-import { guardedGenerate, ModelUnresponsiveError } from "../llm/ModelGuard";
 import { parseTaskType, plan, splitText } from "./LambdaPlan";
+
+import { Effect } from "effect";
 import type { LambdaPlan } from "./LambdaPlan";
+import type { LanguageModel } from "effect/unstable/ai";
 import { extractLamCode } from "./LamCodeExtractor";
+
+import { runTask } from "../check/Check";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -123,11 +125,7 @@ const selectBest = (results: ReadonlyArray<LlmCheckResult>): LlmCheckResult => {
  */
 const absorbToCheckResult = (
   task: Task,
-  eff: Effect.Effect<
-    LlmCheckResult,
-    unknown,
-    LanguageModel.LanguageModel | FileSystem.FileSystem | Path.Path
-  >,
+  eff: Effect.Effect<LlmCheckResult, unknown, LanguageModel.LanguageModel | FileSystem.FileSystem | Path.Path>,
 ): PhiEffect =>
   eff.pipe(
     Effect.catchIf(
@@ -164,16 +162,17 @@ interface LeafInput {
  * retry prompt (when priorAttempt is set), then runs the lam interpreter
  * as the oracle to verify the response.
  */
-const leafCall = Effect.fn("leafCall")(function*(input: LeafInput) {
+const leafCall = Effect.fn("leafCall")(function* (input: LeafInput) {
   const isRetry = input.priorAttempt !== undefined;
-  const prompt = input.priorAttempt !== undefined
-    ? buildRetryPrompt(input.task, input.priorAttempt, input.priorErrors)
-    : buildSolvePrompt(input.task);
+  const prompt =
+    input.priorAttempt !== undefined
+      ? buildRetryPrompt(input.task, input.priorAttempt, input.priorErrors)
+      : buildSolvePrompt(input.task);
 
   yield* Effect.log(
-    `[λ-RLM] ${input.task.id}${isRetry ? " retry" : ""} → prompt (${prompt.length} chars): ${
-      prompt.slice(0, 80).replace(/\n/g, " ")
-    }…`,
+    `[λ-RLM] ${input.task.id}${isRetry ? " retry" : ""} → prompt (${prompt.length} chars): ${prompt
+      .slice(0, 80)
+      .replace(/\n/g, " ")}…`,
   );
 
   const rawResponse = yield* guardedGenerate(prompt, "rlm").pipe(
@@ -181,9 +180,7 @@ const leafCall = Effect.fn("leafCall")(function*(input: LeafInput) {
   );
 
   const submission = extractLamCode(rawResponse);
-  yield* Effect.log(
-    `[λ-RLM] ${input.task.id} ← ${rawResponse.slice(0, 200).replace(/\n/g, " ")}`,
-  );
+  yield* Effect.log(`[λ-RLM] ${input.task.id} ← ${rawResponse.slice(0, 200).replace(/\n/g, " ")}`);
 
   const checkResult = yield* runTask(input.task, submission, input.refBits);
   yield* Effect.log(
@@ -221,8 +218,7 @@ interface PhiInput {
  * Uses Effect.suspend for safe lazy recursion.
  */
 const executeΦ = (input: PhiInput): PhiEffect => {
-  const isLeaf = input.depthRemaining <= 0
-    || input.context.length <= input.lambdaPlan.tauStar;
+  const isLeaf = input.depthRemaining <= 0 || input.context.length <= input.lambdaPlan.tauStar;
 
   if (isLeaf) {
     return absorbToCheckResult(
@@ -243,7 +239,7 @@ const executeΦ = (input: PhiInput): PhiEffect => {
 
   return absorbToCheckResult(
     input.task,
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const partials = yield* Effect.all(
         chunks.map(
           (chunk): PhiEffect =>
@@ -252,17 +248,14 @@ const executeΦ = (input: PhiInput): PhiEffect => {
                 ...input,
                 context: chunk,
                 depthRemaining: input.depthRemaining - 1,
-              })
+              }),
             ),
         ),
         { concurrency: input.lambdaPlan.kStar },
       );
 
       const best = selectBest(partials);
-      const totalAttempts = partials.reduce(
-        (s: number, r: LlmCheckResult) => s + r.attempts,
-        0,
-      );
+      const totalAttempts = partials.reduce((s: number, r: LlmCheckResult) => s + r.attempts, 0);
       return { ...best, attempts: totalAttempts } satisfies LlmCheckResult;
     }),
   );
@@ -303,15 +296,14 @@ const selfCorrect = (
   }
 
   return Effect.suspend(() =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const retryResult = yield* executeΦ({
         config,
         context: buildSolvePrompt(task),
         depthRemaining: 0, // force leaf on retry
         lambdaPlan,
-        priorAttempt: state.result.errors.length > 0
-          ? `(prior attempt — ${state.result.errors.length} error(s))`
-          : undefined,
+        priorAttempt:
+          state.result.errors.length > 0 ? `(prior attempt — ${state.result.errors.length} error(s))` : undefined,
         priorErrors: state.result.errors,
         refBits,
         task,
@@ -329,7 +321,7 @@ const selfCorrect = (
         refBits,
         effectiveDepth,
       );
-    })
+    }),
   );
 };
 
@@ -349,11 +341,7 @@ const selfCorrect = (
  * Returns a LlmCheckResult with the check outcome plus attempts / depth metadata.
  * Never fails — all errors are absorbed into pass:false results.
  */
-export const rlmEval = Effect.fn("rlmEval")(function*(
-  task: Task,
-  refBits?: number,
-  config?: LambdaRlmConfig,
-) {
+export const rlmEval = Effect.fn("rlmEval")(function* (task: Task, refBits?: number, config?: LambdaRlmConfig) {
   const cfg = config ?? defaultConfig();
 
   // ── Phase 1: context_0 = task prompt stored as a string ──────────────────
@@ -368,20 +356,13 @@ export const rlmEval = Effect.fn("rlmEval")(function*(
   const taskType = parseTaskType(probeResponse);
 
   // ── Phase 3: Optimal Planning — 0 LLM calls (pure math) ─────────────────
-  const lambdaPlan = plan(
-    taskType,
-    n,
-    cfg.contextWindowChars,
-    cfg.accuracyTarget,
-    cfg.aLeaf,
-    cfg.aCompose,
-  );
+  const lambdaPlan = plan(taskType, n, cfg.contextWindowChars, cfg.accuracyTarget, cfg.aLeaf, cfg.aCompose);
 
   // ── Phase 4: Log cost estimate ────────────────────────────────────────────
   yield* Effect.log(
-    `[λ-RLM] task=${task.id} type=${taskType} k*=${lambdaPlan.kStar} `
-      + `τ*=${lambdaPlan.tauStar} plan.depth=${lambdaPlan.depth} `
-      + `⊕=${lambdaPlan.composeOp} Ĉ≈${lambdaPlan.costEstimate.toFixed(1)}`,
+    `[λ-RLM] task=${task.id} type=${taskType} k*=${lambdaPlan.kStar} ` +
+      `τ*=${lambdaPlan.tauStar} plan.depth=${lambdaPlan.depth} ` +
+      `⊕=${lambdaPlan.composeOp} Ĉ≈${lambdaPlan.costEstimate.toFixed(1)}`,
   );
 
   // ── Phase 5: Execute Φ + self-correction ─────────────────────────────────

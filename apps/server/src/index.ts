@@ -25,18 +25,20 @@
 
 import { BunHttpClient, BunRuntime, BunServices } from "@effect/platform-bun";
 import { Effect, FileSystem, Layer } from "effect";
+import { loadAllTasks, loadRefBitsMap, runModelEval } from "./eval/ModelEvalRunner";
+
+import type { TopModel } from "./eval/EvalRunner";
+
 import { build } from "./build/BuildResults";
 import { loadBenchConfig } from "./config/BenchConfig";
-import type { TopModel } from "./eval/EvalRunner";
 import { resolveTopModels } from "./eval/EvalRunner";
-import { loadAllTasks, loadRefBitsMap, runModelEval } from "./eval/ModelEvalRunner";
 
 // ─── Commands ────────────────────────────────────────────────────────────────
 
 const SERVER_ROOT = new URL("..", import.meta.url).pathname.replace(/\/$/, "");
 const TOP_MODELS_FILE = `${SERVER_ROOT}/top-models.json`;
 
-const evalCommand = Effect.gen(function*() {
+const evalCommand = Effect.gen(function* () {
   const devMode = process.env.DEV_MODE === "true";
   const apiKey = process.env.OPENROUTER_API_KEY;
   const fallbackEnv = process.env.TOP_MODELS;
@@ -45,20 +47,16 @@ const evalCommand = Effect.gen(function*() {
   const fs = yield* FileSystem.FileSystem;
   yield* fs.writeFileString(TOP_MODELS_FILE, JSON.stringify(top, null, 2));
   yield* Effect.log(`Written ${top.length} top models → ${TOP_MODELS_FILE}`);
-  yield* Effect.forEach(
-    top,
-    (m) => Effect.log(`  ${m.modelId}  $${m.pricePerMOutput}/1M`),
-    {
-      concurrency: 1,
-    },
-  );
+  yield* Effect.forEach(top, (m) => Effect.log(`  ${m.modelId}  $${m.pricePerMOutput}/1M`), {
+    concurrency: 1,
+  });
 });
 
-const buildCommand = Effect.gen(function*() {
+const buildCommand = Effect.gen(function* () {
   yield* build(TOP_MODELS_FILE);
 });
 
-const runCommand = Effect.gen(function*() {
+const runCommand = Effect.gen(function* () {
   const config = yield* loadBenchConfig();
 
   yield* Effect.log(
@@ -75,23 +73,14 @@ const runCommand = Effect.gen(function*() {
 
   // Load tasks + reference bits once, share across all models
   const allTasks = yield* loadAllTasks;
-  const tasks = config.tasks.length > 0
-    ? allTasks.filter((t) => config.tasks.includes(t.id))
-    : allTasks;
+  const tasks = config.tasks.length > 0 ? allTasks.filter((t) => config.tasks.includes(t.id)) : allTasks;
   yield* Effect.log(`[lambench] Tasks: ${tasks.map((t) => t.id).join(", ")}`);
   const refBitsMap = yield* loadRefBitsMap();
 
   // Evaluate each model sequentially (rate-limit friendly)
   yield* Effect.forEach(
     topModels,
-    (model) =>
-      runModelEval(
-        model,
-        tasks,
-        refBitsMap,
-        config.rlmMaxDepth,
-        config.concurrency,
-      ),
+    (model) => runModelEval(model, tasks, refBitsMap, config.rlmMaxDepth, config.concurrency),
     { concurrency: 1 },
   );
 });
@@ -99,11 +88,9 @@ const runCommand = Effect.gen(function*() {
 // ─── Argument parsing ─────────────────────────────────────────────────────────
 
 const parseArgs = (): ReadonlyArray<"eval" | "run" | "build"> => {
-  const args = process.argv
-    .slice(2)
-    .filter((a) => a === "eval" || a === "run" || a === "build") as Array<
-      "eval" | "run" | "build"
-    >;
+  const args = process.argv.slice(2).filter((a) => a === "eval" || a === "run" || a === "build") as Array<
+    "eval" | "run" | "build"
+  >;
   // Default: run + build only — eval fetches live rankings and overwrites
   // top-models.json; run it explicitly when you want to refresh the model list.
   return args.length === 0 ? ["run", "build"] : args;
@@ -112,14 +99,14 @@ const parseArgs = (): ReadonlyArray<"eval" | "run" | "build"> => {
 // ─── Main ────────────────────────────────────────────────────────────────────
 
 const runCmd = (cmd: "eval" | "run" | "build") =>
-  Effect.gen(function*() {
+  Effect.gen(function* () {
     yield* Effect.log(`[lambench] Running: ${cmd}`);
     if (cmd === "eval") yield* evalCommand;
     else if (cmd === "run") yield* runCommand;
     else yield* buildCommand;
   });
 
-const program = Effect.gen(function*() {
+const program = Effect.gen(function* () {
   const mode = process.argv[2];
 
   if (mode === "server") {

@@ -13,25 +13,19 @@ compatibility: opencode
 
 ```typescript
 import { Context, Effect, Layer, Schedule, Schema } from "effect";
-import {
-  FetchHttpClient,
-  HttpClient,
-  HttpClientRequest,
-  HttpClientResponse,
-} from "effect/unstable/http";
+import { FetchHttpClient, HttpClient, HttpClientRequest, HttpClientResponse } from "effect/unstable/http";
 
-export class JsonApi extends Context.Service<JsonApi, {
-  getTodo(id: number): Effect.Effect<Todo, ApiError>;
-}>()(
-  "app/JsonApi",
-) {
+export class JsonApi extends Context.Service<
+  JsonApi,
+  {
+    getTodo(id: number): Effect.Effect<Todo, ApiError>;
+  }
+>()("app/JsonApi") {
   static readonly layer = Layer.effect(
     JsonApi,
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const client = (yield* HttpClient.HttpClient).pipe(
-        HttpClient.mapRequest(
-          HttpClientRequest.prependUrl("https://api.example.com"),
-        ),
+        HttpClient.mapRequest(HttpClientRequest.prependUrl("https://api.example.com")),
         HttpClient.filterStatusOk,
         HttpClient.retryTransient({
           schedule: Schedule.exponential("100 millis"),
@@ -39,7 +33,7 @@ export class JsonApi extends Context.Service<JsonApi, {
         }),
       );
 
-      const getTodo = Effect.fn("JsonApi.getTodo")(function*(id: number) {
+      const getTodo = Effect.fn("JsonApi.getTodo")(function* (id: number) {
         yield* Effect.annotateCurrentSpan({ id });
         return yield* client.get(`/todos/${id}`).pipe(
           Effect.flatMap(HttpClientResponse.schemaBodyJson(Todo)),
@@ -60,15 +54,10 @@ export class JsonApi extends Context.Service<JsonApi, {
 client.get("/path", { urlParams: { format: "json" } });
 
 // POST JSON body
-HttpClientRequest.post("/todos").pipe(
-  HttpClientRequest.bodyJsonUnsafe(payload),
-  client.execute,
-);
+HttpClientRequest.post("/todos").pipe(HttpClientRequest.bodyJsonUnsafe(payload), client.execute);
 
 // Set headers — note: Effect HTTP headers are lowercased
-HttpClientRequest.get(url).pipe(
-  HttpClientRequest.setHeader("authorization", `Bearer ${token}`),
-);
+HttpClientRequest.get(url).pipe(HttpClientRequest.setHeader("authorization", `Bearer ${token}`));
 ```
 
 ## Reading responses
@@ -104,18 +93,13 @@ request.headers["Authorization"];
 
 ```typescript
 const client = (yield * HttpClient.HttpClient).pipe(
-  HttpClient.mapRequest(flow(
-    HttpClientRequest.prependUrl(baseUrl),
-    HttpClientRequest.acceptJson,
-  )),
+  HttpClient.mapRequest(flow(HttpClientRequest.prependUrl(baseUrl), HttpClientRequest.acceptJson)),
   HttpClient.filterStatusOk,
   HttpClient.retryTransient({
     schedule: Schedule.exponential("100 millis"),
     times: 3,
   }),
-  HttpClient.transformResponse(
-    Effect.mapError((cause) => new ApiError({ cause })),
-  ),
+  HttpClient.transformResponse(Effect.mapError((cause) => new ApiError({ cause }))),
 );
 ```
 
@@ -136,11 +120,9 @@ Layer.provide(FetchHttpClient.layer);
 
 ```typescript
 export const benchmarkAtom = runtime.atom(
-  Effect.gen(function*() {
+  Effect.gen(function* () {
     const client = yield* HttpClient.HttpClient;
-    const response = yield* client.get(
-      `${import.meta.env.BASE_URL}data/results.json`,
-    );
+    const response = yield* client.get(`${import.meta.env.BASE_URL}data/results.json`);
     const body = yield* response.json;
     return yield* Schema.decode(BenchmarkDataSchema)(body);
   }),

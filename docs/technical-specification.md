@@ -330,17 +330,11 @@ All routes are defined in `apps/server/src/httpApi.ts` using Effect `HttpApiGrou
 export const SingleEvalRequest = Schema.Struct({
   model: Schema.String, // model ID or "local"
   task: Schema.String, // task ID, e.g. "snat_add"
-  variant: Schema.Literal("standard", "rlm").pipe(
-    Schema.optionalWith({ default: () => "standard" }),
-  ),
-  provider: Schema.Literal("openrouter", "opencode-go").pipe(
-    Schema.optionalWith({ default: () => "openrouter" }),
-  ),
+  variant: Schema.Literal("standard", "rlm").pipe(Schema.optionalWith({ default: () => "standard" })),
+  provider: Schema.Literal("openrouter", "opencode-go").pipe(Schema.optionalWith({ default: () => "openrouter" })),
   maxTokens: Schema.Number.pipe(Schema.optionalWith({ default: () => 4096 })),
   rlmMaxDepth: Schema.Number.pipe(Schema.optionalWith({ default: () => 3 })),
-  mode: Schema.Literal("direct", "agent").pipe(
-    Schema.optionalWith({ default: () => "direct" }),
-  ),
+  mode: Schema.Literal("direct", "agent").pipe(Schema.optionalWith({ default: () => "direct" })),
 });
 
 export const EvalResult = Schema.Struct({
@@ -358,16 +352,10 @@ export const EvalResult = Schema.Struct({
 
 export const BatchEvalRequest = Schema.Struct({
   models: Schema.Array(Schema.String),
-  tasks: Schema.Array(Schema.String).pipe(
-    Schema.optionalWith({ default: () => [] }),
-  ), // empty = all
-  variant: Schema.Literal("standard", "rlm", "both").pipe(
-    Schema.optionalWith({ default: () => "both" }),
-  ),
+  tasks: Schema.Array(Schema.String).pipe(Schema.optionalWith({ default: () => [] })), // empty = all
+  variant: Schema.Literal("standard", "rlm", "both").pipe(Schema.optionalWith({ default: () => "both" })),
   concurrency: Schema.Number.pipe(Schema.optionalWith({ default: () => 2 })),
-  mode: Schema.Literal("direct", "agent", "both").pipe(
-    Schema.optionalWith({ default: () => "both" }),
-  ),
+  mode: Schema.Literal("direct", "agent", "both").pipe(Schema.optionalWith({ default: () => "both" })),
 });
 
 export const BatchJob = Schema.Struct({

@@ -39,8 +39,8 @@ const VIEWPORTS = {
 const preview: Preview = {
   decorators: [
     (Story, context) => {
-      const isDark = context.globals.backgrounds?.value === "#002b36"
-        || context.parameters.backgrounds?.default === "dark";
+      const isDark =
+        context.globals.backgrounds?.value === "#002b36" || context.parameters.backgrounds?.default === "dark";
       document.documentElement.classList.toggle("dark", isDark);
       return Story();
     },

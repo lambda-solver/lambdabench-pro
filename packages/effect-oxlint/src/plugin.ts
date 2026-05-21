@@ -1,36 +1,41 @@
-import { Plugin } from "effect-oxlint";
 import {
   noAsyncAwaitInEffectGen,
   noCatchAll,
   noEffectIterate,
   noForLoopsInEffectGen,
   noLetInEffectGen,
+  noLinterDisableComments,
   noPipeAfterEffectFn,
   noPlatformImportsInDomain,
+  noServiceBind,
+  noStringCatchTag,
   noTryCatchInEffectGen,
+  noUnyieldedPromiseInEffectGen,
   noVitestExpectForEffect,
   preferContextService,
-  preferEffectFn,
   preferEffectVitest,
-  preferTaggedErrorClass,
 } from "./rules/index.js";
+
+import { Plugin } from "effect-oxlint";
 
 export const repoEffectPlugin = Plugin.define({
   name: "@repo/effect-oxlint",
   rules: {
-    "prefer-effect-fn": preferEffectFn,
-    "no-let-in-effect-gen": noLetInEffectGen,
-    "no-try-catch-in-effect-gen": noTryCatchInEffectGen,
     "no-async-await-in-effect-gen": noAsyncAwaitInEffectGen,
-    "no-pipe-after-effect-fn": noPipeAfterEffectFn,
     "no-catchall": noCatchAll,
     "no-effect-iterate": noEffectIterate,
-    "prefer-context-service": preferContextService,
     "no-for-loops-in-effect-gen": noForLoopsInEffectGen,
-    "prefer-tagged-error-class": preferTaggedErrorClass,
+    "no-let-in-effect-gen": noLetInEffectGen,
+    "no-linter-disable-comments": noLinterDisableComments,
+    "no-pipe-after-effect-fn": noPipeAfterEffectFn,
     "no-platform-imports-in-domain": noPlatformImportsInDomain,
-    "prefer-effect-vitest": preferEffectVitest,
+    "no-service-bind": noServiceBind,
+    "no-string-catchtag": noStringCatchTag,
+    "no-try-catch-in-effect-gen": noTryCatchInEffectGen,
+    "no-unyielded-promise-in-effect-gen": noUnyieldedPromiseInEffectGen,
     "no-vitest-expect-for-effect": noVitestExpectForEffect,
+    "prefer-context-service": preferContextService,
+    "prefer-effect-vitest": preferEffectVitest,
   },
 });
 

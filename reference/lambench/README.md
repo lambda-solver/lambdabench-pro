@@ -18,38 +18,38 @@ The **v1 score** is simply the pass rate: solved problems / 120. Future versions
 
 Problems span **12 categories**, each with 10 tasks:
 
-| Category | Prefix | Description |
-|----------|--------|-------------|
-| **Algorithms** | `algo_` | BF interpreter, line rasterization, SAT solver, λ-evaluator, convex hull, maze solving, MST, type checker, Sudoku, TSP |
-| **Church Naturals** | `cnat_` | add, mul, exp, div, mod, sqr, log, gcd, primality, totient |
-| **Church Binaries** | `cbin_` | add, mul, exp, div, mod, sqr, log, gcd, primality, totient |
-| **Church Lists** | `clst_` | head, fold, map, nth, reverse, sort, zip, dot product, rotate L/R |
-| **Church Trees** | `ctre_` | flatten, BFS, merge, reverse, index, rotate L/R, scan, invert, FFT |
-| **Church ADTs** | `cadt_` | construct, destruct, fold, serialize, deserialize, equality, index, length, merge, reverse |
-| **Scott Naturals** | `snat_` | add, mul, exp, div, mod, sqr, log, gcd, primality, totient |
-| **Scott Binaries** | `sbin_` | add, mul, exp, div, mod, sqr, log, gcd, primality, totient |
-| **Scott Lists** | `slst_` | head, fold, map, nth, reverse, sort, zip, dot product, rotate L/R |
-| **Scott Trees** | `stre_` | flatten, BFS, merge, reverse, index, rotate L/R, scan, invert, FFT |
-| **Scott ADTs** | `sadt_` | construct, destruct, fold, serialize, deserialize, equality, index, length, merge, reverse |
-| **N-Tuples** | `ntup_` | head, fold, map, nth, reverse, sort, zip, dot product, rotate L/R |
+| Category            | Prefix  | Description                                                                                                            |
+| ------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **Algorithms**      | `algo_` | BF interpreter, line rasterization, SAT solver, λ-evaluator, convex hull, maze solving, MST, type checker, Sudoku, TSP |
+| **Church Naturals** | `cnat_` | add, mul, exp, div, mod, sqr, log, gcd, primality, totient                                                             |
+| **Church Binaries** | `cbin_` | add, mul, exp, div, mod, sqr, log, gcd, primality, totient                                                             |
+| **Church Lists**    | `clst_` | head, fold, map, nth, reverse, sort, zip, dot product, rotate L/R                                                      |
+| **Church Trees**    | `ctre_` | flatten, BFS, merge, reverse, index, rotate L/R, scan, invert, FFT                                                     |
+| **Church ADTs**     | `cadt_` | construct, destruct, fold, serialize, deserialize, equality, index, length, merge, reverse                             |
+| **Scott Naturals**  | `snat_` | add, mul, exp, div, mod, sqr, log, gcd, primality, totient                                                             |
+| **Scott Binaries**  | `sbin_` | add, mul, exp, div, mod, sqr, log, gcd, primality, totient                                                             |
+| **Scott Lists**     | `slst_` | head, fold, map, nth, reverse, sort, zip, dot product, rotate L/R                                                      |
+| **Scott Trees**     | `stre_` | flatten, BFS, merge, reverse, index, rotate L/R, scan, invert, FFT                                                     |
+| **Scott ADTs**      | `sadt_` | construct, destruct, fold, serialize, deserialize, equality, index, length, merge, reverse                             |
+| **N-Tuples**        | `ntup_` | head, fold, map, nth, reverse, sort, zip, dot product, rotate L/R                                                      |
 
 Problems range from trivial (Church nat addition: `λm.λn.λf.λx.m(f,n(f,x))`) to very hard (BF interpreter, FFT, Sudoku solver — all in pure λ-calculus).
 
 ## Current Rankings
 
-| Model | Score |
-|-------|-------|
-| GPT-5.4 | 101/120 (84.2%) |
-| GPT-5.5 | 93/120 (77.5%) |
-| Opus 4.7 | 84/120 (70.0%) |
-| Gemini 3.1 Pro | 81/120 (67.5%) |
-| Opus 4.6 | 56/120 (46.7%) |
-| Gemini 3.1 Flash Lite | 48/120 (40.0%) |
-| Sonnet 4.6 | 47/120 (39.2%) |
-| GPT-5.3 Codex Spark | 14/120 (11.7%) |
-| Opus 4.5 | 0/120 (0.0%) |
-| Sonnet 4.5 | 0/120 (0.0%) |
-| GPT-5.1 | 0/120 (0.0%) |
+| Model                 | Score           |
+| --------------------- | --------------- |
+| GPT-5.4               | 101/120 (84.2%) |
+| GPT-5.5               | 93/120 (77.5%)  |
+| Opus 4.7              | 84/120 (70.0%)  |
+| Gemini 3.1 Pro        | 81/120 (67.5%)  |
+| Opus 4.6              | 56/120 (46.7%)  |
+| Gemini 3.1 Flash Lite | 48/120 (40.0%)  |
+| Sonnet 4.6            | 47/120 (39.2%)  |
+| GPT-5.3 Codex Spark   | 14/120 (11.7%)  |
+| Opus 4.5              | 0/120 (0.0%)    |
+| Sonnet 4.5            | 0/120 (0.0%)    |
+| GPT-5.1               | 0/120 (0.0%)    |
 
 ## Running the Benchmark
 

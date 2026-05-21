@@ -96,18 +96,21 @@ Instead of relying on arbitrary generated recursion, λ-RLM uses operators such 
 
 These operators let the system process long inputs compositionally while keeping individual model calls local and manageable.
 
-
 ## What makes λ-RLM different?
 
 ### Standard RLM
+
 Standard RLM-style systems often:
+
 - generate recursive code on the fly
 - use a REPL-style execution loop
 - make decomposition strategies harder to predict
 - offer less formal structure for analysis
 
 ### λ-RLM
+
 λ-RLM instead:
+
 - plans decomposition ahead of execution
 - uses a typed functional runtime
 - executes deterministic recursive structure
@@ -129,6 +132,7 @@ conda activate lambda-rlm
 
 pip install -e .
 ```
+
 The project supports multiple API-compatible model providers. For example, you can request a [NVIDIA NIM API key](https://build.nvidia.com) or a [TOGETHER AI API key](https://api.together.ai/) to access the available model backends. Set your API key as an environment variable:
 
 ```bash
@@ -140,6 +144,7 @@ export TOGETHER_API_KEY="tgp_..."
 ```
 
 ### Supported datasets:
+
 - `sniah` — Sequential-NIAH examples loaded from the public GitHub JSONL source
 - `oolong` — single-document QA examples loaded from `THUDM/LongBench-v2`
 - `browsecomp` — multi-document QA examples loaded from `THUDM/LongBench-v2`
@@ -183,6 +188,7 @@ print(result.response)
 ```
 
 ## Repository structure
+
 ### Normal RLM
 
 This repository uses upstream Normal RLM components for comparison: `https://github.com/alexzhang13/rlm`
@@ -190,9 +196,10 @@ This repository uses upstream Normal RLM components for comparison: `https://git
 The upstream code is licensed under the MIT License. See `THIRD_PARTY_NOTICES.md` for attribution and licensing details.
 
 Key files:
+
 - `rlm/core/rlm.py` — main REPL-based RLM loop
 - `rlm/environments/local_repl.py` — sandboxed Python REPL execution, context storage, and helper functions
-- `rlm/utils/parsing.py` — parsing of ```repl``` code blocks and FINAL markers; formatting of execution output back into the model history
+- `rlm/utils/parsing.py` — parsing of `repl` code blocks and FINAL markers; formatting of execution output back into the model history
 - `rlm/clients/openai.py` — OpenAI-compatible client used with NVIDIA NIM
 
 ### $\lambda$-RLM
@@ -200,8 +207,8 @@ Key files:
 - `rlm/lambda_rlm.py` — LambdaRLM implementation, including task detection, planning, and deterministic execution through $\Phi$
 
 ## Benchmarking
-The benchmark entry point is used to run the supported datasets under the same setup and compare behavior, latency and output quality across Normal RLM (`rlm`) and Lambda-RLM (`lambda_rlm`).
 
+The benchmark entry point is used to run the supported datasets under the same setup and compare behavior, latency and output quality across Normal RLM (`rlm`) and Lambda-RLM (`lambda_rlm`).
 
 ### Compare both methods on the same dataset
 
@@ -210,6 +217,7 @@ python benchmarks/benchmark.py --datasets sniah --model meta/llama-3.3-70b-instr
 ```
 
 Outputs are written to the specified output directory, typically including:
+
 - `results.json`
 - `stats.json`
 - `averages.json`

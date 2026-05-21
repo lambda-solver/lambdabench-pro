@@ -17,27 +17,25 @@
  * across the three APIs without having to encode positional shapes.
  */
 
-import type { ESTree } from "effect-oxlint";
-
 import * as Arr from "effect/Array";
 import * as Effect from "effect/Effect";
-import { pipe } from "effect/Function";
 import * as Option from "effect/Option";
 import * as Schema from "effect/Schema";
 
 import { AST, Diagnostic, Rule, RuleContext, Visitor } from "effect-oxlint";
 
+import type { ESTree } from "effect-oxlint";
+import { pipe } from "effect/Function";
+
 // ---------------------------------------------------------------------------
 // Domain: which Effect collection combinators care about concurrency
 // ---------------------------------------------------------------------------
 
-const ConcurrencyApi = Schema.Literals(["forEach", "all", "validate"]).annotate(
-  {
-    title: "ConcurrencyApi",
-    description:
-      "`Effect.*` collection combinators where throughput/ordering intent should be visible at the call site via an explicit `concurrency` option.",
-  },
-);
+const ConcurrencyApi = Schema.Literals(["forEach", "all", "validate"]).annotate({
+  description:
+    "`Effect.*` collection combinators where throughput/ordering intent should be visible at the call site via an explicit `concurrency` option.",
+  title: "ConcurrencyApi",
+});
 
 const isConcurrencyApi = Schema.is(ConcurrencyApi);
 
@@ -46,25 +44,18 @@ const isConcurrencyApi = Schema.is(ConcurrencyApi);
 // ---------------------------------------------------------------------------
 
 /** If the call's callee is `Effect.<concurrency-api>`, return the api name. */
-const matchConcurrencyCall = (
-  call: ESTree.CallExpression,
-): Option.Option<string> =>
+const matchConcurrencyCall = (call: ESTree.CallExpression): Option.Option<string> =>
   pipe(
     AST.narrow(call.callee, "MemberExpression"),
     Option.flatMap(AST.memberNames),
     Option.flatMap(([obj, prop]) =>
-      obj === "Effect" && isConcurrencyApi(prop)
-        ? Option.some(`Effect.${prop}`)
-        : Option.none<string>()
+      obj === "Effect" && isConcurrencyApi(prop) ? Option.some(`Effect.${prop}`) : Option.none<string>(),
     ),
   );
 
 /** Is this argument an options object that statically declares concurrency? */
 const carriesConcurrency = (arg: ESTree.Node): boolean =>
-  pipe(
-    AST.narrow(arg, "ObjectExpression"),
-    Option.exists(AST.objectHasKey("concurrency")),
-  );
+  pipe(AST.narrow(arg, "ObjectExpression"), Option.exists(AST.objectHasKey("concurrency")));
 
 const anyArgCarriesConcurrency = (call: ESTree.CallExpression): boolean => Arr.some(call.arguments, carriesConcurrency);
 
@@ -76,13 +67,7 @@ const messageFor = (apiName: string): string =>
   `Specify \`concurrency\` explicitly on \`${apiName}\`. Even sequential execution is a concurrency decision — make throughput and ordering intent reviewable at the call site (e.g. \`{ concurrency: 1 }\`, \`{ concurrency: 'unbounded' }\`, or a numeric limit). (EF-27)`;
 
 export default Rule.define({
-  name: "require-effect-concurrency",
-  meta: Rule.meta({
-    type: "suggestion",
-    description:
-      "Require an explicit `concurrency` option on `Effect.forEach`, `Effect.all`, and `Effect.validate` so throughput intent is visible at the call site.",
-  }),
-  create: function*() {
+  create: function* () {
     const ctx = yield* RuleContext;
     return Visitor.on("CallExpression", (node) =>
       pipe(
@@ -98,6 +83,13 @@ export default Rule.define({
               }),
             ),
         }),
-      ));
+      ),
+    );
   },
+  meta: Rule.meta({
+    type: "suggestion",
+    description:
+      "Require an explicit `concurrency` option on `Effect.forEach`, `Effect.all`, and `Effect.validate` so throughput intent is visible at the call site.",
+  }),
+  name: "require-effect-concurrency",
 });

@@ -1,91 +1,94 @@
 import { describe, test } from "@effect/vitest";
-import { Testing } from "effect-oxlint/testing";
 import {
   noAsyncAwaitInEffectGen,
   noCatchAll,
   noEffectIterate,
   noForLoopsInEffectGen,
   noLetInEffectGen,
+  noLinterDisableComments,
   noPipeAfterEffectFn,
+  noPlatformImportsInDomain,
   noTryCatchInEffectGen,
+  noVitestExpectForEffect,
   preferContextService,
-  preferEffectFn,
   preferEffectVitest,
-  preferTaggedErrorClass,
 } from "../../src/rules/index.js";
 
-describe("prefer-effect-fn", () => {
-  test("reports plain Effect.gen in export", () => {
-    const result = Testing.runRule(
-      preferEffectFn,
-      "VariableDeclarator",
-      Testing.varDecl("fetchUser", Testing.callExpr("Effect", "gen")),
-    );
-    Testing.expectDiagnostics(result, [
-      { message: "Use Effect.fn('name')(function* () { ... }) for named exported functions" },
-    ]);
-  });
+import * as T from "effect-oxlint/testing";
 
-  test("ignores non-exported variables", () => {
-    const result = Testing.runRule(
-      preferEffectFn,
-      "VariableDeclarator",
-      Testing.varDecl("fetchUser", Testing.callExpr("Effect", "gen")),
-    );
-    Testing.expectNoDiagnostics(result);
-  });
-});
+// Bridge helpers: the testing module exports individual functions (runRule,
+// varDecl, etc.) rather than a `Testing` namespace. The local wrappers below
+// adapt the module to the `Testing.*` API used in these tests.
 
-describe("no-let-in-effect-gen", () => {
-  test("reports let inside Effect.gen", () => {
-    const result = Testing.runRule(
-      noLetInEffectGen,
-      "VariableDeclaration",
-      Testing.varDecl("count", Testing.literal(0), { kind: "let" }),
-    );
-    Testing.expectDiagnostics(result, [
-      { message: "Use Ref, SynchronizedRef, or Effect.cached instead of let bindings in Effect.gen" },
-    ]);
-  });
-});
+const literal = (value: unknown) => {
+  if (typeof value === "string") return T.strLiteral(value);
+  if (typeof value === "number") return T.numLiteral(value);
+  if (typeof value === "boolean") return T.boolLiteral(value);
+  return T.strLiteral(String(value));
+};
 
-describe("no-try-catch-in-effect-gen", () => {
-  test("reports try/catch inside Effect.gen", () => {
-    const result = Testing.runRule(
-      noTryCatchInEffectGen,
-      "TryStatement",
-      Testing.tryStmt(),
+const awaitExpr = (argument?: unknown) =>
+  ({ type: "AwaitExpression" as const, argument: argument ?? null }) as never;
+
+const callExprMember = (obj: unknown, prop: string) =>
+  ({
+    type: "CallExpression" as const,
+    callee: { type: "MemberExpression" as const, object: obj, property: T.id(prop), computed: false, optional: false },
+    arguments: [],
+  }) as never;
+
+const varDecl = (nameOrKind: string, init?: unknown, opts?: { kind?: string }) => {
+  const kind = (typeof opts?.kind === "string" ? opts.kind : "const") as "const" | "let" | "var";
+  // When called with 2 args the test uses (name, init); with 3 args (name, init, { kind }).
+  return T.varDecl(kind, nameOrKind, init);
+};
+
+const importDecl = (source: string, specifiers?: readonly string[]) => {
+  if (specifiers?.length) {
+    return T.importDeclWithSpecifiers(
+      source,
+      specifiers.map((s) => T.importSpecifier(s)),
     );
-    Testing.expectDiagnostics(result, [
-      { message: "Use Effect.catchTag or Effect.catch instead of try/catch in Effect.gen" },
-    ]);
-  });
-});
+  }
+  return T.importDecl(source);
+};
+
+const expectCall = (args: ReadonlyArray<unknown>) =>
+  ({
+    type: "CallExpression" as const,
+    callee: T.id("expect"),
+    arguments: args,
+  }) as never;
+
+const Testing = {
+  runRule: T.runRule,
+  runRuleMulti: T.runRuleMulti,
+  varDecl,
+  callExpr: T.callExpr,
+  callOfMember: T.callOfMember,
+  expectDiagnostics: T.expectDiagnostics,
+  expectNoDiagnostics: T.expectNoDiagnostics,
+  literal,
+  tryStmt: T.tryStmt,
+  awaitExpr,
+  callExprMember,
+  memberExpr: T.memberExpr,
+  forStmt: T.forStmt,
+  importDecl,
+  program: T.program,
+  comment: T.comment,
+  expectCall,
+};
 
 describe("no-async-await-in-effect-gen", () => {
   test("reports await inside Effect.gen", () => {
-    const result = Testing.runRule(
-      noAsyncAwaitInEffectGen,
-      "AwaitExpression",
-      Testing.awaitExpr(Testing.callExpr("fetch", "")),
-    );
+    const result = Testing.runRuleMulti(noAsyncAwaitInEffectGen, [
+      ["CallExpression", Testing.callOfMember("Effect", "gen")],
+      ["AwaitExpression", Testing.awaitExpr(Testing.callExpr("fetch", [""]))],
+      ["CallExpression:exit", Testing.callOfMember("Effect", "gen")],
+    ]);
     Testing.expectDiagnostics(result, [
       { message: "Use Effect.tryPromise instead of await in Effect.gen" },
-    ]);
-  });
-});
-
-describe("no-pipe-after-effect-fn", () => {
-  test("reports .pipe after Effect.fn", () => {
-    const effectFn = Testing.callExpr("Effect", "fn");
-    const pipeCall = Testing.callExprMember(effectFn, "pipe");
-    const result = Testing.runRule(
-      noPipeAfterEffectFn,
-      "CallExpression",
-      pipeCall,
-    );
-    Testing.expectDiagnostics(result, [
-      { message: "Pass operators as additional arguments to Effect.fn instead of .pipe" },
     ]);
   });
 });
@@ -116,6 +119,121 @@ describe("no-effect-iterate", () => {
   });
 });
 
+describe("no-for-loops-in-effect-gen", () => {
+  test("reports for loop inside Effect.gen", () => {
+    const result = Testing.runRuleMulti(noForLoopsInEffectGen, [
+      ["CallExpression", Testing.callOfMember("Effect", "gen")],
+      ["ForStatement", Testing.forStmt()],
+      ["CallExpression:exit", Testing.callOfMember("Effect", "gen")],
+    ]);
+    Testing.expectDiagnostics(result, [
+      { message: "Use Effect.forEach instead of for loops in Effect.gen" },
+    ]);
+  });
+});
+
+describe("no-let-in-effect-gen", () => {
+  test("reports let inside Effect.gen", () => {
+    const result = Testing.runRuleMulti(noLetInEffectGen, [
+      ["CallExpression", Testing.callOfMember("Effect", "gen")],
+      ["VariableDeclaration", Testing.varDecl("count", Testing.literal(0), { kind: "let" })],
+      ["CallExpression:exit", Testing.callOfMember("Effect", "gen")],
+    ]);
+    Testing.expectDiagnostics(result, [
+      { message: "Use Ref, SynchronizedRef, or Effect.cached instead of let bindings in Effect.gen" },
+    ]);
+  });
+});
+
+describe("no-linter-disable-comments", () => {
+  test("reports // oxlint-disable-next-line comment", () => {
+    const comment = Testing.comment("Line", " oxlint-disable-next-line no-console");
+    const program = Testing.program([], [comment]);
+    const result = Testing.runRule(noLinterDisableComments, "Program", program);
+    Testing.expectDiagnostics(result, [
+      { message: "Do not disable linter rules with comments. Fix the underlying issue instead." },
+    ]);
+  });
+
+  test("does not report normal comments", () => {
+    const comment = Testing.comment("Line", " This is just a normal comment");
+    const program = Testing.program([], [comment]);
+    const result = Testing.runRule(noLinterDisableComments, "Program", program);
+    Testing.expectNoDiagnostics(result);
+  });
+});
+
+describe("no-pipe-after-effect-fn", () => {
+  test("reports .pipe after Effect.fn", () => {
+    const effectFn = Testing.callOfMember("Effect", "fn");
+    const pipeCall = Testing.callExprMember(effectFn, "pipe");
+    const result = Testing.runRule(noPipeAfterEffectFn, "CallExpression", pipeCall);
+    Testing.expectDiagnostics(result, [
+      { message: "Pass operators as additional arguments to Effect.fn instead of .pipe" },
+    ]);
+  });
+});
+
+describe("no-platform-imports-in-domain", () => {
+  test("does not report platform import outside domain", () => {
+    // The rule checks ctx.filename for "packages/domain/" — since runRule
+    // does not set a domain filename, the guard prevents reporting.
+    const result = Testing.runRule(
+      noPlatformImportsInDomain,
+      "ImportDeclaration",
+      Testing.importDecl("@effect/platform-browser"),
+    );
+    Testing.expectNoDiagnostics(result);
+  });
+
+  test("does not report core effect import", () => {
+    const result = Testing.runRule(
+      noPlatformImportsInDomain,
+      "ImportDeclaration",
+      Testing.importDecl("effect"),
+    );
+    Testing.expectNoDiagnostics(result);
+  });
+});
+
+describe("no-try-catch-in-effect-gen", () => {
+  test("reports try/catch inside Effect.gen", () => {
+    const result = Testing.runRuleMulti(noTryCatchInEffectGen, [
+      ["CallExpression", Testing.callOfMember("Effect", "gen")],
+      ["TryStatement", Testing.tryStmt()],
+      ["CallExpression:exit", Testing.callOfMember("Effect", "gen")],
+    ]);
+    Testing.expectDiagnostics(result, [
+      { message: "Use Effect.catchTag or Effect.catch instead of try/catch in Effect.gen" },
+    ]);
+  });
+});
+
+describe("no-vitest-expect-for-effect", () => {
+  test("reports expect(myEffect)", () => {
+    const result = Testing.runRule(
+      noVitestExpectForEffect,
+      "CallExpression",
+      Testing.expectCall([T.id("myEffect")]),
+    );
+    Testing.expectDiagnostics(result, [
+      {
+        message:
+          "Use @effect/vitest/utils assertions (strictEqual, assertTrue, etc.) instead of vitest expect for Effect values",
+      },
+    ]);
+  });
+
+  test("does not report expect(plainValue)", () => {
+    const result = Testing.runRule(
+      noVitestExpectForEffect,
+      "CallExpression",
+      Testing.expectCall([T.id("plainValue")]),
+    );
+    Testing.expectNoDiagnostics(result);
+  });
+});
+
 describe("prefer-context-service", () => {
   test("reports Context.Tag usage", () => {
     const result = Testing.runRule(
@@ -132,36 +250,10 @@ describe("prefer-context-service", () => {
     const result = Testing.runRule(
       preferContextService,
       "CallExpression",
-      Testing.callExpr("Effect", "Service"),
+      Testing.callOfMember("Effect", "Service"),
     );
     Testing.expectDiagnostics(result, [
       { message: "Use Context.Service instead of Effect.Service (deprecated in v4)" },
-    ]);
-  });
-});
-
-describe("no-for-loops-in-effect-gen", () => {
-  test("reports for loop inside Effect.gen", () => {
-    const result = Testing.runRule(
-      noForLoopsInEffectGen,
-      "ForStatement",
-      Testing.forStmt(),
-    );
-    Testing.expectDiagnostics(result, [
-      { message: "Use Effect.forEach instead of for loops in Effect.gen" },
-    ]);
-  });
-});
-
-describe("prefer-tagged-error-class", () => {
-  test("reports Data.TaggedError", () => {
-    const result = Testing.runRule(
-      preferTaggedErrorClass,
-      "MemberExpression",
-      Testing.memberExpr("Data", "TaggedError"),
-    );
-    Testing.expectDiagnostics(result, [
-      { message: "Use Schema.TaggedErrorClass instead of Data.TaggedError for serializable, round-trippable errors" },
     ]);
   });
 });
@@ -176,5 +268,14 @@ describe("prefer-effect-vitest", () => {
     Testing.expectDiagnostics(result, [
       { message: "Import it and describe from @effect/vitest instead of vitest" },
     ]);
+  });
+
+  test("does not report test-only from vitest", () => {
+    const result = Testing.runRule(
+      preferEffectVitest,
+      "ImportDeclaration",
+      Testing.importDecl("vitest", ["test", "expect"]),
+    );
+    Testing.expectNoDiagnostics(result);
   });
 });

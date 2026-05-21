@@ -22,22 +22,21 @@ Stream.fromEffectSchedule(
 
 // Paginated API
 Stream.paginate(0, (page) =>
-  fetchPage(page).pipe(
-    Effect.map((res) =>
-      [res.items, res.hasMore ? Option.some(page + 1) : Option.none()] as const
-    ),
-  ));
+  fetchPage(page).pipe(Effect.map((res) => [res.items, res.hasMore ? Option.some(page + 1) : Option.none()] as const)),
+);
 
 // Async iterable
 Stream.fromAsyncIterable(asyncIterable(), (e) => new StreamError({ cause: e }));
 
 // Callback / event emitter
-Stream.callback<Event>(Effect.fnUntraced(function*(queue) {
-  yield* Effect.acquireRelease(
-    Effect.sync(() => source.on("data", (e) => Queue.offerUnsafe(queue, e))),
-    () => Effect.sync(() => source.removeAllListeners()),
-  );
-}));
+Stream.callback<Event>(
+  Effect.fnUntraced(function* (queue) {
+    yield* Effect.acquireRelease(
+      Effect.sync(() => source.on("data", (e) => Queue.offerUnsafe(queue, e))),
+      () => Effect.sync(() => source.removeAllListeners()),
+    );
+  }),
+);
 ```
 
 ## Transforming streams
@@ -97,10 +96,7 @@ stream.pipe(
   Stream.catchTag("FetchError", (_e) => Stream.fromIterable(cachedItems)),
   // Retry failed elements
   Stream.mapEffect(
-    (item) =>
-      processItem(item).pipe(
-        Effect.retry(Schedule.exponential("100 millis").pipe(Schedule.upTo(3))),
-      ),
+    (item) => processItem(item).pipe(Effect.retry(Schedule.exponential("100 millis").pipe(Schedule.upTo(3)))),
     { concurrency: 4 },
   ),
 );

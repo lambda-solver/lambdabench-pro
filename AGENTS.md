@@ -16,8 +16,8 @@
 | `bun run type-check`                               | TypeScript check (all packages)           |
 | `bun lint`                                         | oxlint check (all packages)               |
 | `bun lint:fix`                                     | oxlint auto-fix (all packages)            |
-| `bun format`                                       | dprint format (all packages)              |
-| `bun format:check`                                 | dprint format check (all packages)        |
+| `bun format`                                       | oxfmt format (all packages)               |
+| `bun format:check`                                 | oxfmt format check (all packages)         |
 | `bun run test`                                     | Run all tests via turbo (Vitest)          |
 | `bun run test --filter=server`                     | Run server tests only                     |
 | `bun test --filter=server -- src/file.test.ts`     | Run single test file                      |
@@ -34,13 +34,13 @@
 | UI         | React 19, Vite 8, Tailwind CSS 4                                                                 |
 | Testing    | Vitest 4, `@effect/vitest`                                                                       |
 | Linting    | oxlint 1.65+ with `@mpsuesser/oxlint-plugin-effect`                                              |
-| Formatting | dprint 0.54+                                                                                     |
+| Formatting | oxfmt 0.50+                                                                                      |
 
 ## Linting with oxlint
 
 This project uses **oxlint** with the `@mpsuesser/oxlint-plugin-effect` plugin for Effect-specific linting. The plugin provides 54 rules that enforce Effect v4 idioms.
 
-**Configuration:** `oxlint.json` in the project root
+**Configuration:** `.oxlintrc.json` in the project root
 
 **Key plugin categories:**
 
@@ -70,9 +70,26 @@ This project uses **oxlint** with the `@mpsuesser/oxlint-plugin-effect` plugin f
 - `repo/prefer-effect-vitest` — Import `it`/`describe` from `@effect/vitest` (02-vitest-patterns)
 - `repo/no-vitest-expect-for-effect` — Don't use `expect` for Effect values (02-vitest-patterns)
 
-To enable: Build the package, then add `"@repo/effect-oxlint"` to the plugins array in `oxlint.json`.
+To enable: Build the package, then add `"@repo/effect-oxlint"` to the plugins array in `.oxlintrc.json`.
 
 When you need more rules, use `effect-oxlint` to write them with Effect idioms. See the [oxlint skill](.opencode/skills/effect-ts/oxlint/SKILL.md) for examples.
+
+## Linting Rules Are Immutable (HARD CONSTRAINT)
+
+**NEVER disable, downgrade, or modify oxlint rules on your own.** Do not change any rule from `error` to `warn` or `off`. Do not add `allow` entries or ignore patterns to bypass failures. Do not modify `.oxlintrc.json` or any oxlint plugin configuration unless the user explicitly asks you to.
+
+If `bun lint` fails:
+- ✅ Fix the source code to comply with the rule
+- ✅ Ask the user if a rule should be changed
+- ❌ NEVER silence the rule by setting it to `"off"` or `"warn"`
+- ❌ NEVER add `// oxlint-disable`, `// oxlint-disable-next-line`, or `// oxlint-disable-file` comments without user approval
+
+This applies to all lint rules including:
+- Built-in oxlint rules
+- `@mpsuesser/oxlint-plugin-effect` rules
+- Custom `@repo/effect-oxlint` rules
+
+**NEVER modify `bun lint` or `bun lint:fix` commands to filter out failing rules.** Do not add `--rules-filter`, `--deny-warnings`, or other CLI flags to bypass failures.
 
 ## Git Discipline
 
@@ -86,7 +103,7 @@ patterns, see the [Git skill](.opencode/skills/git/SKILL.md).
 **Pre-commit checklist:**
 
 - `bun lint` must pass (oxlint check)
-- `bun format:check` must pass (dprint format check)
+- `bun format:check` must pass (oxfmt format check)
 - `bun run type-check` must pass (TypeScript type check)
 
 **Push rejections from benchmark workflow:**
@@ -97,10 +114,29 @@ your push is rejected because the remote has new commits, rebase and retry:
 git pull origin main --rebase && git push origin main
 ```
 
+## File System Rules (HARD CONSTRAINT)
+
+**NEVER write to `/tmp/`, `/dev/shm/`, or any system temp directory.** All agents
+must use the project-local `logs/` directory for temporary files, logs, scratch
+data, debug output, and any other file writes that are not source code.
+
+```bash
+# ✅ ALLOWED — project-local logs/
+bun src/index.ts server > logs/server.log 2>&1 &
+
+# ❌ BLOCKED — /tmp is banned
+node fix-imports.mjs > /tmp/debug.txt   # NEVER
+cat data.json > /tmp/debug.json         # NEVER
+```
+
+The `logs/` directory exists at the project root and is gitignored. If a
+subdirectory under `logs/` is needed, create it with `mkdir -p logs/<name>`.
+This keeps all generated files within the repo boundary.
+
 ## Code Style
 
 - **Formatting**: Spaces (not tabs), double quotes for strings
-- **Imports**: Use `@repo/domain` for shared types; dprint organizes imports
+- **Imports**: Use `@repo/domain` for shared types; oxfmt organizes imports
 - **Types**: Effect Schema for validation; `typeof Schema.Type` for inline
   types, `Schema.Schema.Type<typeof T>` for exports
 - **Naming**: camelCase variables/functions, PascalCase types/classes/React components
@@ -262,7 +298,7 @@ const r = row as Record<string, unknown>;
 const id = r.id as number; // still triggers useLiteralKeys if row has known shape
 
 // Better: cast to a specific intermediate shape
-const r = row as { id: unknown; name: unknown; };
+const r = row as { id: unknown; name: unknown };
 const id = r.id as number; // now dot notation is fine
 ```
 
@@ -314,9 +350,7 @@ const mockEvalService = Layer.succeed(
   EvalService,
   EvalService.of({
     evaluateSingle: (request: SingleEvalRequest) =>
-      Effect.succeed(
-        { taskId: request.task, pass: true, bits: 42 } as EvalResult,
-      ),
+      Effect.succeed({ taskId: request.task, pass: true, bits: 42 } as EvalResult),
   }),
 );
 ```
@@ -354,22 +388,6 @@ If `reference/effect-smol/` is missing (git-ignored), clone it:
 
 ```bash
 git clone https://github.com/Effect-TS/effect-smol.git reference/effect-smol
-```
-
-## File System Conventions
-
-**Always use the project-local `logs/` directory for temporary files, logs, and scratch data.**
-
-- **DO NOT** write to `/tmp/` — use `logs/` (project root) instead
-- The `logs/` directory is intended for runtime artifacts, test outputs, and debug files
-- This ensures all generated files stay within the repo boundary
-
-```bash
-# GOOD — write to project-local logs/
-bun src/index.ts server > logs/server.log 2>&1 &
-
-# BAD — do not use system /tmp
-cat data.json > /tmp/debug.json   # ← avoid this
 ```
 
 ## Running in Background
@@ -415,7 +433,7 @@ Use the skill tool to load a skill when a task matches its description.
 </skill>
 <skill>
 <name>01-fundamentals</name>
-<description>Effect-TS 4 fundamentals — Effect.gen, yield*, pipe, basic combinators, and runtime execution</description>
+<description>Effect-TS 4 fundamentals — Effect.gen, yield\*, pipe, basic combinators, and runtime execution</description>
 <location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/core/01-fundamentals/SKILL.md</location>
 </skill>
 <skill>

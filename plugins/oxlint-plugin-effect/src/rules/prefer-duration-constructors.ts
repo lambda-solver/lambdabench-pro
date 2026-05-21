@@ -13,17 +13,17 @@
  * nonsensical diagnostics.
  */
 
-import type { ESTree } from "effect-oxlint";
-
 import * as Arr from "effect/Array";
 import * as Effect from "effect/Effect";
-import { pipe } from "effect/Function";
 import * as Option from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Result from "effect/Result";
 import * as Schema from "effect/Schema";
 
 import { AST, Diagnostic, Rule, RuleContext, Visitor } from "effect-oxlint";
+
+import type { ESTree } from "effect-oxlint";
+import { pipe } from "effect/Function";
 
 // ---------------------------------------------------------------------------
 // Schemas: enumerate the Duration-bearing APIs
@@ -38,19 +38,14 @@ const EffectDurationApi = Schema.Literals([
   "sleep",
   "delay",
 ]).annotate({
-  title: "EffectDurationApi",
   description: "`Effect.*` helpers that accept a Duration or a numeric milliseconds value.",
+  title: "EffectDurationApi",
 });
 
-const ScheduleDurationApi = Schema.Literals([
-  "spaced",
-  "fixed",
-  "windowed",
-  "duration",
-]).annotate({
-  title: "ScheduleDurationApi",
+const ScheduleDurationApi = Schema.Literals(["spaced", "fixed", "windowed", "duration"]).annotate({
   description:
     "`Schedule.*` constructors that accept a Duration or a numeric milliseconds value. (`Schedule.intersect`/`Schedule.union` combine Schedules and are intentionally excluded.)",
+  title: "ScheduleDurationApi",
 });
 
 const isEffectDurationApi = Schema.is(EffectDurationApi);
@@ -64,9 +59,7 @@ const isScheduleDurationApi = Schema.is(ScheduleDurationApi);
  * If the call's callee is a recognised duration API, return the qualified
  * name so it can appear in diagnostics.
  */
-const matchDurationCall = (
-  call: ESTree.CallExpression,
-): Option.Option<string> =>
+const matchDurationCall = (call: ESTree.CallExpression): Option.Option<string> =>
   pipe(
     AST.narrow(call.callee, "MemberExpression"),
     Option.flatMap(AST.memberNames),
@@ -88,18 +81,15 @@ const isNumericLiteral = (node: ESTree.Node): node is ESTree.NumericLiteral =>
   node.type === "Literal" && P.isNumber(node.value);
 
 /** A `Literal` whose `.value` is a number, lifted into `Option`. */
-const asNumericLiteral = (
-  node: ESTree.Node,
-): Option.Option<ESTree.NumericLiteral> => isNumericLiteral(node) ? Option.some(node) : Option.none();
+const asNumericLiteral = (node: ESTree.Node): Option.Option<ESTree.NumericLiteral> =>
+  isNumericLiteral(node) ? Option.some(node) : Option.none();
 
 /**
  * An argument may contribute one flagged numeric literal:
  *  - direct positional number → the argument itself
  *  - options object with `duration: <number>` → the inner literal
  */
-const flaggedLiteralIn = (
-  arg: ESTree.Node,
-): Option.Option<ESTree.NumericLiteral> =>
+const flaggedLiteralIn = (arg: ESTree.Node): Option.Option<ESTree.NumericLiteral> =>
   pipe(
     asNumericLiteral(arg),
     Option.orElse(() =>
@@ -107,7 +97,7 @@ const flaggedLiteralIn = (
         AST.narrow(arg, "ObjectExpression"),
         Option.flatMap(AST.objectGetValue("duration")),
         Option.flatMap(asNumericLiteral),
-      )
+      ),
     ),
   );
 
@@ -119,13 +109,7 @@ const messageFor = (apiName: string, value: number): string =>
   `Use \`Duration.millis(${value})\` or \`Duration.seconds(...)\` instead of a raw numeric literal in \`${apiName}\`. Duration constructors are self-documenting and prevent unit confusion. (EF-16)`;
 
 export default Rule.define({
-  name: "prefer-duration-constructors",
-  meta: Rule.meta({
-    type: "suggestion",
-    description:
-      "Prefer Duration constructors over raw numeric literals for time values in Effect/Schedule APIs, including the `duration` key inside options-object arguments. (EF-16)",
-  }),
-  create: function*() {
+  create: function* () {
     const ctx = yield* RuleContext;
     return Visitor.on("CallExpression", (node) =>
       pipe(
@@ -136,12 +120,7 @@ export default Rule.define({
             Effect.forEach(
               pipe(
                 node.arguments,
-                Arr.filterMap((arg) =>
-                  Result.fromOption(
-                    flaggedLiteralIn(arg),
-                    () => undefined,
-                  )
-                ),
+                Arr.filterMap((arg) => Result.fromOption(flaggedLiteralIn(arg), () => undefined)),
               ),
               (lit) =>
                 ctx.report(
@@ -153,6 +132,13 @@ export default Rule.define({
               { concurrency: 1, discard: true },
             ),
         }),
-      ));
+      ),
+    );
   },
+  meta: Rule.meta({
+    type: "suggestion",
+    description:
+      "Prefer Duration constructors over raw numeric literals for time values in Effect/Schedule APIs, including the `duration` key inside options-object arguments. (EF-16)",
+  }),
+  name: "prefer-duration-constructors",
 });

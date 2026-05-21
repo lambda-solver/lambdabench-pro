@@ -1,24 +1,14 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import { Slider as SliderPrimitive } from "@base-ui/react/slider";
 import * as React from "react";
 
-function Slider({
-  className,
-  defaultValue,
-  value,
-  min = 0,
-  max = 100,
-  ...props
-}: SliderPrimitive.Root.Props) {
-  const _values = React.useMemo(
-    () =>
-      Array.isArray(value)
-        ? value
-        : (Array.isArray(defaultValue)
-          ? defaultValue
-          : [min, max]),
+import { Slider as SliderPrimitive } from "@base-ui/react/slider";
+
+import { cn } from "@/lib/utils";
+
+function Slider({ className, defaultValue, value, min = 0, max = 100, ...props }: SliderPrimitive.Root.Props) {
+  const resolvedValues = React.useMemo(
+    () => (Array.isArray(value) ? value : Array.isArray(defaultValue) ? defaultValue : [min, max]),
     [value, defaultValue, min, max],
   );
 
@@ -43,10 +33,10 @@ function Slider({
             className="bg-primary select-none data-horizontal:h-full data-vertical:w-full"
           />
         </SliderPrimitive.Track>
-        {Array.from({ length: _values.length }, (_, index) => (
+        {Array.from({ length: resolvedValues.length }, (_, index) => (
           <SliderPrimitive.Thumb
             data-slot="slider-thumb"
-            key={`thumb-${_values[index]}`}
+            key={`thumb-${resolvedValues[index]}`}
             className="relative block size-3 shrink-0 rounded-none border border-ring bg-white ring-ring/50 transition-[color,box-shadow] select-none after:absolute after:-inset-2 hover:ring-1 focus-visible:ring-1 focus-visible:outline-hidden active:ring-1 disabled:pointer-events-none disabled:opacity-50"
           />
         ))}

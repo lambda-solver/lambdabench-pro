@@ -12,17 +12,17 @@ compatibility: opencode
 ```typescript
 // ❌ no tracing, no stack frames
 export const fetchUser = (id: string) =>
-  Effect.gen(function*() {
+  Effect.gen(function* () {
     return yield* db.query(id);
   });
 
 // ✅ use Effect.fn for exported functions
-export const fetchUser = Effect.fn("fetchUser")(function*(id: string) {
+export const fetchUser = Effect.fn("fetchUser")(function* (id: string) {
   return yield* db.query(id);
 });
 
 // ✅ use Effect.fnUntraced for internal helpers
-const buildPayload = Effect.fnUntraced(function*(id: string) {
+const buildPayload = Effect.fnUntraced(function* (id: string) {
   return yield* db.query(id);
 });
 ```
@@ -72,17 +72,14 @@ program.pipe(Effect.catch((_e) => Effect.succeed("fallback")));
 
 ```typescript
 // ❌ runtime error
-yield
-  * Effect.iterate(0, {
+yield *
+  Effect.iterate(0, {
     while: (n) => n < 10,
     body: (n) => Effect.succeed(n + 1),
   });
 
 // ✅ use Effect.suspend for recursive loops
-const loop = (n: number): Effect.Effect<number> =>
-  n >= 10
-    ? Effect.succeed(n)
-    : Effect.suspend(() => loop(n + 1));
+const loop = (n: number): Effect.Effect<number> => (n >= 10 ? Effect.succeed(n) : Effect.suspend(() => loop(n + 1)));
 ```
 
 ## ❌ Plain class service returned as a plain object
@@ -95,7 +92,7 @@ return { query, findById };
 return Database.of({ query, findById });
 ```
 
-## ❌ Missing return before yield* error
+## ❌ Missing return before yield\* error
 
 ```typescript
 // ❌ TS doesn't know execution stops — infers wrong type
@@ -115,7 +112,7 @@ function* (id: string) {
 
 ```typescript
 // ❌ escapes the error channel — errors silently disappear
-Effect.gen(function*() {
+Effect.gen(function* () {
   try {
     return yield* riskyEffect;
   } catch (e) {
@@ -124,24 +121,22 @@ Effect.gen(function*() {
 });
 
 // ✅ keep errors inside the channel
-riskyEffect.pipe(
-  Effect.catchTag("MyError", (_e) => Effect.succeed(defaultValue)),
-);
+riskyEffect.pipe(Effect.catchTag("MyError", (_e) => Effect.succeed(defaultValue)));
 ```
 
 ## ❌ async/await inside Effect.gen
 
 ```typescript
 // ❌ mixes runtimes — promise errors escape the channel
-Effect.gen(function*() {
-  const data = await fetch(url).then(r => r.json());
+Effect.gen(function* () {
+  const data = await fetch(url).then((r) => r.json());
   return data;
 });
 
 // ✅ use Effect.tryPromise
-Effect.gen(function*() {
+Effect.gen(function* () {
   return yield* Effect.tryPromise({
-    try: () => fetch(url).then(r => r.json()),
+    try: () => fetch(url).then((r) => r.json()),
     catch: (e) => new FetchError({ cause: e }),
   });
 });
@@ -151,7 +146,7 @@ Effect.gen(function*() {
 
 ```typescript
 // ❌ mutation obscures control flow
-const program = Effect.gen(function*() {
+const program = Effect.gen(function* () {
   let top: ReadonlyArray<Model>;
   if (devMode) top = yield* devModels();
   else top = yield* prodModels();
@@ -159,10 +154,9 @@ const program = Effect.gen(function*() {
 });
 
 // ✅ extract helper, bind once with const
-const resolveModels = (devMode: boolean) =>
-  devMode ? devModels() : prodModels();
+const resolveModels = (devMode: boolean) => (devMode ? devModels() : prodModels());
 
-const program = Effect.gen(function*() {
+const program = Effect.gen(function* () {
   const top = yield* resolveModels(devMode);
   return top;
 });

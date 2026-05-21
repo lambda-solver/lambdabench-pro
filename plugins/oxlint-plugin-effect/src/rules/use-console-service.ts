@@ -11,13 +11,13 @@
  * `console.count*`, `console.profile*`, `console.timeStamp`, etc.
  */
 
-import type { ESTree } from "effect-oxlint";
-
 import * as Effect from "effect/Effect";
-import { pipe } from "effect/Function";
 import * as Option from "effect/Option";
 
 import { AST, Diagnostic, Rule, RuleContext, Visitor } from "effect-oxlint";
+
+import type { ESTree } from "effect-oxlint";
+import { pipe } from "effect/Function";
 
 const MESSAGE =
   "Avoid `console.*` in Effect code. Use `Effect.logInfo`, `Effect.logError`, `Effect.logWarning`, `Effect.logDebug`, or the `Console` service for structured, testable logging. (EF-15)";
@@ -34,17 +34,16 @@ const isConsoleAccess = (node: ESTree.MemberExpression): boolean =>
   );
 
 export default Rule.define({
-  name: "use-console-service",
+  create: function* () {
+    const ctx = yield* RuleContext;
+    return Visitor.on("MemberExpression", (node) =>
+      isConsoleAccess(node) ? ctx.report(Diagnostic.make({ node, message: MESSAGE })) : Effect.void,
+    );
+  },
   meta: Rule.meta({
     type: "suggestion",
     description:
       "Disallow any `console.*` access in Effect code — including `log`, `error`, `warn`, `info`, `debug`, `trace`, `table`, `dir`, `group*`, `time*`, `assert`, `count*`, `profile*`, etc. (EF-15)",
   }),
-  create: function*() {
-    const ctx = yield* RuleContext;
-    return Visitor.on("MemberExpression", (node) =>
-      isConsoleAccess(node)
-        ? ctx.report(Diagnostic.make({ node, message: MESSAGE }))
-        : Effect.void);
-  },
+  name: "use-console-service",
 });

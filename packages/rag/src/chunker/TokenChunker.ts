@@ -1,6 +1,8 @@
 import { Chunker, Tokenizer } from "@repo/domain/Chunk";
-import type { Chunk } from "@repo/domain/Chunk";
 import { Context, Effect, Layer, Schema } from "effect";
+
+import type { Chunk } from "@repo/domain/Chunk";
+
 import { WordTokenizerLive } from "../tokenizer/DelimTokenizer";
 import { isBlank } from "./utils";
 
@@ -15,26 +17,19 @@ const TokenChunkerConfigSchema = Schema.Struct({
   ),
 );
 
-export const TokenChunkerConfig = Context.Reference<
-  typeof TokenChunkerConfigSchema.Type
->("TokenChunkerConfig", {
+export const TokenChunkerConfig = Context.Reference<typeof TokenChunkerConfigSchema.Type>("TokenChunkerConfig", {
   defaultValue: () => ({
     chunkOverlap: 0,
     chunkSize: 2048,
   }),
 });
 
-export class TokenChunker extends Context.Service<
-  TokenChunker,
-  Chunker["Service"]
->()("TokenChunker", {
-  make: Effect.gen(function*() {
+export class TokenChunker extends Context.Service<TokenChunker, Chunker["Service"]>()("TokenChunker", {
+  make: Effect.gen(function* () {
     const tokenizer = yield* Tokenizer;
     const config = yield* TokenChunkerConfig;
-    const { chunkSize, chunkOverlap } = yield* Schema.decodeEffect(
-      TokenChunkerConfigSchema,
-    )(config);
-    const chunk = Effect.fn("TokenChunker.chunk")(function*(text: string) {
+    const { chunkSize, chunkOverlap } = yield* Schema.decodeEffect(TokenChunkerConfigSchema)(config);
+    const chunk = Effect.fn("TokenChunker.chunk")(function* (text: string) {
       if (isBlank(text)) {
         return [];
       }
@@ -52,9 +47,7 @@ export class TokenChunker extends Context.Service<
 
       for (const group of groups) {
         const chunkText = yield* tokenizer.decode(group);
-        const overlapText = yield* chunkOverlap > 0
-          ? tokenizer.decode(group.slice(-chunkOverlap))
-          : Effect.succeed("");
+        const overlapText = yield* chunkOverlap > 0 ? tokenizer.decode(group.slice(-chunkOverlap)) : Effect.succeed("");
 
         const startIdx = currentIndex;
         const endIdx = startIdx + chunkText.length;
@@ -79,6 +72,4 @@ export class TokenChunker extends Context.Service<
   }),
 }) {}
 
-export const TokenChunkerLive = Layer.effect(Chunker)(TokenChunker.make).pipe(
-  Layer.provide(WordTokenizerLive),
-);
+export const TokenChunkerLive = Layer.effect(Chunker)(TokenChunker.make).pipe(Layer.provide(WordTokenizerLive));

@@ -3,6 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "main": "./src/Api.ts",
+  "types": "./src/Api.ts",
   "exports": {
     ".": "./src/Api.ts",
     "./Api": "./src/Api.ts",
@@ -13,8 +15,6 @@
     "./WebSocket": "./src/WebSocket.ts",
     "./Upload": "./src/Upload.ts"
   },
-  "main": "./src/Api.ts",
-  "types": "./src/Api.ts",
   "scripts": {
     "type-check": "tsc --noEmit",
     "clean": "git clean -xdf .cache .turbo dist node_modules tsconfig.tsbuildinfo"

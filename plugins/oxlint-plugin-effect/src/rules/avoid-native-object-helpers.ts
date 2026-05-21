@@ -1,16 +1,11 @@
-import type { ESTree } from "effect-oxlint";
-
 import * as Effect from "effect/Effect";
 
 import { AST, Diagnostic, Rule, RuleContext, Visitor } from "effect-oxlint";
 
+import type { ESTree } from "effect-oxlint";
+
 export default Rule.define({
-  name: "avoid-native-object-helpers",
-  meta: Rule.meta({
-    type: "suggestion",
-    description: "Disallow native Object.keys/values/entries and new Map/Set — use Effect modules (EF-5)",
-  }),
-  create: function*() {
+  create: function* () {
     const ctx = yield* RuleContext;
 
     return Visitor.merge(
@@ -82,4 +77,9 @@ export default Rule.define({
       }),
     );
   },
+  meta: Rule.meta({
+    type: "suggestion",
+    description: "Disallow native Object.keys/values/entries and new Map/Set — use Effect modules (EF-5)",
+  }),
+  name: "avoid-native-object-helpers",
 });

@@ -10,10 +10,7 @@ import { useCallback, useEffect, useState } from "react";
  *   r         force re-render (remount component)
  *   q / esc   reset to first fixture
  */
-export function createFixtureDecorator<T>(
-  fixtures: ReadonlyArray<T>,
-  renderFixture: (fixture: T) => React.ReactNode,
-) {
+export function createFixtureDecorator<T>(fixtures: ReadonlyArray<T>, renderFixture: (fixture: T) => React.ReactNode) {
   return function FixtureDecorator(Story: StoryFn, context: StoryContext) {
     const [fixtureIdx, setFixtureIdx] = useState(0);
     const [remountKey, setRemountKey] = useState(0);
@@ -31,10 +28,7 @@ export function createFixtureDecorator<T>(
     useEffect(() => {
       const handler = (e: KeyboardEvent) => {
         // Only handle when not typing in an input
-        if (
-          e.target instanceof HTMLInputElement
-          || e.target instanceof HTMLTextAreaElement
-        ) {
+        if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
           return;
         }
 
@@ -82,11 +76,10 @@ export function createFixtureDecorator<T>(
     }, [nextFixture, prevFixture]);
 
     // Show fixture info bar
-    const fixtureName = typeof currentFixture === "object"
-        && currentFixture !== null
-        && "name" in currentFixture
-      ? String(currentFixture.name)
-      : `Fixture ${fixtureIdx + 1}`;
+    const fixtureName =
+      typeof currentFixture === "object" && currentFixture !== null && "name" in currentFixture
+        ? String(currentFixture.name)
+        : `Fixture ${fixtureIdx + 1}`;
 
     const storyElement = Story(context.args, context);
 

@@ -25,7 +25,7 @@ This is the preferred way — no manual `withSpan` needed.
 
 ```typescript
 // ✅ span created automatically from name
-export const processItem = Effect.fn("processItem")(function*(id: string) {
+export const processItem = Effect.fn("processItem")(function* (id: string) {
   return yield* doWork(id);
 });
 
@@ -65,7 +65,7 @@ export const login = Effect.fn("login")(
 
 ```typescript
 export const runEval = Effect.fn("runEval")(
-  function*(taskId: string) {
+  function* (taskId: string) {
     yield* Effect.log("running eval");
     return yield* evaluate(taskId);
   },
@@ -77,15 +77,15 @@ export const runEval = Effect.fn("runEval")(
 ## Metrics
 
 ```typescript
-import { Metric } from "effect"
+import { Metric } from "effect";
 
-const requestCount = Metric.counter("http.requests")
+const requestCount = Metric.counter("http.requests");
 const latency = Metric.histogram("http.latency.ms", {
   boundaries: Metric.linearBoundaries({ start: 0, width: 50, count: 20 }),
-})
+});
 
-yield* Metric.increment(requestCount)
-yield* Metric.record(latency, elapsedMs)
+yield * Metric.increment(requestCount);
+yield * Metric.record(latency, elapsedMs);
 ```
 
 ## DevTools (browser / development)
@@ -95,11 +95,7 @@ import { DevTools } from "effect/unstable/devtools";
 
 const runtime = Atom.runtime(
   FetchHttpClient.layer.pipe(
-    Layer.provideMerge(
-      import.meta.env.VITE_ENABLE_DEVTOOLS === "true"
-        ? DevTools.layer()
-        : Layer.empty,
-    ),
+    Layer.provideMerge(import.meta.env.VITE_ENABLE_DEVTOOLS === "true" ? DevTools.layer() : Layer.empty),
   ),
 );
 ```

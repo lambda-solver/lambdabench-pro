@@ -1,8 +1,9 @@
 // apps/server/src/index.test.ts
 
 import { describe, it } from "@effect/vitest";
-import { strictEqual } from "@effect/vitest/utils";
+
 import { Effect } from "effect";
+import { strictEqual } from "@effect/vitest/utils";
 import { vi } from "vitest";
 
 // ─── Module mocks ────────────────────────────────────────────────────────────
@@ -65,50 +66,55 @@ vi.doMock("./mcp.js", () => ({
 
 describe("index.ts dynamic imports", () => {
   it.effect("localServer module can be dynamically imported", () =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const mod = yield* Effect.tryPromise({
         catch: (e) => new Error(String(e)),
         try: () => import("./localServer.js"),
       });
       strictEqual(typeof mod.ServerLive !== "undefined", true);
-    }));
+    }),
+  );
 
   it.effect("cli module can be dynamically imported", () =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const mod = yield* Effect.tryPromise({
         catch: (e) => new Error(String(e)),
         try: () => import("./cli.js"),
       });
       strictEqual(typeof mod.runCli !== "undefined", true);
-    }));
+    }),
+  );
 
   it.effect("mcp module can be dynamically imported", () =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const mod = yield* Effect.tryPromise({
         catch: (e) => new Error(String(e)),
         try: () => import("./mcp.js"),
       });
       strictEqual(typeof mod.ServerLayer !== "undefined", true);
-    }));
+    }),
+  );
 
   it.effect("LamBenchClient module can be dynamically imported", () =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const mod = yield* Effect.tryPromise({
         catch: (e) => new Error(String(e)),
         try: () => import("./client/LamBenchClient.js"),
       });
       strictEqual(typeof mod.LamBenchClient !== "undefined", true);
-    }));
+    }),
+  );
 });
 
 describe("index.ts import structure", () => {
   it.effect("imports required modules from effect/platform-bun", () =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const mod = yield* Effect.tryPromise({
         catch: (e) => new Error(String(e)),
         try: () => import("./index.js"),
       });
       // Verify the module loads without errors (compilation check)
       strictEqual(typeof mod !== "undefined", true);
-    }));
+    }),
+  );
 });

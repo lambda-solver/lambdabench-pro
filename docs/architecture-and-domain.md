@@ -19,7 +19,7 @@ The domain is defined in `packages/domain/src/Benchmark.ts` and `packages/domain
 ### 1.1 Benchmark Domain (`packages/domain/src/Benchmark.ts`)
 
 ```mermaid
-%%{init: {'theme': 'dark', 'themeVariables': { 
+%%{init: {'theme': 'dark', 'themeVariables': {
   'background': '#111827',
   'lineColor': '#e5e7eb',
   'primaryTextColor': '#ffffff',
@@ -123,7 +123,7 @@ classDiagram
 The HTTP API is defined schema-first using `effect/unstable/httpapi`. Every endpoint, request body, and response is typed via Effect Schema. Auto-generated OpenAPI spec is available at `/openapi.json`.
 
 ```mermaid
-%%{init: {'theme': 'dark', 'themeVariables': { 
+%%{init: {'theme': 'dark', 'themeVariables': {
   'background': '#111827',
   'lineColor': '#e5e7eb',
   'primaryTextColor': '#ffffff',
@@ -209,7 +209,7 @@ classDiagram
 The persistence layer uses `bun:sqlite` with WAL mode. Four tables store all domain data.
 
 ```mermaid
-%%{init: {'theme': 'dark', 'themeVariables': { 
+%%{init: {'theme': 'dark', 'themeVariables': {
   'background': '#111827',
   'lineColor': '#e5e7eb',
   'primaryTextColor': '#ffffff',
@@ -279,7 +279,7 @@ erDiagram
 ### 2.1 System Context
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 
+%%{init: {'theme': 'base', 'themeVariables': {
   'background': '#0a0a0a',
   'primaryColor': '#1e3a5f',
   'primaryTextColor': '#ffffff',
@@ -323,7 +323,7 @@ flowchart TB
 ### 2.2 Monorepo Structure
 
 ```mermaid
-%%{init: {'theme': 'dark', 'themeVariables': { 
+%%{init: {'theme': 'dark', 'themeVariables': {
   'background': '#111827',
   'lineColor': '#e5e7eb',
   'primaryTextColor': '#ffffff',
@@ -374,7 +374,7 @@ graph TB
 The server is built entirely with **Effect 4** service pattern (`Context.Service`, `Layer.effect`, `Effect.fn`). Every external dependency (DB, filesystem, HTTP, LLM) is injected via Layer composition.
 
 ```mermaid
-%%{init: {'theme': 'dark', 'themeVariables': { 
+%%{init: {'theme': 'dark', 'themeVariables': {
   'background': '#111827',
   'lineColor': '#e5e7eb',
   'primaryTextColor': '#ffffff',
@@ -470,7 +470,7 @@ graph TB
 ### 2.4 Service Dependency Graph (Layer Composition)
 
 ```mermaid
-%%{init: {'theme': 'dark', 'themeVariables': { 
+%%{init: {'theme': 'dark', 'themeVariables': {
   'background': '#111827',
   'lineColor': '#e5e7eb',
   'primaryTextColor': '#ffffff',
@@ -524,7 +524,7 @@ graph BT
 ### 2.5 Client Architecture (React + Effect Atom)
 
 ```mermaid
-%%{init: {'theme': 'dark', 'themeVariables': { 
+%%{init: {'theme': 'dark', 'themeVariables': {
   'background': '#111827',
   'lineColor': '#e5e7eb',
   'primaryTextColor': '#ffffff',
@@ -584,7 +584,7 @@ graph TB
 ### 2.6 Database Schema (SQLite)
 
 ```mermaid
-%%{init: {'theme': 'dark', 'themeVariables': { 
+%%{init: {'theme': 'dark', 'themeVariables': {
   'background': '#111827',
   'lineColor': '#e5e7eb',
   'primaryTextColor': '#ffffff',
@@ -654,7 +654,7 @@ erDiagram
 A single `POST /api/eval/single` request with `variant: "standard"`. One LLM call per task. The `mode` field is accepted in the request but only `"direct"` is fully implemented; `"agent"` mode is planned for Phase 6.
 
 ```mermaid
-%%{init: {'theme': 'dark', 'themeVariables': { 
+%%{init: {'theme': 'dark', 'themeVariables': {
   'background': '#111827',
   'lineColor': '#e5e7eb',
   'primaryTextColor': '#ffffff',
@@ -702,7 +702,7 @@ sequenceDiagram
 The λ-RLM algorithm runs 5 phases: task detection → planning → Φ execution → self-correction.
 
 ```mermaid
-%%{init: {'theme': 'dark', 'themeVariables': { 
+%%{init: {'theme': 'dark', 'themeVariables': {
   'background': '#111827',
   'lineColor': '#e5e7eb',
   'primaryTextColor': '#ffffff',
@@ -779,7 +779,7 @@ sequenceDiagram
 ### 3.3 Batch Evaluation Workflow
 
 ```mermaid
-%%{init: {'theme': 'dark', 'themeVariables': { 
+%%{init: {'theme': 'dark', 'themeVariables': {
   'background': '#111827',
   'lineColor': '#e5e7eb',
   'primaryTextColor': '#ffffff',
@@ -824,7 +824,7 @@ sequenceDiagram
 ### 3.4 CLI Pipeline Workflow (`bun src/index.ts [eval] [run] [build]`)
 
 ```mermaid
-%%{init: {'theme': 'dark', 'themeVariables': { 
+%%{init: {'theme': 'dark', 'themeVariables': {
   'background': '#111827',
   'lineColor': '#e5e7eb',
   'primaryTextColor': '#ffffff',
@@ -867,7 +867,7 @@ flowchart TD
 ### 3.5 Client Data Flow
 
 ```mermaid
-%%{init: {'theme': 'dark', 'themeVariables': { 
+%%{init: {'theme': 'dark', 'themeVariables': {
   'background': '#111827',
   'lineColor': '#e5e7eb',
   'primaryTextColor': '#ffffff',
@@ -906,7 +906,7 @@ sequenceDiagram
 ### 3.6 λ-RLM Algorithm Detail (Internal)
 
 ```mermaid
-%%{init: {'theme': 'dark', 'themeVariables': { 
+%%{init: {'theme': 'dark', 'themeVariables': {
   'background': '#111827',
   'lineColor': '#e5e7eb',
   'primaryTextColor': '#ffffff',
@@ -981,8 +981,8 @@ flowchart TD
 | `llm/LlmPrompts.ts`        | Pure prompt builder functions                                        |
 | `eval/EvalRunner.ts`       | Fetch top models from OpenRouter                                     |
 | `eval/ModelEvalRunner.ts`  | Standard + RLM eval per model                                        |
-| `build/BuildResults.ts`    | Aggregate res/*.txt → results.json                                   |
-| `run/RunWriter.ts`         | Write eval results to res/*.txt                                      |
+| `build/BuildResults.ts`    | Aggregate res/\*.txt → results.json                                  |
+| `run/RunWriter.ts`         | Write eval results to res/\*.txt                                     |
 | `config/BenchConfig.ts`    | Load and validate bench.config.json                                  |
 
 ### Client (`apps/client/src/`)

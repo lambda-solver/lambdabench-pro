@@ -29,23 +29,20 @@ const noJsonParse = Rule.define({
     type: "suggestion",
     description: "Use Schema for JSON decoding instead of JSON.parse",
   }),
-  create: function*() {
+  create: function* () {
     const ctx = yield* RuleContext;
     return {
       MemberExpression: (node) =>
-        Option.match(
-          AST.matchMember(node, "JSON", ["parse", "stringify"]),
-          {
-            onNone: () => Effect.void,
-            onSome: (matched) =>
-              ctx.report(
-                Diagnostic.make({
-                  node: matched,
-                  message: "Use Schema for JSON",
-                }),
-              ),
-          },
-        ),
+        Option.match(AST.matchMember(node, "JSON", ["parse", "stringify"]), {
+          onNone: () => Effect.void,
+          onSome: (matched) =>
+            ctx.report(
+              Diagnostic.make({
+                node: matched,
+                message: "Use Schema for JSON",
+              }),
+            ),
+        }),
     };
   },
 });
@@ -89,13 +86,7 @@ const noNewDate = Rule.banNewExpr("Date", {
 // Combine multiple patterns
 const noImperativeLoops = Rule.banMultiple(
   {
-    statements: [
-      "ForStatement",
-      "ForInStatement",
-      "ForOfStatement",
-      "WhileStatement",
-      "DoWhileStatement",
-    ],
+    statements: ["ForStatement", "ForInStatement", "ForOfStatement", "WhileStatement", "DoWhileStatement"],
   },
   { message: "Use Arr.map / Effect.forEach instead" },
 );
@@ -127,20 +118,12 @@ import * as Option from "effect/Option";
 
 describe("no-json-parse", () => {
   test("reports JSON.parse", () => {
-    const result = Testing.runRule(
-      noJsonParse,
-      "MemberExpression",
-      Testing.memberExpr("JSON", "parse"),
-    );
+    const result = Testing.runRule(noJsonParse, "MemberExpression", Testing.memberExpr("JSON", "parse"));
     Testing.expectDiagnostics(result, [{ message: "Use Schema for JSON" }]);
   });
 
   test("ignores other member expressions", () => {
-    const result = Testing.runRule(
-      noJsonParse,
-      "MemberExpression",
-      Testing.memberExpr("console", "log"),
-    );
+    const result = Testing.runRule(noJsonParse, "MemberExpression", Testing.memberExpr("console", "log"));
     Testing.expectNoDiagnostics(result);
   });
 });

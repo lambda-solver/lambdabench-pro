@@ -1,14 +1,19 @@
 // apps/server/src/localServer.test.ts
 
 import * as BunHttpPlatform from "@effect/platform-bun/BunHttpPlatform";
+import type * as NodePath from "node:path";
+
+import { Effect, Layer } from "effect";
+
+import { afterEach, vi } from "vitest";
+
+import { describe, it } from "@effect/vitest";
+import { existsSync, unlinkSync } from "node:fs";
+
+import { HttpServer } from "effect/unstable/http/HttpServer";
+
 import { layer as nodeFileSystemLayer } from "@effect/platform-node-shared/NodeFileSystem";
 import { layer as nodePathLayer } from "@effect/platform-node-shared/NodePath";
-import { describe, it } from "@effect/vitest";
-import { Effect, Layer } from "effect";
-import { HttpServer } from "effect/unstable/http/HttpServer";
-import { existsSync, unlinkSync } from "node:fs";
-import type * as NodePath from "node:path";
-import { afterEach, vi } from "vitest";
 
 const testDbPath = "/tmp/lambench-localserver-test.sqlite";
 
@@ -73,7 +78,7 @@ describe("localServer", () => {
 
   it.effect("ServerLive is a valid Layer and can be built", () =>
     Effect.scoped(
-      Effect.gen(function*() {
+      Effect.gen(function* () {
         const layer = ServerLive.pipe(
           Layer.provide(nodeFileSystemLayer),
           Layer.provide(nodePathLayer),
@@ -81,5 +86,6 @@ describe("localServer", () => {
         );
         yield* Layer.build(layer);
       }),
-    ));
+    ),
+  );
 });

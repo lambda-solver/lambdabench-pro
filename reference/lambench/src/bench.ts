@@ -8,13 +8,7 @@ import { mkdirSync, readFileSync, writeFileSync } from "fs";
 import { homedir } from "os";
 import { join } from "path";
 import type { Task } from "./check";
-import {
-  load_tasks,
-  REF_DIR,
-  reference_bits,
-  run_task,
-  task_score,
-} from "./check";
+import { load_tasks, REF_DIR, reference_bits, run_task, task_score } from "./check";
 
 const DEFAULT_TASK_TIMEOUT_MS = 3600 * 1000;
 
@@ -155,10 +149,7 @@ function load_keys() {
 function parse_args(): Args {
   var args = process.argv.slice(2);
   if (args.length === 0) {
-    console.error(
-      "usage: bun eval <provider/model> [--filter prefix] " +
-        "[--concurrency n] [--timeout seconds]",
-    );
+    console.error("usage: bun eval <provider/model> [--filter prefix] " + "[--concurrency n] [--timeout seconds]");
     process.exit(1);
   }
 
@@ -217,9 +208,7 @@ function report_stamp(date: Date): string {
 function matches_filter(id: string, filter?: string): boolean {
   if (!filter) return true;
   if (filter.includes("*")) {
-    var re = new RegExp(
-      "^" + filter.split("*").map(escape_re).join(".*") + "$",
-    );
+    var re = new RegExp("^" + filter.split("*").map(escape_re).join(".*") + "$");
     return re.test(id);
   }
   return id === filter || id.startsWith(filter) || id.includes(filter);
@@ -233,9 +222,7 @@ function get_model(spec: string): EvalModel {
   var [provider, ...rest] = spec.split("/");
   var model_id = normalize_model_id(provider, rest.join("/"));
   if (!provider || !model_id) {
-    throw new Error(
-      "model must look like <provider>/<model>, for example openai/gpt-5.5",
-    );
+    throw new Error("model must look like <provider>/<model>, for example openai/gpt-5.5");
   }
   validate_model_provider(spec, provider, model_id);
 
@@ -259,11 +246,7 @@ function get_model(spec: string): EvalModel {
     });
     return { spec, provider, model_id, sdk: openrouter(model_id) };
   }
-  if (
-    provider === "moonshotai" ||
-    provider === "moonshot" ||
-    provider === "kimi"
-  ) {
+  if (provider === "moonshotai" || provider === "moonshot" || provider === "kimi") {
     var moonshot = createOpenAICompatible({
       name: "moonshotai",
       apiKey: process.env.MOONSHOT_API_KEY,
@@ -274,22 +257,13 @@ function get_model(spec: string): EvalModel {
   return { spec, provider, model_id, sdk: spec };
 }
 
-function validate_model_provider(
-  spec: string,
-  provider: string,
-  model_id: string,
-) {
+function validate_model_provider(spec: string, provider: string, model_id: string) {
   if (provider === "openai" && looks_like_anthropic_model(model_id)) {
-    throw new Error(
-      `model "${spec}" looks like an Anthropic model; ` +
-        `use "anthropic/${model_id}"`,
-    );
+    throw new Error(`model "${spec}" looks like an Anthropic model; ` + `use "anthropic/${model_id}"`);
   }
 
   if (provider === "anthropic" && looks_like_openai_model(model_id)) {
-    throw new Error(
-      `model "${spec}" looks like an OpenAI model; use "openai/${model_id}"`,
-    );
+    throw new Error(`model "${spec}" looks like an OpenAI model; use "openai/${model_id}"`);
   }
 }
 
@@ -304,10 +278,7 @@ function looks_like_anthropic_model(model_id: string): boolean {
 
 function looks_like_openai_model(model_id: string): boolean {
   return (
-    model_id.startsWith("gpt-") ||
-    model_id.startsWith("o1") ||
-    model_id.startsWith("o3") ||
-    model_id.startsWith("o4")
+    model_id.startsWith("gpt-") || model_id.startsWith("o1") || model_id.startsWith("o3") || model_id.startsWith("o4")
   );
 }
 
@@ -383,14 +354,10 @@ function format_line(result: EvalResult): string {
     return `✗ ${result.id.padEnd(18)} ${time}${error}`;
   }
 
-  var ref =
-    result.ref_bits === undefined ? "new-ref" : `${result.ref_bits} ref`;
+  var ref = result.ref_bits === undefined ? "new-ref" : `${result.ref_bits} ref`;
   var saved = result.created_reference ? " saved-ref" : "";
   var score = (result.score * 100).toFixed(1);
-  return [
-    `✓ ${result.id.padEnd(18)} ${time}`,
-    `${result.bits} bits, ${ref}, score ${score}${saved}`,
-  ].join(" ");
+  return [`✓ ${result.id.padEnd(18)} ${time}`, `${result.bits} bits, ${ref}, score ${score}${saved}`].join(" ");
 }
 
 function summarize_error(error: string): string {
@@ -406,11 +373,7 @@ function summarize_error(error: string): string {
   );
 }
 
-function clean_process_error(
-  cmd: string,
-  stdout: string,
-  stderr: string,
-): string {
+function clean_process_error(cmd: string, stdout: string, stderr: string): string {
   var text = strip_ansi([stderr, stdout].filter(Boolean).join("\n"));
   var json_error = extract_json_error(text);
   if (json_error) return json_error;
@@ -503,11 +466,7 @@ function run_process(
   });
 }
 
-function codex_args(
-  model_id: string,
-  work_dir: string,
-  out_file: string,
-): string[] {
+function codex_args(model_id: string, work_dir: string, out_file: string): string[] {
   return [
     "exec",
     "--ephemeral",
@@ -573,13 +532,7 @@ async function generate_solution(
   var prompt = task_prompt(task);
 
   if (model.provider === "openai") {
-    var text = await generate_with_codex(
-      model,
-      task,
-      prompt,
-      out_dir,
-      timeout_ms,
-    );
+    var text = await generate_with_codex(model, task, prompt, out_dir, timeout_ms);
     return { text };
   }
 
@@ -605,10 +558,7 @@ async function generate_solution(
   return { text, usage };
 }
 
-function timeout_result(
-  ms: number,
-  abort: AbortController,
-): { promise: Promise<never>; cancel: () => void } {
+function timeout_result(ms: number, abort: AbortController): { promise: Promise<never>; cancel: () => void } {
   var timer: ReturnType<typeof setTimeout>;
   var promise = new Promise<never>((_, reject) => {
     timer = setTimeout(() => {
@@ -644,14 +594,7 @@ async function eval_task_body(
   var raw_path = join(out_dir, task.id + ".txt");
   var lam_path = join(out_dir, task.id + ".lam");
 
-  var response = await generate_solution(
-    model,
-    task,
-    out_dir,
-    signal,
-    remaining_task_ms(deadline_ms),
-    no_reasoning,
-  );
+  var response = await generate_solution(model, task, out_dir, signal, remaining_task_ms(deadline_ms), no_reasoning);
   throw_if_aborted(signal);
 
   writeFileSync(raw_path, response.text);
@@ -700,15 +643,7 @@ async function eval_task(
     var deadline_ms = started + timeout_ms;
     var timeout = timeout_result(timeout_ms, abort);
     return await Promise.race([
-      eval_task_body(
-        task,
-        model,
-        out_dir,
-        started,
-        deadline_ms,
-        abort.signal,
-        no_reasoning,
-      ),
+      eval_task_body(task, model, out_dir, started, deadline_ms, abort.signal, no_reasoning),
       timeout.promise,
     ]);
   } catch (e: any) {
@@ -726,12 +661,7 @@ async function eval_task(
   }
 }
 
-function build_text_report(
-  model: string,
-  results: EvalResult[],
-  score: number,
-  total_tasks: number,
-): string {
+function build_text_report(model: string, results: EvalResult[], score: number, total_tasks: number): string {
   var lines: string[] = [];
   var right = results.filter((result) => result.pass).length;
 
@@ -768,11 +698,7 @@ function build_text_report(
   return lines.join("\n") + "\n";
 }
 
-async function run_pool<T, R>(
-  items: T[],
-  concurrency: number,
-  fn: (item: T) => Promise<R>,
-): Promise<R[]> {
+async function run_pool<T, R>(items: T[], concurrency: number, fn: (item: T) => Promise<R>): Promise<R[]> {
   var results: R[] = new Array(items.length);
   var next = 0;
 
@@ -799,13 +725,7 @@ async function main() {
   var tasks = all_tasks.filter((task) => matches_filter(task.id, args.filter));
   var started_at = new Date();
   var stamp = started_at.toISOString().replace(/[:.]/g, "-");
-  var out_dir = join(
-    import.meta.dir,
-    "..",
-    ".eval",
-    safe_name(args.model),
-    stamp,
-  );
+  var out_dir = join(import.meta.dir, "..", ".eval", safe_name(args.model), stamp);
   mkdirSync(out_dir, { recursive: true });
 
   console.log(`model: ${args.model}`);
@@ -820,13 +740,7 @@ async function main() {
   var completed = 0;
   var results = await run_pool(tasks, args.concurrency, async (task) => {
     console.log(`→ ${task.id}`);
-    var result = await eval_task(
-      task,
-      model,
-      out_dir,
-      args.timeout_ms,
-      args.no_reasoning,
-    );
+    var result = await eval_task(task, model, out_dir, args.timeout_ms, args.no_reasoning);
     completed += 1;
     console.log(`${format_line(result)} (${completed}/${tasks.length})`);
     return result;
@@ -834,10 +748,7 @@ async function main() {
 
   var pass = results.filter((r) => r.pass).length;
   var created_refs = results.filter((r) => r.created_reference).length;
-  var score =
-    (results.reduce((sum, r) => sum + r.score, 0) /
-      Math.max(all_tasks.length, 1)) *
-    100;
+  var score = (results.reduce((sum, r) => sum + r.score, 0) / Math.max(all_tasks.length, 1)) * 100;
   var report = {
     model: args.model,
     filter: args.filter,
@@ -854,16 +765,8 @@ async function main() {
   writeFileSync(report_path, JSON.stringify(report, null, 2));
   var res_dir = join(import.meta.dir, "..", "res");
   mkdirSync(res_dir, { recursive: true });
-  var text_report_path = join(
-    res_dir,
-    `${report_stamp(started_at)}.${safe_name(args.model)}.txt`,
-  );
-  var text_report = build_text_report(
-    args.model,
-    results,
-    score,
-    all_tasks.length,
-  );
+  var text_report_path = join(res_dir, `${report_stamp(started_at)}.${safe_name(args.model)}.txt`);
+  var text_report = build_text_report(args.model, results, score, all_tasks.length);
   writeFileSync(text_report_path, text_report);
 
   console.log("");

@@ -2,19 +2,24 @@
 
 import * as NodeFileSystem from "@effect/platform-node-shared/NodeFileSystem";
 import * as NodePath from "@effect/platform-node-shared/NodePath";
-import { beforeEach, describe, it } from "@effect/vitest";
-import { assertDefined, assertTrue, deepStrictEqual, strictEqual } from "@effect/vitest/utils";
-import type { SingleEvalRequest } from "@repo/domain/Api";
-import { Effect, Layer } from "effect";
-import { LanguageModel } from "effect/unstable/ai";
-import { vi } from "vitest";
-import { runTaskWithLlm } from "../check/Check.js";
-import { ModelCallError } from "../llm/ModelGuard.js";
-import { rlmEval } from "../rlm/LambdaRlm.js";
-import { EvalService, EvalServiceLive } from "./EvalService";
+
 import type { DbTask, InsertResult } from "./ResultStore";
+import { Effect, Layer } from "effect";
+
+import { EvalService, EvalServiceLive } from "./EvalService";
+
+import { assertDefined, assertTrue, deepStrictEqual, strictEqual } from "@effect/vitest/utils";
+import { beforeEach, describe, it } from "@effect/vitest";
+
+import { LanguageModel } from "effect/unstable/ai";
+import { ModelCallError } from "../llm/ModelGuard.js";
 import { ResultStore } from "./ResultStore";
+import type { SingleEvalRequest } from "@repo/domain/Api";
 import { TaskService } from "./TaskService";
+import { rlmEval } from "../rlm/LambdaRlm.js";
+
+import { runTaskWithLlm } from "../check/Check.js";
+import { vi } from "vitest";
 
 // ─── Module mocks ────────────────────────────────────────────────────────────
 
@@ -49,9 +54,7 @@ const testDbTask: DbTask = {
   ],
 };
 
-const makeRequest = (
-  overrides?: Partial<SingleEvalRequest>,
-): SingleEvalRequest =>
+const makeRequest = (overrides?: Partial<SingleEvalRequest>): SingleEvalRequest =>
   ({
     maxTokens: 4096,
     model: "test-model",
@@ -122,50 +125,47 @@ describe("EvalService", () => {
     vi.clearAllMocks();
   });
 
-  it.effect(
-    "returns pass=false with 'Task not found' when task is missing",
-    () => {
-      const captured: Array<InsertResult> = [];
-      const layers = makeMockLayers((r) => captured.push(r));
+  it.effect("returns pass=false with 'Task not found' when task is missing", () => {
+    const captured: Array<InsertResult> = [];
+    const layers = makeMockLayers((r) => captured.push(r));
 
-      return Effect.gen(function*() {
-        const svc = yield* EvalService;
+    return Effect.gen(function* () {
+      const svc = yield* EvalService;
 
-        const request = makeRequest({ task: "missing-task" });
-        const result = yield* svc.evaluateSingle(request);
+      const request = makeRequest({ task: "missing-task" });
+      const result = yield* svc.evaluateSingle(request);
 
-        strictEqual(result.taskId, "missing-task");
-        strictEqual(result.model, "test-model");
-        strictEqual(result.variant, "standard");
-        strictEqual(result.pass, false);
-        strictEqual(result.bits, 0);
-        strictEqual(result.score, 0);
-        deepStrictEqual(result.errors, ["Task not found"]);
-        strictEqual(result.elapsedMs, 0);
-        strictEqual(result.submission, "");
-        assertDefined(result.timestamp);
+      strictEqual(result.taskId, "missing-task");
+      strictEqual(result.model, "test-model");
+      strictEqual(result.variant, "standard");
+      strictEqual(result.pass, false);
+      strictEqual(result.bits, 0);
+      strictEqual(result.score, 0);
+      deepStrictEqual(result.errors, ["Task not found"]);
+      strictEqual(result.elapsedMs, 0);
+      strictEqual(result.submission, "");
+      assertDefined(result.timestamp);
 
-        strictEqual(captured.length, 1);
-        strictEqual(captured[0]?.taskId, "missing-task");
-        strictEqual(captured[0]?.model, "test-model");
-        strictEqual(captured[0]?.variant, "standard");
-        strictEqual(captured[0]?.provider, "openrouter");
-        strictEqual(captured[0]?.pass, false);
-        strictEqual(captured[0]?.bits, 0);
-        strictEqual(captured[0]?.score, 0);
-        deepStrictEqual(captured[0]?.errors, ["Task not found"]);
-        strictEqual(captured[0]?.submission, "");
-        strictEqual(captured[0]?.elapsedMs, 0);
-        assertDefined(captured[0]?.timestamp);
-        assertDefined(captured[0]?.runId);
-      }).pipe(
-        Effect.provide(EvalServiceLive),
-        Effect.provide(layers),
-        Effect.provide(NodeFileSystem.layer),
-        Effect.provide(NodePath.layer),
-      );
-    },
-  );
+      strictEqual(captured.length, 1);
+      strictEqual(captured[0]?.taskId, "missing-task");
+      strictEqual(captured[0]?.model, "test-model");
+      strictEqual(captured[0]?.variant, "standard");
+      strictEqual(captured[0]?.provider, "openrouter");
+      strictEqual(captured[0]?.pass, false);
+      strictEqual(captured[0]?.bits, 0);
+      strictEqual(captured[0]?.score, 0);
+      deepStrictEqual(captured[0]?.errors, ["Task not found"]);
+      strictEqual(captured[0]?.submission, "");
+      strictEqual(captured[0]?.elapsedMs, 0);
+      assertDefined(captured[0]?.timestamp);
+      assertDefined(captured[0]?.runId);
+    }).pipe(
+      Effect.provide(EvalServiceLive),
+      Effect.provide(layers),
+      Effect.provide(NodeFileSystem.layer),
+      Effect.provide(NodePath.layer),
+    );
+  });
 
   it.effect("standard eval success returns correct EvalResult", () => {
     vi.mocked(runTaskWithLlm).mockReturnValue(
@@ -182,7 +182,7 @@ describe("EvalService", () => {
     const captured: Array<InsertResult> = [];
     const layers = makeMockLayers((r) => captured.push(r));
 
-    return Effect.gen(function*() {
+    return Effect.gen(function* () {
       const svc = yield* EvalService;
 
       const request = makeRequest();
@@ -220,44 +220,37 @@ describe("EvalService", () => {
     );
   });
 
-  it.effect(
-    "standard eval ModelCallError is caught and returns pass=false",
-    () => {
-      vi.mocked(runTaskWithLlm).mockReturnValue(
-        Effect.fail(new ModelCallError("test-model", 1, "connection timeout")),
-      );
+  it.effect("standard eval ModelCallError is caught and returns pass=false", () => {
+    vi.mocked(runTaskWithLlm).mockReturnValue(Effect.fail(new ModelCallError("test-model", 1, "connection timeout")));
 
-      const captured: Array<InsertResult> = [];
-      const layers = makeMockLayers((r) => captured.push(r));
+    const captured: Array<InsertResult> = [];
+    const layers = makeMockLayers((r) => captured.push(r));
 
-      return Effect.gen(function*() {
-        const svc = yield* EvalService;
+    return Effect.gen(function* () {
+      const svc = yield* EvalService;
 
-        const request = makeRequest();
-        const result = yield* svc.evaluateSingle(request);
+      const request = makeRequest();
+      const result = yield* svc.evaluateSingle(request);
 
-        strictEqual(result.taskId, "test-task");
-        strictEqual(result.pass, false);
-        strictEqual(result.bits, 0);
-        strictEqual(result.score, 0);
-        assertTrue(result.errors.some((e) => e.includes("Model call failed")));
-        strictEqual(result.elapsedMs, 0);
-        strictEqual(result.submission, "");
-        assertDefined(result.timestamp);
+      strictEqual(result.taskId, "test-task");
+      strictEqual(result.pass, false);
+      strictEqual(result.bits, 0);
+      strictEqual(result.score, 0);
+      assertTrue(result.errors.some((e) => e.includes("Model call failed")));
+      strictEqual(result.elapsedMs, 0);
+      strictEqual(result.submission, "");
+      assertDefined(result.timestamp);
 
-        strictEqual(captured.length, 1);
-        strictEqual(captured[0]?.pass, false);
-        assertTrue(
-          (captured[0]?.errors ?? []).some((e) => e.includes("Model call failed")),
-        );
-      }).pipe(
-        Effect.provide(EvalServiceLive),
-        Effect.provide(layers),
-        Effect.provide(NodeFileSystem.layer),
-        Effect.provide(NodePath.layer),
-      );
-    },
-  );
+      strictEqual(captured.length, 1);
+      strictEqual(captured[0]?.pass, false);
+      assertTrue((captured[0]?.errors ?? []).some((e) => e.includes("Model call failed")));
+    }).pipe(
+      Effect.provide(EvalServiceLive),
+      Effect.provide(layers),
+      Effect.provide(NodeFileSystem.layer),
+      Effect.provide(NodePath.layer),
+    );
+  });
 
   it.effect("rlm eval returns correct EvalResult with metadata", () => {
     vi.mocked(rlmEval).mockReturnValue(
@@ -275,7 +268,7 @@ describe("EvalService", () => {
     const captured: Array<InsertResult> = [];
     const layers = makeMockLayers((r) => captured.push(r));
 
-    return Effect.gen(function*() {
+    return Effect.gen(function* () {
       const svc = yield* EvalService;
 
       const request = makeRequest({ variant: "rlm" });
@@ -309,52 +302,49 @@ describe("EvalService", () => {
     );
   });
 
-  it.effect(
-    "insertResult receives correct InsertResult shape including all fields",
-    () => {
-      vi.mocked(runTaskWithLlm).mockReturnValue(
-        Effect.succeed({
-          bits: 99,
-          elapsedMs: 5678,
-          errors: ["minor issue"],
-          id: "test-task",
-          pass: true,
-          score: 0.75,
-        }) as unknown as ReturnType<typeof runTaskWithLlm>,
-      );
+  it.effect("insertResult receives correct InsertResult shape including all fields", () => {
+    vi.mocked(runTaskWithLlm).mockReturnValue(
+      Effect.succeed({
+        bits: 99,
+        elapsedMs: 5678,
+        errors: ["minor issue"],
+        id: "test-task",
+        pass: true,
+        score: 0.75,
+      }) as unknown as ReturnType<typeof runTaskWithLlm>,
+    );
 
-      const captured: Array<InsertResult> = [];
-      const layers = makeMockLayers((r) => captured.push(r));
+    const captured: Array<InsertResult> = [];
+    const layers = makeMockLayers((r) => captured.push(r));
 
-      return Effect.gen(function*() {
-        const svc = yield* EvalService;
+    return Effect.gen(function* () {
+      const svc = yield* EvalService;
 
-        const request = makeRequest({ provider: "opencode-go" });
-        yield* svc.evaluateSingle(request);
+      const request = makeRequest({ provider: "opencode-go" });
+      yield* svc.evaluateSingle(request);
 
-        strictEqual(captured.length, 1);
-        const [inserted] = captured;
-        assertDefined(inserted);
+      strictEqual(captured.length, 1);
+      const [inserted] = captured;
+      assertDefined(inserted);
 
-        // Verify every required field in InsertResult
-        assertDefined(inserted.runId);
-        strictEqual(inserted.taskId, "test-task");
-        strictEqual(inserted.model, "test-model");
-        strictEqual(inserted.variant, "standard");
-        strictEqual(inserted.provider, "opencode-go");
-        strictEqual(inserted.pass, true);
-        strictEqual(inserted.bits, 99);
-        strictEqual(inserted.score, 0.75);
-        deepStrictEqual(inserted.errors, ["minor issue"]);
-        strictEqual(inserted.submission, "");
-        strictEqual(inserted.elapsedMs, 5678);
-        assertDefined(inserted.timestamp);
-      }).pipe(
-        Effect.provide(EvalServiceLive),
-        Effect.provide(layers),
-        Effect.provide(NodeFileSystem.layer),
-        Effect.provide(NodePath.layer),
-      );
-    },
-  );
+      // Verify every required field in InsertResult
+      assertDefined(inserted.runId);
+      strictEqual(inserted.taskId, "test-task");
+      strictEqual(inserted.model, "test-model");
+      strictEqual(inserted.variant, "standard");
+      strictEqual(inserted.provider, "opencode-go");
+      strictEqual(inserted.pass, true);
+      strictEqual(inserted.bits, 99);
+      strictEqual(inserted.score, 0.75);
+      deepStrictEqual(inserted.errors, ["minor issue"]);
+      strictEqual(inserted.submission, "");
+      strictEqual(inserted.elapsedMs, 5678);
+      assertDefined(inserted.timestamp);
+    }).pipe(
+      Effect.provide(EvalServiceLive),
+      Effect.provide(layers),
+      Effect.provide(NodeFileSystem.layer),
+      Effect.provide(NodePath.layer),
+    );
+  });
 });

@@ -23,45 +23,38 @@
  * named, reused effect that would benefit from a named span.
  */
 
-import type { ESTree } from "effect-oxlint";
-
 import * as Effect from "effect/Effect";
-import { pipe } from "effect/Function";
 import * as Option from "effect/Option";
 import * as Ref from "effect/Ref";
 import * as Schema from "effect/Schema";
 
 import { AST, Diagnostic, Rule, RuleContext, Visitor } from "effect-oxlint";
 
+import type { ESTree } from "effect-oxlint";
+import { pipe } from "effect/Function";
+
 // ---------------------------------------------------------------------------
 // Domain
 // ---------------------------------------------------------------------------
 
-const LayerFactoryName = Schema.Literals([
-  "effect",
-  "scoped",
-  "succeed",
-]).annotate({
-  title: "LayerFactoryName",
+const LayerFactoryName = Schema.Literals(["effect", "scoped", "succeed"]).annotate({
   description: "`Layer.effect` / `Layer.scoped` / `Layer.succeed` — the factories that build service bodies.",
+  title: "LayerFactoryName",
 });
 
 const isLayerFactoryName = Schema.is(LayerFactoryName);
 
 const EffectFnLikeName = Schema.Literals(["fn", "fnUntraced"]).annotate({
-  title: "EffectFnLikeName",
   description: "`Effect.fn` and `Effect.fnUntraced` — already-traced wrappers; `Effect.gen` inside them is exempt.",
+  title: "EffectFnLikeName",
 });
 
 const isEffectFnLikeName = Schema.is(EffectFnLikeName);
 
-const FlaggedAssignmentParentType = Schema.Literals([
-  "VariableDeclarator",
-  "ExportDefaultDeclaration",
-]).annotate({
-  title: "FlaggedAssignmentParentType",
+const FlaggedAssignmentParentType = Schema.Literals(["VariableDeclarator", "ExportDefaultDeclaration"]).annotate({
   description:
     "Parent shapes of a top-level `Effect.gen(...)` worth flagging — the function effectively gets a name through the binding.",
+  title: "FlaggedAssignmentParentType",
 });
 
 const isFlaggedAssignmentParentType = Schema.is(FlaggedAssignmentParentType);
@@ -75,9 +68,7 @@ const isLayerFactoryCall = (node: ESTree.CallExpression): boolean =>
   pipe(
     AST.narrow(node.callee, "MemberExpression"),
     Option.flatMap(AST.memberNames),
-    Option.exists(
-      ([obj, prop]) => obj === "Layer" && isLayerFactoryName(prop),
-    ),
+    Option.exists(([obj, prop]) => obj === "Layer" && isLayerFactoryName(prop)),
   );
 
 /**
@@ -99,9 +90,7 @@ const isEffectFnLikeCall = (node: ESTree.CallExpression): boolean =>
   pipe(
     AST.narrow(node.callee, "MemberExpression"),
     Option.flatMap(AST.memberNames),
-    Option.exists(
-      ([obj, prop]) => obj === "Effect" && isEffectFnLikeName(prop),
-    ),
+    Option.exists(([obj, prop]) => obj === "Effect" && isEffectFnLikeName(prop)),
   );
 
 /**
@@ -113,7 +102,7 @@ const parentNode = (node: ESTree.Node): Option.Option<ESTree.Node> => Option.fro
 const parentOfType = <T extends string>(
   node: ESTree.Node,
   type: T,
-): Option.Option<ESTree.Node & { readonly type: T; }> => pipe(parentNode(node), Option.flatMap(AST.narrow(type)));
+): Option.Option<ESTree.Node & { readonly type: T }> => pipe(parentNode(node), Option.flatMap(AST.narrow(type)));
 
 /**
  * The `Effect.gen` IS the direct factory body of a `Layer.*` call —
@@ -122,10 +111,7 @@ const parentOfType = <T extends string>(
  * not be flagged.
  */
 const isLayerFactoryBody = (node: ESTree.Node): boolean =>
-  pipe(
-    parentOfType(node, "CallExpression"),
-    Option.exists(isLayerFactoryCall),
-  );
+  pipe(parentOfType(node, "CallExpression"), Option.exists(isLayerFactoryCall));
 
 /**
  * The `Effect.gen` IS the value of `make:` inside a
@@ -135,9 +121,7 @@ const isLayerFactoryBody = (node: ESTree.Node): boolean =>
 const isContextServiceMakeBody = (node: ESTree.Node): boolean =>
   pipe(
     parentOfType(node, "Property"),
-    Option.filter(
-      (prop) => prop.key.type === "Identifier" && prop.key.name === "make",
-    ),
+    Option.filter((prop) => prop.key.type === "Identifier" && prop.key.name === "make"),
     Option.flatMap((prop) => parentOfType(prop, "ObjectExpression")),
     Option.flatMap((obj) => parentOfType(obj, "CallExpression")),
     Option.exists(isContextServiceDoubleCall),
@@ -161,42 +145,24 @@ const isFlaggedTopLevelAssignment = (node: ESTree.Node): boolean =>
 // ---------------------------------------------------------------------------
 
 const SERVICE_MESSAGE =
-  "Use `Effect.fn(\"ServiceName.methodName\")(function* (...) { ... })` instead of `Effect.gen` for service methods. `Effect.fn` provides automatic tracing with named spans. (EF-14)";
+  'Use `Effect.fn("ServiceName.methodName")(function* (...) { ... })` instead of `Effect.gen` for service methods. `Effect.fn` provides automatic tracing with named spans. (EF-14)';
 
 const TOP_LEVEL_MESSAGE =
-  "Use `Effect.fn(\"functionName\")(function* (...) { ... })` instead of assigning `Effect.gen(...)` to a variable. `Effect.fn` provides automatic tracing with named spans. (EF-14)";
+  'Use `Effect.fn("functionName")(function* (...) { ... })` instead of assigning `Effect.gen(...)` to a variable. `Effect.fn` provides automatic tracing with named spans. (EF-14)';
 
 export default Rule.define({
-  name: "prefer-effect-fn",
-  meta: Rule.meta({
-    type: "suggestion",
-    description:
-      "Flag `Effect.gen(...)` inside service-defining factories (`Layer.effect|scoped|succeed` or `Context.Service<...>()(..., { make })`), the factory-body `Effect.gen` itself exempted, and top-level named-binding assignments. `Effect.gen` inside `Effect.fn` / `Effect.fnUntraced` is exempt. (EF-14)",
-  }),
-  create: function*() {
+  create: function* () {
     const ctx = yield* RuleContext;
     const layerFactoryDepth = yield* Ref.make(0);
     const serviceDefDepth = yield* Ref.make(0);
     const effectFnDepth = yield* Ref.make(0);
 
     return Visitor.merge(
-      Visitor.tracked(
-        "CallExpression",
-        isLayerFactoryCall,
-        layerFactoryDepth,
-      ),
-      Visitor.tracked(
-        "CallExpression",
-        isContextServiceDoubleCall,
-        serviceDefDepth,
-      ),
-      Visitor.tracked(
-        "CallExpression",
-        isEffectFnLikeCall,
-        effectFnDepth,
-      ),
+      Visitor.tracked("CallExpression", isLayerFactoryCall, layerFactoryDepth),
+      Visitor.tracked("CallExpression", isContextServiceDoubleCall, serviceDefDepth),
+      Visitor.tracked("CallExpression", isEffectFnLikeCall, effectFnDepth),
       Visitor.on("CallExpression", (node) =>
-        Effect.gen(function*() {
+        Effect.gen(function* () {
           if (!isEffectGenCall(node)) return;
 
           // Already wrapped by Effect.fn / Effect.fnUntraced.
@@ -227,7 +193,14 @@ export default Rule.define({
               }),
             );
           }
-        })),
+        }),
+      ),
     );
   },
+  meta: Rule.meta({
+    type: "suggestion",
+    description:
+      "Flag `Effect.gen(...)` inside service-defining factories (`Layer.effect|scoped|succeed` or `Context.Service<...>()(..., { make })`), the factory-body `Effect.gen` itself exempted, and top-level named-binding assignments. `Effect.gen` inside `Effect.fn` / `Effect.fnUntraced` is exempt. (EF-14)",
+  }),
+  name: "prefer-effect-fn",
 });

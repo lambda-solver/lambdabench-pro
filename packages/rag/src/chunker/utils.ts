@@ -11,9 +11,7 @@ export const TextSpan = Schema.Struct({
 
 export const isBlank = (text: string): boolean => text.trim().length === 0;
 
-export const buildDelimiterPattern = (
-  delimiters: ReadonlyArray<string>,
-): RegExp =>
+export const buildDelimiterPattern = (delimiters: ReadonlyArray<string>): RegExp =>
   new RegExp(
     [...delimiters]
       .toSorted((a, b) => b.length - a.length)
@@ -22,10 +20,7 @@ export const buildDelimiterPattern = (
     "g",
   );
 
-export const findDelimiterSpans = (
-  text: string,
-  pattern: RegExp,
-): Array<typeof TextSpan.Type> =>
+export const findDelimiterSpans = (text: string, pattern: RegExp): Array<typeof TextSpan.Type> =>
   [...text.matchAll(pattern)].flatMap((match) => {
     const raw = match[0];
     const startIdx = match.index;
@@ -39,9 +34,7 @@ export const splitTextByMatches = (
   includeDelim: IncludeDelim,
 ): Array<typeof TextSpan.Type> => {
   if (matches.length === 0) {
-    return text.length === 0
-      ? []
-      : [{ endIdx: text.length, startIdx: 0, text }];
+    return text.length === 0 ? [] : [{ endIdx: text.length, startIdx: 0, text }];
   }
 
   const parts: Array<typeof TextSpan.Type> = [];

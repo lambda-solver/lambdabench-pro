@@ -116,8 +116,7 @@ class Parser {
   }
   private expect(type: Token["type"]): Token {
     const t = this.consume();
-    if (t.type !== type)
-      throw new Error(`Expected ${type}, got ${t.type} at pos ${this.pos}`);
+    if (t.type !== type) throw new Error(`Expected ${type}, got ${t.type} at pos ${this.pos}`);
     return t;
   }
 
@@ -254,8 +253,7 @@ const freshen = (base: string, used: Set<string>): string => {
 const MAX_STEPS = 10_000_000;
 
 const normalize = (term: Term, book: Book, steps = { n: 0 }): Term => {
-  if (steps.n++ > MAX_STEPS)
-    throw new Error("Reduction limit exceeded (possible infinite loop)");
+  if (steps.n++ > MAX_STEPS) throw new Error("Reduction limit exceeded (possible infinite loop)");
   switch (term.tag) {
     case "Var":
       return term;
@@ -355,8 +353,7 @@ const printTerm = (term: Term, ctx: PrintCtx, needsParens = false): string => {
   }
 };
 
-const printNormal = (term: Term): string =>
-  printTerm(term, { scope: new Map(), counter: { n: 0 } });
+const printNormal = (term: Term): string => printTerm(term, { scope: new Map(), counter: { n: 0 } });
 
 // ─── BINARY ENCODING (--to-bin) ──────────────────────────────────────────────
 
@@ -369,14 +366,11 @@ const toDeBruijn = (term: Term, env: string[]): DeBruijn => {
   switch (term.tag) {
     case "Var": {
       const idx = env.indexOf(term.name);
-      if (idx === -1)
-        throw new Error(`Unbound variable in binary encoding: ${term.name}`);
+      if (idx === -1) throw new Error(`Unbound variable in binary encoding: ${term.name}`);
       return { tag: "Idx", index: idx };
     }
     case "Ref":
-      throw new Error(
-        `Ref @${term.name} must be inlined before binary encoding`,
-      );
+      throw new Error(`Ref @${term.name} must be inlined before binary encoding`);
     case "Lam":
       return { tag: "DLam", body: toDeBruijn(term.body, [term.param, ...env]) };
     case "App":
@@ -406,8 +400,7 @@ const inlineRefs = (term: Term, book: Book, visited: Set<string>): Term => {
     case "Var":
       return term;
     case "Ref": {
-      if (visited.has(term.name))
-        throw new Error(`Recursive ref @${term.name} cannot be binary-encoded`);
+      if (visited.has(term.name)) throw new Error(`Recursive ref @${term.name} cannot be binary-encoded`);
       const def = book.get(term.name);
       if (!def) throw new Error(`Undefined ref @${term.name}`);
       return inlineRefs(def, book, new Set([...visited, term.name]));
@@ -441,11 +434,7 @@ const program = Effect.gen(function* () {
   const src = yield* fs.readFileString(args[0], "utf-8");
   const book = parse(src);
 
-  const entry = book.has("_")
-    ? "_"
-    : book.has("main")
-      ? "main"
-      : [...book.keys()].at(-1);
+  const entry = book.has("_") ? "_" : book.has("main") ? "main" : [...book.keys()].at(-1);
   if (!entry) throw new Error("No definitions found in file");
 
   const term: Term = { tag: "Ref", name: entry };

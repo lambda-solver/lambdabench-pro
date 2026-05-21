@@ -10,13 +10,10 @@ import * as Schema from "effect/Schema";
 
 import { Rule } from "effect-oxlint";
 
-const ChildProcessImportSource = Schema.Literals([
-  "child_process",
-  "node:child_process",
-]).annotate({
-  title: "ChildProcessImportSource",
+const ChildProcessImportSource = Schema.Literals(["child_process", "node:child_process"]).annotate({
   description:
     "Node `child_process` module import specifiers. Use `ChildProcessSpawner` (Effect v4) or `CommandExecutor` (`@effect/platform`) instead.",
+  title: "ChildProcessImportSource",
 });
 
 const isChildProcessImportSource = Schema.is(ChildProcessImportSource);

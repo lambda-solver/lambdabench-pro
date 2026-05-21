@@ -1,7 +1,9 @@
-import type { BenchmarkData, ValueEntry } from "@repo/domain/Benchmark";
-import { BenchmarkData as BenchmarkDataSchema } from "@repo/domain/Benchmark";
 import { Array as Arr, Effect, Order, Schema } from "effect";
+import type { BenchmarkData, ValueEntry } from "@repo/domain/Benchmark";
+
+import { BenchmarkData as BenchmarkDataSchema } from "@repo/domain/Benchmark";
 import { HttpClient } from "effect/unstable/http";
+
 import { runtime } from "../atom";
 
 // ─── Data URL ─────────────────────────────────────────────────────────────────
@@ -20,15 +22,11 @@ const byPassPerDollarDesc = Order.make<ValueEntry>((a, b) => {
   return 0;
 });
 
-export const computeValueEntries = (
-  data: BenchmarkData,
-): ReadonlyArray<ValueEntry> =>
+export const computeValueEntries = (data: BenchmarkData): ReadonlyArray<ValueEntry> =>
   Arr.sort(
     data.rankings.map((r) => ({
       model: r.model,
-      passPerDollar: r.pricePerMOutputTokens > 0
-        ? parseFloat(r.pct) / r.pricePerMOutputTokens
-        : 0,
+      passPerDollar: r.pricePerMOutputTokens > 0 ? parseFloat(r.pct) / r.pricePerMOutputTokens : 0,
       passRate: parseFloat(r.pct),
       pricePerMOutput: r.pricePerMOutputTokens,
     })),
@@ -50,7 +48,7 @@ export const computeValueEntries = (
  *   })
  */
 export const benchmarkAtom = runtime.atom(
-  Effect.gen(function*() {
+  Effect.gen(function* () {
     const client = yield* HttpClient.HttpClient;
     const response = yield* client.get(resultsUrl());
     const body = yield* response.json;

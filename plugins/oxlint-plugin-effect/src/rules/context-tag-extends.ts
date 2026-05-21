@@ -1,17 +1,11 @@
-import type { ESTree } from "effect-oxlint";
-
 import * as Effect from "effect/Effect";
 
 import { AST, Diagnostic, Rule, RuleContext, Visitor } from "effect-oxlint";
 
+import type { ESTree } from "effect-oxlint";
+
 export default Rule.define({
-  name: "context-tag-extends",
-  meta: Rule.meta({
-    type: "problem",
-    description:
-      "Disallow removed Context/Effect service APIs and old ServiceMap aliases — use Context.Service and Context.* (Effect v4 beta.46)",
-  }),
-  create: function*() {
+  create: function* () {
     const ctx = yield* RuleContext;
     return Visitor.merge(
       {
@@ -19,12 +13,12 @@ export default Rule.define({
           const decl = node as ESTree.Class;
           // Flag `class FooTag extends Context.Tag<...>`
           if (
-            decl.id
-            && decl.id.name.endsWith("Tag")
-            && decl.superClass
-            && decl.superClass.type === "CallExpression"
-            && decl.superClass.callee.type === "MemberExpression"
-            && AST.isMember(decl.superClass.callee, "Context", "Tag")
+            decl.id &&
+            decl.id.name.endsWith("Tag") &&
+            decl.superClass &&
+            decl.superClass.type === "CallExpression" &&
+            decl.superClass.callee.type === "MemberExpression" &&
+            AST.isMember(decl.superClass.callee, "Context", "Tag")
           ) {
             return ctx.report(
               Diagnostic.make({
@@ -146,16 +140,13 @@ export default Rule.define({
         CallExpression: (node: ESTree.Node) => {
           const call = node as ESTree.CallExpression;
           if (
-            call.callee.type === "CallExpression"
-            && call.callee.callee.type === "MemberExpression"
-            && AST.isMember(call.callee.callee, "Effect", "Service")
+            call.callee.type === "CallExpression" &&
+            call.callee.callee.type === "MemberExpression" &&
+            AST.isMember(call.callee.callee, "Effect", "Service")
           ) {
             // Only flag if it's in a class extends position
             const { parent } = call;
-            if (
-              parent?.type === "ClassDeclaration"
-              || parent?.type === "ClassExpression"
-            ) {
+            if (parent?.type === "ClassDeclaration" || parent?.type === "ClassExpression") {
               return ctx.report(
                 Diagnostic.make({
                   node,
@@ -170,4 +161,10 @@ export default Rule.define({
       },
     );
   },
+  meta: Rule.meta({
+    type: "problem",
+    description:
+      "Disallow removed Context/Effect service APIs and old ServiceMap aliases — use Context.Service and Context.* (Effect v4 beta.46)",
+  }),
+  name: "context-tag-extends",
 });

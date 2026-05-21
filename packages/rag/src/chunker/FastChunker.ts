@@ -1,6 +1,8 @@
+import { Context, Effect, Layer, Schema } from "effect";
+
 import type { Chunk } from "@repo/domain/Chunk";
 import { Chunker } from "@repo/domain/Chunk";
-import { Context, Effect, Layer, Schema } from "effect";
+
 import { isBlank } from "./utils";
 
 const FastChunkerConfigSchema = Schema.Struct({
@@ -8,9 +10,7 @@ const FastChunkerConfigSchema = Schema.Struct({
   delimiters: Schema.NonEmptyArray(Schema.String),
 });
 
-export const FastChunkerConfig = Context.Reference<
-  typeof FastChunkerConfigSchema.Type
->("FastChunkerConfig", {
+export const FastChunkerConfig = Context.Reference<typeof FastChunkerConfigSchema.Type>("FastChunkerConfig", {
   defaultValue: () => ({
     chunkSize: 4096,
     delimiters: ["\n", ".", "?"],
@@ -22,31 +22,24 @@ const decoder = new TextDecoder();
 
 const isContinuationByte = (byte: number): boolean => (byte & 0b1100_0000) === 0b1000_0000;
 
-const isDelimiter = (
-  byte: number,
-  delimiters: ReadonlyArray<string>,
-): boolean => delimiters.includes(String.fromCharCode(byte));
+const isDelimiter = (byte: number, delimiters: ReadonlyArray<string>): boolean =>
+  delimiters.includes(String.fromCharCode(byte));
 
-export class FastChunker extends Context.Service<
-  FastChunker,
-  Chunker["Service"]
->()("FastChunker", {
-  make: Effect.gen(function*() {
+export class FastChunker extends Context.Service<FastChunker, Chunker["Service"]>()("FastChunker", {
+  make: Effect.gen(function* () {
     const config = yield* FastChunkerConfig;
-    const { chunkSize, delimiters } = yield* Schema.decodeEffect(
-      FastChunkerConfigSchema,
-    )(config);
+    const { chunkSize, delimiters } = yield* Schema.decodeEffect(FastChunkerConfigSchema)(config);
 
     const findSplit = (
       bytes: Uint8Array,
       start: number,
       targetEnd: number,
-      delimiters: ReadonlyArray<string>,
+      delims: ReadonlyArray<string>,
     ): number => {
       const maxEnd = Math.min(targetEnd, bytes.length);
 
       for (let i = maxEnd - 1; i > start; i--) {
-        if (isDelimiter(bytes[i] as number, delimiters)) {
+        if (isDelimiter(bytes[i] as number, delims)) {
           return i + 1;
         }
       }
@@ -54,11 +47,7 @@ export class FastChunker extends Context.Service<
       return maxEnd;
     };
 
-    const alignUtf8Boundary = (
-      bytes: Uint8Array,
-      start: number,
-      end: number,
-    ): number => {
+    const alignUtf8Boundary = (bytes: Uint8Array, start: number, end: number): number => {
       if (end >= bytes.length) {
         return bytes.length;
       }
@@ -73,10 +62,7 @@ export class FastChunker extends Context.Service<
       }
 
       aligned = end;
-      while (
-        aligned < bytes.length
-        && isContinuationByte(bytes[aligned] as number)
-      ) {
+      while (aligned < bytes.length && isContinuationByte(bytes[aligned] as number)) {
         aligned++;
       }
 
@@ -111,7 +97,7 @@ export class FastChunker extends Context.Service<
         }
 
         return chunks;
-      })
+      }),
     );
 
     return {

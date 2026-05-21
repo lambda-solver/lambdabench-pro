@@ -1,11 +1,14 @@
 // apps/server/src/daemon/process.ts
 // ─── ProcessHandle — Bun.spawn lifecycle management ──────────────────────────
 
-import { Effect } from "effect";
-import { closeSync, mkdirSync, openSync } from "node:fs";
-import { dirname } from "node:path";
 import { addProcess, removeProcess } from "./registry";
+import { closeSync, mkdirSync, openSync } from "node:fs";
+
+import { Effect } from "effect";
+
 import type { ProcessEntry } from "./registry";
+
+import { dirname } from "node:path";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -17,9 +20,11 @@ export interface ProcessConfig {
   readonly logFile: string;
 }
 
+type BunSubprocess = ReturnType<typeof Bun.spawn>;
+
 export interface SpawnedProcess {
   readonly pid: number;
-  readonly proc: Subprocess;
+  readonly proc: BunSubprocess;
   readonly config: ProcessConfig;
   readonly startTime: string;
 }
@@ -36,7 +41,7 @@ export class ProcessError extends Error {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const ensureLogDir = Effect.fnUntraced(function*(logFile: string) {
+const ensureLogDir = Effect.fnUntraced(function* (logFile: string) {
   yield* Effect.sync(() => {
     mkdirSync(dirname(logFile), { recursive: true });
   });
@@ -60,24 +65,16 @@ const toProcessEntry = (spawned: SpawnedProcess): ProcessEntry => ({
  * - Calls `proc.unref()` so the parent does not wait for the child.
  * - Registers the process in the daemon registry.
  */
-export const spawnProcess = Effect.fn("process.spawnProcess")(function*(
-  config: ProcessConfig,
-) {
+export const spawnProcess = Effect.fn("process.spawnProcess")(function* (config: ProcessConfig) {
   yield* ensureLogDir(config.logFile);
 
   const logFd = yield* Effect.try({
-    catch: (e) =>
-      new ProcessError(
-        `Failed to open log file: ${e instanceof Error ? e.message : String(e)}`,
-      ),
+    catch: (e) => new ProcessError(`Failed to open log file: ${e instanceof Error ? e.message : String(e)}`),
     try: () => openSync(config.logFile, "a"),
   });
 
   const proc = yield* Effect.try({
-    catch: (e) =>
-      new ProcessError(
-        `Failed to spawn process: ${e instanceof Error ? e.message : String(e)}`,
-      ),
+    catch: (e) => new ProcessError(`Failed to spawn process: ${e instanceof Error ? e.message : String(e)}`),
     try: () =>
       Bun.spawn({
         cmd: config.command,
@@ -112,15 +109,11 @@ export const spawnProcess = Effect.fn("process.spawnProcess")(function*(
  * - Escalates to SIGKILL if the process is still alive after the deadline.
  * - Removes the process from the daemon registry.
  */
-export const stopProcess = Effect.fn("process.stopProcess")(function*(
-  spawned: SpawnedProcess,
-) {
+export const stopProcess = Effect.fn("process.stopProcess")(function* (spawned: SpawnedProcess) {
   // Send SIGTERM
   yield* Effect.try({
     catch: (e) =>
-      new ProcessError(
-        `Failed to send SIGTERM to pid ${spawned.pid}: ${e instanceof Error ? e.message : String(e)}`,
-      ),
+      new ProcessError(`Failed to send SIGTERM to pid ${spawned.pid}: ${e instanceof Error ? e.message : String(e)}`),
     try: () => {
       try {
         process.kill(spawned.pid, "SIGTERM");
@@ -136,7 +129,7 @@ export const stopProcess = Effect.fn("process.stopProcess")(function*(
 
   const poll = (): Effect.Effect<void, ProcessError> =>
     Effect.suspend(() =>
-      Effect.gen(function*() {
+      Effect.gen(function* () {
         const alive = yield* isProcessAlive(spawned.pid);
         if (!alive) return;
 
@@ -154,7 +147,7 @@ export const stopProcess = Effect.fn("process.stopProcess")(function*(
 
         yield* Effect.sleep("500 millis");
         return yield* poll();
-      })
+      }),
     );
 
   yield* poll();
@@ -167,9 +160,7 @@ export const stopProcess = Effect.fn("process.stopProcess")(function*(
  * Check if a process is alive by sending signal 0.
  * Never fails — always returns a boolean.
  */
-export const isProcessAlive = Effect.fn("process.isProcessAlive")(function*(
-  pid: number,
-) {
+export const isProcessAlive = Effect.fn("process.isProcessAlive")(function* (pid: number) {
   return yield* Effect.sync(() => {
     try {
       process.kill(pid, 0);
@@ -189,37 +180,28 @@ export const isProcessAlive = Effect.fn("process.isProcessAlive")(function*(
  * Wait for a TCP port to start responding to HTTP requests.
  * Polls every 250ms until the port responds or the timeout elapses.
  */
-export const waitForPort = Effect.fn("process.waitForPort")(function*(
-  port: number,
-  timeoutMs: number = 30_000,
-) {
+export const waitForPort = Effect.fn("process.waitForPort")(function* (port: number, timeoutMs: number = 30_000) {
   const deadline = Date.now() + timeoutMs;
 
   const poll = (): Effect.Effect<void, ProcessError> =>
     Effect.suspend(() =>
-      Effect.gen(function*() {
-        const response = yield* Effect.tryPromise({
-          catch: () => undefined as Response | undefined,
-          try: async () => {
-            const res = await fetch(`http://127.0.0.1:${port}`);
+      Effect.gen(function* () {
+        const response: Response | undefined = yield* Effect.tryPromise(() =>
+          fetch(`http://127.0.0.1:${port}`).then(async (res) => {
             await res.text(); // consume body to release connection
             return res;
-          },
-        });
+          }),
+        ).pipe(Effect.catch(() => Effect.succeed(undefined)));
 
         if (response !== undefined) return;
 
         if (Date.now() >= deadline) {
-          return yield* Effect.fail(
-            new ProcessError(
-              `Timed out waiting for port ${port} after ${timeoutMs}ms`,
-            ),
-          );
+          return yield* Effect.fail(new ProcessError(`Timed out waiting for port ${port} after ${timeoutMs}ms`));
         }
 
         yield* Effect.sleep("250 millis");
         return yield* poll();
-      })
+      }),
     );
 
   yield* poll();

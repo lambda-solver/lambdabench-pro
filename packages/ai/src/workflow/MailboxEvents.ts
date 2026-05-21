@@ -1,14 +1,14 @@
-import type { ChatStreamPart } from "@repo/domain/Chat";
 import { Effect, Queue } from "effect";
+
 import type { Cause } from "effect";
+
+import type { ChatStreamPart } from "@repo/domain/Chat";
 
 /**
  * MailboxEvents - Typed event emitter for ChatStreamPart
  * Provides high-level methods for common event patterns to eliminate boilerplate
  */
-export const createMailboxEvents = (
-  queue: Queue.Queue<typeof ChatStreamPart.Type, Cause.Done>,
-) =>
+export const createMailboxEvents = (queue: Queue.Queue<typeof ChatStreamPart.Type, Cause.Done>) =>
   ({
     end: Queue.end(queue),
     error: (message: string, recoverable = false) => Queue.offer(queue, { _tag: "error", message, recoverable }),
@@ -43,7 +43,7 @@ export const createMailboxEvents = (
         id,
         name: params.name,
       }),
-    toolCallDelta: (id: string, params: { argumentsDelta: string; }) =>
+    toolCallDelta: (id: string, params: { argumentsDelta: string }) =>
       Queue.offer(queue, {
         _tag: "tool-call-delta",
         argumentsDelta: params.argumentsDelta,
@@ -70,7 +70,7 @@ export const createMailboxEvents = (
         success: boolean;
       },
     ) =>
-      Effect.gen(function*() {
+      Effect.gen(function* () {
         yield* Queue.offer(queue, {
           _tag: "tool-execution-start",
           id,
@@ -100,7 +100,7 @@ export const createMailboxEvents = (
         result: params.result,
         success: params.success,
       }),
-    toolExecutionStart: (id: string, params: { name: string; }) =>
+    toolExecutionStart: (id: string, params: { name: string }) =>
       Queue.offer(queue, {
         _tag: "tool-execution-start",
         id,

@@ -10,14 +10,15 @@
  *     destructured or namespaced via `import * as E from "effect/Effect"`.
  */
 
-import type { ESTree } from "effect-oxlint";
-
-import { pipe } from "effect";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 import * as Schema from "effect/Schema";
 
 import { AST, Diagnostic, Rule, RuleContext } from "effect-oxlint";
+
+import type { ESTree } from "effect-oxlint";
+
+import { pipe } from "effect";
 
 // ---------------------------------------------------------------------------
 // Domain
@@ -28,15 +29,10 @@ import { AST, Diagnostic, Rule, RuleContext } from "effect-oxlint";
  * v3: `catchAll`, `catchAllCause`
  * v4: `catch`, `catchCause`
  */
-const CatchMethodName = Schema.Literals([
-  "catchAll",
-  "catch",
-  "catchAllCause",
-  "catchCause",
-]).annotate({
-  title: "CatchMethodName",
+const CatchMethodName = Schema.Literals(["catchAll", "catch", "catchAllCause", "catchCause"]).annotate({
   description:
     "Method names on `Effect` that perform blanket error recovery — covers both v3 (`catchAll(Cause)`) and v4 (`catch(Cause)`) spellings.",
+  title: "CatchMethodName",
 });
 
 const isCatchMethodName = Schema.is(CatchMethodName);
@@ -47,9 +43,9 @@ const isCatchMethodName = Schema.is(CatchMethodName);
  * is "return a default value" and the diagnostic applies.
  */
 const DefaultProducerName = Schema.Literals(["succeed", "sync"]).annotate({
-  title: "DefaultProducerName",
   description:
     "`Effect.succeed` / `Effect.sync` (or their bare-callee forms) produce a constant default — using them inside a blanket catch silently swallows every error.",
+  title: "DefaultProducerName",
 });
 
 const isDefaultProducerName = Schema.is(DefaultProducerName);
@@ -63,9 +59,7 @@ const isBlanketCatchCall = (node: ESTree.CallExpression): boolean =>
   pipe(
     AST.narrow(node.callee, "MemberExpression"),
     Option.flatMap(AST.memberNames),
-    Option.exists(
-      ([obj, prop]) => obj === "Effect" && isCatchMethodName(prop),
-    ),
+    Option.exists(([obj, prop]) => obj === "Effect" && isCatchMethodName(prop)),
   );
 
 /**
@@ -74,17 +68,12 @@ const isBlanketCatchCall = (node: ESTree.CallExpression): boolean =>
  * bare-callee form `succeed(x)` / `sync(x)`.
  */
 const isDefaultProducerCall = (node: ESTree.CallExpression): boolean => {
-  const bareName = pipe(
-    AST.calleeName(node),
-    Option.filter(isDefaultProducerName),
-  );
+  const bareName = pipe(AST.calleeName(node), Option.filter(isDefaultProducerName));
   if (Option.isSome(bareName)) return true;
   return pipe(
     AST.narrow(node.callee, "MemberExpression"),
     Option.flatMap(AST.memberNames),
-    Option.exists(
-      ([obj, prop]) => obj === "Effect" && isDefaultProducerName(prop),
-    ),
+    Option.exists(([obj, prop]) => obj === "Effect" && isDefaultProducerName(prop)),
   );
 };
 
@@ -103,9 +92,7 @@ const handlerReturnExpression = (
   const fromArrow = pipe(
     AST.narrow(handler, "ArrowFunctionExpression"),
     Option.flatMap((node) =>
-      node.body.type === "BlockStatement"
-        ? singleReturnExpression(node.body)
-        : Option.some(node.body)
+      node.body.type === "BlockStatement" ? singleReturnExpression(node.body) : Option.some(node.body),
     ),
   );
   // FunctionExpression body — `FunctionBody | null`.
@@ -121,9 +108,7 @@ const handlerReturnExpression = (
 };
 
 /** A block body containing exactly `return <expr>;` yields `Some(<expr>)`. */
-const singleReturnExpression = (
-  body: ESTree.FunctionBody,
-): Option.Option<ESTree.Expression> => {
+const singleReturnExpression = (body: ESTree.FunctionBody): Option.Option<ESTree.Expression> => {
   if (body.body.length !== 1) return Option.none();
   return pipe(
     Option.fromNullishOr(body.body[0]),
@@ -140,13 +125,7 @@ const MESSAGE =
   "Avoid blanket `Effect.catch` / `Effect.catchCause` with default values — this silently swallows all errors. Use `Effect.catchTag` or `Effect.catchTags` for precise, targeted recovery. (EF-30)";
 
 export default Rule.define({
-  name: "effect-catchall-default",
-  meta: Rule.meta({
-    type: "suggestion",
-    description:
-      "Disallow `Effect.catch`/`catchCause`/`catchAll`/`catchAllCause` whose handler returns a constant default — use `catchTag` for precise recovery (EF-30)",
-  }),
-  create: function*() {
+  create: function* () {
     const ctx = yield* RuleContext;
     return {
       CallExpression: (node: ESTree.Node) =>
@@ -159,12 +138,15 @@ export default Rule.define({
           Option.filter(isDefaultProducerCall),
           Option.match({
             onNone: () => Effect.void,
-            onSome: () =>
-              ctx.report(
-                Diagnostic.make({ node, message: MESSAGE }),
-              ),
+            onSome: () => ctx.report(Diagnostic.make({ node, message: MESSAGE })),
           }),
         ),
     };
   },
+  meta: Rule.meta({
+    type: "suggestion",
+    description:
+      "Disallow `Effect.catch`/`catchCause`/`catchAll`/`catchAllCause` whose handler returns a constant default — use `catchTag` for precise recovery (EF-30)",
+  }),
+  name: "effect-catchall-default",
 });

@@ -1,6 +1,28 @@
 {
+  "$schema": "https://raw.githubusercontent.com/Effect-TS/tsgo/refs/heads/main/schema.json",
   "name": "edu_effect-rag-builder",
   "private": true,
+  "description": "Experimental AI/RAG toolkit monorepo built with Bun, Effect, Vite, and React.",
+  "keywords": [
+    "ai",
+    "bun",
+    "effect",
+    "llm",
+    "rag",
+    "react",
+    "retrieval-augmented-generation",
+    "turborepo",
+    "typescript",
+    "vite"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/edu_effect-rag-builder.git"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "build": "turbo run build",
     "clean": "turbo run clean && git clean -xdf node_modules .cache .turbo dist tsconfig.tsbuildinfo playwright-report test-results",
@@ -12,51 +34,42 @@
     "dev:status": "bun run apps/server/src/daemon-cli.ts status",
     "dev:restart": "bun run apps/server/src/daemon-cli.ts restart",
     "dev:stop": "bun run apps/server/src/daemon-cli.ts stop",
-    "lint": "oxlint --config oxlint.json",
-    "lint:fix": "oxlint --config oxlint.json --fix",
-    "format": "dprint fmt",
-    "format:check": "dprint check",
-    "test": "turbo run test",
-    "test:e2e": "playwright test",
-    "type-check": "turbo run type-check"
+    "format": "oxfmt . --write",
+    "format:check": "oxfmt . --check",
+    "lint": "bun build tools/effect-oxlint.plugin.ts --target=node --outfile tools/effect-oxlint.plugin.mjs && bun run --cwd packages/oxlint-plugin-foldkit build && oxlint .",
+    "lint:fix": "bun build tools/effect-oxlint.plugin.ts --target=node --outfile tools/effect-oxlint.plugin.mjs && bun run --cwd packages/oxlint-plugin-foldkit build && oxlint . --fix",
+    "test": "bun test",
+    "typecheck": "tsgo --noEmit",
+    "typecheck:tsc": "tsc --noEmit",
+    "prepare": "effect-tsgo patch"
   },
-  "description": "Experimental AI/RAG toolkit monorepo built with Bun, Effect, Vite, and React.",
-  "keywords": [
-    "rag",
-    "retrieval-augmented-generation",
-    "ai",
-    "llm",
-    "effect",
-    "bun",
-    "react",
-    "vite",
-    "turborepo",
-    "typescript"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/your-org/edu_effect-rag-builder.git"
+  "dependencies": {
+    "@effect/ai-openai": "4.0.0-beta.52",
+    "@repo/effect-oxlint": "workspace:*",
+    "effect": "4.0.0-beta.59"
   },
   "devDependencies": {
     "@mpsuesser/oxlint-plugin-effect": "latest",
+    "@foldkit/devtools-mcp": "^0.3.0",
     "@playwright/test": "^1.58.2",
-    "@types/bun": "^1.3.11",
-    "dprint": "0.54.0",
-    "oxlint": "1.65.0",
+    "@types/bun": "latest",
+    "@typescript/native-preview": "beta",
+    "effect-oxlint": "^0.2.0",
+    "oxfmt": "^0.47.0",
+    "oxlint": "^1.62.0",
     "turbo": "^2.8.20",
-    "typescript": "5.9.3",
+    "typescript": "^6.0.3",
     "vitest": "^4.1.0"
   },
   "engines": {
     "node": ">=18"
   },
   "packageManager": "bun@1.2.21",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
-  "dependencies": {
-    "@effect/ai-openai": "4.0.0-beta.52",
-    "@repo/effect-oxlint": "workspace:*"
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "@effect/language-service"
+      }
+    ]
   }
 }

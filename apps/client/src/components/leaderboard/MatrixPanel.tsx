@@ -1,8 +1,11 @@
-import { fmtModel } from "@/lib/fmt";
-import { cn } from "@/lib/utils";
-import type { BenchmarkData, BenchmarkTask, Ranking } from "@repo/domain/Benchmark";
 import { Array as Arr, Order } from "effect";
+import type { BenchmarkData, BenchmarkTask, Ranking } from "@repo/domain/Benchmark";
+
 import type React from "react";
+
+import { cn } from "@/lib/utils";
+
+import { fmtModel } from "@/lib/fmt";
 
 interface MatrixPanelProps {
   data: BenchmarkData;
@@ -14,15 +17,12 @@ interface MatrixPanelProps {
  * Vertical model headers, ✓/✗ per cell. Row click opens TaskModal.
  */
 export function MatrixPanel({ data, onTaskClick }: MatrixPanelProps) {
-  const byRightDesc = Order.make<Ranking>((a, b) => b.right > a.right ? 1 : (b.right < a.right ? -1 : 0));
+  const byRightDesc = Order.make<Ranking>((a, b) => (b.right > a.right ? 1 : b.right < a.right ? -1 : 0));
   const sorted = Arr.sort(data.rankings, byRightDesc);
 
   return (
     <div className="overflow-x-auto py-2">
-      <table
-        className={cn("border-collapse font-mono text-xs mx-auto")}
-        style={{ borderColor: "var(--sol-base2)" }}
-      >
+      <table className={cn("border-collapse font-mono text-xs mx-auto")} style={{ borderColor: "var(--sol-base2)" }}>
         <thead>
           <tr>
             <th
@@ -75,20 +75,12 @@ export function MatrixPanel({ data, onTaskClick }: MatrixPanelProps) {
               style={{ "--hover-bg": "var(--sol-base2)" } as React.CSSProperties}
               onClick={() => onTaskClick(task)}
               onMouseEnter={(e) => {
-                for (
-                  const td of (
-                    e.currentTarget as HTMLTableRowElement
-                  ).querySelectorAll("td")
-                ) {
+                for (const td of (e.currentTarget as HTMLTableRowElement).querySelectorAll("td")) {
                   (td as HTMLTableCellElement).style.background = "var(--sol-base2)";
                 }
               }}
               onMouseLeave={(e) => {
-                for (
-                  const td of (
-                    e.currentTarget as HTMLTableRowElement
-                  ).querySelectorAll("td")
-                ) {
+                for (const td of (e.currentTarget as HTMLTableRowElement).querySelectorAll("td")) {
                   (td as HTMLTableCellElement).style.background = "";
                 }
               }}

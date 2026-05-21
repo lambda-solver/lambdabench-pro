@@ -22,9 +22,7 @@ Provide the layer at app startup:
 ```ts
 import { ObservabilityLive } from "@repo/observability";
 
-const HttpLive = HttpLayerRouter.serve(Router).pipe(
-  Layer.provideMerge(ObservabilityLive),
-);
+const HttpLive = HttpLayerRouter.serve(Router).pipe(Layer.provideMerge(ObservabilityLive));
 ```
 
 ## API

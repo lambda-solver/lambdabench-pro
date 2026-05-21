@@ -33,17 +33,13 @@ const getCurrentTimeTool = Tool.make("getCurrentTime", {
   success: Schema.String,
 });
 
-export const SampleToolkit = Toolkit.make(
-  calculatorTool,
-  echoTool,
-  getCurrentTimeTool,
-);
+export const SampleToolkit = Toolkit.make(calculatorTool, echoTool, getCurrentTimeTool);
 
 export const SampleToolkitLive = SampleToolkit.toLayer(
-  Effect.gen(function*() {
+  Effect.sync(() => {
     return {
       calculate: (params) =>
-        Effect.gen(function*() {
+        Effect.gen(function* () {
           yield* Effect.log(`Calculating: ${params.expression}`);
 
           // Simple safe evaluation for basic math
@@ -58,9 +54,7 @@ export const SampleToolkitLive = SampleToolkit.toLayer(
 
           return yield* Effect.try({
             catch: (error) =>
-              new Error(
-                `Invalid expression: ${error instanceof Error ? error.message : String(error)}`,
-              ),
+              new Error(`Invalid expression: ${error instanceof Error ? error.message : String(error)}`),
             try: () => {
               const value = Function(`"use strict"; return (${sanitized})`)();
               if (typeof value !== "number" || Number.isNaN(value)) {
@@ -68,27 +62,23 @@ export const SampleToolkitLive = SampleToolkit.toLayer(
               }
               return `${params.expression} = ${value}`;
             },
-          }).pipe(
-            Effect.catch((error) => Effect.succeed(`Error: ${error.message}`)),
-          );
+          }).pipe(Effect.catch((error) => Effect.succeed(`Error: ${error.message}`)));
         }),
 
       echo: (params) =>
-        Effect.gen(function*() {
+        Effect.gen(function* () {
           yield* Effect.log(`Echo: ${params.message}`);
           return yield* Effect.succeed(`Echo: ${params.message}`);
         }),
 
       getCurrentTime: () =>
-        Effect.gen(function*() {
+        Effect.gen(function* () {
           const now = new Date();
           const timeString = now.toLocaleString("en-US", {
             timeZone: "UTC",
           });
           yield* Effect.log(`Current time (UTC): ${timeString}`);
-          return yield* Effect.succeed(
-            `Current time in UTC: ${timeString} (ISO: ${now.toISOString()})`,
-          );
+          return yield* Effect.succeed(`Current time in UTC: ${timeString} (ISO: ${now.toISOString()})`);
         }),
     };
   }),

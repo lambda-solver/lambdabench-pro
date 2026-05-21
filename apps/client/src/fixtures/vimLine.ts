@@ -2,7 +2,7 @@ import type { VimLineFixture } from "./index";
 
 export const vimLineFixtures: ReadonlyArray<VimLineFixture> = [
   {
-    content: "import { Effect } from \"effect\";",
+    content: 'import { Effect } from "effect";',
     n: 42,
     name: "with-line-number",
   },
@@ -16,7 +16,7 @@ export const vimLineFixtures: ReadonlyArray<VimLineFixture> = [
     tilde: true,
   },
   {
-    content: "export const processItem = Effect.fn(\"processItem\")(function* (id: string) {",
+    content: 'export const processItem = Effect.fn("processItem")(function* (id: string) {',
     n: 128,
     name: "multi-digit-line",
   },

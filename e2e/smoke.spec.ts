@@ -8,9 +8,7 @@ test.describe("Smoke Tests", () => {
     await expect(page.locator("h1")).toContainText("Effect RAG Builder");
 
     // Verify subheading
-    await expect(page.locator("h2")).toContainText(
-      "Build, chunk, and query knowledge with Effect",
-    );
+    await expect(page.locator("h2")).toContainText("Build, chunk, and query knowledge with Effect");
   });
 
   test("server health endpoint responds", async ({ request }) => {

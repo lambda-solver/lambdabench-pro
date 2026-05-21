@@ -1,7 +1,8 @@
-import { createFixtureDecorator } from "@/fixtures/decorator";
-import { vimLineFixtures } from "@/fixtures/vimLine";
 import type { Meta, StoryObj } from "@storybook/react";
 import { TildeLine, VimLine } from "./VimLine";
+
+import { createFixtureDecorator } from "@/fixtures/decorator";
+import { vimLineFixtures } from "@/fixtures/vimLine";
 
 const meta = {
   component: VimLine,
@@ -42,7 +43,7 @@ export const Default: Story = {
 
 export const WithLineNumber: Story = {
   args: {
-    children: "import { Effect } from \"effect\";",
+    children: 'import { Effect } from "effect";',
     n: 42,
   },
 };
@@ -62,7 +63,7 @@ export const Tilde: Story = {
 
 export const MultiDigitLine: Story = {
   args: {
-    children: "export const processItem = Effect.fn(\"processItem\")(function* (id: string) {",
+    children: 'export const processItem = Effect.fn("processItem")(function* (id: string) {',
     n: 128,
   },
 };

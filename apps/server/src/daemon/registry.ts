@@ -1,5 +1,6 @@
-import { Effect } from "effect";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+
+import { Effect } from "effect";
 import { dirname } from "node:path";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -43,25 +44,20 @@ const emptyRegistry = (): RegistryData => ({
   version: 1,
 });
 
-const ensureDir = Effect.fnUntraced(function*() {
+const ensureDir = Effect.fnUntraced(function* () {
   const dir = dirname(REGISTRY_PATH);
   yield* Effect.tryPromise({
     catch: (e) =>
-      new RegistryError(
-        `Failed to create registry directory: ${e instanceof Error ? e.message : String(e)}`,
-      ),
+      new RegistryError(`Failed to create registry directory: ${e instanceof Error ? e.message : String(e)}`),
     try: () => mkdir(dir, { recursive: true }),
   });
 });
 
 // ─── Public API ──────────────────────────────────────────────────────────────
 
-export const readRegistry = Effect.fn("registry.readRegistry")(function*() {
+export const readRegistry = Effect.fn("registry.readRegistry")(function* () {
   const content: string | null = yield* Effect.tryPromise({
-    catch: (e) =>
-      new RegistryError(
-        `Failed to read registry: ${e instanceof Error ? e.message : String(e)}`,
-      ),
+    catch: (e) => new RegistryError(`Failed to read registry: ${e instanceof Error ? e.message : String(e)}`),
     try: async () => {
       try {
         return await readFile(REGISTRY_PATH, "utf-8");
@@ -78,48 +74,37 @@ export const readRegistry = Effect.fn("registry.readRegistry")(function*() {
   }
 
   const data = yield* Effect.try({
-    catch: (e) =>
-      new RegistryError(
-        `Corrupt registry file: ${e instanceof Error ? e.message : String(e)}`,
-      ),
+    catch: (e) => new RegistryError(`Corrupt registry file: ${e instanceof Error ? e.message : String(e)}`),
     try: () => JSON.parse(content) as RegistryData,
   }).pipe(
     Effect.catchTag("RegistryError", (e) =>
-      Effect.gen(function*() {
+      Effect.gen(function* () {
         yield* Effect.log(e.message);
         return emptyRegistry();
-      })),
+      }),
+    ),
   );
 
   return data;
 });
 
-export const writeRegistry = Effect.fn("registry.writeRegistry")(function*(
-  data: RegistryData,
-) {
+export const writeRegistry = Effect.fn("registry.writeRegistry")(function* (data: RegistryData) {
   yield* ensureDir();
 
   const json = `${JSON.stringify(data, null, 2)}\n`;
   yield* Effect.tryPromise({
     catch: (e) =>
-      new RegistryError(
-        `Failed to write registry temp file: ${e instanceof Error ? e.message : String(e)}`,
-      ),
+      new RegistryError(`Failed to write registry temp file: ${e instanceof Error ? e.message : String(e)}`),
     try: () => writeFile(TEMP_PATH, json, "utf-8"),
   });
 
   yield* Effect.tryPromise({
-    catch: (e) =>
-      new RegistryError(
-        `Failed to rename registry file: ${e instanceof Error ? e.message : String(e)}`,
-      ),
+    catch: (e) => new RegistryError(`Failed to rename registry file: ${e instanceof Error ? e.message : String(e)}`),
     try: () => rename(TEMP_PATH, REGISTRY_PATH),
   });
 });
 
-export const addProcess = Effect.fn("registry.addProcess")(function*(
-  entry: ProcessEntry,
-) {
+export const addProcess = Effect.fn("registry.addProcess")(function* (entry: ProcessEntry) {
   const data = yield* readRegistry();
   const updated: RegistryData = {
     ...data,
@@ -129,9 +114,7 @@ export const addProcess = Effect.fn("registry.addProcess")(function*(
   yield* writeRegistry(updated);
 });
 
-export const removeProcess = Effect.fn("registry.removeProcess")(function*(
-  pid: number,
-) {
+export const removeProcess = Effect.fn("registry.removeProcess")(function* (pid: number) {
   const data = yield* readRegistry();
   const updated: RegistryData = {
     ...data,
@@ -141,28 +124,23 @@ export const removeProcess = Effect.fn("registry.removeProcess")(function*(
   yield* writeRegistry(updated);
 });
 
-export const getProcess = Effect.fn("registry.getProcess")(function*(
-  pid: number,
-) {
+export const getProcess = Effect.fn("registry.getProcess")(function* (pid: number) {
   const data = yield* readRegistry();
   const entry = data.processes.find((p) => p.pid === pid);
   return entry ?? null;
 });
 
-export const listProcesses = Effect.fn("registry.listProcesses")(function*() {
+export const listProcesses = Effect.fn("registry.listProcesses")(function* () {
   const data = yield* readRegistry();
   return data.processes;
 });
 
-export const updateHealth = Effect.fn("registry.updateHealth")(function*(
-  pid: number,
-  healthy: boolean,
-) {
+export const updateHealth = Effect.fn("registry.updateHealth")(function* (pid: number, healthy: boolean) {
   const data = yield* readRegistry();
   const now = new Date().toISOString();
   const updated: RegistryData = {
     ...data,
-    processes: data.processes.map((p) => p.pid === pid ? { ...p, healthy, lastHealthCheck: now } : p),
+    processes: data.processes.map((p) => (p.pid === pid ? Object.assign(p, { healthy, lastHealthCheck: now }) : p)),
     updatedAt: now,
   };
   yield* writeRegistry(updated);

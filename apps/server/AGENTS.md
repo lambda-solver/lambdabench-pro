@@ -71,10 +71,15 @@ src/
 ```typescript
 // index.ts dispatches by argv[2]
 const mode = process.argv[2];
-if (mode === "server") { /* launch HTTP server */ }
-else if (mode === "cli") { /* run CLI commands */ }
-else if (mode === "mcp") { /* launch MCP server */ }
-else { /* legacy eval/run/build pipeline */ }
+if (mode === "server") {
+  /* launch HTTP server */
+} else if (mode === "cli") {
+  /* run CLI commands */
+} else if (mode === "mcp") {
+  /* launch MCP server */
+} else {
+  /* legacy eval/run/build pipeline */
+}
 ```
 
 ### Bun HTTP server with static SPA
@@ -92,10 +97,9 @@ const StaticLayer = HttpStaticServer.layer({
   spa: true,
 });
 
-export const ServerLive = HttpRouter.serve(
-  Layer.mergeAll(ApiLayer, StaticLayer),
-  { middleware: HttpMiddleware.tracer },
-).pipe(
+export const ServerLive = HttpRouter.serve(Layer.mergeAll(ApiLayer, StaticLayer), {
+  middleware: HttpMiddleware.tracer,
+}).pipe(
   Layer.provide(ServicesLive),
   Layer.provide(BunServices.layer),
   Layer.provide(BunHttpServer.layer({ port: 9000, hostname: "127.0.0.1" })),
@@ -112,15 +116,19 @@ const MyGroupLive = HttpApiBuilder.group(Api, "myGroup", (handlers) =>
       params.id === "1"
         ? Effect.succeed({ id: "1" })
         : Effect.succeed(
-          HttpServerResponse.jsonUnsafe({ error: "Not found" }, {
-            status: 404,
-          }),
-        )));
+            HttpServerResponse.jsonUnsafe(
+              { error: "Not found" },
+              {
+                status: 404,
+              },
+            ),
+          ),
+    ),
+);
 
 export const ApiLayer = HttpApiBuilder.layer(Api, {
   openapiPath: "/openapi.json",
-})
-  .pipe(Layer.provide(MyGroupLive));
+}).pipe(Layer.provide(MyGroupLive));
 ```
 
 ### Service layer composition
@@ -139,15 +147,18 @@ export const makeServicesLayer = (dbPath: string) => {
 ### Typed HTTP client service
 
 ```typescript
-export class LamBenchClient extends Context.Service<LamBenchClient, {
-  health(): Effect.Effect<HealthStatus, ApiError>;
-  evalSingle(request: SingleEvalRequest): Effect.Effect<EvalResult, ApiError>;
-  // ...
-}>()("app/LamBenchClient") {
+export class LamBenchClient extends Context.Service<
+  LamBenchClient,
+  {
+    health(): Effect.Effect<HealthStatus, ApiError>;
+    evalSingle(request: SingleEvalRequest): Effect.Effect<EvalResult, ApiError>;
+    // ...
+  }
+>()("app/LamBenchClient") {
   static readonly layer = (baseUrl: string) =>
     Layer.effect(
       LamBenchClient,
-      Effect.gen(function*() {
+      Effect.gen(function* () {
         const client = (yield* HttpClient.HttpClient).pipe(
           HttpClient.mapRequest(HttpClientRequest.prependUrl(baseUrl)),
           HttpClient.filterStatusOk,
@@ -169,9 +180,11 @@ const MyTool = Tool.make("my_tool", {
 
 export const MyToolkit = Toolkit.make(MyTool);
 
-const ToolHandlers = MyToolkit.toLayer(Effect.gen(function*() {
-  return { my_tool: (input) => Effect.succeed({ result: input.id }) };
-}));
+const ToolHandlers = MyToolkit.toLayer(
+  Effect.gen(function* () {
+    return { my_tool: (input) => Effect.succeed({ result: input.id }) };
+  }),
+);
 
 export const ServerLayer = McpServer.toolkit(MyToolkit).pipe(
   Layer.provideMerge(ToolHandlers),

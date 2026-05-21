@@ -36,10 +36,9 @@ export interface ResolvedBenchConfig {
 
 // ─── Loader ──────────────────────────────────────────────────────────────────
 
-const CONFIG_PATH = new URL("../../bench.config.json", import.meta.url)
-  .pathname;
+const CONFIG_PATH = new URL("../../bench.config.json", import.meta.url).pathname;
 
-export const loadBenchConfig = Effect.fn("loadBenchConfig")(function*() {
+export const loadBenchConfig = Effect.fn("loadBenchConfig")(function* () {
   const fs = yield* FileSystem.FileSystem;
   const text = yield* fs.readFileString(CONFIG_PATH);
   const raw: unknown = JSON.parse(text);

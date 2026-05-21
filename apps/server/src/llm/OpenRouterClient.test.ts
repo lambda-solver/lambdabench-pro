@@ -6,14 +6,16 @@
  * skipped when OPENROUTER_API_KEY is absent from process.env.
  */
 
-import { describe, it } from "@effect/vitest";
-import { assertTrue, strictEqual } from "@effect/vitest/utils";
 import { Effect, Layer } from "effect";
-import { LanguageModel } from "effect/unstable/ai";
-import { FetchHttpClient } from "effect/unstable/http";
-import { expect, it as vitestIt } from "vitest";
-import { configLayer } from "../test/effect-helpers";
 import { LlmError, makeOpenRouterLayer } from "./OpenRouterClient";
+import { assertTrue, strictEqual } from "@effect/vitest/utils";
+import { describe, it } from "@effect/vitest";
+import { expect, it as vitestIt } from "vitest";
+
+import { FetchHttpClient } from "effect/unstable/http";
+import { LanguageModel } from "effect/unstable/ai";
+
+import { configLayer } from "../test/effect-helpers";
 
 // ─── Mock helper ──────────────────────────────────────────────────────────────
 
@@ -38,31 +40,29 @@ const mockLanguageModelLayer = (
 
 describe("LanguageModel mock (OpenRouterClient replacement)", () => {
   it.effect("generateText returns text from mock layer", () =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const result = yield* LanguageModel.generateText({
         prompt: "hello",
       }).pipe(
         Effect.map((r) => r.text),
-        Effect.provide(
-          mockLanguageModelLayer(() => Effect.succeed("@main = λf.λx.f(x)")),
-        ),
+        Effect.provide(mockLanguageModelLayer(() => Effect.succeed("@main = λf.λx.f(x)"))),
       );
       strictEqual(result, "@main = λf.λx.f(x)");
-    }));
+    }),
+  );
 
   it.effect("LlmError is caught by Effect.catch at call site", () =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const result = yield* LanguageModel.generateText({
         prompt: "hello",
       }).pipe(
         Effect.map((r) => r.text),
         Effect.catch((_e) => Effect.succeed("fallback")),
-        Effect.provide(
-          mockLanguageModelLayer(() => Effect.fail(new LlmError("upstream error"))),
-        ),
+        Effect.provide(mockLanguageModelLayer(() => Effect.fail(new LlmError("upstream error")))),
       );
       strictEqual(result, "fallback");
-    }));
+    }),
+  );
 
   vitestIt("LlmError carries the original message", () => {
     const err = new LlmError("rate limited");
@@ -79,10 +79,8 @@ describe("makeOpenRouterLayer (real OpenRouter)", () => {
   it.effect.skipIf(!apiKey)(
     "generates a non-empty text response",
     () =>
-      Effect.gen(function*() {
-        const layer = makeOpenRouterLayer("minimax/minimax-m2.5:free").pipe(
-          Layer.provide(FetchHttpClient.layer),
-        );
+      Effect.gen(function* () {
+        const layer = makeOpenRouterLayer("minimax/minimax-m2.5:free").pipe(Layer.provide(FetchHttpClient.layer));
 
         const result = yield* LanguageModel.generateText({
           prompt: "Reply with exactly the word: hello",

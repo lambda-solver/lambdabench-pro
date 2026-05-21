@@ -1,5 +1,6 @@
-import type { Metadata, Where, WhereDocument } from "chromadb";
 import { Context, Data, Effect, Layer } from "effect";
+import type { Metadata, Where, WhereDocument } from "chromadb";
+
 import type { ChromaError } from "./ChromaService";
 import { ChromaService } from "./ChromaService";
 
@@ -20,10 +21,7 @@ type CollectionSummary = Readonly<{
 }>;
 
 interface CollectionClient {
-  get: (input: {
-    limit?: number;
-    include?: Array<"documents">;
-  }) => Promise<CollectionSummary>;
+  get: (input: { limit?: number; include?: Array<"documents"> }) => Promise<CollectionSummary>;
 }
 
 const normalizeHits = (result: {
@@ -56,7 +54,7 @@ export class RagService extends Context.Service<
         embeddings?: Array<Array<number>>;
         metadatas?: Array<Metadata>;
       }>,
-    ) => Effect.Effect<{ readonly count: number; }, ChromaError | RagError>;
+    ) => Effect.Effect<{ readonly count: number }, ChromaError | RagError>;
     readonly retrieve: (
       input: Readonly<{
         collection: string;
@@ -66,15 +64,8 @@ export class RagService extends Context.Service<
         where?: Where;
         whereDocument?: WhereDocument;
       }>,
-    ) => Effect.Effect<
-      { readonly hits: Array<RagHit>; },
-      ChromaError | RagError
-    >;
-    readonly listDocuments: (input: {
-      collection: string;
-      query?: string;
-      limit?: number;
-    }) => Effect.Effect<
+    ) => Effect.Effect<{ readonly hits: Array<RagHit> }, ChromaError | RagError>;
+    readonly listDocuments: (input: { collection: string; query?: string; limit?: number }) => Effect.Effect<
       {
         readonly documents: Array<{
           id: string | null;
@@ -86,23 +77,20 @@ export class RagService extends Context.Service<
     >;
     readonly deleteCollection: (input: {
       collection: string;
-    }) => Effect.Effect<
-      { readonly collection: string; },
-      ChromaError | RagError
-    >;
+    }) => Effect.Effect<{ readonly collection: string }, ChromaError | RagError>;
   }
 >()("RagService", {
-  make: Effect.gen(function*() {
+  make: Effect.gen(function* () {
     const chroma = yield* ChromaService;
 
     const getCollection = (name: string) =>
       chroma.use((sdk) =>
         sdk.getOrCreateCollection({
           name,
-        })
+        }),
       );
 
-    const logCollectionSummary = Effect.fn("logCollectionSummary")(function*(
+    const logCollectionSummary = Effect.fn("logCollectionSummary")(function* (
       collection: CollectionClient,
       label: string,
     ) {
@@ -127,7 +115,7 @@ export class RagService extends Context.Service<
       );
     });
 
-    const ingest = Effect.fn("ingest")(function*(
+    const ingest = Effect.fn("ingest")(function* (
       input: Readonly<{
         collection: string;
         ids: Array<string>;
@@ -145,9 +133,7 @@ export class RagService extends Context.Service<
         }, metadatas=${input.metadatas ? input.metadatas.length : 0}`,
       );
       if (input.embeddings && input.embeddings.length > 0) {
-        yield* Effect.log(
-          `[RagService] Ingest embedding dimensions: first=${input.embeddings[0]?.length ?? 0}`,
-        );
+        yield* Effect.log(`[RagService] Ingest embedding dimensions: first=${input.embeddings[0]?.length ?? 0}`);
       }
       const collection = yield* getCollection(input.collection);
 
@@ -174,20 +160,15 @@ export class RagService extends Context.Service<
           }),
         try: () => collection.count(),
       });
-      yield* Effect.log(
-        `[RagService] Ingest complete: collection="${input.collection}", count=${countResult}`,
-      );
+      yield* Effect.log(`[RagService] Ingest complete: collection="${input.collection}", count=${countResult}`);
       if (countResult > 0) {
-        yield* logCollectionSummary(
-          collection,
-          `${input.collection} after ingest`,
-        );
+        yield* logCollectionSummary(collection, `${input.collection} after ingest`);
       }
 
       return { count: input.ids.length } as const;
     });
 
-    const retrieve = Effect.fn("retrieve")(function*(
+    const retrieve = Effect.fn("retrieve")(function* (
       input: Readonly<{
         collection: string;
         queries?: Array<string>;
@@ -216,10 +197,7 @@ export class RagService extends Context.Service<
         `[RagService] Retrieve collection count: collection="${input.collection}", count=${countResult}`,
       );
       if (countResult > 0) {
-        yield* logCollectionSummary(
-          collection,
-          `${input.collection} before retrieve`,
-        );
+        yield* logCollectionSummary(collection, `${input.collection} before retrieve`);
       }
 
       const result = yield* Effect.tryPromise({
@@ -234,9 +212,7 @@ export class RagService extends Context.Service<
             ...(input.queries ? { queryTexts: input.queries } : {}),
             ...(input.embedding ? { queryEmbeddings: [input.embedding] } : {}),
             ...(input.where ? { where: input.where } : {}),
-            ...(input.whereDocument
-              ? { whereDocument: input.whereDocument }
-              : {}),
+            ...(input.whereDocument ? { whereDocument: input.whereDocument } : {}),
             include: ["documents", "metadatas", "distances"],
           }),
       });
@@ -253,7 +229,7 @@ export class RagService extends Context.Service<
       } as const;
     });
 
-    const listDocuments = Effect.fn("listDocuments")(function*(input: {
+    const listDocuments = Effect.fn("listDocuments")(function* (input: {
       collection: string;
       query?: string;
       limit?: number;
@@ -270,9 +246,7 @@ export class RagService extends Context.Service<
         try: () =>
           collection.get({
             include: ["documents", "metadatas"],
-            ...(input.query
-              ? { whereDocument: { $contains: input.query } }
-              : {}),
+            ...(input.query ? { whereDocument: { $contains: input.query } } : {}),
             ...(Number.isFinite(limit) ? { limit } : {}),
           }),
       });
@@ -286,12 +260,8 @@ export class RagService extends Context.Service<
       return { documents } as const;
     });
 
-    const deleteCollection = Effect.fn("deleteCollection")(function*(input: {
-      collection: string;
-    }) {
-      yield* Effect.log(
-        `[RagService] Deleting collection "${input.collection}"`,
-      );
+    const deleteCollection = Effect.fn("deleteCollection")(function* (input: { collection: string }) {
+      yield* Effect.log(`[RagService] Deleting collection "${input.collection}"`);
 
       yield* chroma.use((sdk) => sdk.deleteCollection({ name: input.collection }));
 
@@ -301,7 +271,5 @@ export class RagService extends Context.Service<
     return { deleteCollection, ingest, listDocuments, retrieve } as const;
   }),
 }) {
-  static Default = Layer.effect(RagService)(RagService.make).pipe(
-    Layer.provide(ChromaService.Default),
-  );
+  static Default = Layer.effect(RagService)(RagService.make).pipe(Layer.provide(ChromaService.Default));
 }

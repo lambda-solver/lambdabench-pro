@@ -1,6 +1,7 @@
-import { AST, Diagnostic, Rule, RuleContext } from "effect-oxlint";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
+
+import { AST, Diagnostic, Rule, RuleContext, Visitor } from "effect-oxlint";
 
 /**
  * Rule: prefer-effect-vitest
@@ -9,13 +10,8 @@ import * as Option from "effect/Option";
  *
  * From skill: 02-vitest-patterns — "Always import it/describe from @effect/vitest"
  */
-export const preferEffectVitest = Rule.define({
-  name: "prefer-effect-vitest",
-  meta: Rule.meta({
-    type: "error",
-    description: "Import it and describe from @effect/vitest, not vitest",
-  }),
-  create: function*() {
+export const preferEffectVitest = Rule.define<undefined>({
+  create: function* () {
     const ctx = yield* RuleContext;
     return {
       ImportDeclaration: (node) => {
@@ -24,22 +20,16 @@ export const preferEffectVitest = Rule.define({
 
         // Check if it or describe are imported
         const hasItOrDescribe = node.specifiers.some((spec) => {
-          return Option.match(
-            AST.narrow(spec, "ImportSpecifier"),
-            {
-              onNone: () => false,
-              onSome: (importSpec) => {
-                const name = Option.match(
-                  AST.narrow(importSpec.imported, "Identifier"),
-                  {
-                    onNone: () => null,
-                    onSome: (id) => id.name,
-                  },
-                );
-                return name === "it" || name === "describe";
-              },
+          return Option.match(AST.narrow(spec, "ImportSpecifier"), {
+            onNone: () => false,
+            onSome: (importSpec) => {
+              const name = Option.match(AST.narrow(importSpec.imported, "Identifier"), {
+                onNone: () => null,
+                onSome: (id) => id.name,
+              });
+              return name === "it" || name === "describe";
             },
-          );
+          });
         });
 
         if (!hasItOrDescribe) return Effect.void;
@@ -51,6 +41,11 @@ export const preferEffectVitest = Rule.define({
           }),
         );
       },
-    };
+    } as Visitor.TypedEffectVisitor;
   },
+  meta: Rule.meta({
+    type: "problem",
+    description: "Import it and describe from @effect/vitest, not vitest",
+  }),
+  name: "prefer-effect-vitest",
 });

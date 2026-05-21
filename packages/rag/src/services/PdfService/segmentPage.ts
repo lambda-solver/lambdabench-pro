@@ -1,6 +1,7 @@
-import { Array, Option, pipe, String } from "effect";
-import { normalizeWhitespace } from "../../utils";
+import { Array, Option, String, pipe } from "effect";
 import type { PdfBlock, PdfPage } from "./PdfDocument";
+
+import { normalizeWhitespace } from "../../utils";
 
 const PDF_LINE_Y_TOLERANCE = 2.5;
 const PDF_COLUMN_X_TOLERANCE = 12;
@@ -42,13 +43,13 @@ interface PdfLineSpan {
 
 type PageSegment =
   | {
-    readonly _tag: "paragraph";
-    readonly text: string;
-  }
+      readonly _tag: "paragraph";
+      readonly text: string;
+    }
   | {
-    readonly _tag: "table";
-    readonly text: string;
-  };
+      readonly _tag: "table";
+      readonly text: string;
+    };
 
 const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
 
@@ -74,15 +75,13 @@ const toPdfPosition = (
 };
 
 const isPdfTextItem = (item: unknown): item is PdfTextItem =>
-  isRecord(item)
-  && "str" in item
-  && "transform" in item
-  && Array.isArray(item["transform"])
-  && item["transform"].length >= 6;
+  isRecord(item) &&
+  "str" in item &&
+  "transform" in item &&
+  Array.isArray(item["transform"]) &&
+  item["transform"].length >= 6;
 
-const toPositionedPdfTextItem = (
-  item: unknown,
-): Option.Option<PositionedPdfTextItem> => {
+const toPositionedPdfTextItem = (item: unknown): Option.Option<PositionedPdfTextItem> => {
   if (!isPdfTextItem(item)) {
     return Option.none();
   }
@@ -104,9 +103,7 @@ const toPositionedPdfTextItem = (
   );
 };
 
-const sortPdfTextItems = (
-  items: ReadonlyArray<PositionedPdfTextItem>,
-): Array<PositionedPdfTextItem> =>
+const sortPdfTextItems = (items: ReadonlyArray<PositionedPdfTextItem>): Array<PositionedPdfTextItem> =>
   [...items].toSorted((left, right) => {
     if (right.y !== left.y) {
       return right.y - left.y;
@@ -115,54 +112,37 @@ const sortPdfTextItems = (
     return left.x - right.x;
   });
 
-const getGapBetweenItems = (
-  previous: PositionedPdfTextItem,
-  current: PositionedPdfTextItem,
-) => current.x - (previous.x + previous.width);
+const getGapBetweenItems = (previous: PositionedPdfTextItem, current: PositionedPdfTextItem) =>
+  current.x - (previous.x + previous.width);
 
 const appendLineText = (currentText: string, nextText: string, gap: number) => {
   if (gap >= PDF_MIN_COLUMN_GAP) {
     return `${currentText} | ${String.trim(nextText)}`;
   }
 
-  return /^\s/.test(nextText)
-    ? `${currentText}${nextText}`
-    : `${currentText} ${nextText}`;
+  return /^\s/.test(nextText) ? `${currentText}${nextText}` : `${currentText} ${nextText}`;
 };
 
-const groupAdjacentPdfItems = (
-  items: ReadonlyArray<PositionedPdfTextItem>,
-): Array<Array<PositionedPdfTextItem>> =>
-  sortPdfTextItems(items).reduce<Array<Array<PositionedPdfTextItem>>>(
-    (grouped, item) => {
-      const currentLine = grouped.at(-1);
-      const currentY = currentLine?.at(-1)?.y;
+const groupAdjacentPdfItems = (items: ReadonlyArray<PositionedPdfTextItem>): Array<Array<PositionedPdfTextItem>> =>
+  sortPdfTextItems(items).reduce<Array<Array<PositionedPdfTextItem>>>((grouped, item) => {
+    const currentLine = grouped.at(-1);
+    const currentY = currentLine?.at(-1)?.y;
 
-      if (
-        !currentLine
-        || currentY === undefined
-        || Math.abs(currentY - item.y) > PDF_LINE_Y_TOLERANCE
-      ) {
-        grouped.push([item]);
-        return grouped;
-      }
-
-      currentLine.push(item);
+    if (!currentLine || currentY === undefined || Math.abs(currentY - item.y) > PDF_LINE_Y_TOLERANCE) {
+      grouped.push([item]);
       return grouped;
-    },
-    [],
-  );
+    }
 
-const summarizePdfLine = (
-  lineItems: ReadonlyArray<PositionedPdfTextItem>,
-): PdfLine => {
+    currentLine.push(item);
+    return grouped;
+  }, []);
+
+const summarizePdfLine = (lineItems: ReadonlyArray<PositionedPdfTextItem>): PdfLine => {
   const itemsByX = [...lineItems].toSorted((left, right) => left.x - right.x);
 
   const maxGap = itemsByX.reduce((largestGap, item, index) => {
     const previous = itemsByX[index - 1];
-    return previous
-      ? Math.max(largestGap, getGapBetweenItems(previous, item))
-      : largestGap;
+    return previous ? Math.max(largestGap, getGapBetweenItems(previous, item)) : largestGap;
   }, 0);
 
   const text = itemsByX.reduce((lineText, item, index) => {
@@ -171,11 +151,7 @@ const summarizePdfLine = (
       return item.text;
     }
 
-    return appendLineText(
-      lineText,
-      item.text,
-      getGapBetweenItems(previous, item),
-    );
+    return appendLineText(lineText, item.text, getGapBetweenItems(previous, item));
   }, "");
 
   return {
@@ -185,18 +161,15 @@ const summarizePdfLine = (
   };
 };
 
-const groupPdfLines = (
-  items: ReadonlyArray<PositionedPdfTextItem>,
-): Array<PdfLine> => groupAdjacentPdfItems(items).map(summarizePdfLine);
+const groupPdfLines = (items: ReadonlyArray<PositionedPdfTextItem>): Array<PdfLine> =>
+  groupAdjacentPdfItems(items).map(summarizePdfLine);
 
 const getSharedPdfAnchors = (lines: ReadonlyArray<PdfLine>): Array<number> => {
   const counts = new Map<number, number>();
 
   for (const line of lines) {
     const anchors = new Set(
-      line.items.map(
-        (item) => Math.round(item.x / PDF_COLUMN_X_TOLERANCE) * PDF_COLUMN_X_TOLERANCE,
-      ),
+      line.items.map((item) => Math.round(item.x / PDF_COLUMN_X_TOLERANCE) * PDF_COLUMN_X_TOLERANCE),
     );
     for (const anchor of anchors) {
       counts.set(anchor, (counts.get(anchor) ?? 0) + 1);
@@ -204,16 +177,12 @@ const getSharedPdfAnchors = (lines: ReadonlyArray<PdfLine>): Array<number> => {
   }
 
   return [...counts.entries()]
-    .filter(
-      ([, count]) => count >= Math.max(PDF_MIN_TABLE_LINES, Math.ceil(lines.length * 0.6)),
-    )
+    .filter(([, count]) => count >= Math.max(PDF_MIN_TABLE_LINES, Math.ceil(lines.length * 0.6)))
     .map(([anchor]) => anchor)
     .toSorted((left, right) => left - right);
 };
 
-const findCandidateLineSpans = (
-  lines: ReadonlyArray<PdfLine>,
-): Array<PdfLineSpan> => {
+const findCandidateLineSpans = (lines: ReadonlyArray<PdfLine>): Array<PdfLineSpan> => {
   const spans: Array<PdfLineSpan> = [];
   let startLine: number | undefined;
 
@@ -236,10 +205,7 @@ const findCandidateLineSpans = (
   return spans;
 };
 
-const toPdfTableBlock = (
-  lines: ReadonlyArray<PdfLine>,
-  span: PdfLineSpan,
-): Option.Option<PdfTableRegion> => {
+const toPdfTableBlock = (lines: ReadonlyArray<PdfLine>, span: PdfLineSpan): Option.Option<PdfTableRegion> => {
   const blockLines = lines.slice(span.startLine, span.endLineExclusive);
   if (blockLines.length < PDF_MIN_TABLE_LINES) {
     return Option.none();
@@ -253,27 +219,19 @@ const toPdfTableBlock = (
   return Option.some({ ...span, anchors });
 };
 
-const findPdfTableBlocks = (
-  lines: ReadonlyArray<PdfLine>,
-): Array<PdfTableRegion> =>
+const findPdfTableBlocks = (lines: ReadonlyArray<PdfLine>): Array<PdfTableRegion> =>
   findCandidateLineSpans(lines).flatMap((span) => Array.fromOption(toPdfTableBlock(lines, span)));
 
-const findAnchorIndex = (
-  anchors: ReadonlyArray<number>,
-  item: PositionedPdfTextItem,
-) => {
+const findAnchorIndex = (anchors: ReadonlyArray<number>, item: PositionedPdfTextItem) => {
   const matchingAnchorIndex = anchors.reduce(
-    (currentIndex, anchor, anchorIndex) => item.x >= anchor - PDF_COLUMN_X_TOLERANCE ? anchorIndex : currentIndex,
+    (currentIndex, anchor, anchorIndex) => (item.x >= anchor - PDF_COLUMN_X_TOLERANCE ? anchorIndex : currentIndex),
     -1,
   );
 
   return matchingAnchorIndex === -1 ? 0 : matchingAnchorIndex;
 };
 
-const lineToMarkdownRow = (
-  line: PdfLine,
-  anchors: ReadonlyArray<number>,
-): Array<string> => {
+const lineToMarkdownRow = (line: PdfLine, anchors: ReadonlyArray<number>): Array<string> => {
   const cells = anchors.map(() => "");
 
   for (const item of line.items) {
@@ -285,10 +243,7 @@ const lineToMarkdownRow = (
   return cells.map((cell) => normalizeWhitespace(cell));
 };
 
-const pdfTableBlockToMarkdown = (
-  lines: ReadonlyArray<PdfLine>,
-  anchors: ReadonlyArray<number>,
-): string => {
+const pdfTableBlockToMarkdown = (lines: ReadonlyArray<PdfLine>, anchors: ReadonlyArray<number>): string => {
   const rows = lines
     .map((line) => lineToMarkdownRow(line, anchors))
     .filter((row) => row.some((cell) => String.isNonEmpty(cell)));
@@ -298,85 +253,54 @@ const pdfTableBlockToMarkdown = (
   if (header.length === 0 || body.length === 0) return "";
 
   const separator = header.map(() => "---");
-  const markdownRows = [header, separator, ...body].map(
-    (row) => `| ${row.join(" | ")} |`,
-  );
+  const markdownRows = [header, separator, ...body].map((row) => `| ${row.join(" | ")} |`);
 
   return `${markdownRows.join("\n")}\n`;
 };
 
-const toParagraphSegment = (
-  lines: ReadonlyArray<PdfLine>,
-): Option.Option<PageSegment> => {
+const toParagraphSegment = (lines: ReadonlyArray<PdfLine>): Option.Option<PageSegment> => {
   const text = normalizeWhitespace(lines.map((line) => line.text).join("\n"));
-  return String.isNonEmpty(text)
-    ? Option.some({ _tag: "paragraph", text })
-    : Option.none();
+  return String.isNonEmpty(text) ? Option.some({ _tag: "paragraph", text }) : Option.none();
 };
 
-const toTableSegment = (
-  lines: ReadonlyArray<PdfLine>,
-  anchors: ReadonlyArray<number>,
-): Option.Option<PageSegment> => {
+const toTableSegment = (lines: ReadonlyArray<PdfLine>, anchors: ReadonlyArray<number>): Option.Option<PageSegment> => {
   const text = pdfTableBlockToMarkdown(lines, anchors);
-  return String.isNonEmpty(String.trim(text))
-    ? Option.some({ _tag: "table", text })
-    : Option.none();
+  return String.isNonEmpty(String.trim(text)) ? Option.some({ _tag: "table", text }) : Option.none();
 };
 
-const toPageSegments = (
-  lines: ReadonlyArray<PdfLine>,
-  blocks: ReadonlyArray<PdfTableRegion>,
-): Array<PageSegment> => {
+const toPageSegments = (lines: ReadonlyArray<PdfLine>, blocks: ReadonlyArray<PdfTableRegion>): Array<PageSegment> => {
   const { cursor, segments } = blocks.reduce<{
     cursor: number;
     segments: Array<PageSegment>;
   }>(
     (state, block) => {
-      const paragraphSegment = toParagraphSegment(
-        lines.slice(state.cursor, block.startLine),
-      );
+      const paragraphSegment = toParagraphSegment(lines.slice(state.cursor, block.startLine));
       const tableLines = lines.slice(block.startLine, block.endLineExclusive);
       const tableSegment = toTableSegment(tableLines, block.anchors);
-      const contentSegment = Option.isSome(tableSegment)
-        ? tableSegment
-        : toParagraphSegment(tableLines);
+      const contentSegment = Option.isSome(tableSegment) ? tableSegment : toParagraphSegment(tableLines);
 
       return {
         cursor: block.endLineExclusive,
-        segments: [
-          ...state.segments,
-          ...Array.fromOption(paragraphSegment),
-          ...Array.fromOption(contentSegment),
-        ],
+        segments: [...state.segments, ...Array.fromOption(paragraphSegment), ...Array.fromOption(contentSegment)],
       };
     },
     { cursor: 0, segments: [] },
   );
 
-  return [
-    ...segments,
-    ...Array.fromOption(toParagraphSegment(lines.slice(cursor))),
-  ];
+  return [...segments, ...Array.fromOption(toParagraphSegment(lines.slice(cursor)))];
 };
 
-const toPageBlocks = (
-  pageNumber: number,
-  segments: ReadonlyArray<PageSegment>,
-): Array<PdfBlock> =>
+const toPageBlocks = (pageNumber: number, segments: ReadonlyArray<PageSegment>): Array<PdfBlock> =>
   segments.flatMap((segment, readingOrder) => {
-    const block = segment._tag === "table"
-      ? toTableBlock(pageNumber, readingOrder, segment.text)
-      : toParagraphBlock(pageNumber, readingOrder, segment.text);
+    const block =
+      segment._tag === "table"
+        ? toTableBlock(pageNumber, readingOrder, segment.text)
+        : toParagraphBlock(pageNumber, readingOrder, segment.text);
 
     return Array.fromOption(block);
   });
 
-const toParagraphBlock = (
-  pageNumber: number,
-  readingOrder: number,
-  text: string,
-): Option.Option<PdfBlock> => {
+const toParagraphBlock = (pageNumber: number, readingOrder: number, text: string): Option.Option<PdfBlock> => {
   const normalizedText = normalizeWhitespace(text);
   if (!String.isNonEmpty(normalizedText)) return Option.none();
 
@@ -389,11 +313,7 @@ const toParagraphBlock = (
   });
 };
 
-const toTableBlock = (
-  pageNumber: number,
-  readingOrder: number,
-  text: string,
-): Option.Option<PdfBlock> => {
+const toTableBlock = (pageNumber: number, readingOrder: number, text: string): Option.Option<PdfBlock> => {
   if (!String.isNonEmpty(String.trim(text))) return Option.none();
 
   return Option.some({
@@ -405,10 +325,7 @@ const toTableBlock = (
   });
 };
 
-export const segmentPdfPage = (
-  pageNumber: number,
-  items: ReadonlyArray<unknown>,
-): PdfPage => {
+export const segmentPdfPage = (pageNumber: number, items: ReadonlyArray<unknown>): PdfPage => {
   const pdfItems = items.flatMap((item) => Array.fromOption(toPositionedPdfTextItem(item)));
   const lines = groupPdfLines(pdfItems).filter((line) => String.isNonEmpty(line.text));
 
@@ -421,9 +338,7 @@ export const segmentPdfPage = (
   }
 
   const blocks = findPdfTableBlocks(lines);
-  const segments = blocks.length === 0
-    ? Array.fromOption(toParagraphSegment(lines))
-    : toPageSegments(lines, blocks);
+  const segments = blocks.length === 0 ? Array.fromOption(toParagraphSegment(lines)) : toPageSegments(lines, blocks);
   const pageBlocks = toPageBlocks(pageNumber, segments);
 
   return {

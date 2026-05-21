@@ -31,9 +31,7 @@ import { describe, expect, test } from "bun:test";
 
 describe("fmtModel", () => {
   test("strips openrouter/ prefix", () => {
-    expect(fmtModel("openrouter/google/gemini-2.5-pro")).toBe(
-      "google/gemini-2.5-pro",
-    );
+    expect(fmtModel("openrouter/google/gemini-2.5-pro")).toBe("google/gemini-2.5-pro");
   });
 });
 ```
@@ -46,14 +44,12 @@ import { Effect } from "effect";
 
 describe("TaskService", () => {
   test("getTask returns cached task", async () => {
-    const program = Effect.gen(function*() {
+    const program = Effect.gen(function* () {
       const svc = yield* TaskService;
       return yield* svc.getTask("bool_not");
     });
 
-    const result = await Effect.runPromise(
-      program.pipe(Effect.provide(TaskServiceLive)),
-    );
+    const result = await Effect.runPromise(program.pipe(Effect.provide(TaskServiceLive)));
 
     expect(result.id).toBe("bool_not");
   });

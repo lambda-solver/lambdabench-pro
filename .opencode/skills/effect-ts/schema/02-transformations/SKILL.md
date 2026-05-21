@@ -15,26 +15,18 @@ Use when every encoded value maps cleanly to a decoded value and back.
 import { Schema } from "effect";
 
 // String → Number (trim + parse)
-const NumberFromString = Schema.transform(
-  Schema.String,
-  Schema.Number,
-  {
-    strict: true,
-    decode: (s) => parseFloat(s),
-    encode: (n) => String(n),
-  },
-);
+const NumberFromString = Schema.transform(Schema.String, Schema.Number, {
+  strict: true,
+  decode: (s) => parseFloat(s),
+  encode: (n) => String(n),
+});
 
 // String → Date
-const DateFromIso = Schema.transform(
-  Schema.String,
-  Schema.Date,
-  {
-    strict: true,
-    decode: (s) => new Date(s),
-    encode: (d) => d.toISOString(),
-  },
-);
+const DateFromIso = Schema.transform(Schema.String, Schema.Date, {
+  strict: true,
+  decode: (s) => new Date(s),
+  encode: (d) => d.toISOString(),
+});
 ```
 
 ## Schema.transformOrFail — mapping that can fail
@@ -44,18 +36,12 @@ Use when decoding may produce a validation error.
 ```typescript
 import { ParseResult, Schema } from "effect";
 
-const PositiveNumber = Schema.transformOrFail(
-  Schema.Number,
-  Schema.Number,
-  {
-    strict: true,
-    decode: (n, _options, ast) =>
-      n > 0
-        ? ParseResult.succeed(n)
-        : ParseResult.fail(new ParseResult.Type(ast, n, "must be positive")),
-    encode: ParseResult.succeed,
-  },
-);
+const PositiveNumber = Schema.transformOrFail(Schema.Number, Schema.Number, {
+  strict: true,
+  decode: (n, _options, ast) =>
+    n > 0 ? ParseResult.succeed(n) : ParseResult.fail(new ParseResult.Type(ast, n, "must be positive")),
+  encode: ParseResult.succeed,
+});
 ```
 
 ## Built-in transformations
@@ -85,15 +71,11 @@ class UserFromRaw extends Schema.Class<UserFromRaw>("UserFromRaw")({
 ```typescript
 // Define once
 const JsonString = <A, I, R>(schema: Schema.Schema<A, I, R>) =>
-  Schema.transform(
-    Schema.String,
-    schema,
-    {
-      strict: true,
-      decode: (s) => JSON.parse(s) as I,
-      encode: (a) => JSON.stringify(a),
-    },
-  );
+  Schema.transform(Schema.String, schema, {
+    strict: true,
+    decode: (s) => JSON.parse(s) as I,
+    encode: (a) => JSON.stringify(a),
+  });
 
 // Use on any schema
 const JsonRanking = JsonString(Ranking);
@@ -102,26 +84,16 @@ const JsonRanking = JsonString(Ranking);
 ## Pipe transformations on struct fields
 
 ```typescript
-const UserId = Schema.String.pipe(
-  Schema.brand("UserId"),
-  Schema.minLength(1),
-);
+const UserId = Schema.String.pipe(Schema.brand("UserId"), Schema.minLength(1));
 
-const Slug = Schema.String.pipe(
-  Schema.brand("Slug"),
-  Schema.pattern(/^[a-z0-9-]+$/),
-);
+const Slug = Schema.String.pipe(Schema.brand("Slug"), Schema.pattern(/^[a-z0-9-]+$/));
 ```
 
 ## Optional with default
 
 ```typescript
 const ConfigSchema = Schema.Struct({
-  port: Schema.Number.pipe(Schema.optional).pipe(
-    Schema.withDefault(() => 3000),
-  ),
-  debug: Schema.Boolean.pipe(Schema.optional).pipe(
-    Schema.withDefault(() => false),
-  ),
+  port: Schema.Number.pipe(Schema.optional).pipe(Schema.withDefault(() => 3000)),
+  debug: Schema.Boolean.pipe(Schema.optional).pipe(Schema.withDefault(() => false)),
 });
 ```

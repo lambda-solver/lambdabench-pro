@@ -1,6 +1,7 @@
-import { Schema } from "effect";
-import { describe, expect, it } from "vitest";
 import { BatchEvalRequest, HealthStatus, SingleEvalRequest } from "./Api";
+import { describe, expect, it } from "vitest";
+
+import { Schema } from "effect";
 
 describe("SingleEvalRequest schema", () => {
   it("decodes a valid request with all fields", () => {

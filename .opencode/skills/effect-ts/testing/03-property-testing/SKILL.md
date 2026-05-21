@@ -37,16 +37,13 @@ FastCheck.assert(
 import { it } from "@effect/vitest";
 import { Schema } from "effect";
 
-it.effect.prop(
-  "encode then decode is identity",
-  [Schema.String, Schema.Number],
-  ([str, num]) =>
-    Effect.gen(function*() {
-      const pair = { str, num };
-      const encoded = yield* Schema.encode(MySchema)(pair);
-      const decoded = yield* Schema.decode(MySchema)(encoded);
-      assert.deepStrictEqual(decoded, pair);
-    }),
+it.effect.prop("encode then decode is identity", [Schema.String, Schema.Number], ([str, num]) =>
+  Effect.gen(function* () {
+    const pair = { str, num };
+    const encoded = yield* Schema.encode(MySchema)(pair);
+    const decoded = yield* Schema.decode(MySchema)(encoded);
+    assert.deepStrictEqual(decoded, pair);
+  }),
 );
 ```
 
@@ -58,13 +55,10 @@ import { test } from "vitest";
 
 test("sort is idempotent", () => {
   FastCheck.assert(
-    FastCheck.property(
-      FastCheck.array(FastCheck.integer()),
-      (arr) => {
-        const sorted = [...arr].sort();
-        expect([...sorted].sort()).toEqual(sorted);
-      },
-    ),
+    FastCheck.property(FastCheck.array(FastCheck.integer()), (arr) => {
+      const sorted = [...arr].sort();
+      expect([...sorted].sort()).toEqual(sorted);
+    }),
   );
 });
 ```
@@ -89,15 +83,9 @@ FastCheck.assert(
 ## Schema constraints for tighter arbitraries
 
 ```typescript
-const BoundedAge = Schema.Number.pipe(
-  Schema.int(),
-  Schema.between(0, 120),
-);
+const BoundedAge = Schema.Number.pipe(Schema.int(), Schema.between(0, 120));
 
-const NonEmptyTitle = Schema.String.pipe(
-  Schema.minLength(1),
-  Schema.maxLength(200),
-);
+const NonEmptyTitle = Schema.String.pipe(Schema.minLength(1), Schema.maxLength(200));
 
 const Task = Schema.Struct({
   id: Schema.String.pipe(Schema.brand("TaskId")),

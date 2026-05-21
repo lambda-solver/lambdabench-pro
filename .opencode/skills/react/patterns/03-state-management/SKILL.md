@@ -81,10 +81,10 @@ type State = {
   data: Data | null;
 };
 type Action =
-  | { type: "fetch"; }
-  | { type: "success"; payload: Data; }
-  | { type: "error"; payload: Error; }
-  | { type: "reset"; };
+  | { type: "fetch" }
+  | { type: "success"; payload: Data }
+  | { type: "error"; payload: Error }
+  | { type: "reset" };
 
 const reducer = (state: State, action: Action): State => {
   switch (action.type) {
@@ -126,7 +126,7 @@ const [filter, setFilter] = useState("all"); // lost on refresh
 ```tsx
 // ✅ atom for shared server state
 const usersAtom = runtime.atom(
-  Effect.gen(function*() {
+  Effect.gen(function* () {
     const api = yield* ApiClient;
     return yield* api.getUsers();
   }),
@@ -139,7 +139,11 @@ function UserList() {
     onInitial: () => <Loading />,
     onFailure: (e) => <Error error={e} />,
     onSuccess: ({ value }) => (
-      <div>{value.map((u) => <UserCard key={u.id} user={u} />)}</div>
+      <div>
+        {value.map((u) => (
+          <UserCard key={u.id} user={u} />
+        ))}
+      </div>
     ),
   });
 }

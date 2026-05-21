@@ -4,10 +4,12 @@
 // CLI entry point for daemon lifecycle management.
 // Supports start, stop, restart, status, and logs commands.
 
-import { Effect } from "effect";
-import { spawn } from "node:child_process";
 import { DaemonManager, DaemonManagerLayer } from "./daemon/manager";
+
+import { Effect } from "effect";
+
 import { ProcessError } from "./daemon/process";
+import { spawn } from "node:child_process";
 
 const usage = `Usage: bun run apps/server/src/daemon-cli.ts <command>
 
@@ -28,14 +30,17 @@ const run = <A, E>(effect: Effect.Effect<A, E, DaemonManager>): Promise<A> =>
 
 const printError = (error: unknown): never => {
   if (error instanceof ProcessError) {
-    console.error(`Daemon error: ${error.message}`);
+    process.stderr.write(`Daemon error: ${error.message}\n`);
   } else if (error instanceof Error) {
-    console.error(`Unexpected error: ${error.message}`);
+    process.stderr.write(`Unexpected error: ${error.message}\n`);
   } else {
-    console.error(`Unexpected error: ${String(error)}`);
+    process.stderr.write(`Unexpected error: ${String(error)}\n`);
   }
   return process.exit(1);
 };
+
+const out = (msg: string): void => void process.stdout.write(`${msg}\n`);
+const err = (msg: string): void => void process.stderr.write(`${msg}\n`);
 
 const main = async (): Promise<void> => {
   const command = process.argv[2];
@@ -44,61 +49,53 @@ const main = async (): Promise<void> => {
     case "start":
     case "bg": {
       const status = await run(
-        Effect.gen(function*() {
+        Effect.gen(function* () {
           const manager = yield* DaemonManager;
           return yield* manager.start();
         }),
       );
-      console.log(JSON.stringify(status, null, 2));
+      out(JSON.stringify(status, null, 2));
       break;
     }
     case "stop": {
       const status = await run(
-        Effect.gen(function*() {
+        Effect.gen(function* () {
           const manager = yield* DaemonManager;
           return yield* manager.stop();
         }),
       );
-      console.log(JSON.stringify(status, null, 2));
+      out(JSON.stringify(status, null, 2));
       break;
     }
     case "restart": {
       const status = await run(
-        Effect.gen(function*() {
+        Effect.gen(function* () {
           const manager = yield* DaemonManager;
           return yield* manager.restart();
         }),
       );
-      console.log(JSON.stringify(status, null, 2));
+      out(JSON.stringify(status, null, 2));
       break;
     }
     case "status": {
       const status = await run(
-        Effect.gen(function*() {
+        Effect.gen(function* () {
           const manager = yield* DaemonManager;
           return yield* manager.status();
         }),
       );
-      console.log(JSON.stringify(status, null, 2));
+      out(JSON.stringify(status, null, 2));
       break;
     }
     case "logs": {
-      spawn(
-        "tail",
-        [
-          "-f",
-          ".lambench-data/logs/server.log",
-          ".lambench-data/logs/client.log",
-        ],
-        { stdio: "inherit" },
-      );
+      spawn("tail", ["-f", ".lambench-data/logs/server.log", ".lambench-data/logs/client.log"], { stdio: "inherit" });
       break;
     }
     default: {
       if (command) {
-        console.error(`Unknown command: ${command}`);
+        err(`Unknown command: ${command}`);
       }
-      console.log(usage);
+      out(usage);
       process.exit(1);
     }
   }

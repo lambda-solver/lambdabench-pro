@@ -1,28 +1,29 @@
-import type { ChatResponse, MessageSegment } from "@repo/domain/Chat";
 import { AlertCircle, CheckCircle, Loader2, MessageSquareMore, Wrench } from "lucide-react";
+import type { ChatResponse, MessageSegment } from "@repo/domain/Chat";
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
-import { cn } from "../../lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
+
+import { cn } from "../../lib/utils";
+
+const normalizePayloadField = (value: unknown) => {
+  if (!value || typeof value !== "object") return value;
+  if (!("payload" in value)) return value;
+  const payload = (value as { payload?: unknown }).payload;
+  if (typeof payload !== "string") return value;
+  try {
+    return { ...value, payload: JSON.parse(payload) };
+  } catch {
+    return value;
+  }
+};
 
 export function ToolCall({
   segment,
   children,
 }: {
-  segment: MessageSegment & { _tag: "tool-call"; };
+  segment: MessageSegment & { _tag: "tool-call" };
   children?: ReactNode;
 }) {
-  const normalizePayloadField = (value: unknown) => {
-    if (!value || typeof value !== "object") return value;
-    if (!("payload" in value)) return value;
-    const payload = (value as { payload?: unknown; }).payload;
-    if (typeof payload !== "string") return value;
-    try {
-      return { ...value, payload: JSON.parse(payload) };
-    } catch {
-      return value;
-    }
-  };
-
   const formatJsonValue = (value: unknown) => {
     if (value === undefined) return "{}";
     try {
@@ -35,11 +36,12 @@ export function ToolCall({
       return JSON.stringify({ text: String(value) }, null, 2);
     }
   };
-  const toolArguments = segment.tool.argumentsText?.length > 0
-    ? segment.tool.argumentsText
-    : (segment.tool.arguments
-      ? JSON.stringify(segment.tool.arguments)
-      : undefined);
+  const toolArguments =
+    segment.tool.argumentsText?.length > 0
+      ? segment.tool.argumentsText
+      : segment.tool.arguments
+        ? JSON.stringify(segment.tool.arguments)
+        : undefined;
   const statusStyles = {
     complete: {
       badge: "border-primary/30 bg-primary/10 text-primary",
@@ -72,52 +74,45 @@ export function ToolCall({
         {segment.tool.status === "failed" && <AlertCircle className={`h-3 w-3 ${styles.icon}`} />}
         {segment.tool.status === "proposed" && <Wrench className={`h-3 w-3 ${styles.icon}`} />}
         <span
-          className={cn(
-            "text-[0.6rem] uppercase tracking-[0.2em] border rounded-none px-1.5 py-0.5",
-            styles.badge,
-          )}
+          className={cn("text-[0.6rem] uppercase tracking-[0.2em] border rounded-none px-1.5 py-0.5", styles.badge)}
         >
           {styles.label}
         </span>
         <span className="font-mono font-medium">{segment.tool.name}</span>
         {segment.tool.result && segment.tool.status === "complete" && (
           <span className="text-muted-foreground flex-1 truncate overflow-hidden break-all">
-            &rarr; {segment.tool.result.length > 100
-              ? `${segment.tool.result.slice(0, 100)}...`
-              : segment.tool.result}
+            &rarr; {segment.tool.result.length > 100 ? `${segment.tool.result.slice(0, 100)}...` : segment.tool.result}
           </span>
         )}
-        {(segment.tool.status === "complete" && segment.tool.result)
-            || (segment.tool.status === "failed" && toolArguments)
-          ? (
-            <div className="ml-auto flex items-center gap-2">
-              {segment.tool.status === "complete" && segment.tool.result && (
-                <Tooltip>
-                  <TooltipTrigger>
-                    <MessageSquareMore className="text-muted-foreground size-5" />
-                  </TooltipTrigger>
-                  <TooltipContent className="block max-w-lg overflow-hidden">
-                    <pre className="max-w-full overflow-x-auto whitespace-pre-wrap wrap-break-word font-mono text-xs">
+        {(segment.tool.status === "complete" && segment.tool.result) ||
+        (segment.tool.status === "failed" && toolArguments) ? (
+          <div className="ml-auto flex items-center gap-2">
+            {segment.tool.status === "complete" && segment.tool.result && (
+              <Tooltip>
+                <TooltipTrigger>
+                  <MessageSquareMore className="text-muted-foreground size-5" />
+                </TooltipTrigger>
+                <TooltipContent className="block max-w-lg overflow-hidden">
+                  <pre className="max-w-full overflow-x-auto whitespace-pre-wrap wrap-break-word font-mono text-xs">
                     {formatJsonValue(segment.tool.result)}
-                    </pre>
-                  </TooltipContent>
-                </Tooltip>
-              )}
-              {segment.tool.status === "failed" && toolArguments && (
-                <Tooltip>
-                  <TooltipTrigger>
-                    <MessageSquareMore className="text-destructive size-5" />
-                  </TooltipTrigger>
-                  <TooltipContent className="block max-w-lg overflow-hidden">
-                    <pre className="max-w-full overflow-x-auto whitespace-pre-wrap wrap-break-word font-mono text-xs">
+                  </pre>
+                </TooltipContent>
+              </Tooltip>
+            )}
+            {segment.tool.status === "failed" && toolArguments && (
+              <Tooltip>
+                <TooltipTrigger>
+                  <MessageSquareMore className="text-destructive size-5" />
+                </TooltipTrigger>
+                <TooltipContent className="block max-w-lg overflow-hidden">
+                  <pre className="max-w-full overflow-x-auto whitespace-pre-wrap wrap-break-word font-mono text-xs">
                     {formatJsonValue(toolArguments)}
-                    </pre>
-                  </TooltipContent>
-                </Tooltip>
-              )}
-            </div>
-          )
-          : null}
+                  </pre>
+                </TooltipContent>
+              </Tooltip>
+            )}
+          </div>
+        ) : null}
       </div>
       {children}
     </div>
@@ -127,7 +122,7 @@ export function ToolCall({
 export function TokenUsage({
   response,
 }: {
-  response: Pick<ChatResponse & { _tag: "complete"; }, "usage" | "finishReason">;
+  response: Pick<ChatResponse & { _tag: "complete" }, "usage" | "finishReason">;
 }) {
   if (!response.usage) return null;
   return (
@@ -139,23 +134,14 @@ export function TokenUsage({
           &darr;)
         </span>
       </span>
-      <span className="text-muted-foreground/60">
-        &bull; {response.finishReason}
-      </span>
+      <span className="text-muted-foreground/60">&bull; {response.finishReason}</span>
     </div>
   );
 }
 
-export function Segment({
-  className,
-  children,
-  ...props
-}: ComponentPropsWithoutRef<"div">) {
+export function Segment({ className, children, ...props }: ComponentPropsWithoutRef<"div">) {
   return (
-    <div
-      className={cn("flex flex-col gap-1 items-start w-full", className)}
-      {...props}
-    >
+    <div className={cn("flex flex-col gap-1 items-start w-full", className)} {...props}>
       {children}
     </div>
   );

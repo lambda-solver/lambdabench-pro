@@ -87,10 +87,7 @@ class Todo extends Schema.Class<Todo>("Todo")({
 
 ```typescript
 // TaggedErrorClass — serializable, primary pattern
-export class UserNotFound extends Schema.TaggedErrorClass<UserNotFound>()(
-  "UserNotFound",
-  { id: Schema.String },
-) {}
+export class UserNotFound extends Schema.TaggedErrorClass<UserNotFound>()("UserNotFound", { id: Schema.String }) {}
 
 // ErrorClass — without auto-generated _tag field
 export class SmtpError extends Schema.ErrorClass<SmtpError>("SmtpError")({

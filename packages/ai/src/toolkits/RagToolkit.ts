@@ -1,13 +1,12 @@
-import { RagService } from "@repo/rag";
 import { Effect, Schema } from "effect";
 import { EmbeddingModel, Tool, Toolkit } from "effect/unstable/ai";
 
+import { RagService } from "@repo/rag";
+
 const DocumentMetadata = Schema.Record(Schema.String, Schema.Unknown);
 
-const readMetadataString = (
-  metadata: Record<string, unknown> | null | undefined,
-  key: string,
-) => (typeof metadata?.[key] === "string" ? metadata[key] : null);
+const readMetadataString = (metadata: Record<string, unknown> | null | undefined, key: string) =>
+  typeof metadata?.[key] === "string" ? metadata[key] : null;
 
 /**
  * List Document Tool - Lists documents in a collection
@@ -79,31 +78,23 @@ const DeleteCollectionTool = Tool.make("deleteCollection", {
   }),
 });
 
-export const RagToolkit = Toolkit.make(
-  listDocumentsTool,
-  RetrieverTool,
-  DeleteCollectionTool,
-);
+export const RagToolkit = Toolkit.make(listDocumentsTool, RetrieverTool, DeleteCollectionTool);
 
 export const RagToolkitLive = RagToolkit.toLayer(
-  Effect.gen(function*() {
+  Effect.gen(function* () {
     const rag = yield* RagService;
     const embedder = yield* EmbeddingModel.EmbeddingModel;
     return {
       deleteCollection: (params) =>
-        Effect.gen(function*() {
+        Effect.gen(function* () {
           return yield* rag.deleteCollection({
             collection: params.collection,
           });
         }).pipe(
-          Effect.catch((error) =>
-            Effect.fail(
-              `Error deleting collection '${params.collection}': ${String(error)}`,
-            )
-          ),
+          Effect.catch((error) => Effect.fail(`Error deleting collection '${params.collection}': ${String(error)}`)),
         ),
       listDocuments: (params) =>
-        Effect.gen(function*() {
+        Effect.gen(function* () {
           const listResult = yield* rag.listDocuments({
             collection: "uploads",
             limit: 5,
@@ -118,14 +109,10 @@ export const RagToolkitLive = RagToolkit.toLayer(
             })),
           };
         }).pipe(
-          Effect.catch((error) =>
-            Effect.fail(
-              `Error listing documents in collection 'uploads': ${String(error)}`,
-            )
-          ),
+          Effect.catch((error) => Effect.fail(`Error listing documents in collection 'uploads': ${String(error)}`)),
         ),
       retriever: (params) =>
-        Effect.gen(function*() {
+        Effect.gen(function* () {
           const embedded = yield* embedder.embed(params.query);
           yield* Effect.log(
             `[RagToolkit] Retrieve embed: queryLength=${params.query.length}, embeddingDims=${embedded.vector.length}`,
@@ -134,27 +121,22 @@ export const RagToolkitLive = RagToolkit.toLayer(
             collection: "uploads",
             embedding: [...embedded.vector],
             topK: 3,
-            ...(params.filename
-              ? { where: { fileName: { $contains: params.filename } } }
-              : {}),
+            ...(params.filename ? { where: { fileName: { $contains: params.filename } } } : {}),
           });
-          yield* Effect.log(
-            `[RagToolkit] Retrieve result: hits=${retrieveResult.hits.length}`,
-          );
+          yield* Effect.log(`[RagToolkit] Retrieve result: hits=${retrieveResult.hits.length}`);
           return {
-            documents: retrieveResult.hits.map((hit) => ({
-              document: hit.document || "",
-              fileName: readMetadataString(hit.metadata, "fileName"),
-              id: hit.id,
-              metadata: hit.metadata,
-              score: hit.score,
-            })) ?? [],
+            documents:
+              retrieveResult.hits.map((hit) => ({
+                document: hit.document || "",
+                fileName: readMetadataString(hit.metadata, "fileName"),
+                id: hit.id,
+                metadata: hit.metadata,
+                score: hit.score,
+              })) ?? [],
           };
         }).pipe(
           Effect.catch((error) =>
-            Effect.fail(
-              `Error retrieving documents from collection 'uploads': ${String(error)}`,
-            )
+            Effect.fail(`Error retrieving documents from collection 'uploads': ${String(error)}`),
           ),
         ),
     };

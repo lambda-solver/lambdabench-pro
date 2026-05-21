@@ -9,14 +9,16 @@
  */
 
 import { Array as Arr, Effect, FileSystem, Path } from "effect";
-import { build } from "../build/BuildResults";
 import { LAM_DIR, loadAllTasks, referenceBits, runAllTasksForModel } from "../check/Check";
-import type { Task } from "../check/Check";
-import { ModelUnresponsiveError } from "../llm/ModelGuard";
-import { makeOpenRouterLayer } from "../llm/OpenRouterClient";
 import { defaultConfig, rlmEval } from "../rlm/LambdaRlm";
-import { writeResultFile } from "../run/RunWriter";
+
+import { ModelUnresponsiveError } from "../llm/ModelGuard";
+import type { Task } from "../check/Check";
 import type { TopModel } from "./EvalRunner";
+
+import { build } from "../build/BuildResults";
+import { makeOpenRouterLayer } from "../llm/OpenRouterClient";
+import { writeResultFile } from "../run/RunWriter";
 
 // ─── loadRefBitsMap ───────────────────────────────────────────────────────────
 
@@ -24,7 +26,7 @@ import type { TopModel } from "./EvalRunner";
  * Load reference solution bits for all tasks in lam/ into a ReadonlyMap.
  * Tasks without a reference .lam file are absent from the map.
  */
-export const loadRefBitsMap = Effect.fn("loadRefBitsMap")(function*() {
+export const loadRefBitsMap = Effect.fn("loadRefBitsMap")(function* () {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
 
@@ -36,7 +38,7 @@ export const loadRefBitsMap = Effect.fn("loadRefBitsMap")(function*() {
   const entries = yield* Effect.forEach(
     lamFiles,
     (f) =>
-      Effect.gen(function*() {
+      Effect.gen(function* () {
         const taskId = path.basename(f, ".lam");
         const bits = yield* referenceBits(taskId).pipe(
           Effect.catch((_) => Effect.succeed(undefined as number | undefined)),
@@ -47,14 +49,12 @@ export const loadRefBitsMap = Effect.fn("loadRefBitsMap")(function*() {
     { concurrency: 8 },
   );
 
-  return new Map(
-    entries.filter((e): e is [string, number] => e !== null),
-  ) as ReadonlyMap<string, number>;
+  return new Map(entries.filter((e): e is [string, number] => e !== null)) as ReadonlyMap<string, number>;
 });
 
 // ─── runRlmForAllTasks ────────────────────────────────────────────────────────
 
-const runRlmForAllTasks = Effect.fn("runRlmForAllTasks")(function*(
+const runRlmForAllTasks = Effect.fn("runRlmForAllTasks")(function* (
   tasks: ReadonlyArray<Task>,
   refBitsMap: ReadonlyMap<string, number>,
   rlmMaxDepth: number,
@@ -65,7 +65,7 @@ const runRlmForAllTasks = Effect.fn("runRlmForAllTasks")(function*(
   const rlmResults = yield* Effect.forEach(
     tasks,
     (task) =>
-      Effect.gen(function*() {
+      Effect.gen(function* () {
         const start = Date.now();
         const llmResult = yield* rlmEval(task, refBitsMap.get(task.id), cfg);
         const elapsedMs = Date.now() - start;
@@ -86,16 +86,14 @@ const runRlmForAllTasks = Effect.fn("runRlmForAllTasks")(function*(
  * Run standard + λ-RLM eval concurrently for a single model.
  * Both variants write their own res/*.txt files.
  */
-export const runModelEval = Effect.fn("runModelEval")(function*(
+export const runModelEval = Effect.fn("runModelEval")(function* (
   model: TopModel,
   tasks: ReadonlyArray<Task>,
   refBitsMap: ReadonlyMap<string, number>,
   rlmMaxDepth = 3,
   concurrency = 1,
 ) {
-  yield* Effect.log(
-    `[ModelEvalRunner] Starting eval for ${model.modelId} (${tasks.length} tasks)`,
-  );
+  yield* Effect.log(`[ModelEvalRunner] Starting eval for ${model.modelId} (${tasks.length} tasks)`);
 
   const llmLayer = makeOpenRouterLayer(model.modelId);
 
@@ -118,12 +116,8 @@ export const runModelEval = Effect.fn("runModelEval")(function*(
       // Standard eval: single LLM call per task
       guarded(
         "standard",
-        Effect.gen(function*() {
-          const results = yield* runAllTasksForModel(
-            tasks,
-            refBitsMap,
-            concurrency,
-          ).pipe(Effect.provide(llmLayer));
+        Effect.gen(function* () {
+          const results = yield* runAllTasksForModel(tasks, refBitsMap, concurrency).pipe(Effect.provide(llmLayer));
           yield* writeResultFile(model.modelId, results, "standard");
           yield* build().pipe(Effect.catch((_) => Effect.void));
         }),
@@ -132,7 +126,7 @@ export const runModelEval = Effect.fn("runModelEval")(function*(
       // λ-RLM eval: up to maxDepth self-correction calls per task
       guarded(
         "rlm",
-        Effect.gen(function*() {
+        Effect.gen(function* () {
           const { results, totalAttempts, maxDepthUsed } = yield* runRlmForAllTasks(
             tasks,
             refBitsMap,
@@ -150,9 +144,7 @@ export const runModelEval = Effect.fn("runModelEval")(function*(
     { concurrency },
   );
 
-  yield* Effect.log(
-    `[ModelEvalRunner] Done: ${model.modelId} (standard + rlm)`,
-  );
+  yield* Effect.log(`[ModelEvalRunner] Done: ${model.modelId} (standard + rlm)`);
 });
 
 export type { Task };

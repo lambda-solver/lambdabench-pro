@@ -71,9 +71,7 @@ import { expect, test } from "bun:test";
 import { fmtModel } from "./fmt";
 
 test("strips openrouter/ prefix", () => {
-  expect(fmtModel("openrouter/google/gemini-2.5-pro")).toBe(
-    "google/gemini-2.5-pro",
-  );
+  expect(fmtModel("openrouter/google/gemini-2.5-pro")).toBe("google/gemini-2.5-pro");
 });
 ```
 

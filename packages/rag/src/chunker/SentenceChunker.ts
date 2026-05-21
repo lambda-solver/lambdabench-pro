@@ -1,9 +1,11 @@
 import { Chunker, Tokenizer } from "@repo/domain/Chunk";
-import type { Chunk } from "@repo/domain/Chunk";
 import { Context, Effect, Layer, Schema } from "effect";
-import { WordTokenizerLive } from "../tokenizer/DelimTokenizer";
-import { buildDelimiterPattern, findDelimiterSpans, IncludeDelim, isBlank, splitTextByMatches } from "./utils";
+import { IncludeDelim, buildDelimiterPattern, findDelimiterSpans, isBlank, splitTextByMatches } from "./utils";
+
+import type { Chunk } from "@repo/domain/Chunk";
 import type { TextSpan } from "./utils";
+
+import { WordTokenizerLive } from "../tokenizer/DelimTokenizer";
 
 const SentenceChunkerConfigSchema = Schema.Struct({
   chunkOverlap: Schema.Number.check(Schema.isGreaterThanOrEqualTo(0)),
@@ -18,16 +20,17 @@ const SentenceChunkerConfigSchema = Schema.Struct({
   ),
 );
 
-export const SentenceChunkerConfig = Context.Reference<
-  typeof SentenceChunkerConfigSchema.Type
->("SentenceChunkerConfig", {
-  defaultValue: () => ({
-    chunkOverlap: 0,
-    chunkSize: 2048,
-    delimiters: [". ", "! ", "? ", "\n"],
-    includeDelim: "prev",
-  }),
-});
+export const SentenceChunkerConfig = Context.Reference<typeof SentenceChunkerConfigSchema.Type>(
+  "SentenceChunkerConfig",
+  {
+    defaultValue: () => ({
+      chunkOverlap: 0,
+      chunkSize: 2048,
+      delimiters: [". ", "! ", "? ", "\n"],
+      includeDelim: "prev",
+    }),
+  },
+);
 
 const splitSentences = (
   text: string,
@@ -35,9 +38,7 @@ const splitSentences = (
   includeDelim: IncludeDelim,
 ): Array<typeof TextSpan.Type> => {
   if (delimiters.length === 0) {
-    return text.length === 0
-      ? []
-      : [{ endIdx: text.length, startIdx: 0, text }];
+    return text.length === 0 ? [] : [{ endIdx: text.length, startIdx: 0, text }];
   }
 
   const pattern = buildDelimiterPattern(delimiters);
@@ -141,19 +142,15 @@ const nextStartFromOverlap = (
   return nextStart <= currentStart ? currentStart + 1 : nextStart;
 };
 
-export class SentenceChunker extends Context.Service<
-  SentenceChunker,
-  Chunker["Service"]
->()("SentenceChunker", {
-  make: Effect.gen(function*() {
+export class SentenceChunker extends Context.Service<SentenceChunker, Chunker["Service"]>()("SentenceChunker", {
+  make: Effect.gen(function* () {
     const tokenizer = yield* Tokenizer;
     const config = yield* SentenceChunkerConfig;
 
-    const { chunkSize, chunkOverlap, delimiters, includeDelim } = yield* Schema.decodeEffect(
-      SentenceChunkerConfigSchema,
-    )(config);
+    const { chunkSize, chunkOverlap, delimiters, includeDelim } =
+      yield* Schema.decodeEffect(SentenceChunkerConfigSchema)(config);
 
-    const chunk = Effect.fn("SentenceChunker.chunk")(function*(text: string) {
+    const chunk = Effect.fn("SentenceChunker.chunk")(function* (text: string) {
       if (isBlank(text)) {
         return [];
       }
@@ -164,13 +161,11 @@ export class SentenceChunker extends Context.Service<
         return [];
       }
 
-      const sentences = yield* Effect.forEach(
-        sentenceSpans,
-        (sentence) =>
-          Effect.map(tokenizer.countTokens(sentence.text), (tokenCount) => ({
-            ...sentence,
-            tokenCount,
-          })),
+      const sentences = yield* Effect.forEach(sentenceSpans, (sentence) =>
+        Effect.map(tokenizer.countTokens(sentence.text), (tokenCount) => ({
+          ...sentence,
+          tokenCount,
+        })),
       );
 
       if (sentences.length === 0) {
@@ -182,19 +177,14 @@ export class SentenceChunker extends Context.Service<
 
       while (startIdx < sentences.length) {
         const window = windowFrom(sentences, startIdx, chunkSize);
-        const chunk = toChunk(sentences, window);
+        const chunkResult = toChunk(sentences, window);
 
-        if (chunk === null) {
+        if (chunkResult === null) {
           break;
         }
 
-        chunks.push(chunk);
-        startIdx = nextStartFromOverlap(
-          sentences,
-          startIdx,
-          window.endExclusive,
-          chunkOverlap,
-        );
+        chunks.push(chunkResult);
+        startIdx = nextStartFromOverlap(sentences, startIdx, window.endExclusive, chunkOverlap);
       }
 
       return chunks;
@@ -207,6 +197,4 @@ export class SentenceChunker extends Context.Service<
   }),
 }) {}
 
-export const SentenceChunkerLive = Layer.effect(Chunker)(
-  SentenceChunker.make,
-).pipe(Layer.provide(WordTokenizerLive));
+export const SentenceChunkerLive = Layer.effect(Chunker)(SentenceChunker.make).pipe(Layer.provide(WordTokenizerLive));

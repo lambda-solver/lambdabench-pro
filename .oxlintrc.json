@@ -1,0 +1,62 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn",
+    "perf": "warn"
+  },
+  "plugins": ["typescript", "react", "jsx-a11y", "unicorn", "oxc", "import"],
+  "jsPlugins": [
+    {
+      "name": "effect",
+      "specifier": "@mpsuesser/oxlint-plugin-effect"
+    },
+    {
+      "name": "repo",
+      "specifier": "@repo/effect-oxlint"
+    }
+  ],
+  "rules": {
+    "eslint/no-console": "warn",
+    "eslint/no-extra-boolean-cast": "warn",
+    "eslint/no-underscore-dangle": ["warn", { "allow": ["_tag"] }],
+    "eslint/prefer-const": "error",
+    "import/no-unassigned-import": ["warn", { "allow": ["**/*.css"] }],
+    "react-in-jsx-scope": "off",
+    "repo/no-linter-disable-comments": "warn",
+    "typescript/no-explicit-any": "warn",
+    "typescript/no-unused-vars": [
+      "warn",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_"
+      }
+    ],
+    "unicorn/filename-case": "off",
+    "unicorn/no-useless-spread": "warn"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.test.ts", "**/*.test.tsx", "**/*.preview.ts", "**/*.preview.tsx"],
+      "rules": {
+        "eslint/no-console": "off"
+      }
+    },
+    {
+      "files": ["apps/server-core/index.ts"],
+      "rules": {
+        "eslint/no-console": "off"
+      }
+    }
+  ],
+  "ignorePatterns": [
+    "node_modules/**",
+    "dist/**",
+    "**/dist-node/**",
+    "build/**",
+    "coverage/**",
+    "reference/**",
+    "apps/server-core/drizzle/**",
+    "tools/*.plugin.mjs"
+  ]
+}

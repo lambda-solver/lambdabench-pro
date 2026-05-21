@@ -2,12 +2,16 @@
 
 import * as NodeFileSystem from "@effect/platform-node-shared/NodeFileSystem";
 import * as NodePath from "@effect/platform-node-shared/NodePath";
-import { describe, it } from "@effect/vitest";
-import { assertDefined, assertTrue, strictEqual } from "@effect/vitest/utils";
+
 import { Effect, Layer } from "effect";
-import { existsSync, unlinkSync } from "node:fs";
+
+import { ServicesLive, makeRuntime, makeServicesLayer, serverRuntime } from "./runtime";
+
 import { afterAll, afterEach, beforeAll } from "vitest";
-import { makeRuntime, makeServicesLayer, serverRuntime, ServicesLive } from "./runtime";
+import { assertDefined, assertTrue, strictEqual } from "@effect/vitest/utils";
+import { describe, it } from "@effect/vitest";
+import { existsSync, unlinkSync } from "node:fs";
+
 import { ResultStore } from "./services/ResultStore";
 
 const testDbPathA = "apps/server/test-data/runtime.test.a.db";
@@ -53,7 +57,8 @@ describe("runtime", () => {
       // ManagedRuntime has runPromise / runSync methods
       assertTrue("runPromise" in serverRuntime);
       assertTrue("runSync" in serverRuntime);
-    }));
+    }),
+  );
 
   it.effect("ServicesLive is a Layer", () =>
     Effect.sync(() => {
@@ -61,113 +66,103 @@ describe("runtime", () => {
       assertTrue(ServicesLive !== null && typeof ServicesLive === "object");
       // Layer has pipe method
       assertTrue("pipe" in ServicesLive);
-    }));
+    }),
+  );
 
   // ─── makeServicesLayer ──────────────────────────────────────────────────────
 
   it.effect("makeServicesLayer returns a Layer that can be built", () =>
-    Effect.gen(function*() {
-      const layer = makeServicesLayer(testDbPathA).pipe(
-        Layer.provideMerge(platformLayer),
-      );
+    Effect.gen(function* () {
+      const layer = makeServicesLayer(testDbPathA).pipe(Layer.provideMerge(platformLayer));
       yield* Layer.build(layer);
 
       // Verify DB file was created
       assertTrue(existsSync(testDbPathA));
-    }));
-
-  it.effect(
-    "makeServicesLayer provides ResultStore that can insert and query",
-    () =>
-      Effect.gen(function*() {
-        const layer = makeServicesLayer(testDbPathA).pipe(
-          Layer.provideMerge(platformLayer),
-        );
-
-        const result = yield* Effect.gen(function*() {
-          const store = yield* ResultStore;
-
-          yield* store.insertResult({
-            bits: 4,
-            elapsedMs: 1234,
-            model: "gpt-4",
-            pass: true,
-            provider: "openai",
-            runId: "run-1",
-            score: 0.95,
-            taskId: "task-1",
-            timestamp: "2025-01-01T00:00:00Z",
-            variant: "standard",
-          });
-
-          const results = yield* store.getResultsByRunId("run-1");
-          return results;
-        }).pipe(Effect.provide(layer));
-
-        strictEqual(result.length, 1);
-        strictEqual(result[0]?.runId, "run-1");
-        strictEqual(result[0]?.taskId, "task-1");
-        strictEqual(result[0]?.model, "gpt-4");
-        strictEqual(result[0]?.pass, true);
-      }),
+    }),
   );
 
-  it.effect(
-    "makeServicesLayer with different dbPaths creates independent databases",
-    () =>
-      Effect.gen(function*() {
-        const layerA = makeServicesLayer(testDbPathA).pipe(
-          Layer.provideMerge(platformLayer),
-        );
-        const layerB = makeServicesLayer(testDbPathB).pipe(
-          Layer.provideMerge(platformLayer),
-        );
+  it.effect("makeServicesLayer provides ResultStore that can insert and query", () =>
+    Effect.gen(function* () {
+      const layer = makeServicesLayer(testDbPathA).pipe(Layer.provideMerge(platformLayer));
 
-        // Insert into A
-        yield* Effect.gen(function*() {
-          const store = yield* ResultStore;
-          yield* store.insertResult({
-            elapsedMs: 100,
-            model: "model-a",
-            pass: true,
-            provider: "openai",
-            runId: "run-a",
-            taskId: "task-a",
-            timestamp: "2025-01-01T00:00:00Z",
-            variant: "standard",
-          });
-        }).pipe(Effect.provide(layerA));
+      const result = yield* Effect.gen(function* () {
+        const store = yield* ResultStore;
 
-        // Query from B — should be empty
-        const resultsB = yield* Effect.gen(function*() {
-          const store = yield* ResultStore;
-          return yield* store.getResultsByRunId("run-a");
-        }).pipe(Effect.provide(layerB));
+        yield* store.insertResult({
+          bits: 4,
+          elapsedMs: 1234,
+          model: "gpt-4",
+          pass: true,
+          provider: "openai",
+          runId: "run-1",
+          score: 0.95,
+          taskId: "task-1",
+          timestamp: "2025-01-01T00:00:00Z",
+          variant: "standard",
+        });
 
-        strictEqual(resultsB.length, 0);
+        const results = yield* store.getResultsByRunId("run-1");
+        return results;
+      }).pipe(Effect.provide(layer));
 
-        // Query from A — should have the result
-        const resultsA = yield* Effect.gen(function*() {
-          const store = yield* ResultStore;
-          return yield* store.getResultsByRunId("run-a");
-        }).pipe(Effect.provide(layerA));
+      strictEqual(result.length, 1);
+      strictEqual(result[0]?.runId, "run-1");
+      strictEqual(result[0]?.taskId, "task-1");
+      strictEqual(result[0]?.model, "gpt-4");
+      strictEqual(result[0]?.pass, true);
+    }),
+  );
 
-        strictEqual(resultsA.length, 1);
-        strictEqual(resultsA[0]?.taskId, "task-a");
-      }),
+  it.effect("makeServicesLayer with different dbPaths creates independent databases", () =>
+    Effect.gen(function* () {
+      const layerA = makeServicesLayer(testDbPathA).pipe(Layer.provideMerge(platformLayer));
+      const layerB = makeServicesLayer(testDbPathB).pipe(Layer.provideMerge(platformLayer));
+
+      // Insert into A
+      yield* Effect.gen(function* () {
+        const store = yield* ResultStore;
+        yield* store.insertResult({
+          elapsedMs: 100,
+          model: "model-a",
+          pass: true,
+          provider: "openai",
+          runId: "run-a",
+          taskId: "task-a",
+          timestamp: "2025-01-01T00:00:00Z",
+          variant: "standard",
+        });
+      }).pipe(Effect.provide(layerA));
+
+      // Query from B — should be empty
+      const resultsB = yield* Effect.gen(function* () {
+        const store = yield* ResultStore;
+        return yield* store.getResultsByRunId("run-a");
+      }).pipe(Effect.provide(layerB));
+
+      strictEqual(resultsB.length, 0);
+
+      // Query from A — should have the result
+      const resultsA = yield* Effect.gen(function* () {
+        const store = yield* ResultStore;
+        return yield* store.getResultsByRunId("run-a");
+      }).pipe(Effect.provide(layerA));
+
+      strictEqual(resultsA.length, 1);
+      strictEqual(resultsA[0]?.taskId, "task-a");
+    }),
   );
 
   // ─── makeRuntime ────────────────────────────────────────────────────────────
 
   it.effect("makeRuntime returns a ManagedRuntime that can run effects", () =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const runtime = makeRuntime(testDbPathA);
 
       assertDefined(runtime);
       assertTrue("runPromise" in runtime);
       assertTrue("runSync" in runtime);
 
-      const result = yield* Effect.gen(function*() {
+      const result = yield* Effect.gen(function* () {
         const store = yield* ResultStore;
 
         yield* store.insertResult({
@@ -182,59 +177,43 @@ describe("runtime", () => {
         });
 
         return yield* store.getResultsByRunId("run-runtime");
-      }).pipe(
-        Effect.provide(
-          Layer.mergeAll(makeServicesLayer(testDbPathA), platformLayer),
-        ),
-      );
+      }).pipe(Effect.provide(Layer.mergeAll(makeServicesLayer(testDbPathA), platformLayer)));
 
       strictEqual(result.length, 1);
       strictEqual(result[0]?.runId, "run-runtime");
       strictEqual(result[0]?.pass, false);
-    }));
+    }),
+  );
 
-  it.effect(
-    "makeRuntime with different paths creates independent runtimes",
-    () =>
-      Effect.gen(function*() {
-        const _runtimeA = makeRuntime(testDbPathA);
-        const _runtimeB = makeRuntime(testDbPathB);
+  it.effect("makeRuntime with different paths creates independent runtimes", () =>
+    Effect.gen(function* () {
+      // Use runtimeA to insert
+      const effectA = Effect.gen(function* () {
+        const store = yield* ResultStore;
+        yield* store.insertResult({
+          elapsedMs: 300,
+          model: "model-isolated",
+          pass: true,
+          provider: "openrouter",
+          runId: "run-isolated",
+          taskId: "task-isolated",
+          timestamp: "2025-03-01T00:00:00Z",
+          variant: "rlm",
+        });
+        return yield* store.getResultsByRunId("run-isolated");
+      }).pipe(Effect.provide(Layer.mergeAll(makeServicesLayer(testDbPathA), platformLayer)));
 
-        // Use runtimeA to insert
-        const effectA = Effect.gen(function*() {
-          const store = yield* ResultStore;
-          yield* store.insertResult({
-            elapsedMs: 300,
-            model: "model-isolated",
-            pass: true,
-            provider: "openrouter",
-            runId: "run-isolated",
-            taskId: "task-isolated",
-            timestamp: "2025-03-01T00:00:00Z",
-            variant: "rlm",
-          });
-          return yield* store.getResultsByRunId("run-isolated");
-        }).pipe(
-          Effect.provide(
-            Layer.mergeAll(makeServicesLayer(testDbPathA), platformLayer),
-          ),
-        );
+      const resultA = yield* effectA;
+      strictEqual(resultA.length, 1);
 
-        const resultA = yield* effectA;
-        strictEqual(resultA.length, 1);
+      // Runtime B should not see the data
+      const effectB = Effect.gen(function* () {
+        const store = yield* ResultStore;
+        return yield* store.getResultsByRunId("run-isolated");
+      }).pipe(Effect.provide(Layer.mergeAll(makeServicesLayer(testDbPathB), platformLayer)));
 
-        // Runtime B should not see the data
-        const effectB = Effect.gen(function*() {
-          const store = yield* ResultStore;
-          return yield* store.getResultsByRunId("run-isolated");
-        }).pipe(
-          Effect.provide(
-            Layer.mergeAll(makeServicesLayer(testDbPathB), platformLayer),
-          ),
-        );
-
-        const resultB = yield* effectB;
-        strictEqual(resultB.length, 0);
-      }),
+      const resultB = yield* effectB;
+      strictEqual(resultB.length, 0);
+    }),
   );
 });

@@ -14,40 +14,40 @@
  * project's naming convention for view-model types.
  */
 
-import type { ESTree } from "effect-oxlint";
-
 import * as Effect from "effect/Effect";
-import { pipe } from "effect/Function";
 import * as Option from "effect/Option";
 import * as Schema from "effect/Schema";
 import * as Str from "effect/String";
 
 import { AST, Diagnostic, Rule, RuleContext, Visitor } from "effect-oxlint";
 
+import type { ESTree } from "effect-oxlint";
+import { pipe } from "effect/Function";
+
 // ---------------------------------------------------------------------------
 // Domain
 // ---------------------------------------------------------------------------
 
 const LayerFactoryName = Schema.Literals(["effect", "scoped"]).annotate({
-  title: "LayerFactoryName",
   description:
     "`Layer.effect` and `Layer.scoped` — the factory positions where a VM tag appears as the first argument.",
+  title: "LayerFactoryName",
 });
 
 const isLayerFactoryName = Schema.is(LayerFactoryName);
 
 const VmName = Schema.String.check(
   Schema.makeFilter((s: string) => Str.endsWith("VM")(s), {
-    identifier: "VmNameCheck",
-    title: "VM name",
     description: "A name ending with the suffix `VM`.",
+    identifier: "VmNameCheck",
     message: "Name must end with VM",
+    title: "VM name",
   }),
 ).pipe(
   Schema.brand("VmName"),
   Schema.annotate({
-    title: "VmName",
     description: "A type/identifier name following the View Model naming convention (`...VM`).",
+    title: "VmName",
   }),
 );
 
@@ -63,38 +63,26 @@ const interfaceName = (node: ESTree.TSInterfaceDeclaration): string => node.id.n
  * The first type argument of `Context.Service<FooVM>` — returns the
  * identifier name when it exists and is a bare identifier reference.
  */
-const contextServiceTypeArgumentName = (
-  node: ESTree.CallExpression,
-): Option.Option<string> =>
+const contextServiceTypeArgumentName = (node: ESTree.CallExpression): Option.Option<string> =>
   pipe(
     AST.narrow(node.callee, "CallExpression"),
     Option.filter(
-      (inner) =>
-        inner.callee.type === "MemberExpression"
-        && AST.isMember(inner.callee, "Context", "Service"),
+      (inner) => inner.callee.type === "MemberExpression" && AST.isMember(inner.callee, "Context", "Service"),
     ),
     Option.flatMap((inner) => Option.fromNullishOr(inner.typeArguments?.params[0])),
     Option.flatMap(AST.narrow("TSTypeReference")),
-    Option.flatMap((ref) =>
-      ref.typeName.type === "Identifier"
-        ? Option.some(ref.typeName.name)
-        : Option.none()
-    ),
+    Option.flatMap((ref) => (ref.typeName.type === "Identifier" ? Option.some(ref.typeName.name) : Option.none())),
   );
 
 /**
  * The first positional argument of `Layer.effect|scoped(FooVM, ...)` —
  * returns the identifier name when the argument is a bare identifier.
  */
-const layerFactoryFirstArgumentName = (
-  node: ESTree.CallExpression,
-): Option.Option<string> =>
+const layerFactoryFirstArgumentName = (node: ESTree.CallExpression): Option.Option<string> =>
   pipe(
     AST.narrow(node.callee, "MemberExpression"),
     Option.flatMap(AST.memberNames),
-    Option.filter(
-      ([obj, prop]) => obj === "Layer" && isLayerFactoryName(prop),
-    ),
+    Option.filter(([obj, prop]) => obj === "Layer" && isLayerFactoryName(prop)),
     Option.flatMap(() => Option.fromNullishOr(node.arguments[0])),
     Option.flatMap(AST.narrow("Identifier")),
     Option.map((id) => id.name),
@@ -116,13 +104,7 @@ const serviceMessage = (name: string): string =>
 const vmFileSuggestion = (filename: string): string => filename.replace(/\.(ts|tsx)$/, ".vm.$1");
 
 export default Rule.define({
-  name: "vm-in-wrong-file",
-  meta: Rule.meta({
-    type: "problem",
-    description:
-      "View Model definitions (`interface FooVM`, `Context.Service<FooVM>(...)`, `Layer.effect(FooVM, ...)`) must live in `.vm.ts` / `.vm.tsx` files.",
-  }),
-  create: function*() {
+  create: function* () {
     const ctx = yield* RuleContext;
 
     return yield* Visitor.filter(
@@ -131,15 +113,13 @@ export default Rule.define({
         Visitor.on("TSInterfaceDeclaration", (node) =>
           isVmName(interfaceName(node))
             ? ctx.report(
-              Diagnostic.make({
-                node,
-                message: interfaceMessage(
-                  interfaceName(node),
-                  vmFileSuggestion(ctx.filename),
-                ),
-              }),
-            )
-            : Effect.void),
+                Diagnostic.make({
+                  node,
+                  message: interfaceMessage(interfaceName(node), vmFileSuggestion(ctx.filename)),
+                }),
+              )
+            : Effect.void,
+        ),
         Visitor.on("CallExpression", (node) =>
           pipe(
             contextServiceTypeArgumentName(node),
@@ -154,7 +134,8 @@ export default Rule.define({
                   }),
                 ),
             }),
-          )),
+          ),
+        ),
         Visitor.on("CallExpression", (node) =>
           pipe(
             AST.narrow(node.callee, "MemberExpression"),
@@ -165,7 +146,7 @@ export default Rule.define({
                 layerFactoryFirstArgumentName(node),
                 Option.filter(isVmName),
                 Option.map((name) => [factory, name] as const),
-              )
+              ),
             ),
             Option.match({
               onNone: () => Effect.void,
@@ -177,8 +158,15 @@ export default Rule.define({
                   }),
                 ),
             }),
-          )),
+          ),
+        ),
       ),
     );
   },
+  meta: Rule.meta({
+    type: "problem",
+    description:
+      "View Model definitions (`interface FooVM`, `Context.Service<FooVM>(...)`, `Layer.effect(FooVM, ...)`) must live in `.vm.ts` / `.vm.tsx` files.",
+  }),
+  name: "vm-in-wrong-file",
 });

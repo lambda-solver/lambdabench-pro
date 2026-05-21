@@ -1,3 +1,5 @@
+import { AsyncResult } from "effect/unstable/reactivity";
+import type { BenchmarkTask } from "@repo/domain/Benchmark";
 import { ElegancePanel } from "@/components/leaderboard/ElegancePanel";
 import { IntelligencePanel } from "@/components/leaderboard/IntelligencePanel";
 import { MatrixPanel } from "@/components/leaderboard/MatrixPanel";
@@ -8,11 +10,9 @@ import { TabLine } from "@/components/leaderboard/TabLine";
 import { TaskModal } from "@/components/leaderboard/TaskModal";
 import { ValuePanel } from "@/components/leaderboard/ValuePanel";
 import { benchmarkAtom } from "@/lib/atoms/benchmark-atom";
-import { useMusicPlayer } from "@/lib/useMusicPlayer";
 import { cn } from "@/lib/utils";
 import { useAtomValue } from "@effect/atom-react";
-import type { BenchmarkTask } from "@repo/domain/Benchmark";
-import { AsyncResult } from "effect/unstable/reactivity";
+import { useMusicPlayer } from "@/lib/useMusicPlayer";
 import { useState } from "react";
 
 function LoadingView() {
@@ -23,7 +23,7 @@ function LoadingView() {
   );
 }
 
-function ErrorView({ message }: { message: string; }) {
+function ErrorView({ message }: { message: string }) {
   return (
     <div className="flex items-center justify-center min-h-screen text-[var(--sol-red)]">
       <div className="text-center">
@@ -44,7 +44,7 @@ function App() {
   const { muted, toggle: toggleMusic } = useMusicPlayer();
 
   return AsyncResult.match(result, {
-    onFailure: (e) => <ErrorView message={String((e as { cause?: unknown; }).cause ?? e)} />,
+    onFailure: (e) => <ErrorView message={String((e as { cause?: unknown }).cause ?? e)} />,
     onInitial: () => <LoadingView />,
     onSuccess: (s) => {
       const data = s.value;
@@ -57,12 +57,7 @@ function App() {
           )}
         >
           {/* Vim-style tabline (with ControlBar embedded on the right) — sticky top */}
-          <TabLine
-            active={activeTab}
-            onTabChange={setActiveTab}
-            muted={muted}
-            onToggleMusic={toggleMusic}
-          />
+          <TabLine active={activeTab} onTabChange={setActiveTab} muted={muted} onToggleMusic={toggleMusic} />
 
           {/* Buffer — each panel is pre-computed, hidden via display:none for instant switching */}
           <div className="flex-1 max-w-[820px] w-full mx-auto border-x border-[var(--sol-base2)]">
@@ -76,17 +71,13 @@ function App() {
             <div style={{ display: activeTab === "speed" ? "block" : "none" }}>
               <SpeedPanel data={data} />
             </div>
-            <div
-              style={{ display: activeTab === "elegance" ? "block" : "none" }}
-            >
+            <div style={{ display: activeTab === "elegance" ? "block" : "none" }}>
               <ElegancePanel data={data} />
             </div>
             <div style={{ display: activeTab === "value" ? "block" : "none" }}>
               <ValuePanel data={data} />
             </div>
-            <div
-              style={{ display: activeTab === "problems" ? "block" : "none" }}
-            >
+            <div style={{ display: activeTab === "problems" ? "block" : "none" }}>
               <ProblemsPanel data={data} onTaskClick={setSelectedTask} />
             </div>
             <div style={{ display: activeTab === "matrix" ? "block" : "none" }}>
@@ -113,18 +104,13 @@ function App() {
               </a>
             </span>
             <span>
-              {data.rankings.length} models · {data.tasks.length} tasks · {data.generatedAt
-                ? new Date(data.generatedAt).toLocaleDateString()
-                : ""}
+              {data.rankings.length} models · {data.tasks.length} tasks ·{" "}
+              {data.generatedAt ? new Date(data.generatedAt).toLocaleDateString() : ""}
             </span>
           </div>
 
           {/* Task detail modal */}
-          <TaskModal
-            task={selectedTask}
-            rankings={data.rankings}
-            onClose={() => setSelectedTask(null)}
-          />
+          <TaskModal task={selectedTask} rankings={data.rankings} onClose={() => setSelectedTask(null)} />
         </div>
       );
     },

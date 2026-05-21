@@ -10,35 +10,31 @@
  * `Effect.cached`.
  */
 
-import type { ESTree } from "effect-oxlint";
-
 import * as Effect from "effect/Effect";
-import { pipe } from "effect/Function";
 import * as Option from "effect/Option";
 import * as Ref from "effect/Ref";
 import * as Schema from "effect/Schema";
 
 import { AST, Diagnostic, Rule, RuleContext, Visitor } from "effect-oxlint";
 
+import type { ESTree } from "effect-oxlint";
+import { pipe } from "effect/Function";
+
 // ---------------------------------------------------------------------------
 // Domain: which factories own service-internal state
 // ---------------------------------------------------------------------------
 
-const LayerFactoryName = Schema.Literals([
-  "effect",
-  "scoped",
-  "succeed",
-]).annotate({
-  title: "LayerFactoryName",
+const LayerFactoryName = Schema.Literals(["effect", "scoped", "succeed"]).annotate({
   description:
     "Layer factories (`Layer.effect`, `Layer.scoped`, `Layer.succeed`) whose body owns service-internal state.",
+  title: "LayerFactoryName",
 });
 
 const isLayerFactoryName = Schema.is(LayerFactoryName);
 
 const MutableVariableKind = Schema.Literal("let").annotate({
-  title: "MutableVariableKind",
   description: "Variable declaration kinds flagged inside service-owning factories.",
+  title: "MutableVariableKind",
 });
 
 const isMutableVariableKind = Schema.is(MutableVariableKind);
@@ -52,9 +48,7 @@ const isLayerFactoryCall = (node: ESTree.CallExpression): boolean =>
   pipe(
     AST.narrow(node.callee, "MemberExpression"),
     Option.flatMap(AST.memberNames),
-    Option.exists(
-      ([obj, prop]) => obj === "Layer" && isLayerFactoryName(prop),
-    ),
+    Option.exists(([obj, prop]) => obj === "Layer" && isLayerFactoryName(prop)),
   );
 
 /**
@@ -85,42 +79,33 @@ const MESSAGE =
   "Consider `Ref`, `SynchronizedRef`, or `Effect.cached` instead of `let` inside service-owning factories. Shared mutable bindings hide fiber-visible state and lifecycle behavior. `let` is fine in pure helpers and narrow scopes.";
 
 export default Rule.define({
-  name: "avoid-mutable-state",
-  meta: Rule.meta({
-    type: "suggestion",
-    description:
-      "Flag `let` inside `Layer.effect` / `Layer.scoped` / `Layer.succeed` and `Context.Service` make blocks — service bodies where mutable state hides fiber-visible behavior.",
-  }),
-  create: function*() {
+  create: function* () {
     const ctx = yield* RuleContext;
     const layerFactoryDepth = yield* Ref.make(0);
     const serviceMakeDepth = yield* Ref.make(0);
 
-    const insideFactoryBody = Effect.gen(function*() {
+    const insideFactoryBody = Effect.gen(function* () {
       const layer = yield* Ref.get(layerFactoryDepth);
       const service = yield* Ref.get(serviceMakeDepth);
       return layer > 0 || service > 0;
     });
 
     return Visitor.merge(
-      Visitor.tracked(
-        "CallExpression",
-        isLayerFactoryCall,
-        layerFactoryDepth,
-      ),
-      Visitor.tracked(
-        "CallExpression",
-        isContextServiceMakeCall,
-        serviceMakeDepth,
-      ),
+      Visitor.tracked("CallExpression", isLayerFactoryCall, layerFactoryDepth),
+      Visitor.tracked("CallExpression", isContextServiceMakeCall, serviceMakeDepth),
       Visitor.on("VariableDeclaration", (node) =>
-        Effect.gen(function*() {
+        Effect.gen(function* () {
           if (!isMutableVariableKind(node.kind)) return;
           if (!(yield* insideFactoryBody)) return;
-          yield* ctx.report(
-            Diagnostic.make({ node, message: MESSAGE }),
-          );
-        })),
+          yield* ctx.report(Diagnostic.make({ node, message: MESSAGE }));
+        }),
+      ),
     );
   },
+  meta: Rule.meta({
+    type: "suggestion",
+    description:
+      "Flag `let` inside `Layer.effect` / `Layer.scoped` / `Layer.succeed` and `Context.Service` make blocks — service bodies where mutable state hides fiber-visible behavior.",
+  }),
+  name: "avoid-mutable-state",
 });

@@ -1,7 +1,8 @@
 import { Context, Data, Effect, Layer, Schema } from "effect";
-import { getDocumentProxy } from "unpdf";
+
 import { PdfDocument } from "./PdfDocument";
-import type { PdfPage } from "./PdfDocument";
+
+import { getDocumentProxy } from "unpdf";
 import { segmentPdfPage } from "./segmentPage";
 
 export class PdfError extends Data.TaggedError("PdfError")<{
@@ -20,8 +21,8 @@ export class PdfService extends Context.Service<
     ) => Effect.Effect<typeof PdfDocument.Type, PdfError | Schema.SchemaError>;
   }
 >()("PdfService", {
-  make: Effect.gen(function*() {
-    const analyze = Effect.fn(function*(
+  make: Effect.sync(() => {
+    const analyze = Effect.fn(function* (
       buffer: Uint8Array,
       options?: {
         sourceName?: string;
@@ -35,22 +36,14 @@ export class PdfService extends Context.Service<
           }),
         try: async () => {
           const pdf = await getDocumentProxy(new Uint8Array(buffer));
-          const pages: Array<PdfPage> = [];
-
-          for (
-            let pageNumber = 1;
-            pageNumber <= pdf.numPages;
-            pageNumber += 1
-          ) {
-            const page = await pdf.getPage(pageNumber);
-            const textContent = await page.getTextContent();
-            pages.push(
-              segmentPdfPage(
-                pageNumber,
-                Array.isArray(textContent.items) ? textContent.items : [],
-              ),
-            );
-          }
+          const pages = await Promise.all(
+            Array.from({ length: pdf.numPages }, async (_, i) => {
+              const pageNumber = i + 1;
+              const page = await pdf.getPage(pageNumber);
+              const textContent = await page.getTextContent();
+              return segmentPdfPage(pageNumber, Array.isArray(textContent.items) ? textContent.items : []);
+            }),
+          );
 
           return {
             blocks: pages.flatMap((page) => page.blocks),

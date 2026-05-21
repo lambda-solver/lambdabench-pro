@@ -2,9 +2,10 @@
  * LlmPrompts.test.ts — Pure unit tests, no Effect runtime needed.
  */
 
-import { describe, expect, it } from "vitest";
-import type { Task } from "../check/Check";
 import { buildRetryPrompt, buildSolvePrompt, buildTaskDetectionProbe } from "./LlmPrompts";
+import { describe, expect, it } from "vitest";
+
+import type { Task } from "../check/Check";
 
 // ─── Fixture ─────────────────────────────────────────────────────────────────
 
@@ -45,9 +46,7 @@ describe("buildSolvePrompt", () => {
 
 describe("buildRetryPrompt", () => {
   it("contains prior attempt", () => {
-    const prompt = buildRetryPrompt(task, "@main = λa.λb.a", [
-      "error: wrong result",
-    ]);
+    const prompt = buildRetryPrompt(task, "@main = λa.λb.a", ["error: wrong result"]);
     expect(prompt).toContain("@main = λa.λb.a");
   });
 
@@ -59,9 +58,7 @@ describe("buildRetryPrompt", () => {
   });
 
   it("still includes task description", () => {
-    expect(buildRetryPrompt(task, "@main = λa.λb.a", [])).toContain(
-      "Add two Church nats",
-    );
+    expect(buildRetryPrompt(task, "@main = λa.λb.a", [])).toContain("Add two Church nats");
   });
 });
 

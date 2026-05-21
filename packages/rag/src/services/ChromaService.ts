@@ -1,6 +1,7 @@
+import { Config, Context, Data, Effect, Layer, Option } from "effect";
+
 import { ChromaClient } from "chromadb";
 import type { ChromaClient as ChromaSdkClient } from "chromadb";
-import { Config, Context, Data, Effect, Layer, Option } from "effect";
 
 export class ChromaError extends Data.TaggedError("ChromaError")<{
   cause: unknown;
@@ -17,12 +18,10 @@ export class ChromaService extends Context.Service<
   ChromaService,
   {
     client: ChromaSdkClient;
-    use: <A>(
-      fn: (client: ChromaSdkClient) => Promise<A>,
-    ) => Effect.Effect<A, ChromaError>;
+    use: <A>(fn: (client: ChromaSdkClient) => Promise<A>) => Effect.Effect<A, ChromaError>;
   }
 >()("ChromaService", {
-  make: Effect.gen(function*() {
+  make: Effect.gen(function* () {
     const config = yield* ChromaConfig;
     const url = Option.getOrUndefined(config.url);
     const host = Option.getOrUndefined(config.host);
@@ -41,10 +40,10 @@ export class ChromaService extends Context.Service<
         url
           ? new ChromaClient({ headers, path: url })
           : new ChromaClient({
-            headers,
-            host: host ?? "localhost",
-            port: port ?? 8000,
-          }),
+              headers,
+              host: host ?? "localhost",
+              port: port ?? 8000,
+            }),
     });
 
     const use = <A>(fn: (client: ChromaSdkClient) => Promise<A>) =>
@@ -53,13 +52,7 @@ export class ChromaService extends Context.Service<
         try: () => fn(client),
       }).pipe(
         Effect.tapError((error) =>
-          Effect.logError(
-            `[ChromaService] ${fn.name || "use"} failed: ${
-              String(
-                error.cause,
-              )
-            }`,
-          )
+          Effect.logError(`[ChromaService] ${fn.name || "use"} failed: ${String(error.cause)}`),
         ),
         Effect.withSpan(`chroma.${fn.name || "use"}`),
       );

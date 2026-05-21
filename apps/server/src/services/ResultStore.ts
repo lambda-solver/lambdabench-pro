@@ -1,7 +1,8 @@
-import { Database } from "bun:sqlite";
 import { Context, Effect, Layer } from "effect";
-import { mkdirSync } from "node:fs";
+
+import { Database } from "bun:sqlite";
 import { dirname } from "node:path";
+import { mkdirSync } from "node:fs";
 
 // ─── Error ───────────────────────────────────────────────────────────────────
 
@@ -112,46 +113,31 @@ export class ResultStore extends Context.Service<
   {
     // Results
     insertResult(result: InsertResult): Effect.Effect<void, SqlError>;
-    getResultsByRunId(
-      runId: string,
-    ): Effect.Effect<ReadonlyArray<DbResult>, SqlError>;
-    getResultsByJobId(
-      jobId: string,
-    ): Effect.Effect<ReadonlyArray<DbResult>, SqlError>;
+    getResultsByRunId(runId: string): Effect.Effect<ReadonlyArray<DbResult>, SqlError>;
+    getResultsByJobId(jobId: string): Effect.Effect<ReadonlyArray<DbResult>, SqlError>;
     getLatestResults(): Effect.Effect<ReadonlyArray<DbResult>, SqlError>;
 
     // Batch jobs
     insertJob(job: InsertJob): Effect.Effect<void, SqlError>;
-    updateJobStatus(
-      jobId: string,
-      status: string,
-      completedTasks?: number,
-    ): Effect.Effect<void, SqlError>;
+    updateJobStatus(jobId: string, status: string, completedTasks?: number): Effect.Effect<void, SqlError>;
     getJob(jobId: string): Effect.Effect<DbJob | undefined, SqlError>;
-    getJobsByStatus(
-      status: string,
-    ): Effect.Effect<ReadonlyArray<DbJob>, SqlError>;
+    getJobsByStatus(status: string): Effect.Effect<ReadonlyArray<DbJob>, SqlError>;
 
     // Tasks
     insertTask(task: InsertTask): Effect.Effect<void, SqlError>;
     getTask(taskId: string): Effect.Effect<DbTask | undefined, SqlError>;
-    getTasksByCategory(
-      category: string,
-    ): Effect.Effect<ReadonlyArray<DbTask>, SqlError>;
+    getTasksByCategory(category: string): Effect.Effect<ReadonlyArray<DbTask>, SqlError>;
     getAllTasks(): Effect.Effect<ReadonlyArray<DbTask>, SqlError>;
 
     // Model configs
     insertModelConfig(config: InsertModelConfig): Effect.Effect<void, SqlError>;
-    getActiveModelConfigs(): Effect.Effect<
-      ReadonlyArray<DbModelConfig>,
-      SqlError
-    >;
+    getActiveModelConfigs(): Effect.Effect<ReadonlyArray<DbModelConfig>, SqlError>;
 
     // Retention
     cleanupExpired(
       retentionDays: number,
       maxDbSizeMb: number,
-    ): Effect.Effect<{ deletedResults: number; deletedJobs: number; }, SqlError>;
+    ): Effect.Effect<{ deletedResults: number; deletedJobs: number }, SqlError>;
   }
 >()("app/ResultStore") {}
 
@@ -256,9 +242,7 @@ const mapDbResult = (row: Record<string, unknown>): DbResult => {
     bits: (r.bits as number | null) ?? null,
     createdAt: (r.created_at as string | null) ?? null,
     elapsedMs: r.elapsed_ms as number,
-    errors: safeJsonParse(
-      r.errors as string | null,
-    ) as ReadonlyArray<string> | null,
+    errors: safeJsonParse(r.errors as string | null) as ReadonlyArray<string> | null,
     id: r.id as number,
     jobId: (r.job_id as string | null) ?? null,
     model: r.model as string,
@@ -313,9 +297,7 @@ const mapDbTask = (row: Record<string, unknown>): DbTask => {
     refBits: (r.ref_bits as number | null) ?? null,
     refSolution: (r.ref_solution as string | null) ?? null,
     testCount: r.test_count as number,
-    tests: (safeJsonParse(
-      r.tests as string | null,
-    ) as ReadonlyArray<unknown> | null) ?? [],
+    tests: (safeJsonParse(r.tests as string | null) as ReadonlyArray<unknown> | null) ?? [],
   };
 };
 
@@ -343,7 +325,7 @@ const mapDbModelConfig = (row: Record<string, unknown>): DbModelConfig => {
 export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
   Layer.effect(
     ResultStore,
-    Effect.gen(function*() {
+    Effect.sync(() => {
       mkdirSync(dirname(dbPath), { recursive: true });
       const db = new Database(dbPath, { create: true });
       db.exec("PRAGMA journal_mode = WAL");
@@ -356,7 +338,7 @@ export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
           try: fn,
         });
 
-      const insertResult = Effect.fnUntraced(function*(result: InsertResult) {
+      const insertResult = Effect.fnUntraced(function* (result: InsertResult) {
         const stmt = db.query(`
           INSERT INTO benchmark_results (
             run_id, job_id, task_id, model, variant, provider, pass, bits, score, errors, submission, elapsed_ms, timestamp
@@ -377,61 +359,39 @@ export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
             result.submission ?? null,
             result.elapsedMs,
             result.timestamp,
-          )
+          ),
         );
       });
 
-      const getResultsByRunId = Effect.fnUntraced(function*(runId: string) {
-        const stmt = db.query(
-          "SELECT * FROM benchmark_results WHERE run_id = ? ORDER BY timestamp DESC",
-        );
-        const rows = yield* runSql(
-          () => stmt.all(runId) as Array<Record<string, unknown>>,
-        );
+      const getResultsByRunId = Effect.fnUntraced(function* (runId: string) {
+        const stmt = db.query("SELECT * FROM benchmark_results WHERE run_id = ? ORDER BY timestamp DESC");
+        const rows = yield* runSql(() => stmt.all(runId) as Array<Record<string, unknown>>);
         return rows.map(mapDbResult);
       });
 
-      const getResultsByJobId = Effect.fnUntraced(function*(jobId: string) {
-        const stmt = db.query(
-          "SELECT * FROM benchmark_results WHERE job_id = ? ORDER BY timestamp DESC",
-        );
-        const rows = yield* runSql(
-          () => stmt.all(jobId) as Array<Record<string, unknown>>,
-        );
+      const getResultsByJobId = Effect.fnUntraced(function* (jobId: string) {
+        const stmt = db.query("SELECT * FROM benchmark_results WHERE job_id = ? ORDER BY timestamp DESC");
+        const rows = yield* runSql(() => stmt.all(jobId) as Array<Record<string, unknown>>);
         return rows.map(mapDbResult);
       });
 
-      const getLatestResults = Effect.fnUntraced(function*() {
-        const stmt = db.query(
-          "SELECT * FROM benchmark_results ORDER BY timestamp DESC LIMIT 100",
-        );
-        const rows = yield* runSql(
-          () => stmt.all() as Array<Record<string, unknown>>,
-        );
+      const getLatestResults = Effect.fnUntraced(function* () {
+        const stmt = db.query("SELECT * FROM benchmark_results ORDER BY timestamp DESC LIMIT 100");
+        const rows = yield* runSql(() => stmt.all() as Array<Record<string, unknown>>);
         return rows.map(mapDbResult);
       });
 
-      const insertJob = Effect.fnUntraced(function*(job: InsertJob) {
+      const insertJob = Effect.fnUntraced(function* (job: InsertJob) {
         const stmt = db.query(`
           INSERT INTO batch_jobs (id, status, config, total_tasks, completed_tasks)
           VALUES (?, ?, ?, ?, ?)
         `);
         yield* runSql(() =>
-          stmt.run(
-            job.id,
-            job.status,
-            JSON.stringify(job.config),
-            job.totalTasks,
-            job.completedTasks ?? 0,
-          )
+          stmt.run(job.id, job.status, JSON.stringify(job.config), job.totalTasks, job.completedTasks ?? 0),
         );
       });
 
-      const updateJobStatus = Effect.fnUntraced(function*(
-        jobId: string,
-        status: string,
-        completedTasks?: number,
-      ) {
+      const updateJobStatus = Effect.fnUntraced(function* (jobId: string, status: string, completedTasks?: number) {
         if (completedTasks !== undefined) {
           const completedAt = status === "completed" ? new Date().toISOString() : null;
           const stmt = db.query(`
@@ -445,32 +405,24 @@ export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
           `);
           yield* runSql(() => stmt.run(status, completedAt, jobId));
         } else {
-          const stmt = db.query(
-            "UPDATE batch_jobs SET status = ? WHERE id = ?",
-          );
+          const stmt = db.query("UPDATE batch_jobs SET status = ? WHERE id = ?");
           yield* runSql(() => stmt.run(status, jobId));
         }
       });
 
-      const getJob = Effect.fnUntraced(function*(jobId: string) {
+      const getJob = Effect.fnUntraced(function* (jobId: string) {
         const stmt = db.query("SELECT * FROM batch_jobs WHERE id = ?");
-        const row = yield* runSql(
-          () => stmt.get(jobId) as Record<string, unknown> | null,
-        );
+        const row = yield* runSql(() => stmt.get(jobId) as Record<string, unknown> | null);
         return row ? mapDbJob(row) : undefined;
       });
 
-      const getJobsByStatus = Effect.fnUntraced(function*(status: string) {
-        const stmt = db.query(
-          "SELECT * FROM batch_jobs WHERE status = ? ORDER BY created_at DESC",
-        );
-        const rows = yield* runSql(
-          () => stmt.all(status) as Array<Record<string, unknown>>,
-        );
+      const getJobsByStatus = Effect.fnUntraced(function* (status: string) {
+        const stmt = db.query("SELECT * FROM batch_jobs WHERE status = ? ORDER BY created_at DESC");
+        const rows = yield* runSql(() => stmt.all(status) as Array<Record<string, unknown>>);
         return rows.map(mapDbJob);
       });
 
-      const insertTask = Effect.fnUntraced(function*(task: InsertTask) {
+      const insertTask = Effect.fnUntraced(function* (task: InsertTask) {
         const stmt = db.query(`
           INSERT INTO tasks (id, category, category_name, description, test_count, tests, ref_bits, ref_solution)
           VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -485,41 +437,29 @@ export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
             JSON.stringify(task.tests),
             task.refBits ?? null,
             task.refSolution ?? null,
-          )
+          ),
         );
       });
 
-      const getTask = Effect.fnUntraced(function*(taskId: string) {
+      const getTask = Effect.fnUntraced(function* (taskId: string) {
         const stmt = db.query("SELECT * FROM tasks WHERE id = ?");
-        const row = yield* runSql(
-          () => stmt.get(taskId) as Record<string, unknown> | null,
-        );
+        const row = yield* runSql(() => stmt.get(taskId) as Record<string, unknown> | null);
         return row ? mapDbTask(row) : undefined;
       });
 
-      const getTasksByCategory = Effect.fnUntraced(function*(
-        category: string,
-      ) {
-        const stmt = db.query(
-          "SELECT * FROM tasks WHERE category = ? ORDER BY id",
-        );
-        const rows = yield* runSql(
-          () => stmt.all(category) as Array<Record<string, unknown>>,
-        );
+      const getTasksByCategory = Effect.fnUntraced(function* (category: string) {
+        const stmt = db.query("SELECT * FROM tasks WHERE category = ? ORDER BY id");
+        const rows = yield* runSql(() => stmt.all(category) as Array<Record<string, unknown>>);
         return rows.map(mapDbTask);
       });
 
-      const getAllTasks = Effect.fnUntraced(function*() {
+      const getAllTasks = Effect.fnUntraced(function* () {
         const stmt = db.query("SELECT * FROM tasks ORDER BY id");
-        const rows = yield* runSql(
-          () => stmt.all() as Array<Record<string, unknown>>,
-        );
+        const rows = yield* runSql(() => stmt.all() as Array<Record<string, unknown>>);
         return rows.map(mapDbTask);
       });
 
-      const insertModelConfig = Effect.fnUntraced(function*(
-        config: InsertModelConfig,
-      ) {
+      const insertModelConfig = Effect.fnUntraced(function* (config: InsertModelConfig) {
         const stmt = db.query(`
           INSERT INTO model_configs (id, provider, display_name, price_per_m_output, is_active)
           VALUES (?, ?, ?, ?, ?)
@@ -531,24 +471,17 @@ export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
             config.displayName ?? null,
             config.pricePerMOutput ?? null,
             fromBoolean(config.isActive ?? true),
-          )
+          ),
         );
       });
 
-      const getActiveModelConfigs = Effect.fnUntraced(function*() {
-        const stmt = db.query(
-          "SELECT * FROM model_configs WHERE is_active = 1 ORDER BY id",
-        );
-        const rows = yield* runSql(
-          () => stmt.all() as Array<Record<string, unknown>>,
-        );
+      const getActiveModelConfigs = Effect.fnUntraced(function* () {
+        const stmt = db.query("SELECT * FROM model_configs WHERE is_active = 1 ORDER BY id");
+        const rows = yield* runSql(() => stmt.all() as Array<Record<string, unknown>>);
         return rows.map(mapDbModelConfig);
       });
 
-      const cleanupExpired = Effect.fnUntraced(function*(
-        retentionDays: number,
-        maxDbSizeMb: number,
-      ) {
+      const cleanupExpired = Effect.fnUntraced(function* (retentionDays: number, maxDbSizeMb: number) {
         let deletedResults = 0;
 
         // Delete old benchmark_results
@@ -556,18 +489,14 @@ export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
           "DELETE FROM benchmark_results WHERE created_at < datetime('now', '-' || ? || ' days')",
         );
         yield* runSql(() => deleteResultsStmt.run(retentionDays));
-        deletedResults = (
-          db.query("SELECT changes() as c").get() as { c: number; }
-        ).c;
+        deletedResults = (db.query("SELECT changes() as c").get() as { c: number }).c;
 
         // Delete old completed batch_jobs
         const deleteJobsStmt = db.query(
           "DELETE FROM batch_jobs WHERE status = 'completed' AND created_at < datetime('now', '-' || ? || ' days')",
         );
         yield* runSql(() => deleteJobsStmt.run(retentionDays));
-        const deletedJobs = (
-          db.query("SELECT changes() as c").get() as { c: number; }
-        ).c;
+        const deletedJobs = (db.query("SELECT changes() as c").get() as { c: number }).c;
 
         // Check DB size and delete oldest 20% of completed results if needed
         const mainSize = Bun.file(dbPath).size;
@@ -576,12 +505,8 @@ export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
         const maxBytes = maxDbSizeMb * 1024 * 1024;
 
         if (fileSize > maxBytes) {
-          const countStmt = db.query(
-            "SELECT COUNT(*) as count FROM benchmark_results WHERE pass = 1",
-          );
-          const countRow = yield* runSql(
-            () => countStmt.get() as { count: number; } | null,
-          );
+          const countStmt = db.query("SELECT COUNT(*) as count FROM benchmark_results WHERE pass = 1");
+          const countRow = yield* runSql(() => countStmt.get() as { count: number } | null);
           const completedCount = countRow?.count ?? 0;
           const limit = Math.floor(completedCount * 0.2);
 
@@ -590,9 +515,7 @@ export const ResultStoreLive = (dbPath: string): Layer.Layer<ResultStore> =>
               "DELETE FROM benchmark_results WHERE id IN (SELECT id FROM benchmark_results WHERE pass = 1 ORDER BY created_at ASC LIMIT ?)",
             );
             yield* runSql(() => pruneStmt.run(limit));
-            deletedResults += (
-              db.query("SELECT changes() as c").get() as { c: number; }
-            ).c;
+            deletedResults += (db.query("SELECT changes() as c").get() as { c: number }).c;
           }
         }
 

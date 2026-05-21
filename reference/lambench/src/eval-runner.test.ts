@@ -7,29 +7,15 @@
 
 import { describe, expect, test } from "bun:test";
 import { Effect, Layer } from "effect";
-import {
-  HttpClient,
-  HttpClientRequest,
-  HttpClientResponse,
-} from "effect/unstable/http";
-import {
-  fetchModels,
-  fetchRankings,
-  getTopModels,
-  parseRankingsHtml,
-  topModelsFromEnv,
-} from "./eval-runner";
+import { HttpClient, HttpClientRequest, HttpClientResponse } from "effect/unstable/http";
+import { fetchModels, fetchRankings, getTopModels, parseRankingsHtml, topModelsFromEnv } from "./eval-runner";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 /** Build a mock HttpClient layer that returns fixed responses keyed by URL substring. */
-function mockHttpLayer(
-  handler: (url: string) => Response,
-): Layer.Layer<HttpClient.HttpClient> {
+function mockHttpLayer(handler: (url: string) => Response): Layer.Layer<HttpClient.HttpClient> {
   const client = HttpClient.make((request) =>
-    Effect.sync(() =>
-      HttpClientResponse.fromWeb(request, handler(request.url)),
-    ),
+    Effect.sync(() => HttpClientResponse.fromWeb(request, handler(request.url))),
   );
   return Layer.succeed(HttpClient.HttpClient, client);
 }
@@ -65,11 +51,7 @@ const RANKINGS_HTML = `
 describe("parseRankingsHtml", () => {
   test("extracts model IDs in document order", () => {
     const ids = parseRankingsHtml(RANKINGS_HTML);
-    expect(ids).toEqual([
-      "google/gemini-2.5-pro",
-      "anthropic/claude-opus-4",
-      "openai/gpt-4o",
-    ]);
+    expect(ids).toEqual(["google/gemini-2.5-pro", "anthropic/claude-opus-4", "openai/gpt-4o"]);
   });
 
   test("deduplicates repeated hrefs", () => {
@@ -83,9 +65,7 @@ describe("parseRankingsHtml", () => {
   });
 
   test("returns empty array for HTML with no model hrefs", () => {
-    expect(
-      parseRankingsHtml("<html><body>no models here</body></html>"),
-    ).toEqual([]);
+    expect(parseRankingsHtml("<html><body>no models here</body></html>")).toEqual([]);
   });
 
   test("handles model IDs with dots (e.g. gemini-2.5-pro)", () => {
@@ -107,9 +87,7 @@ describe("parseRankingsHtml", () => {
 
 describe("topModelsFromEnv", () => {
   test("parses comma-separated model IDs", () => {
-    const result = topModelsFromEnv(
-      "google/gemini-2.5-pro,anthropic/claude-opus-4",
-    );
+    const result = topModelsFromEnv("google/gemini-2.5-pro,anthropic/claude-opus-4");
     expect(result).toHaveLength(2);
     expect(result[0]?.modelId).toBe("google/gemini-2.5-pro");
     expect(result[1]?.modelId).toBe("anthropic/claude-opus-4");
@@ -121,9 +99,7 @@ describe("topModelsFromEnv", () => {
   });
 
   test("trims whitespace around model IDs", () => {
-    const result = topModelsFromEnv(
-      "  google/gemini-2.5-pro , openai/gpt-4o  ",
-    );
+    const result = topModelsFromEnv("  google/gemini-2.5-pro , openai/gpt-4o  ");
     expect(result[0]?.modelId).toBe("google/gemini-2.5-pro");
     expect(result[1]?.modelId).toBe("openai/gpt-4o");
   });
@@ -142,10 +118,7 @@ describe("topModelsFromEnv", () => {
 
 describe("fetchRankings", () => {
   test("returns ranked model IDs from OpenRouter rankings page", async () => {
-    const ids = await runWith(
-      fetchRankings(),
-      () => new Response(RANKINGS_HTML, { status: 200 }),
-    );
+    const ids = await runWith(fetchRankings(), () => new Response(RANKINGS_HTML, { status: 200 }));
     expect(ids[0]).toBe("google/gemini-2.5-pro");
     expect(ids[1]).toBe("anthropic/claude-opus-4");
   });

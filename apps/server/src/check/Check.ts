@@ -9,9 +9,10 @@
  */
 
 import { Array as Arr, Effect, FileSystem, Path } from "effect";
+import { ModelUnresponsiveError, guardedGenerate } from "../llm/ModelGuard";
 import { inlineRefs, normalize, parse as parseLam, printNormal, toBinary } from "../lamb/Lamb";
+
 import { buildSolvePrompt } from "../llm/LlmPrompts";
-import { guardedGenerate, ModelUnresponsiveError } from "../llm/ModelGuard";
 import { extractLamCode } from "../rlm/LamCodeExtractor";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -37,10 +38,7 @@ export interface CheckResult {
 
 // ─── Paths ───────────────────────────────────────────────────────────────────
 
-const SERVER_ROOT = new URL("../..", import.meta.url).pathname.replace(
-  /\/$/,
-  "",
-);
+const SERVER_ROOT = new URL("../..", import.meta.url).pathname.replace(/\/$/, "");
 export const LAM_DIR = `${SERVER_ROOT}/lam`;
 export const TSK_DIR = `${SERVER_ROOT}/tsk`;
 
@@ -58,10 +56,7 @@ export class ParseError {
 
 // ─── Task parsing ─────────────────────────────────────────────────────────────
 
-export const parseTask = (
-  id: string,
-  text: string,
-): Effect.Effect<Task, ParseError> =>
+export const parseTask = (id: string, text: string): Effect.Effect<Task, ParseError> =>
   Effect.try({
     catch: (e) => new ParseError(`${id}: ${(e as Error).message}`),
     try: () => {
@@ -91,25 +86,19 @@ export const parseTask = (
     },
   });
 
-export const loadTask = Effect.fn("loadTask")(function*(taskId: string) {
+export const loadTask = Effect.fn("loadTask")(function* (taskId: string) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const text = yield* fs.readFileString(path.join(TSK_DIR, `${taskId}.tsk`));
   return yield* parseTask(taskId, text);
 });
 
-export const loadAllTasks = Effect.gen(function*() {
+export const loadAllTasks = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const files = yield* fs.readDirectory(TSK_DIR);
-  return yield* Effect.forEach(
-    files.filter((f) => f.endsWith(".tsk")).toSorted(),
-    (f) =>
-      fs
-        .readFileString(path.join(TSK_DIR, f))
-        .pipe(
-          Effect.flatMap((text) => parseTask(path.basename(f, ".tsk"), text)),
-        ),
+  return yield* Effect.forEach(files.filter((f) => f.endsWith(".tsk")).toSorted(), (f) =>
+    fs.readFileString(path.join(TSK_DIR, f)).pipe(Effect.flatMap((text) => parseTask(path.basename(f, ".tsk"), text))),
   );
 });
 
@@ -121,9 +110,9 @@ export const loadAllTasks = Effect.gen(function*() {
  * `@_ = ${test.expr}` to a submission, `_` is always last and is the
  * expression under test. For standalone runs `@main` is the only entry.
  */
-export const lamRun = Effect.fn("lamRun")(function*(src: string) {
+export const lamRun = Effect.fn("lamRun")(function* (src: string) {
   return yield* Effect.try({
-    catch: (e): LamError => e instanceof LamError ? e : new LamError(String(e)),
+    catch: (e): LamError => (e instanceof LamError ? e : new LamError(String(e))),
     try: () => {
       const book = parseLam(src);
       if (book.size === 0) throw new LamError("empty program");
@@ -143,9 +132,9 @@ export const lamRun = Effect.fn("lamRun")(function*(src: string) {
  * Compute binary encoding length (BLC bits) of a submission in-process.
  * Always encodes @main — the submission's primary definition.
  */
-export const binSize = Effect.fn("binSize")(function*(src: string) {
+export const binSize = Effect.fn("binSize")(function* (src: string) {
   return yield* Effect.try({
-    catch: (e): LamError => e instanceof LamError ? e : new LamError(String(e)),
+    catch: (e): LamError => (e instanceof LamError ? e : new LamError(String(e))),
     try: () => {
       const book = parseLam(src);
       const main = book.get("main");
@@ -162,9 +151,7 @@ export const taskScore = (bits: number, refBits: number): number =>
   bits <= refBits ? 1 - bits / (2 * refBits) : refBits / (2 * bits);
 
 /** Load reference solution bits for a task (undefined if no reference exists). */
-export const referenceBits = Effect.fn("referenceBits")(function*(
-  taskId: string,
-) {
+export const referenceBits = Effect.fn("referenceBits")(function* (taskId: string) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const refPath = path.join(LAM_DIR, `${taskId}.lam`);
@@ -178,17 +165,12 @@ export const referenceBits = Effect.fn("referenceBits")(function*(
 // ─── Task runner ─────────────────────────────────────────────────────────────
 
 /** Run a single test case — returns error string or null on pass. */
-const runTestCase = Effect.fn("runTestCase")(function*(
-  submission: string,
-  test: Test,
-) {
+const runTestCase = Effect.fn("runTestCase")(function* (submission: string, test: Test) {
   return yield* Effect.catchTag(
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const got = yield* lamRun(`${submission}\n@_ = ${test.expr}`);
       const want = yield* lamRun(`@main = ${test.want}`);
-      return got !== want
-        ? (`${test.expr}\nwant: ${want}\n got: ${got}` as string | null)
-        : (null as string | null);
+      return got !== want ? (`${test.expr}\nwant: ${want}\n got: ${got}` as string | null) : (null as string | null);
     }),
     "LamError",
     (e) => Effect.succeed(`error: ${e.message}` as string | null),
@@ -196,16 +178,8 @@ const runTestCase = Effect.fn("runTestCase")(function*(
 });
 
 /** Run all tests for a task against a submission. Returns a CheckResult. */
-export const runTask = Effect.fn("runTask")(function*(
-  task: Task,
-  submission: string,
-  refBits?: number,
-) {
-  const maybeErrors = yield* Effect.forEach(
-    task.tests,
-    (test) => runTestCase(submission, test),
-    { concurrency: 1 },
-  );
+export const runTask = Effect.fn("runTask")(function* (task: Task, submission: string, refBits?: number) {
+  const maybeErrors = yield* Effect.forEach(task.tests, (test) => runTestCase(submission, test), { concurrency: 1 });
 
   const errors = maybeErrors.filter((e): e is string => e !== null);
 
@@ -234,22 +208,18 @@ export const runTask = Effect.fn("runTask")(function*(
     ),
     "LamError",
     (e) =>
-      Effect.succeed(
-        {
-          bits: 0,
-          errors: [e.message],
-          id: task.id,
-          pass: false,
-          score: 0,
-        } satisfies CheckResult,
-      ),
+      Effect.succeed({
+        bits: 0,
+        errors: [e.message],
+        id: task.id,
+        pass: false,
+        score: 0,
+      } satisfies CheckResult),
   );
 });
 
 /** Run a task against its bundled lam/ reference solution. */
-export const runTaskFromFile = Effect.fn("runTaskFromFile")(function*(
-  taskId: string,
-) {
+export const runTaskFromFile = Effect.fn("runTaskFromFile")(function* (taskId: string) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const task = yield* loadTask(taskId);
@@ -259,12 +229,10 @@ export const runTaskFromFile = Effect.fn("runTaskFromFile")(function*(
 });
 
 /** Run all reference lam/ solutions against their tasks. Used in CI. */
-export const runAllReferenceTasks = Effect.gen(function*() {
+export const runAllReferenceTasks = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const lamFiles = (yield* fs.readDirectory(LAM_DIR))
-    .filter((f) => f.endsWith(".lam"))
-    .toSorted();
+  const lamFiles = (yield* fs.readDirectory(LAM_DIR)).filter((f) => f.endsWith(".lam")).toSorted();
 
   return yield* Effect.forEach(
     lamFiles,
@@ -272,25 +240,21 @@ export const runAllReferenceTasks = Effect.gen(function*() {
       const taskId = path.basename(f, ".lam");
       return Effect.catchTags(runTaskFromFile(taskId), {
         LamError: (e) =>
-          Effect.succeed(
-            {
-              bits: 0,
-              errors: [e.message],
-              id: taskId,
-              pass: false,
-              score: 0,
-            } satisfies CheckResult,
-          ),
+          Effect.succeed({
+            bits: 0,
+            errors: [e.message],
+            id: taskId,
+            pass: false,
+            score: 0,
+          } satisfies CheckResult),
         ParseError: (e) =>
-          Effect.succeed(
-            {
-              bits: 0,
-              errors: [e.message],
-              id: taskId,
-              pass: false,
-              score: 0,
-            } satisfies CheckResult,
-          ),
+          Effect.succeed({
+            bits: 0,
+            errors: [e.message],
+            id: taskId,
+            pass: false,
+            score: 0,
+          } satisfies CheckResult),
       });
     },
     { concurrency: 8 },
@@ -304,10 +268,7 @@ export type TimedCheckResult = CheckResult & {
 };
 
 /** Run a single task via a single LLM call (standard, non-RLM eval). */
-export const runTaskWithLlm = Effect.fn("runTaskWithLlm")(function*(
-  task: Task,
-  refBits?: number,
-) {
+export const runTaskWithLlm = Effect.fn("runTaskWithLlm")(function* (task: Task, refBits?: number) {
   const start = Date.now();
 
   const prompt = buildSolvePrompt(task);
@@ -320,44 +281,33 @@ export const runTaskWithLlm = Effect.fn("runTaskWithLlm")(function*(
   );
 
   const submission = extractLamCode(rawResponse);
-  yield* Effect.log(
-    `[standard] ${task.id} ← ${rawResponse.slice(0, 200).replace(/\n/g, " ")}`,
-  );
+  yield* Effect.log(`[standard] ${task.id} ← ${rawResponse.slice(0, 200).replace(/\n/g, " ")}`);
 
   const checkResult = yield* runTask(task, submission, refBits);
   const elapsedMs = Date.now() - start;
 
   yield* Effect.log(
-    `[standard] ${task.id} check: ${checkResult.pass ? "PASS" : "FAIL"} bits=${checkResult.bits} score=${
-      checkResult.score.toFixed(3)
-    } time=${(elapsedMs / 1000).toFixed(1)}s`,
+    `[standard] ${task.id} check: ${checkResult.pass ? "PASS" : "FAIL"} bits=${checkResult.bits} score=${checkResult.score.toFixed(
+      3,
+    )} time=${(elapsedMs / 1000).toFixed(1)}s`,
   );
 
   return { ...checkResult, elapsedMs } satisfies TimedCheckResult;
 });
 
 /** Run all tasks using standard single-shot LLM eval (model provided by Layer). */
-export const runAllTasksForModel = Effect.fn("runAllTasksForModel")(function*(
+export const runAllTasksForModel = Effect.fn("runAllTasksForModel")(function* (
   tasks: ReadonlyArray<Task>,
   refBitsMap: ReadonlyMap<string, number>,
   concurrency = 4,
 ) {
-  return yield* Effect.forEach(
-    tasks,
-    (task) => runTaskWithLlm(task, refBitsMap.get(task.id)),
-    { concurrency },
-  );
+  return yield* Effect.forEach(tasks, (task) => runTaskWithLlm(task, refBitsMap.get(task.id)), { concurrency });
 });
 
 export const showResult = (r: CheckResult): string => {
   const status = r.pass ? "✓" : "✗";
-  const detail = r.pass
-    ? `${r.bits} bits, score: ${r.score.toFixed(3)}`
-    : "FAIL";
-  const lines = [
-    `${status} ${r.id}: ${detail}`,
-    ...r.errors.map((e) => `  ${e.split("\n").join("\n  ")}`),
-  ];
+  const detail = r.pass ? `${r.bits} bits, score: ${r.score.toFixed(3)}` : "FAIL";
+  const lines = [`${status} ${r.id}: ${detail}`, ...r.errors.map((e) => `  ${e.split("\n").join("\n  ")}`)];
   return lines.join("\n");
 };
 

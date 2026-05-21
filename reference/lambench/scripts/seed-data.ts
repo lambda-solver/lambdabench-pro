@@ -14,10 +14,10 @@ import { writeFileSync, mkdirSync, readdirSync } from "fs";
 import { join } from "path";
 import type { BenchmarkData, Ranking, BenchmarkTask, BenchmarkCategory } from "@repo/domain/Benchmark";
 
-const ROOT       = join(import.meta.dir, "..");
-const TSK_DIR    = join(ROOT, "tsk");
+const ROOT = join(import.meta.dir, "..");
+const TSK_DIR = join(ROOT, "tsk");
 const CLIENT_DIR = join(ROOT, "..", "..", "apps", "client");
-const OUT_FILE   = join(CLIENT_DIR, "public", "data", "results.json");
+const OUT_FILE = join(CLIENT_DIR, "public", "data", "results.json");
 
 const CATEGORY_NAMES: Record<string, string> = {
   algo: "Algorithms",
@@ -40,7 +40,7 @@ const CATEGORY_NAMES: Record<string, string> = {
 const mockPassMap = (taskIds: string[], passRate: number): Record<string, boolean> => {
   const result: Record<string, boolean> = {};
   taskIds.forEach((id, i) => {
-    result[id] = (i % 100) < passRate * 100;
+    result[id] = i % 100 < passRate * 100;
   });
   return result;
 };
@@ -65,16 +65,16 @@ const mockRefsMap = (passMap: Record<string, boolean>, refBits: number): Record<
 
 const loadTaskIds = (): string[] =>
   readdirSync(TSK_DIR)
-    .filter(f => f.endsWith(".tsk"))
+    .filter((f) => f.endsWith(".tsk"))
     .sort()
-    .map(f => f.replace(".tsk", ""));
+    .map((f) => f.replace(".tsk", ""));
 
 // ─── Seeder ───────────────────────────────────────────────────────────────────
 
 const seed = Effect.gen(function* () {
   const taskIds = loadTaskIds();
 
-  const tasks: BenchmarkTask[] = taskIds.map(id => ({
+  const tasks: BenchmarkTask[] = taskIds.map((id) => ({
     id,
     category: id.split("_")[0],
     categoryName: CATEGORY_NAMES[id.split("_")[0]] ?? id.split("_")[0],
@@ -86,43 +86,41 @@ const seed = Effect.gen(function* () {
     ],
   }));
 
-  const categories: BenchmarkCategory[] = Object.entries(CATEGORY_NAMES).map(
-    ([id, name]) => ({ id, name }),
-  );
+  const categories: BenchmarkCategory[] = Object.entries(CATEGORY_NAMES).map(([id, name]) => ({ id, name }));
 
   // Model A: top model (high pass rate, moderate price)
-  const passMapA  = mockPassMap(taskIds, 0.842);
-  const rightA    = Object.values(passMapA).filter(Boolean).length;
-  const bitsA     = mockBitsMap(passMapA, 400);
-  const refsA     = mockRefsMap(passMapA, 420);
+  const passMapA = mockPassMap(taskIds, 0.842);
+  const rightA = Object.values(passMapA).filter(Boolean).length;
+  const bitsA = mockBitsMap(passMapA, 400);
+  const refsA = mockRefsMap(passMapA, 420);
   const rankingA: Ranking = {
-    model:                "openrouter/google/gemini-2.5-pro",
-    right:                rightA,
-    total:                taskIds.length,
-    pct:                  ((rightA / taskIds.length) * 100).toFixed(1),
-    avgTime:              12.5,
-    timestamp:            "2026y04m21d.10h00m00s",
-    tasks:                passMapA,
-    taskBits:             bitsA,
-    taskRefs:             refsA,
+    model: "openrouter/google/gemini-2.5-pro",
+    right: rightA,
+    total: taskIds.length,
+    pct: ((rightA / taskIds.length) * 100).toFixed(1),
+    avgTime: 12.5,
+    timestamp: "2026y04m21d.10h00m00s",
+    tasks: passMapA,
+    taskBits: bitsA,
+    taskRefs: refsA,
     pricePerMOutputTokens: 10.0,
   };
 
   // Model B: second model (lower pass rate, cheaper)
-  const passMapB  = mockPassMap(taskIds, 0.467);
-  const rightB    = Object.values(passMapB).filter(Boolean).length;
-  const bitsB     = mockBitsMap(passMapB, 500);
-  const refsB     = mockRefsMap(passMapB, 420);
+  const passMapB = mockPassMap(taskIds, 0.467);
+  const rightB = Object.values(passMapB).filter(Boolean).length;
+  const bitsB = mockBitsMap(passMapB, 500);
+  const refsB = mockRefsMap(passMapB, 420);
   const rankingB: Ranking = {
-    model:                "openrouter/anthropic/claude-opus-4",
-    right:                rightB,
-    total:                taskIds.length,
-    pct:                  ((rightB / taskIds.length) * 100).toFixed(1),
-    avgTime:              18.3,
-    timestamp:            "2026y04m21d.10h00m00s",
-    tasks:                passMapB,
-    taskBits:             bitsB,
-    taskRefs:             refsB,
+    model: "openrouter/anthropic/claude-opus-4",
+    right: rightB,
+    total: taskIds.length,
+    pct: ((rightB / taskIds.length) * 100).toFixed(1),
+    avgTime: 18.3,
+    timestamp: "2026y04m21d.10h00m00s",
+    tasks: passMapB,
+    taskBits: bitsB,
+    taskRefs: refsB,
     pricePerMOutputTokens: 15.0,
   };
 

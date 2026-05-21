@@ -21,11 +21,7 @@ import { Atom } from "effect/unstable/reactivity";
 // Static site — no RPC server, just FetchHttpClient
 export const runtime = Atom.runtime(
   FetchHttpClient.layer.pipe(
-    Layer.provideMerge(
-      import.meta.env.VITE_ENABLE_DEVTOOLS === "true"
-        ? DevTools.layer()
-        : Layer.empty,
-    ),
+    Layer.provideMerge(import.meta.env.VITE_ENABLE_DEVTOOLS === "true" ? DevTools.layer() : Layer.empty),
   ),
 );
 ```
@@ -35,7 +31,7 @@ export const runtime = Atom.runtime(
 ```typescript
 // runtime.atom(Effect) — single-shot, loads once, reactive
 export const benchmarkAtom = runtime.atom(
-  Effect.gen(function*() {
+  Effect.gen(function* () {
     const client = yield* HttpClient.HttpClient;
     const response = yield* client.get(url);
     const body = yield* response.json;
@@ -46,17 +42,15 @@ export const benchmarkAtom = runtime.atom(
 
 // runtime.fn(arg => Effect) — triggered/parameterized atom
 export const searchAtom = runtime.fn((query: string) =>
-  Effect.gen(function*() {
+  Effect.gen(function* () {
     const svc = yield* SearchService;
     return yield* svc.search(query);
-  })
+  }),
 );
 // Type: AtomResultFn<string, SearchResult, E>
 
 // runtime.atom(Stream) — streaming atom
-export const streamAtom = runtime.atom(
-  Stream.fromPubSub(myPubSub),
-);
+export const streamAtom = runtime.atom(Stream.fromPubSub(myPubSub));
 ```
 
 ## React hooks

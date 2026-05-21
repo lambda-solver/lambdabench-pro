@@ -1,15 +1,9 @@
 import { ControlBar } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 
-export type TabId =
-  | "intelligence"
-  | "speed"
-  | "elegance"
-  | "value"
-  | "problems"
-  | "matrix";
+export type TabId = "intelligence" | "speed" | "elegance" | "value" | "problems" | "matrix";
 
-const TABS: Array<{ id: TabId; label: string; }> = [
+const TABS: Array<{ id: TabId; label: string }> = [
   { id: "intelligence", label: ":intelligence" },
   { id: "speed", label: ":speed" },
   { id: "elegance", label: ":elegance" },
@@ -30,18 +24,10 @@ interface TabLineProps {
  *   left spacer (equal width to ControlBar) | centered tabs | ControlBar
  * This keeps the tabs visually centered while controls sit flush right.
  */
-export function TabLine({
-  active,
-  onTabChange,
-  muted,
-  onToggleMusic,
-}: TabLineProps) {
+export function TabLine({ active, onTabChange, muted, onToggleMusic }: TabLineProps) {
   return (
     <div
-      className={cn(
-        "flex items-stretch sticky top-0 z-10",
-        "bg-[var(--sol-base2)] border-b border-[var(--sol-base1)]",
-      )}
+      className={cn("flex items-stretch sticky top-0 z-10", "bg-[var(--sol-base2)] border-b border-[var(--sol-base1)]")}
     >
       {/* Left spacer — mirrors ControlBar width so tabs stay centered */}
       <div className="flex-1" />

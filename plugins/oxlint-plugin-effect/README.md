@@ -131,13 +131,10 @@ const config = yield * Schema.decodeUnknownString(Config)(raw);
 
 ```ts
 // ❌
-class NotFound extends Data.TaggedError("NotFound")<{ id: string; }> {}
+class NotFound extends Data.TaggedError("NotFound")<{ id: string }> {}
 
 // ✅
-class NotFound extends Schema.TaggedErrorClass<NotFound>("NotFound")(
-  "NotFound",
-  { id: Schema.String },
-) {}
+class NotFound extends Schema.TaggedErrorClass<NotFound>("NotFound")("NotFound", { id: Schema.String }) {}
 ```
 
 ### `avoid-direct-json`
@@ -197,7 +194,7 @@ expect(result.id).toBe("abc");
 // ❌
 export const CounterLive = Layer.effect(
   Counter,
-  Effect.gen(function*() {
+  Effect.gen(function* () {
     let count = 0;
     return Counter.of({ inc: () => Effect.sync(() => count++) });
   }),
@@ -206,7 +203,7 @@ export const CounterLive = Layer.effect(
 // ✅
 export const CounterLive = Layer.effect(
   Counter,
-  Effect.gen(function*() {
+  Effect.gen(function* () {
     const count = yield* Ref.make(0);
     return Counter.of({ inc: () => Ref.update(count, (n) => n + 1) });
   }),
@@ -224,10 +221,7 @@ const users = await res.json();
 
 // ✅
 const client = yield * HttpClient.HttpClient;
-const users = yield
-  * client
-    .get("/api/users")
-    .pipe(Effect.flatMap(HttpClientResponse.schemaBodyJson(UserList)));
+const users = yield * client.get("/api/users").pipe(Effect.flatMap(HttpClientResponse.schemaBodyJson(UserList)));
 ```
 
 ### `avoid-native-object-helpers`
@@ -396,8 +390,8 @@ try {
 
 // ✅
 return (
-  yield
-  * Effect.try({
+  yield *
+  Effect.try({
     try: () => JSON.parse(raw),
     catch: () => new ParseFailed({ raw }),
   })
@@ -432,13 +426,12 @@ throw new Error("User not found");
 if (err instanceof Error) return null;
 
 // ✅
-class UserNotFound extends Schema.TaggedErrorClass<UserNotFound>(
-  "UserNotFound",
-)("UserNotFound", { id: Schema.String }) {}
+class UserNotFound extends Schema.TaggedErrorClass<UserNotFound>("UserNotFound")("UserNotFound", {
+  id: Schema.String,
+}) {}
 
 yield * Effect.fail(new UserNotFound({ id }));
-yield
-  * effect.pipe(Effect.catchTag("UserNotFound", () => Effect.succeed(null)));
+yield * effect.pipe(Effect.catchTag("UserNotFound", () => Effect.succeed(null)));
 ```
 
 ### `avoid-yield-ref`
@@ -466,10 +459,7 @@ Every `as T` assertion is a checkpoint: is the cast redundant? Can generics or `
 const items = (data as Array<User>).filter((u) => u.active);
 
 // ✅
-const items = yield
-  * Schema.decodeUnknown(Schema.Array(User))(data).pipe(
-    Effect.map(Arr.filter((u) => u.active)),
-  );
+const items = yield * Schema.decodeUnknown(Schema.Array(User))(data).pipe(Effect.map(Arr.filter((u) => u.active)));
 
 // ✅  as const is fine
 const STATUSES = ["Pending", "Active", "Closed"] as const;
@@ -515,8 +505,9 @@ effect.pipe(
 const user = yield * Effect.promise(() => fetchUser(id));
 
 // ✅
-const user = yield
-  * Effect.tryPromise({
+const user =
+  yield *
+  Effect.tryPromise({
     try: () => fetchUser(id),
     catch: (cause) => new FetchFailed({ cause }),
   });
@@ -549,10 +540,7 @@ for (const user of users) {
 }
 
 // ✅
-const names = Arr.filterMap(
-  users,
-  (u) => u.active ? Option.some(u.name) : Option.none(),
-);
+const names = Arr.filterMap(users, (u) => (u.active ? Option.some(u.name) : Option.none()));
 ```
 
 ### `no-barrel-imports`
@@ -727,8 +715,9 @@ Configuration keys whose name conventionally identifies a secret (`apiKey`, `aut
 ```ts
 // ❌
 const apiKey = yield * Config.string("apiKey");
-const cfg = yield
-  * Config.schema(
+const cfg =
+  yield *
+  Config.schema(
     Schema.Struct({
       apiKey: Schema.String,
     }),
@@ -736,8 +725,9 @@ const cfg = yield
 
 // ✅
 const apiKey = yield * Config.redacted("apiKey");
-const cfg = yield
-  * Config.schema(
+const cfg =
+  yield *
+  Config.schema(
     Schema.Struct({
       apiKey: Schema.Redacted(Schema.String),
     }),
@@ -813,9 +803,7 @@ const text = yield * fs.readFileString("events.log");
 
 // ✅
 const fs = yield * FileSystem.FileSystem;
-const lines = fs
-  .stream("events.log")
-  .pipe(Stream.decodeText("utf-8"), Stream.splitLines);
+const lines = fs.stream("events.log").pipe(Stream.decodeText("utf-8"), Stream.splitLines);
 ```
 
 ### `throw-in-effect-gen`
@@ -824,13 +812,13 @@ const lines = fs
 
 ```ts
 // ❌
-Effect.gen(function*() {
+Effect.gen(function* () {
   if (!user) throw new Error("User missing");
   return user;
 });
 
 // ✅
-Effect.gen(function*() {
+Effect.gen(function* () {
   if (!user) return yield* Effect.fail(new UserMissing({ id }));
   return user;
 });
@@ -856,12 +844,12 @@ const ms = yield * Clock.currentTimeMillis;
 
 ```ts
 // ❌
-import { spawn } from 'node:child_process';
-const proc = spawn('git', ['status']);
+import { spawn } from "node:child_process";
+const proc = spawn("git", ["status"]);
 
 // ✅
-import { Command } from '@effect/platform';
-const status = yield * Command.make('git', 'status').pipe(Command.string);
+import { Command } from "@effect/platform";
+const status = yield * Command.make("git", "status").pipe(Command.string);
 ```
 
 ### `use-console-service`
@@ -874,8 +862,7 @@ console.log("Fetched user", user.id);
 console.error("Failed", err);
 
 // ✅
-yield
-  * Effect.logInfo("Fetched user").pipe(Effect.annotateLogs("userId", user.id));
+yield * Effect.logInfo("Fetched user").pipe(Effect.annotateLogs("userId", user.id));
 yield * Effect.logError("Failed").pipe(Effect.annotateLogs("cause", err));
 ```
 
@@ -885,11 +872,11 @@ yield * Effect.logError("Failed").pipe(Effect.annotateLogs("cause", err));
 
 ```ts
 // ❌
-import * as fs from 'node:fs/promises';
-const text = await fs.readFile(path, 'utf8');
+import * as fs from "node:fs/promises";
+const text = await fs.readFile(path, "utf8");
 
 // ✅
-import { FileSystem } from '@effect/platform';
+import { FileSystem } from "@effect/platform";
 const fs = yield * FileSystem.FileSystem;
 const text = yield * fs.readFileString(path);
 ```
@@ -916,11 +903,11 @@ const json = yield* client.get(url).pipe(
 
 ```ts
 // ❌
-import * as path from 'node:path';
+import * as path from "node:path";
 const full = path.join(dir, name);
 
 // ✅
-import { Path } from '@effect/platform';
+import { Path } from "@effect/platform";
 const path_ = yield * Path.Path;
 const full = path_.join(dir, name);
 ```
@@ -943,8 +930,8 @@ const n = yield * Random.nextIntBetween(0, 100);
 
 ```ts
 // ❌
-import { tmpdir } from 'node:os';
-const dir = path.join(tmpdir(), 'work');
+import { tmpdir } from "node:os";
+const dir = path.join(tmpdir(), "work");
 
 // ✅
 const fs = yield * FileSystem.FileSystem;

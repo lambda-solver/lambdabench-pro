@@ -132,10 +132,7 @@ export interface LambdaPlan {
 const initialKStar = (n: number, K: number, cCompose: number): number => {
   const K_STAR_MAX = 20;
   return cCompose > 0.1
-    ? Math.min(
-      K_STAR_MAX,
-      Math.max(2, Math.ceil(Math.sqrt((n * C_IN) / cCompose))),
-    )
+    ? Math.min(K_STAR_MAX, Math.max(2, Math.ceil(Math.sqrt((n * C_IN) / cCompose))))
     : Math.min(K_STAR_MAX, Math.max(2, Math.ceil(n / K)));
 };
 
@@ -155,21 +152,13 @@ const satisfyAccuracyConstraint = (
   aLeaf: number,
   aCompose: number,
   accuracyTarget: number,
-): { kStar: number; d: number; } => {
+): { kStar: number; d: number } => {
   const maxK = Math.max(2, Math.floor(n / K));
   if (aLeaf ** d * aCompose ** d >= accuracyTarget || kStar >= maxK) {
     return { d, kStar };
   }
   const nextK = kStar + 1;
-  return satisfyAccuracyConstraint(
-    nextK,
-    computeDepth(n, K, nextK),
-    n,
-    K,
-    aLeaf,
-    aCompose,
-    accuracyTarget,
-  );
+  return satisfyAccuracyConstraint(nextK, computeDepth(n, K, nextK), n, K, aLeaf, aCompose, accuracyTarget);
 };
 
 /**
@@ -216,15 +205,7 @@ export const plan = (
 
   const rawKStar = initialKStar(n, K, cCompose);
   const rawD = computeDepth(n, K, rawKStar);
-  const { kStar, d } = satisfyAccuracyConstraint(
-    rawKStar,
-    rawD,
-    n,
-    K,
-    aLeaf,
-    aCompose,
-    accuracyTarget,
-  );
+  const { kStar, d } = satisfyAccuracyConstraint(rawKStar, rawD, n, K, aLeaf, aCompose, accuracyTarget);
 
   const tauStar = Math.min(K, Math.max(1, Math.floor(n / kStar)));
   const costEstimate = kStar ** d * C_IN * tauStar + d * cCompose * kStar + C_IN * 500;
@@ -261,11 +242,7 @@ const snappedEnd = (text: string, start: number, chunkSize: number): number => {
  * Accumulate k chunks via Array.reduce over indices — no mutation, no for loop.
  * Each step appends the next slice and advances the start cursor.
  */
-const buildChunks = (
-  text: string,
-  k: number,
-  chunkSize: number,
-): ReadonlyArray<string> =>
+const buildChunks = (text: string, k: number, chunkSize: number): ReadonlyArray<string> =>
   Array.from({ length: k }, (_, i) => i)
     .reduce<{
       chunks: Array<string>;

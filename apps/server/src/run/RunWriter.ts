@@ -10,10 +10,7 @@ import type { TimedCheckResult } from "../check/Check";
 
 // ─── Paths ───────────────────────────────────────────────────────────────────
 
-const SERVER_ROOT = new URL("../..", import.meta.url).pathname.replace(
-  /\/$/,
-  "",
-);
+const SERVER_ROOT = new URL("../..", import.meta.url).pathname.replace(/\/$/, "");
 export const RES_DIR = `${SERVER_ROOT}/res`;
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -25,12 +22,13 @@ export interface RlmMeta {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
+const pad = (n: number) => String(n).padStart(2, "0");
+
 /** Format a Date as the existing timestamp convention: 2026y04m25d.10h00m00s */
 const formatTimestamp = (d: Date): string => {
-  const pad = (n: number) => String(n).padStart(2, "0");
   return (
-    `${d.getFullYear()}y${pad(d.getMonth() + 1)}m${pad(d.getDate())}d`
-    + `.${pad(d.getHours())}h${pad(d.getMinutes())}m${pad(d.getSeconds())}s`
+    `${d.getFullYear()}y${pad(d.getMonth() + 1)}m${pad(d.getDate())}d` +
+    `.${pad(d.getHours())}h${pad(d.getMinutes())}m${pad(d.getSeconds())}s`
   );
 };
 
@@ -43,7 +41,7 @@ const safeModelId = (modelId: string): string => modelId.replace(/[/: ]/g, "_");
  * Write results for one model to res/{timestamp}_{safeModelId}.txt
  * Returns the path of the written file.
  */
-export const writeResultFile = Effect.fn("writeResultFile")(function*(
+export const writeResultFile = Effect.fn("writeResultFile")(function* (
   modelId: string,
   results: ReadonlyArray<TimedCheckResult>,
   variant: "standard" | "rlm",
@@ -52,9 +50,7 @@ export const writeResultFile = Effect.fn("writeResultFile")(function*(
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
 
-  yield* fs
-    .makeDirectory(RES_DIR, { recursive: true })
-    .pipe(Effect.catch((_) => Effect.void));
+  yield* fs.makeDirectory(RES_DIR, { recursive: true }).pipe(Effect.catch((_) => Effect.void));
 
   const timestamp = formatTimestamp(new Date());
   const filename = `${timestamp}_${safeModelId(modelId)}.txt`;
@@ -63,16 +59,9 @@ export const writeResultFile = Effect.fn("writeResultFile")(function*(
   const right = results.filter((r) => r.pass).length;
   const total = results.length;
 
-  const rlmLines = rlmMeta !== undefined
-    ? [`rlm_depth: ${rlmMeta.depth}`, `rlm_attempts: ${rlmMeta.attempts}`]
-    : [];
+  const rlmLines = rlmMeta !== undefined ? [`rlm_depth: ${rlmMeta.depth}`, `rlm_attempts: ${rlmMeta.attempts}`] : [];
 
-  const headerLines = [
-    `model: ${modelId}`,
-    `right: ${right}/${total}`,
-    `variant: ${variant}`,
-    ...rlmLines,
-  ];
+  const headerLines = [`model: ${modelId}`, `right: ${right}/${total}`, `variant: ${variant}`, ...rlmLines];
 
   const taskLines = results.map((r) => {
     const status = r.pass ? "pass" : "fail";

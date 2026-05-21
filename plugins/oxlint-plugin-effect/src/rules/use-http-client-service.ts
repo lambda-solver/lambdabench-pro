@@ -10,15 +10,10 @@ import * as Schema from "effect/Schema";
 
 import { Rule } from "effect-oxlint";
 
-const HttpImportSource = Schema.Literals([
-  "http",
-  "https",
-  "node:http",
-  "node:https",
-]).annotate({
-  title: "HttpImportSource",
+const HttpImportSource = Schema.Literals(["http", "https", "node:http", "node:https"]).annotate({
   description:
     "Node `http` / `https` module import specifiers. Use `HttpClient` from `effect/unstable/http` with a platform layer (`BunHttpClient.layer` / `NodeHttpClient.layer`) instead.",
+  title: "HttpImportSource",
 });
 
 const isHttpImportSource = Schema.is(HttpImportSource);

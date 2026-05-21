@@ -36,12 +36,8 @@ const ListResultsTool = Tool.make("lambench_list_results", {
         description: "Maximum number of results to return",
       }),
     ),
-    model: Schema.optional(
-      Schema.String.annotate({ description: "Filter by model ID" }),
-    ),
-    task: Schema.optional(
-      Schema.String.annotate({ description: "Filter by task ID" }),
-    ),
+    model: Schema.optional(Schema.String.annotate({ description: "Filter by model ID" })),
+    task: Schema.optional(Schema.String.annotate({ description: "Filter by task ID" })),
   }),
   success: Schema.Unknown,
 }).annotate(Tool.Readonly, true);
@@ -86,13 +82,13 @@ export const LambenchToolkit = Toolkit.make(
 const errorMessage = (err: unknown): string => {
   if (err instanceof Error) return err.message;
   if (typeof err === "object" && err !== null && "cause" in err) {
-    return errorMessage((err as { cause: unknown; }).cause);
+    return errorMessage((err as { cause: unknown }).cause);
   }
   return String(err);
 };
 
 const ToolHandlers = LambenchToolkit.toLayer(
-  Effect.gen(function*() {
+  Effect.gen(function* () {
     const client = yield* LamBenchClient;
 
     return {
@@ -126,19 +122,16 @@ const ToolHandlers = LambenchToolkit.toLayer(
 
       lambench_list_results: (input) =>
         Effect.match(
-          Effect.gen(function*() {
+          Effect.gen(function* () {
             const data = yield* client.results();
-            const filteredByModel = input.model
-              ? data.rankings.filter((r) => r.model === input.model)
-              : data.rankings;
+            const filteredByModel = input.model ? data.rankings.filter((r) => r.model === input.model) : data.rankings;
             const taskFilter = input.task;
-            const filteredByTask = taskFilter
-              ? filteredByModel.filter((r) => taskFilter in r.tasks)
-              : filteredByModel;
+            const filteredByTask = taskFilter ? filteredByModel.filter((r) => taskFilter in r.tasks) : filteredByModel;
             const limitFilter = input.limit;
-            const limited = typeof limitFilter === "number" && limitFilter > 0
-              ? filteredByTask.slice(0, limitFilter)
-              : filteredByTask;
+            const limited =
+              typeof limitFilter === "number" && limitFilter > 0
+                ? filteredByTask.slice(0, limitFilter)
+                : filteredByTask;
             return limited;
           }),
           {

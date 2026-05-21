@@ -1,6 +1,7 @@
-import { AST, Diagnostic, Rule, RuleContext } from "effect-oxlint";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
+
+import { AST, Diagnostic, Rule, RuleContext, Visitor } from "effect-oxlint";
 
 /**
  * Rule: no-effect-iterate
@@ -11,29 +12,26 @@ import * as Option from "effect/Option";
  * From skill: 02-anti-patterns — "Effect.iterate does not exist in Effect 4"
  */
 export const noEffectIterate = Rule.define({
-  name: "no-effect-iterate",
-  meta: Rule.meta({
-    type: "error",
-    description: "Effect.iterate does not exist in Effect 4 — use Effect.suspend for recursive loops",
-  }),
-  create: function*() {
+  create: function* () {
     const ctx = yield* RuleContext;
     return {
       MemberExpression: (node) => {
-        return Option.match(
-          AST.matchMember(node, "Effect", "iterate"),
-          {
-            onNone: () => Effect.void,
-            onSome: (matched) =>
-              ctx.report(
-                Diagnostic.make({
-                  node: matched,
-                  message: "Effect.iterate does not exist in Effect 4 — use Effect.suspend for recursive loops",
-                }),
-              ),
-          },
-        );
+        return Option.match(AST.matchMember(node, "Effect", "iterate"), {
+          onNone: () => Effect.void,
+          onSome: (matched) =>
+            ctx.report(
+              Diagnostic.make({
+                node: matched,
+                message: "Effect.iterate does not exist in Effect 4 — use Effect.suspend for recursive loops",
+              }),
+            ),
+        });
       },
-    };
+    } as Visitor.TypedEffectVisitor;
   },
+  meta: Rule.meta({
+    type: "problem",
+    description: "Effect.iterate does not exist in Effect 4 — use Effect.suspend for recursive loops",
+  }),
+  name: "no-effect-iterate",
 });

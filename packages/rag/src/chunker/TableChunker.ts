@@ -1,8 +1,9 @@
 import type { Chunk, TokenizerError } from "@repo/domain/Chunk";
 import { Chunker, Tokenizer } from "@repo/domain/Chunk";
 import { Context, Effect, Layer, Schema } from "effect";
-import { WordTokenizerLive } from "../tokenizer/DelimTokenizer";
 import { isBlank, splitLines } from "./utils";
+
+import { WordTokenizerLive } from "../tokenizer/DelimTokenizer";
 
 interface RowSlice {
   text: string;
@@ -18,10 +19,7 @@ interface ParsedTable {
   footer: string;
 }
 
-const detectFormat = (
-  input: string,
-  format: typeof TableFormat.Type,
-): Exclude<typeof TableFormat.Type, "auto"> => {
+const detectFormat = (input: string, format: typeof TableFormat.Type): Exclude<typeof TableFormat.Type, "auto"> => {
   if (format !== "auto") return format;
   return input.toLowerCase().includes("<table") ? "html" : "markdown";
 };
@@ -75,10 +73,7 @@ const splitMarkdownTable = (input: string): ParsedTable | null => {
   return null;
 };
 
-const chunkRowsBySize = (
-  rows: ReadonlyArray<RowSlice>,
-  chunkSize: number,
-): Array<Array<RowSlice>> => {
+const chunkRowsBySize = (rows: ReadonlyArray<RowSlice>, chunkSize: number): Array<Array<RowSlice>> => {
   const groups: Array<Array<RowSlice>> = [];
   for (let i = 0; i < rows.length; i += chunkSize) {
     groups.push(rows.slice(i, i + chunkSize));
@@ -106,9 +101,7 @@ const toRowModeChunk = (
       tableRowCount: table.rows.length,
       tableRowEnd: last.rowIndex,
       tableRowStart: first.rowIndex,
-      ...(table.headerColumns.length > 0
-        ? { tableColumns: table.headerColumns }
-        : {}),
+      ...(table.headerColumns.length > 0 ? { tableColumns: table.headerColumns } : {}),
     },
     startIdx: first.startIdx,
     text: `${table.header}${table.rows.map((r) => r.text).join("")}${table.footer}`,
@@ -116,11 +109,7 @@ const toRowModeChunk = (
   };
 };
 
-const findHtmlRowsInRange = (
-  input: string,
-  startIdx: number,
-  endIdx: number,
-): Array<RowSlice> => {
+const findHtmlRowsInRange = (input: string, startIdx: number, endIdx: number): Array<RowSlice> => {
   const rows: Array<RowSlice> = [];
   const lower = input.toLowerCase();
   let cursor = startIdx;
@@ -172,9 +161,7 @@ const splitHtmlTable = (input: string): ParsedTable | null => {
     if (tbodyOpenEnd === -1 || tbodyOpenEnd > tableCloseStart) return null;
     rowSearchStart = tbodyOpenEnd + 1;
     const tbodyCloseStart = lower.indexOf("</tbody>", rowSearchStart);
-    rowSearchEnd = tbodyCloseStart === -1 || tbodyCloseStart > tableCloseStart
-      ? tableCloseStart
-      : tbodyCloseStart;
+    rowSearchEnd = tbodyCloseStart === -1 || tbodyCloseStart > tableCloseStart ? tableCloseStart : tbodyCloseStart;
   }
 
   const rows = findHtmlRowsInRange(input, rowSearchStart, rowSearchEnd);
@@ -200,53 +187,41 @@ const TableChunkerConfigSchema = Schema.Struct({
 
 export type TableChunkerConfig = typeof TableChunkerConfigSchema.Type;
 
-export const TableChunkerConfig = Context.Reference<TableChunkerConfig>(
-  "TableChunkerConfig",
-  {
-    defaultValue: () => ({
-      chunkSize: 3,
-      format: "auto",
-      mode: "row",
-    }),
-  },
-);
+export const TableChunkerConfig = Context.Reference<TableChunkerConfig>("TableChunkerConfig", {
+  defaultValue: () => ({
+    chunkSize: 3,
+    format: "auto",
+    mode: "row",
+  }),
+});
 
-export class TableChunker extends Context.Service<
-  TableChunker,
-  Chunker["Service"]
->()("TableChunker", {
-  make: Effect.gen(function*() {
+export class TableChunker extends Context.Service<TableChunker, Chunker["Service"]>()("TableChunker", {
+  make: Effect.gen(function* () {
     const tokenizer = yield* Tokenizer;
     const config = yield* TableChunkerConfig;
-    const { chunkSize, format, mode } = yield* Schema.decodeEffect(
-      TableChunkerConfigSchema,
-    )(config);
+    const { chunkSize, format, mode } = yield* Schema.decodeEffect(TableChunkerConfigSchema)(config);
 
     const toTokenModeChunks = (
       table: ParsedTable,
-      chunkSize: number,
-      format: Exclude<typeof TableFormat.Type, "auto">,
+      _sizeLimit: number,
+      _tableFormat: Exclude<typeof TableFormat.Type, "auto">,
     ): Effect.Effect<Array<Chunk>, TokenizerError> =>
-      Effect.gen(function*() {
+      Effect.gen(function* () {
         const header = yield* tokenizer.countTokens(table.header);
-        const footer = table.footer.length > 0
-          ? yield* tokenizer.countTokens(table.footer)
-          : 0;
+        const footer = table.footer.length > 0 ? yield* tokenizer.countTokens(table.footer) : 0;
 
         const baseTokens = header + footer;
         const chunks: Array<Chunk> = [];
         let currentRows: Array<RowSlice> = [];
         let currentTokens = 0;
 
-        const flushCurrent = Effect.fn(function*() {
+        const flushCurrent = () => {
           if (currentRows.length === 0) return;
           const first = currentRows[0];
           const last = currentRows[currentRows.length - 1];
           if (!first || !last) return;
           const tableHasHeader = table.header.trim().length > 0;
-          const chunkText = table.header
-            + currentRows.map((row) => row.text).join("")
-            + table.footer;
+          const chunkText = table.header + currentRows.map((row) => row.text).join("") + table.footer;
           chunks.push({
             endIdx: last.endIdx,
             metadata: {
@@ -257,9 +232,7 @@ export class TableChunker extends Context.Service<
               tableRowCount: currentRows.length,
               tableRowEnd: last.rowIndex,
               tableRowStart: first.rowIndex,
-              ...(table.headerColumns.length > 0
-                ? { tableColumns: table.headerColumns }
-                : {}),
+              ...(table.headerColumns.length > 0 ? { tableColumns: table.headerColumns } : {}),
             },
             startIdx: first.startIdx,
             text: chunkText,
@@ -267,29 +240,27 @@ export class TableChunker extends Context.Service<
           });
           currentRows = [];
           currentTokens = 0;
-        });
+        };
 
         for (const row of table.rows) {
           const rowTokens = yield* tokenizer.countTokens(row.text);
           const wouldExceed = baseTokens + currentTokens + rowTokens > chunkSize;
           // If current chunk already has rows and next row would exceed budget, flush.
           if (wouldExceed && currentRows.length > 0) {
-            yield* flushCurrent();
+            flushCurrent();
           }
           // Always add at least one row, even if it alone exceeds chunk size.
           currentRows.push(row);
           currentTokens += rowTokens;
         }
-        yield* flushCurrent();
+        flushCurrent();
         return chunks;
       });
 
-    const chunk = Effect.fn("TableChunker.chunk")(function*(input: string) {
+    const chunk = Effect.fn("TableChunker.chunk")(function* (input: string) {
       if (isBlank(input)) return [];
       const narrowFormat = detectFormat(input, format);
-      const parsed = narrowFormat === "markdown"
-        ? splitMarkdownTable(input)
-        : splitHtmlTable(input);
+      const parsed = narrowFormat === "markdown" ? splitMarkdownTable(input) : splitHtmlTable(input);
       if (!parsed) return [];
       switch (narrowFormat) {
         case "html": {
@@ -348,6 +319,4 @@ export class TableChunker extends Context.Service<
   }),
 }) {}
 
-export const TableChunkerLive = Layer.effect(Chunker)(TableChunker.make).pipe(
-  Layer.provide(WordTokenizerLive),
-);
+export const TableChunkerLive = Layer.effect(Chunker)(TableChunker.make).pipe(Layer.provide(WordTokenizerLive));

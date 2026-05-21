@@ -15,16 +15,19 @@ The canonical pattern in Effect 4 beta. `ServiceMap` is exported from `"effect"`
 ```typescript
 import { Effect, Layer, ServiceMap } from "effect";
 
-export class Database extends ServiceMap.Service<Database, {
-  query(sql: string): Effect.Effect<Array<unknown>, DatabaseError>;
-}>()(
+export class Database extends ServiceMap.Service<
+  Database,
+  {
+    query(sql: string): Effect.Effect<Array<unknown>, DatabaseError>;
+  }
+>()(
   "myapp/db/Database", // key: use "package/path/Name" convention
 ) {
   // Self-contained layer
   static readonly layer = Layer.effect(
     Database,
-    Effect.gen(function*() {
-      const query = Effect.fn("Database.query")(function*(sql: string) {
+    Effect.gen(function* () {
+      const query = Effect.fn("Database.query")(function* (sql: string) {
         yield* Effect.log("SQL:", sql);
         return [{ id: 1 }];
       });
@@ -56,34 +59,30 @@ Use `"package/path/ServiceName"` to avoid collisions:
 ## Configuration service pattern
 
 ```typescript
-export class AppConfig extends ServiceMap.Service<AppConfig, {
-  readonly port: number;
-  readonly host: string;
-}>()(
-  "myapp/AppConfig",
-) {
+export class AppConfig extends ServiceMap.Service<
+  AppConfig,
+  {
+    readonly port: number;
+    readonly host: string;
+  }
+>()("myapp/AppConfig") {
   static readonly layer = Layer.effect(
     AppConfig,
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const port = yield* Config.integer("PORT").pipe(Config.withDefault(3000));
-      const host = yield* Config.string("HOST").pipe(
-        Config.withDefault("0.0.0.0"),
-      );
+      const host = yield* Config.string("HOST").pipe(Config.withDefault("0.0.0.0"));
       return AppConfig.of({ port, host });
     }),
   );
 
-  static readonly testLayer = Layer.succeed(
-    AppConfig,
-    AppConfig.of({ port: 3000, host: "localhost" }),
-  );
+  static readonly testLayer = Layer.succeed(AppConfig, AppConfig.of({ port: 3000, host: "localhost" }));
 }
 ```
 
 ## Consuming a service
 
 ```typescript
-const program = Effect.gen(function*() {
+const program = Effect.gen(function* () {
   const db = yield* Database;
   return yield* db.query("SELECT * FROM users");
 }).pipe(Effect.provide(Database.layer));
@@ -130,9 +129,9 @@ static readonly layer = Layer.unwrap(
 
 ```typescript
 const BackgroundTask = Layer.effectDiscard(
-  Effect.gen(function*() {
+  Effect.gen(function* () {
     yield* Effect.forkScoped(
-      Effect.gen(function*() {
+      Effect.gen(function* () {
         while (true) {
           yield* Effect.sleep("5 seconds");
           yield* Effect.log("tick");
@@ -148,7 +147,7 @@ const BackgroundTask = Layer.effectDiscard(
 ```typescript
 const TransporterLayer = Layer.scoped(
   Transporter,
-  Effect.gen(function*() {
+  Effect.gen(function* () {
     const t = yield* Effect.acquireRelease(
       Effect.sync(() => createTransport(config)),
       (t) => Effect.sync(() => t.close()),

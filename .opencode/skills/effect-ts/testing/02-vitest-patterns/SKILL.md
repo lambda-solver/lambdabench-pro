@@ -50,11 +50,12 @@ import {
 
 ```typescript
 it.effect("processes item correctly", () =>
-  Effect.gen(function*() {
+  Effect.gen(function* () {
     const svc = yield* MyService;
     const result = yield* svc.process("input");
     strictEqual(result, "expected");
-  }).pipe(Effect.provide(MyService.layerTest)));
+  }).pipe(Effect.provide(MyService.layerTest)),
+);
 ```
 
 ## it.effect with timeout
@@ -62,24 +63,29 @@ it.effect("processes item correctly", () =>
 Pass timeout (ms) as the last argument:
 
 ```typescript
-it.effect("calls real API", () =>
-  Effect.gen(function*() {
-    const result = yield* callRealApi();
-    assertTrue(result.length > 0);
-  }).pipe(Effect.provide(realLayer)), 30_000);
+it.effect(
+  "calls real API",
+  () =>
+    Effect.gen(function* () {
+      const result = yield* callRealApi();
+      assertTrue(result.length > 0);
+    }).pipe(Effect.provide(realLayer)),
+  30_000,
+);
 ```
 
 ## it.scoped — test needs a Scope (resources, temp files)
 
 ```typescript
 it.scoped("cleans up temp file", () =>
-  Effect.gen(function*() {
+  Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* fs.makeTempFileScoped(); // auto-cleaned on scope close
     yield* fs.writeFileString(path, "hello");
     const content = yield* fs.readFileString(path);
     strictEqual(content, "hello");
-  }).pipe(Effect.provide(NodeFileSystem.layer)));
+  }).pipe(Effect.provide(NodeFileSystem.layer)),
+);
 ```
 
 ## it.layer — shared layer for all tests in a describe block
@@ -95,11 +101,12 @@ const platformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 describe("MyService", () => {
   it.layer(platformLayer)((it) => {
     it.effect("reads a file", () =>
-      Effect.gen(function*() {
+      Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
         const content = yield* fs.readFileString("/tmp/test.txt");
         assertDefined(content);
-      }));
+      }),
+    );
   });
 });
 ```
@@ -110,7 +117,7 @@ describe("MyService", () => {
 it.effect.skipIf(!process.env["OPENROUTER_API_KEY"])(
   "calls real OpenRouter",
   () =>
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const result = yield* LanguageModel.generateText({ prompt: "hello" });
       assertTrue(result.text.length > 0);
     }).pipe(Effect.provide(realLayer)),
@@ -124,12 +131,10 @@ it.effect.skipIf(!process.env["OPENROUTER_API_KEY"])(
 it.effect.each([
   { input: " Ada ", expected: "ada" },
   { input: " Lin ", expected: "lin" },
-])(
-  "trims and lowercases $input",
-  ({ input, expected }) =>
-    Effect.gen(function*() {
-      strictEqual(input.trim().toLowerCase(), expected);
-    }),
+])("trims and lowercases $input", ({ input, expected }) =>
+  Effect.gen(function* () {
+    strictEqual(input.trim().toLowerCase(), expected);
+  }),
 );
 ```
 
@@ -146,18 +151,13 @@ import { FetchHttpClient } from "effect/unstable/http";
 it.effect.skipIf(!process.env["OPENROUTER_API_KEY"])(
   "calls real OpenRouter",
   () =>
-    Effect.gen(function*() {
-      const layer = makeOpenRouterLayer("minimax/minimax-m2.5:free").pipe(
-        Layer.provide(FetchHttpClient.layer),
+    Effect.gen(function* () {
+      const layer = makeOpenRouterLayer("minimax/minimax-m2.5:free").pipe(Layer.provide(FetchHttpClient.layer));
+      const result = yield* LanguageModel.generateText({ prompt: "hello" }).pipe(
+        Effect.map((r) => r.text),
+        Effect.provide(layer),
+        Effect.provide(ConfigProvider.layer(ConfigProvider.fromUnknown(process.env))),
       );
-      const result = yield* LanguageModel.generateText({ prompt: "hello" })
-        .pipe(
-          Effect.map((r) => r.text),
-          Effect.provide(layer),
-          Effect.provide(
-            ConfigProvider.layer(ConfigProvider.fromUnknown(process.env)),
-          ),
-        );
       assertTrue(result.length > 0);
     }),
   30_000,
@@ -218,9 +218,7 @@ importing via the `@effect/platform-bun` barrel pulls in `BunRedis`. Use
 ```typescript
 import { FetchHttpClient } from "effect/unstable/http";
 
-const layer = makeOpenRouterLayer("minimax/minimax-m2.5:free").pipe(
-  Layer.provide(FetchHttpClient.layer),
-);
+const layer = makeOpenRouterLayer("minimax/minimax-m2.5:free").pipe(Layer.provide(FetchHttpClient.layer));
 ```
 
 ## Mock LanguageModel layer
@@ -228,16 +226,14 @@ const layer = makeOpenRouterLayer("minimax/minimax-m2.5:free").pipe(
 ```typescript
 import { LanguageModel } from "effect/unstable/ai";
 
-const mockLmLayer = (
-  responses: ReadonlyArray<string>,
-): Layer.Layer<LanguageModel.LanguageModel> =>
+const mockLmLayer = (responses: ReadonlyArray<string>): Layer.Layer<LanguageModel.LanguageModel> =>
   Layer.effect(
     LanguageModel.LanguageModel,
-    Effect.gen(function*() {
+    Effect.gen(function* () {
       const idx = yield* Ref.make(0);
       return {
         generateText: (_options: unknown) =>
-          Effect.gen(function*() {
+          Effect.gen(function* () {
             const i = yield* Ref.getAndUpdate(idx, (n) => n + 1);
             const text = responses[Math.min(i, responses.length - 1)] ?? "";
             return {
@@ -279,4 +275,16 @@ describe("MyService", () => {
     }).pipe(Effect.provide(mockLayer)),
   )
 })
+```
+
+## Linting Discipline
+
+**Never disable linter rules with `// oxlint-disable-next-line` or similar comments.**
+
+If a lint warning appears:
+1. Fix the underlying code issue (rename shadowed variables, remove unused imports, etc.)
+2. If the warning is a false positive, refactor the code to avoid triggering the rule
+3. Only as a last resort after team discussion, add a disable comment with a detailed explanation
+
+Adding disable comments without fixing the root cause is technical debt and hides real issues.
 ```

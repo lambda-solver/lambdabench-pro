@@ -82,7 +82,7 @@ state.items[0] = updated;
 
 // ✅ spread for objects, map/filter for arrays
 const updatedUser = { ...props.user, name: "Alice" };
-const updatedItems = state.items.map((item, i) => i === 0 ? updated : item);
+const updatedItems = state.items.map((item, i) => (i === 0 ? updated : item));
 ```
 
 ## Effect Atom Boundary (Effect-TS projects)
@@ -153,7 +153,9 @@ function UserList() {
   const [loading, setLoading] = useState(false);
   useEffect(() => {
     setLoading(true);
-    fetchUsers().then(setUsers).finally(() => setLoading(false));
+    fetchUsers()
+      .then(setUsers)
+      .finally(() => setLoading(false));
   }, []);
   // ... 50 more lines
 }
@@ -164,7 +166,9 @@ function useUsers() {
   const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
     setIsLoading(true);
-    fetchUsers().then(setUsers).finally(() => setIsLoading(false));
+    fetchUsers()
+      .then(setUsers)
+      .finally(() => setIsLoading(false));
   }, []);
   return { users, isLoading };
 }
@@ -173,7 +177,13 @@ function useUsers() {
 function UserList() {
   const { users, isLoading } = useUsers();
   if (isLoading) return <Loading />;
-  return <ul>{users.map((u) => <li key={u.id}>{u.name}</li>)}</ul>;
+  return (
+    <ul>
+      {users.map((u) => (
+        <li key={u.id}>{u.name}</li>
+      ))}
+    </ul>
+  );
 }
 ```
 
@@ -181,10 +191,7 @@ function UserList() {
 
 ```tsx
 // ✅ memoize expensive computation
-const sortedUsers = useMemo(
-  () => users.sort((a, b) => a.name.localeCompare(b.name)),
-  [users],
-);
+const sortedUsers = useMemo(() => users.sort((a, b) => a.name.localeCompare(b.name)), [users]);
 
 // ✅ memoize callback to prevent child re-renders
 const handleSelect = useCallback((id: string) => {
@@ -226,7 +233,7 @@ const count = useMemo(() => items.length, [items]); // cheap, skip it
 
 ```tsx
 // ✅ functional error boundary (react-error-boundary)
-import { ErrorBoundary } from 'react-error-boundary'
+import { ErrorBoundary } from "react-error-boundary";
 
 <ErrorBoundary
   fallbackRender={({ error, resetErrorBoundary }) => (
@@ -238,7 +245,7 @@ import { ErrorBoundary } from 'react-error-boundary'
   )}
 >
   <RiskyComponent />
-</ErrorBoundary>
+</ErrorBoundary>;
 ```
 
 ## Summary

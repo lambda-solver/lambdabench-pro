@@ -3,8 +3,8 @@
  * Wraps Node 22+ built-in node:sqlite to expose a bun:sqlite-like API.
  */
 
+import { DatabaseSync, type SQLInputValue } from "node:sqlite";
 import { statSync } from "node:fs";
-import { DatabaseSync } from "node:sqlite";
 
 class StatementWrapper {
   private stmt: ReturnType<DatabaseSync["prepare"]>;
@@ -14,15 +14,15 @@ class StatementWrapper {
   }
 
   run(...params: Array<unknown>) {
-    this.stmt.run(...params);
+    this.stmt.run(...(params as Array<SQLInputValue>));
   }
 
   all(...params: Array<unknown>): Array<Record<string, unknown>> {
-    return this.stmt.all(...params) as Array<Record<string, unknown>>;
+    return this.stmt.all(...(params as Array<SQLInputValue>)) as Array<Record<string, unknown>>;
   }
 
   get(...params: Array<unknown>): Record<string, unknown> | null {
-    const result = this.stmt.get(...params);
+    const result = this.stmt.get(...(params as Array<SQLInputValue>));
     return result === undefined ? null : (result as Record<string, unknown>);
   }
 }
@@ -30,7 +30,7 @@ class StatementWrapper {
 export class Database {
   private db: DatabaseSync;
 
-  constructor(path: string, _opts?: { create?: boolean; }) {
+  constructor(path: string, _opts?: { create?: boolean }) {
     this.db = new DatabaseSync(path);
   }
 
@@ -44,7 +44,7 @@ export class Database {
 
   get changes(): number {
     const stmt = this.db.prepare("SELECT changes() as changes");
-    const row = stmt.get() as { changes: number; } | undefined;
+    const row = stmt.get() as { changes: number } | undefined;
     return row?.changes ?? 0;
   }
 }

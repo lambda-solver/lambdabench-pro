@@ -1,7 +1,8 @@
-import { cn } from "@/lib/utils";
 import type { BenchmarkTask, Ranking } from "@repo/domain/Benchmark";
-import { useEffect } from "react";
 import { TildeLine, VimLine } from "./VimLine";
+
+import { cn } from "@/lib/utils";
+import { useEffect } from "react";
 
 interface TaskModalProps {
   task: BenchmarkTask | null;
@@ -39,18 +40,8 @@ export function TaskModal({ task, rankings, onClose }: TaskModalProps) {
       )}
     >
       {/* Backdrop close button — covers the overlay area behind the panel */}
-      <button
-        type="button"
-        aria-label="Close modal"
-        className="fixed inset-0 -z-10 cursor-default"
-        onClick={onClose}
-      />
-      <div
-        className={cn(
-          "w-full max-w-[760px] text-sm",
-          "bg-[var(--sol-base3)] border border-[var(--sol-base1)]",
-        )}
-      >
+      <button type="button" aria-label="Close modal" className="fixed inset-0 -z-10 cursor-default" onClick={onClose} />
+      <div className={cn("w-full max-w-[760px] text-sm", "bg-[var(--sol-base3)] border border-[var(--sol-base1)]")}>
         {/* Title bar */}
         <div
           className={cn(
@@ -58,9 +49,7 @@ export function TaskModal({ task, rankings, onClose }: TaskModalProps) {
             "bg-[var(--sol-base2)] border-b border-[var(--sol-base1)]",
           )}
         >
-          <span className="font-bold text-[var(--sol-base00)]">
-            {task.id}.tsk
-          </span>
+          <span className="font-bold text-[var(--sol-base00)]">{task.id}.tsk</span>
           <button
             type="button"
             onClick={onClose}
@@ -77,9 +66,8 @@ export function TaskModal({ task, rankings, onClose }: TaskModalProps) {
         <div className="max-h-[65vh] overflow-y-auto p-0 text-[var(--sol-base00)]">
           <VimLine n={1} />
           <VimLine n={2}>
-            <span className="font-bold text-[var(--sol-orange)]">
-              {task.id}
-            </span>{"  "}
+            <span className="font-bold text-[var(--sol-orange)]">{task.id}</span>
+            {"  "}
             <span className="text-[var(--sol-base1)]">{task.categoryName}</span>
           </VimLine>
           <VimLine n={3} />
@@ -96,7 +84,8 @@ export function TaskModal({ task, rankings, onClose }: TaskModalProps) {
               <>
                 <VimLine n={n++} />
                 <VimLine n={n++}>
-                  <span className="text-[var(--sol-violet)]">Tests</span>{"  "}
+                  <span className="text-[var(--sol-violet)]">Tests</span>
+                  {"  "}
                   <span className="text-[var(--sol-base1)]">
                     ({task.tests.length} of {task.testCount})
                   </span>
@@ -116,9 +105,7 @@ export function TaskModal({ task, rankings, onClose }: TaskModalProps) {
                 ))}
 
                 <VimLine n={n++}>
-                  <span className="text-[var(--sol-violet)]">
-                    Model Results
-                  </span>
+                  <span className="text-[var(--sol-violet)]">Model Results</span>
                 </VimLine>
                 <VimLine n={n++} />
 
@@ -126,9 +113,13 @@ export function TaskModal({ task, rankings, onClose }: TaskModalProps) {
                   const passed = r.tasks[task.id];
                   return (
                     <VimLine key={r.model} n={n++}>
-                      {passed
-                        ? <span className="text-[var(--sol-green)]">✓</span>
-                        : <span className="text-[var(--sol-red)]">✗</span>}{"  "}{fmtModel(r.model)}
+                      {passed ? (
+                        <span className="text-[var(--sol-green)]">✓</span>
+                      ) : (
+                        <span className="text-[var(--sol-red)]">✗</span>
+                      )}
+                      {"  "}
+                      {fmtModel(r.model)}
                     </VimLine>
                   );
                 })}

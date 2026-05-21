@@ -10,20 +10,21 @@
  * isn't worth the marginal value.
  */
 
-import { pipe } from "effect";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 import * as Schema from "effect/Schema";
 
 import { AST, Diagnostic, Rule, RuleContext, Visitor } from "effect-oxlint";
 
+import { pipe } from "effect";
+
 // ---------------------------------------------------------------------------
 // Domain
 // ---------------------------------------------------------------------------
 
 const ErrorConstructor = Schema.Literal("Error").annotate({
-  title: "ErrorConstructor",
   description: "The bare global `Error` constructor — pattern EF-1 forbids using it for recoverable domain failures.",
+  title: "ErrorConstructor",
 });
 
 const isErrorConstructor = Schema.is(ErrorConstructor);
@@ -39,13 +40,7 @@ const INSTANCEOF_MESSAGE =
   "Avoid `instanceof Error` in Effect code. Use `catchTag`/`catchTags` with `Schema.TaggedErrorClass` for type-safe error discrimination. (EF-30)";
 
 export default Rule.define({
-  name: "avoid-untagged-errors",
-  meta: Rule.meta({
-    type: "suggestion",
-    description:
-      "Disallow `new Error(...)` and `<expr> instanceof Error` — use `Schema.TaggedErrorClass` instead (EF-1)",
-  }),
-  create: function*() {
+  create: function* () {
     const ctx = yield* RuleContext;
     return Visitor.merge(
       // `new Error(...)` — flag the constructor expression itself.
@@ -64,7 +59,8 @@ export default Rule.define({
                 }),
               ),
           }),
-        )),
+        ),
+      ),
       // `<expr> instanceof Error` — the discriminator on the right.
       Visitor.on("BinaryExpression", (node) => {
         if (node.operator !== "instanceof") return Effect.void;
@@ -86,4 +82,10 @@ export default Rule.define({
       }),
     );
   },
+  meta: Rule.meta({
+    type: "suggestion",
+    description:
+      "Disallow `new Error(...)` and `<expr> instanceof Error` — use `Schema.TaggedErrorClass` instead (EF-1)",
+  }),
+  name: "avoid-untagged-errors",
 });

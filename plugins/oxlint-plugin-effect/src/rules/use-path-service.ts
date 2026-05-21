@@ -10,8 +10,8 @@ import * as Schema from "effect/Schema";
 import { Rule } from "effect-oxlint";
 
 const PathImportSource = Schema.Literals(["path", "node:path"]).annotate({
-  title: "PathImportSource",
   description: "Node `path` module import specifiers. Use `Path.Path` from `@effect/platform` instead.",
+  title: "PathImportSource",
 });
 
 const isPathImportSource = Schema.is(PathImportSource);

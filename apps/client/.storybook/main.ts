@@ -1,29 +1,22 @@
 import type { StorybookConfig } from "@storybook/react-vite";
-import tailwindcss from "@tailwindcss/vite";
 import path from "node:path";
+import tailwindcss from "@tailwindcss/vite";
 
 const config: StorybookConfig = {
-  addons: [
-    "@storybook/addon-essentials",
-    "@storybook/addon-interactions",
-    "@storybook/addon-a11y",
-  ],
+  addons: ["@storybook/addon-essentials", "@storybook/addon-interactions", "@storybook/addon-a11y"],
   framework: {
     name: "@storybook/react-vite",
     options: {},
   },
   stories: ["../src/**/*.stories.@(ts|tsx)", "../src/**/*.mdx"],
-  viteFinal: async (config) => {
+  viteFinal: async (viteConfig) => {
     // Add Tailwind CSS 4 Vite plugin
-    config.plugins?.push(tailwindcss());
+    viteConfig.plugins?.push(tailwindcss());
     // Resolve @/ path alias matching app's vite.config.ts
-    config.resolve ??= {};
-    config.resolve.alias ??= {};
-    (config.resolve.alias as Record<string, string>)["@"] = path.resolve(
-      __dirname,
-      "../src",
-    );
-    return config;
+    viteConfig.resolve ??= {};
+    viteConfig.resolve.alias ??= {};
+    (viteConfig.resolve.alias as Record<string, string>)["@"] = path.resolve(__dirname, "../src");
+    return viteConfig;
   },
 };
 

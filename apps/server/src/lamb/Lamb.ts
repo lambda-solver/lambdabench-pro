@@ -7,24 +7,24 @@
 // ─── AST ─────────────────────────────────────────────────────────────────────
 
 export type Term =
-  | { tag: "Var"; name: string; }
-  | { tag: "Ref"; name: string; }
-  | { tag: "Lam"; param: string; body: Term; }
-  | { tag: "App"; func: Term; arg: Term; };
+  | { tag: "Var"; name: string }
+  | { tag: "Ref"; name: string }
+  | { tag: "Lam"; param: string; body: Term }
+  | { tag: "App"; func: Term; arg: Term };
 
 export type Book = Map<string, Term>;
 
 // ─── LEXER ───────────────────────────────────────────────────────────────────
 
 type Token =
-  | { type: "Lambda"; }
-  | { type: "Dot"; }
-  | { type: "LParen"; }
-  | { type: "RParen"; }
-  | { type: "Comma"; }
-  | { type: "Equals"; }
-  | { type: "At"; }
-  | { type: "Name"; value: string; };
+  | { type: "Lambda" }
+  | { type: "Dot" }
+  | { type: "LParen" }
+  | { type: "RParen" }
+  | { type: "Comma" }
+  | { type: "Equals" }
+  | { type: "At" }
+  | { type: "Name"; value: string };
 
 const tokenize = (src: string): Array<Token> => {
   const tokens: Array<Token> = [];
@@ -112,7 +112,7 @@ class Parser {
     const book: Book = new Map();
     while (this.pos < this.tokens.length) {
       this.expect("At");
-      const name = (this.consume() as { type: "Name"; value: string; }).value;
+      const name = (this.consume() as { type: "Name"; value: string }).value;
       this.expect("Equals");
       const body = this.parseTerm();
       book.set(name, body);
@@ -124,7 +124,7 @@ class Parser {
     const t = this.peek();
     if (t?.type === "Lambda") {
       this.consume();
-      const param = (this.consume() as { type: "Name"; value: string; }).value;
+      const param = (this.consume() as { type: "Name"; value: string }).value;
       this.expect("Dot");
       const body = this.parseTerm();
       return { body, param, tag: "Lam" };
@@ -171,12 +171,12 @@ class Parser {
     if (!t) throw new Error("Unexpected end of input");
     if (t.type === "At") {
       this.consume();
-      const name = (this.consume() as { type: "Name"; value: string; }).value;
+      const name = (this.consume() as { type: "Name"; value: string }).value;
       return { name, tag: "Ref" };
     }
     if (t.type === "Name") {
       this.consume();
-      return { name: (t as { type: "Name"; value: string; }).value, tag: "Var" };
+      return { name: (t as { type: "Name"; value: string }).value, tag: "Var" };
     }
     if (t.type === "LParen") {
       this.consume();
@@ -260,7 +260,7 @@ const subst = (term: Term, name: string, value: Term): Term => {
 
 const MAX_STEPS = 10_000_000;
 
-const normalizeWHNF = (term: Term, book: Book, steps: { n: number; }): Term => {
+const normalizeWHNF = (term: Term, book: Book, steps: { n: number }): Term => {
   if (steps.n++ > MAX_STEPS) throw new Error("Reduction limit exceeded");
   switch (term.tag) {
     case "Var":
@@ -275,11 +275,7 @@ const normalizeWHNF = (term: Term, book: Book, steps: { n: number; }): Term => {
     case "App": {
       const func = normalizeWHNF(term.func, book, steps);
       if (func.tag === "Lam") {
-        return normalizeWHNF(
-          subst(func.body, func.param, term.arg),
-          book,
-          steps,
-        );
+        return normalizeWHNF(subst(func.body, func.param, term.arg), book, steps);
       }
       return { arg: term.arg, func, tag: "App" };
     }
@@ -325,16 +321,10 @@ export const normalize = (term: Term, book: Book, steps = { n: 0 }): Term => {
 const varName = (idx: number): string => {
   const letters = "abcdefghijklmnopqrstuvwxyz";
   if (idx < 26) return letters[idx] ?? "a";
-  return (
-    (letters[Math.floor(idx / 26) - 1] ?? "a") + (letters[idx % 26] ?? "a")
-  );
+  return (letters[Math.floor(idx / 26) - 1] ?? "a") + (letters[idx % 26] ?? "a");
 };
 
-const printTerm = (
-  term: Term,
-  scope: Map<string, number>,
-  counter: { n: number; },
-): string => {
+const printTerm = (term: Term, scope: Map<string, number>, counter: { n: number }): string => {
   switch (term.tag) {
     case "Var": {
       const idx = scope.get(term.name);
@@ -368,9 +358,9 @@ export const printNormal = (term: Term): string => printTerm(term, new Map(), { 
 // ─── BINARY ENCODING ─────────────────────────────────────────────────────────
 
 type DeBruijn =
-  | { tag: "Idx"; index: number; }
-  | { tag: "DLam"; body: DeBruijn; }
-  | { tag: "DApp"; func: DeBruijn; arg: DeBruijn; };
+  | { tag: "Idx"; index: number }
+  | { tag: "DLam"; body: DeBruijn }
+  | { tag: "DApp"; func: DeBruijn; arg: DeBruijn };
 
 const toDeBruijn = (term: Term, env: Array<string>): DeBruijn => {
   switch (term.tag) {
@@ -380,9 +370,7 @@ const toDeBruijn = (term: Term, env: Array<string>): DeBruijn => {
       return { index: idx, tag: "Idx" };
     }
     case "Ref": {
-      throw new Error(
-        `Ref @${term.name} must be inlined before binary encoding`,
-      );
+      throw new Error(`Ref @${term.name} must be inlined before binary encoding`);
     }
     case "Lam": {
       return { body: toDeBruijn(term.body, [term.param, ...env]), tag: "DLam" };
@@ -411,11 +399,7 @@ const encodeBLC = (term: DeBruijn): string => {
   }
 };
 
-export const inlineRefs = (
-  term: Term,
-  book: Book,
-  visited = new Set<string>(),
-): Term => {
+export const inlineRefs = (term: Term, book: Book, visited = new Set<string>()): Term => {
   switch (term.tag) {
     case "Var": {
       return term;
