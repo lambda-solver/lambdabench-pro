@@ -1,0 +1,3876 @@
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/BenchmarkRow.tsx:34:6]
+ 33 |   return (
+ 34 |     <div className="flex items-center min-w-0 flex-1 gap-[1ch]">
+    :      ^^^
+ 35 |       <span className="shrink-0 text-[var(--sol-blue)] whitespace-pre">{name}</span>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/BenchmarkRow.tsx:35:8]
+ 34 |     <div className="flex items-center min-w-0 flex-1 gap-[1ch]">
+ 35 |       <span className="shrink-0 text-[var(--sol-blue)] whitespace-pre">{name}</span>
+    :        ^^^^
+ 36 |       <span className="flex-1 min-w-0">
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/BenchmarkRow.tsx:36:8]
+ 35 |       <span className="shrink-0 text-[var(--sol-blue)] whitespace-pre">{name}</span>
+ 36 |       <span className="flex-1 min-w-0">
+    :        ^^^^
+ 37 |         <BarChart pct={pct} fluid />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/BenchmarkRow.tsx:37:10]
+ 36 |       <span className="flex-1 min-w-0">
+ 37 |         <BarChart pct={pct} fluid />
+    :          ^^^^^^^^
+ 38 |       </span>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/BenchmarkRow.tsx:39:8]
+ 38 |       </span>
+ 39 |       <span className="shrink-0 text-right" style={{ color: statColor, width: `${statWidth}ch` }}>
+    :        ^^^^
+ 40 |         {stat}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/BenchmarkRow.tsx:42:8]
+ 41 |       </span>
+ 42 |       <span className="shrink-0 text-[var(--sol-base1)]" style={{ width: `${labelWidth}ch` }}>
+    :        ^^^^
+ 43 |         {label}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/VimLine.tsx:18:6]
+ 17 |   return (
+ 18 |     <div className={cn("flex min-h-[1.5em]", tilde && "text-[var(--sol-blue)]", className)}>
+    :      ^^^
+ 19 |       <span
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/VimLine.tsx:19:8]
+ 18 |     <div className={cn("flex min-h-[1.5em]", tilde && "text-[var(--sol-blue)]", className)}>
+ 19 |       <span
+    :        ^^^^
+ 20 |         className={cn(
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/VimLine.tsx:27:8]
+ 26 |       </span>
+ 27 |       <span className="flex-1 flex min-w-0 pl-[2ch] pr-[1ch] whitespace-pre">{children}</span>
+    :        ^^^^
+ 28 |     </div>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/VimLine.tsx:34:11]
+ 33 | export function TildeLine() {
+ 34 |   return <VimLine tilde>~</VimLine>;
+    :           ^^^^^^^
+ 35 | }
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/IntelligencePanel.tsx:22:6]
+ 21 |   return (
+ 22 |     <div className="text-[var(--sol-base00)]">
+    :      ^^^
+ 23 |       <VimLine n={n++} />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/IntelligencePanel.tsx:23:8]
+ 22 |     <div className="text-[var(--sol-base00)]">
+ 23 |       <VimLine n={n++} />
+    :        ^^^^^^^
+ 24 |       <VimLine n={n++}>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/IntelligencePanel.tsx:24:8]
+ 23 |       <VimLine n={n++} />
+ 24 |       <VimLine n={n++}>
+    :        ^^^^^^^
+ 25 |         <span className="font-bold text-[var(--sol-yellow)]">LamBench</span>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/IntelligencePanel.tsx:25:10]
+ 24 |       <VimLine n={n++}>
+ 25 |         <span className="font-bold text-[var(--sol-yellow)]">LamBench</span>
+    :          ^^^^
+ 26 |         {"  "}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/IntelligencePanel.tsx:27:10]
+ 26 |         {"  "}
+ 27 |         <span className="text-[var(--sol-base1)]">-- Lambda Calculus Benchmark for AI</span>
+    :          ^^^^
+ 28 |       </VimLine>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/IntelligencePanel.tsx:29:8]
+ 28 |       </VimLine>
+ 29 |       <VimLine n={n++} />
+    :        ^^^^^^^
+ 30 |       <VimLine n={n++}>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/IntelligencePanel.tsx:30:8]
+ 29 |       <VimLine n={n++} />
+ 30 |       <VimLine n={n++}>
+    :        ^^^^^^^
+ 31 |         <span className="font-bold text-[var(--sol-orange)]">Intelligence</span>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/IntelligencePanel.tsx:31:10]
+ 30 |       <VimLine n={n++}>
+ 31 |         <span className="font-bold text-[var(--sol-orange)]">Intelligence</span>
+    :          ^^^^
+ 32 |         {"  "}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/IntelligencePanel.tsx:33:10]
+ 32 |         {"  "}
+ 33 |         <span className="text-[var(--sol-base1)]">-- by problems solved</span>
+    :          ^^^^
+ 34 |       </VimLine>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/IntelligencePanel.tsx:35:8]
+ 34 |       </VimLine>
+ 35 |       <VimLine n={n++} />
+    :        ^^^^^^^
+ 36 | 
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/IntelligencePanel.tsx:40:12]
+ 39 |         return (
+ 40 |           <VimLine key={r.model} n={n++}>
+    :            ^^^^^^^
+ 41 |             <BenchmarkRow
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/IntelligencePanel.tsx:41:14]
+ 40 |           <VimLine key={r.model} n={n++}>
+ 41 |             <BenchmarkRow
+    :              ^^^^^^^^^^^^
+ 42 |               name={fmtModel(r.model).padEnd(maxNameLen + 1, " ")}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/IntelligencePanel.tsx:53:8]
+ 52 | 
+ 53 |       <VimLine n={n++} />
+    :        ^^^^^^^
+ 54 |       <TildeLine />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/IntelligencePanel.tsx:54:8]
+ 53 |       <VimLine n={n++} />
+ 54 |       <TildeLine />
+    :        ^^^^^^^^^
+ 55 |       <TildeLine />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/IntelligencePanel.tsx:55:8]
+ 54 |       <TildeLine />
+ 55 |       <TildeLine />
+    :        ^^^^^^^^^
+ 56 |       <TildeLine />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/IntelligencePanel.tsx:56:8]
+ 55 |       <TildeLine />
+ 56 |       <TildeLine />
+    :        ^^^^^^^^^
+ 57 |       <TildeLine />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/IntelligencePanel.tsx:57:8]
+ 56 |       <TildeLine />
+ 57 |       <TildeLine />
+    :        ^^^^^^^^^
+ 58 |       <TildeLine />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/IntelligencePanel.tsx:58:8]
+ 57 |       <TildeLine />
+ 58 |       <TildeLine />
+    :        ^^^^^^^^^
+ 59 |       <TildeLine />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/IntelligencePanel.tsx:59:8]
+ 58 |       <TildeLine />
+ 59 |       <TildeLine />
+    :        ^^^^^^^^^
+ 60 |       <TildeLine />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/IntelligencePanel.tsx:60:8]
+ 59 |       <TildeLine />
+ 60 |       <TildeLine />
+    :        ^^^^^^^^^
+ 61 |       <TildeLine />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/IntelligencePanel.tsx:61:8]
+ 60 |       <TildeLine />
+ 61 |       <TildeLine />
+    :        ^^^^^^^^^
+ 62 |     </div>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! eslint(no-shadow): 'it' is already declared in the upper scope.
+   ,-[packages/rag/src/services/ChunkService/ChunkService.test.ts:2:28]
+ 1 | import { Effect, Layer } from "effect";
+ 2 | import { describe, expect, it } from "@effect/vitest";
+   :                            ^|
+   :                             `-- shadowed declaration is here
+ 3 | 
+   `----
+     ,-[packages/rag/src/services/ChunkService/ChunkService.test.ts:174:35]
+ 173 | 
+ 174 |   it.layer(pdfChunkServiceLayer)((it) => {
+     :                                   ^|
+     :                                    `-- 'it' is declared here
+ 175 |     it.effect("chunks pdf page segments with table metadata preserved", () =>
+     `----
+  help: Consider renaming 'it' to avoid shadowing the variable from the outer scope.
+
+  ! eslint(no-unused-vars): Type 'PdfPage' is imported but never used.
+   ,-[packages/rag/src/services/PdfService/PdfService.ts:4:15]
+ 3 | import { PdfDocument } from "./PdfDocument";
+ 4 | import type { PdfPage } from "./PdfDocument";
+   :               ^^^|^^^
+   :                  `-- 'PdfPage' is imported here
+ 5 | 
+   `----
+  help: Consider removing this import.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/BarChart.tsx:30:8]
+ 29 |     return (
+ 30 |       <span
+    :        ^^^^
+ 31 |         className={cn("block w-full self-center", className)}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/BarChart.tsx:54:6]
+ 53 |   return (
+ 54 |     <span className={cn(colorClass, className)}>
+    :      ^^^^
+ 55 |       <span style={style}>{"█".repeat(filled)}</span>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/BarChart.tsx:55:8]
+ 54 |     <span className={cn(colorClass, className)}>
+ 55 |       <span style={style}>{"█".repeat(filled)}</span>
+    :        ^^^^
+ 56 |       <span style={{ ...style, opacity: 0.25 }}>{"█".repeat(empty)}</span>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/BarChart.tsx:56:8]
+ 55 |       <span style={style}>{"█".repeat(filled)}</span>
+ 56 |       <span style={{ ...style, opacity: 0.25 }}>{"█".repeat(empty)}</span>
+    :        ^^^^
+ 57 |     </span>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! eslint(no-underscore-dangle): Unexpected dangling '_' in '`_tag`'.
+     ,-[packages/rag/src/services/PdfService/segmentPage.ts:296:15]
+ 295 |     const block =
+ 296 |       segment._tag === "table"
+     :               ^^^^
+ 297 |         ? toTableBlock(pageNumber, readingOrder, segment.text)
+     `----
+  help: Remove the dangling '_' or add `_tag` to the 'allow' configuration.
+
+  ! eslint(no-underscore-dangle): Unexpected dangling '_' in '`_tag`'.
+     ,-[packages/rag/src/services/ChunkService/ChunkService.ts:250:17]
+ 249 |     const chunkPdfBlock = (block: PdfBlock): Effect.Effect<Array<ChunkEntry>, Schema.SchemaError | TokenizerError> => {
+ 250 |       if (block._tag === "table") {
+     :                 ^^^^
+ 251 |         return Effect.map(chunkWithStrategy("table", block.text), (chunks) =>
+     `----
+  help: Remove the dangling '_' or add `_tag` to the 'allow' configuration.
+
+  ! eslint(no-unused-vars): Parameter 'sizeLimit' is declared but never used. Unused parameters should start with a '_'.
+     ,-[packages/rag/src/chunker/TableChunker.ts:206:7]
+ 205 |       table: ParsedTable,
+ 206 |       sizeLimit: number,
+     :       ^^^^|^^^^
+     :           `-- 'sizeLimit' is declared here
+ 207 |       tableFormat: Exclude<typeof TableFormat.Type, "auto">,
+     `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'tableFormat' is declared but never used. Unused parameters should start with a '_'.
+     ,-[packages/rag/src/chunker/TableChunker.ts:207:7]
+ 206 |       sizeLimit: number,
+ 207 |       tableFormat: Exclude<typeof TableFormat.Type, "auto">,
+     :       ^^^^^|^^^^^
+     :            `-- 'tableFormat' is declared here
+ 208 |     ): Effect.Effect<Array<Chunk>, TokenizerError> =>
+     `----
+  help: Consider removing this parameter.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/BarChart.stories.tsx:11:8]
+ 10 |     createFixtureDecorator(barChartFixtures, (fixture) => (
+ 11 |       <div className="p-4">
+    :        ^^^
+ 12 |         {fixture.fluid ? (
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/BarChart.stories.tsx:13:12]
+ 12 |         {fixture.fluid ? (
+ 13 |           <div className="w-64">
+    :            ^^^
+ 14 |             <BarChart pct={fixture.pct} fluid />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/BarChart.stories.tsx:14:14]
+ 13 |           <div className="w-64">
+ 14 |             <BarChart pct={fixture.pct} fluid />
+    :              ^^^^^^^^
+ 15 |           </div>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/BarChart.stories.tsx:17:12]
+ 16 |         ) : (
+ 17 |           <BarChart pct={fixture.pct} {...(fixture.width !== undefined && { width: fixture.width })} />
+    :            ^^^^^^^^
+ 18 |         )}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/VimLine.stories.tsx:16:10]
+ 15 |       return (
+ 16 |         <div className="font-mono text-sm p-4">
+    :          ^^^
+ 17 |           {fixture.tilde ? <TildeLine /> : <VimLine {...props}>{fixture.content}</VimLine>}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/VimLine.stories.tsx:17:29]
+ 16 |         <div className="font-mono text-sm p-4">
+ 17 |           {fixture.tilde ? <TildeLine /> : <VimLine {...props}>{fixture.content}</VimLine>}
+    :                             ^^^^^^^^^
+ 18 |         </div>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/VimLine.stories.tsx:17:45]
+ 16 |         <div className="font-mono text-sm p-4">
+ 17 |           {fixture.tilde ? <TildeLine /> : <VimLine {...props}>{fixture.content}</VimLine>}
+    :                                             ^^^^^^^
+ 18 |         </div>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/VimLine.stories.tsx:80:6]
+ 79 |   render: () => (
+ 80 |     <div className="font-mono text-sm">
+    :      ^^^
+ 81 |       <VimLine n={1}>First line of content</VimLine>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/VimLine.stories.tsx:81:8]
+ 80 |     <div className="font-mono text-sm">
+ 81 |       <VimLine n={1}>First line of content</VimLine>
+    :        ^^^^^^^
+ 82 |       <VimLine n={2}>Second line with more text content here</VimLine>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/VimLine.stories.tsx:82:8]
+ 81 |       <VimLine n={1}>First line of content</VimLine>
+ 82 |       <VimLine n={2}>Second line with more text content here</VimLine>
+    :        ^^^^^^^
+ 83 |       <VimLine n={3}>Third line showing the gutter alignment</VimLine>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/VimLine.stories.tsx:83:8]
+ 82 |       <VimLine n={2}>Second line with more text content here</VimLine>
+ 83 |       <VimLine n={3}>Third line showing the gutter alignment</VimLine>
+    :        ^^^^^^^
+ 84 |       <TildeLine />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/VimLine.stories.tsx:84:8]
+ 83 |       <VimLine n={3}>Third line showing the gutter alignment</VimLine>
+ 84 |       <TildeLine />
+    :        ^^^^^^^^^
+ 85 |       <TildeLine />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/VimLine.stories.tsx:85:8]
+ 84 |       <TildeLine />
+ 85 |       <TildeLine />
+    :        ^^^^^^^^^
+ 86 |     </div>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ProblemsPanel.tsx:30:6]
+ 29 |   return (
+ 30 |     <div className="text-[var(--sol-base00)]">
+    :      ^^^
+ 31 |       {/* Filter row */}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ProblemsPanel.tsx:32:8]
+ 31 |       {/* Filter row */}
+ 32 |       <VimLine n="">
+    :        ^^^^^^^
+ 33 |         <span className="text-[var(--sol-base1)]">-- filter:</span>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ProblemsPanel.tsx:33:10]
+ 32 |       <VimLine n="">
+ 33 |         <span className="text-[var(--sol-base1)]">-- filter:</span>
+    :          ^^^^
+ 34 |         {[{ id: "all", name: "all" }, ...data.categories].map((cat) => (
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ProblemsPanel.tsx:35:12]
+ 34 |         {[{ id: "all", name: "all" }, ...data.categories].map((cat) => (
+ 35 |           <button
+    :            ^^^^^^
+ 36 |             key={cat.id}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ProblemsPanel.tsx:50:8]
+ 49 |       </VimLine>
+ 50 |       <VimLine n="" />
+    :        ^^^^^^^
+ 51 | 
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ProblemsPanel.tsx:56:14]
+ 55 |           r.tasks[task.id] ? (
+ 56 |             <span key={r.model} className="text-[var(--sol-green)]">
+    :              ^^^^
+ 57 |               ●
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ProblemsPanel.tsx:60:14]
+ 59 |           ) : (
+ 60 |             <span key={r.model} className="text-[var(--sol-red)]">
+    :              ^^^^
+ 61 |               ●
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ProblemsPanel.tsx:70:12]
+ 69 |         return (
+ 70 |           <button
+    :            ^^^^^^
+ 71 |             key={task.id}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ProblemsPanel.tsx:76:14]
+ 75 |           >
+ 76 |             <VimLine n={rpad(String(i + 1), 3)} className="group-hover:bg-[var(--sol-base2)]">
+    :              ^^^^^^^
+ 77 |               <span className="text-[var(--sol-green)]">{pad(task.id, 10)}</span>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ProblemsPanel.tsx:77:16]
+ 76 |             <VimLine n={rpad(String(i + 1), 3)} className="group-hover:bg-[var(--sol-base2)]">
+ 77 |               <span className="text-[var(--sol-green)]">{pad(task.id, 10)}</span>
+    :                ^^^^
+ 78 |               {"  "}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ProblemsPanel.tsx:81:16]
+ 80 |               {"  "}
+ 81 |               <span className="text-[var(--sol-base1)]">{truncated}</span>
+    :                ^^^^
+ 82 |             </VimLine>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ProblemsPanel.tsx:87:8]
+ 86 | 
+ 87 |       <TildeLine />
+    :        ^^^^^^^^^
+ 88 |       <TildeLine />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ProblemsPanel.tsx:88:8]
+ 87 |       <TildeLine />
+ 88 |       <TildeLine />
+    :        ^^^^^^^^^
+ 89 |       <TildeLine />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ProblemsPanel.tsx:89:8]
+ 88 |       <TildeLine />
+ 89 |       <TildeLine />
+    :        ^^^^^^^^^
+ 90 |       <TildeLine />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ProblemsPanel.tsx:90:8]
+ 89 |       <TildeLine />
+ 90 |       <TildeLine />
+    :        ^^^^^^^^^
+ 91 |       <TildeLine />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ProblemsPanel.tsx:91:8]
+ 90 |       <TildeLine />
+ 91 |       <TildeLine />
+    :        ^^^^^^^^^
+ 92 |     </div>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/SpeedPanel.tsx:30:6]
+ 29 |   return (
+ 30 |     <div className="text-[var(--sol-base00)]">
+    :      ^^^
+ 31 |       <VimLine n={n++} />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/SpeedPanel.tsx:31:8]
+ 30 |     <div className="text-[var(--sol-base00)]">
+ 31 |       <VimLine n={n++} />
+    :        ^^^^^^^
+ 32 |       <VimLine n={n++}>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/SpeedPanel.tsx:32:8]
+ 31 |       <VimLine n={n++} />
+ 32 |       <VimLine n={n++}>
+    :        ^^^^^^^
+ 33 |         <span className="font-bold text-[var(--sol-yellow)]">LamBench</span>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/SpeedPanel.tsx:33:10]
+ 32 |       <VimLine n={n++}>
+ 33 |         <span className="font-bold text-[var(--sol-yellow)]">LamBench</span>
+    :          ^^^^
+ 34 |         {"  "}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/SpeedPanel.tsx:35:10]
+ 34 |         {"  "}
+ 35 |         <span className="text-[var(--sol-base1)]">-- Lambda Calculus Benchmark for AI</span>
+    :          ^^^^
+ 36 |       </VimLine>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/SpeedPanel.tsx:37:8]
+ 36 |       </VimLine>
+ 37 |       <VimLine n={n++} />
+    :        ^^^^^^^
+ 38 |       <VimLine n={n++}>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/SpeedPanel.tsx:38:8]
+ 37 |       <VimLine n={n++} />
+ 38 |       <VimLine n={n++}>
+    :        ^^^^^^^
+ 39 |         <span className="font-bold text-[var(--sol-orange)]">Speed</span>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/SpeedPanel.tsx:39:10]
+ 38 |       <VimLine n={n++}>
+ 39 |         <span className="font-bold text-[var(--sol-orange)]">Speed</span>
+    :          ^^^^
+ 40 |         {"  "}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/SpeedPanel.tsx:41:10]
+ 40 |         {"  "}
+ 41 |         <span className="text-[var(--sol-base1)]">-- tasks solved per minute (higher = faster)</span>
+    :          ^^^^
+ 42 |       </VimLine>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/SpeedPanel.tsx:43:8]
+ 42 |       </VimLine>
+ 43 |       <VimLine n={n++} />
+    :        ^^^^^^^
+ 44 | 
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/SpeedPanel.tsx:48:12]
+ 47 |         return (
+ 48 |           <VimLine key={e.model} n={n++}>
+    :            ^^^^^^^
+ 49 |             <BenchmarkRow
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/SpeedPanel.tsx:49:14]
+ 48 |           <VimLine key={e.model} n={n++}>
+ 49 |             <BenchmarkRow
+    :              ^^^^^^^^^^^^
+ 50 |               name={fmtModel(e.model).padEnd(maxName + 1, " ")}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/SpeedPanel.tsx:61:8]
+ 60 | 
+ 61 |       <VimLine n={n++} />
+    :        ^^^^^^^
+ 62 |       <VimLine n={n++}>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/SpeedPanel.tsx:62:8]
+ 61 |       <VimLine n={n++} />
+ 62 |       <VimLine n={n++}>
+    :        ^^^^^^^
+ 63 |         <span className="text-[var(--sol-base1)]">-- Wall-clock time per passing task (model + interpreter)</span>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/SpeedPanel.tsx:63:10]
+ 62 |       <VimLine n={n++}>
+ 63 |         <span className="text-[var(--sol-base1)]">-- Wall-clock time per passing task (model + interpreter)</span>
+    :          ^^^^
+ 64 |       </VimLine>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/SpeedPanel.tsx:65:8]
+ 64 |       </VimLine>
+ 65 |       <TildeLine />
+    :        ^^^^^^^^^
+ 66 |       <TildeLine />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/SpeedPanel.tsx:66:8]
+ 65 |       <TildeLine />
+ 66 |       <TildeLine />
+    :        ^^^^^^^^^
+ 67 |       <TildeLine />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/SpeedPanel.tsx:67:8]
+ 66 |       <TildeLine />
+ 67 |       <TildeLine />
+    :        ^^^^^^^^^
+ 68 |       <TildeLine />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/SpeedPanel.tsx:68:8]
+ 67 |       <TildeLine />
+ 68 |       <TildeLine />
+    :        ^^^^^^^^^
+ 69 |       <TildeLine />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/SpeedPanel.tsx:69:8]
+ 68 |       <TildeLine />
+ 69 |       <TildeLine />
+    :        ^^^^^^^^^
+ 70 |       <TildeLine />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/SpeedPanel.tsx:70:8]
+ 69 |       <TildeLine />
+ 70 |       <TildeLine />
+    :        ^^^^^^^^^
+ 71 |       <TildeLine />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/SpeedPanel.tsx:71:8]
+ 70 |       <TildeLine />
+ 71 |       <TildeLine />
+    :        ^^^^^^^^^
+ 72 |       <TildeLine />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/SpeedPanel.tsx:72:8]
+ 71 |       <TildeLine />
+ 72 |       <TildeLine />
+    :        ^^^^^^^^^
+ 73 |     </div>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! eslint(no-shadow): 'it' is already declared in the upper scope.
+   ,-[packages/rag/src/chunker/FastChunker.test.ts:3:28]
+ 2 | import { FastChunker, FastChunkerConfig } from "./FastChunker";
+ 3 | import { describe, expect, it } from "@effect/vitest";
+   :                            ^|
+   :                             `-- shadowed declaration is here
+ 4 | 
+   `----
+    ,-[packages/rag/src/chunker/FastChunker.test.ts:17:6]
+ 16 |     }),
+ 17 |   )((it) => {
+    :      ^|
+    :       `-- 'it' is declared here
+ 18 |     it.effect("Given delimiter-based chunking, when splitting, then delimiters bound windows", () =>
+    `----
+  help: Consider renaming 'it' to avoid shadowing the variable from the outer scope.
+
+  ! eslint(no-shadow): 'it' is already declared in the upper scope.
+   ,-[packages/rag/src/chunker/FastChunker.test.ts:3:28]
+ 2 | import { FastChunker, FastChunkerConfig } from "./FastChunker";
+ 3 | import { describe, expect, it } from "@effect/vitest";
+   :                            ^|
+   :                             `-- shadowed declaration is here
+ 4 | 
+   `----
+    ,-[packages/rag/src/chunker/FastChunker.test.ts:58:6]
+ 57 |     }),
+ 58 |   )((it) => {
+    :      ^|
+    :       `-- 'it' is declared here
+ 59 |     it.effect("Given multibyte UTF-8 text, when chunking, then offsets and lengths align", () =>
+    `----
+  help: Consider renaming 'it' to avoid shadowing the variable from the outer scope.
+
+  ! eslint(no-shadow): 'it' is already declared in the upper scope.
+   ,-[packages/rag/src/chunker/FastChunker.test.ts:3:28]
+ 2 | import { FastChunker, FastChunkerConfig } from "./FastChunker";
+ 3 | import { describe, expect, it } from "@effect/vitest";
+   :                            ^|
+   :                             `-- shadowed declaration is here
+ 4 | 
+   `----
+     ,-[packages/rag/src/chunker/FastChunker.test.ts:111:6]
+ 110 |     }),
+ 111 |   )((it) => {
+     :      ^|
+     :       `-- 'it' is declared here
+ 112 |     it.effect("Given no delimiters found, when chunking, then splits by size", () =>
+     `----
+  help: Consider renaming 'it' to avoid shadowing the variable from the outer scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TabLine.tsx:29:6]
+ 28 |   return (
+ 29 |     <div
+    :      ^^^
+ 30 |       className={cn("flex items-stretch sticky top-0 z-10", "bg-[var(--sol-base2)] border-b border-[var(--sol-base1)]")}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TabLine.tsx:33:8]
+ 32 |       {/* Left spacer — mirrors ControlBar width so tabs stay centered */}
+ 33 |       <div className="flex-1" />
+    :        ^^^
+ 34 | 
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TabLine.tsx:36:8]
+ 35 |       {/* Centered tabs */}
+ 36 |       <div className="flex items-stretch">
+    :        ^^^
+ 37 |         {TABS.map(({ id, label }) => (
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TabLine.tsx:38:12]
+ 37 |         {TABS.map(({ id, label }) => (
+ 38 |           <button
+    :            ^^^^^^
+ 39 |             key={id}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TabLine.tsx:56:8]
+ 55 |       {/* Right controls */}
+ 56 |       <div className="flex-1 flex justify-end">
+    :        ^^^
+ 57 |         <ControlBar muted={muted} onToggleMusic={onToggleMusic} />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TabLine.tsx:57:10]
+ 56 |       <div className="flex-1 flex justify-end">
+ 57 |         <ControlBar muted={muted} onToggleMusic={onToggleMusic} />
+    :          ^^^^^^^^^^
+ 58 |       </div>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/theme-toggle.tsx:37:6]
+ 36 |   return (
+ 37 |     <div className="flex items-center gap-[1ch] px-[1ch]">
+    :      ^^^
+ 38 |       {/* Music toggle */}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/theme-toggle.tsx:39:8]
+ 38 |       {/* Music toggle */}
+ 39 |       <button
+    :        ^^^^^^
+ 40 |         type="button"
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/theme-toggle.tsx:54:8]
+ 53 |       {/* Theme toggle */}
+ 54 |       <button
+    :        ^^^^^^
+ 55 |         type="button"
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:31:6]
+ 30 |   return (
+ 31 |     <div className="text-[var(--sol-base00)]">
+    :      ^^^
+ 32 |       <VimLine n={n++} />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:32:8]
+ 31 |     <div className="text-[var(--sol-base00)]">
+ 32 |       <VimLine n={n++} />
+    :        ^^^^^^^
+ 33 |       <VimLine n={n++}>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:33:8]
+ 32 |       <VimLine n={n++} />
+ 33 |       <VimLine n={n++}>
+    :        ^^^^^^^
+ 34 |         <span className="font-bold text-[var(--sol-yellow)]">LamBench</span>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:34:10]
+ 33 |       <VimLine n={n++}>
+ 34 |         <span className="font-bold text-[var(--sol-yellow)]">LamBench</span>
+    :          ^^^^
+ 35 |         {"  "}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:36:10]
+ 35 |         {"  "}
+ 36 |         <span className="text-[var(--sol-base1)]">-- Lambda Calculus Benchmark for AI</span>
+    :          ^^^^
+ 37 |       </VimLine>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:38:8]
+ 37 |       </VimLine>
+ 38 |       <VimLine n={n++} />
+    :        ^^^^^^^
+ 39 |       <VimLine n={n++}>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:39:8]
+ 38 |       <VimLine n={n++} />
+ 39 |       <VimLine n={n++}>
+    :        ^^^^^^^
+ 40 |         <span className="font-bold text-[var(--sol-orange)]">Value</span>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:40:10]
+ 39 |       <VimLine n={n++}>
+ 40 |         <span className="font-bold text-[var(--sol-orange)]">Value</span>
+    :          ^^^^
+ 41 |         {"  "}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:42:10]
+ 41 |         {"  "}
+ 42 |         <span className="text-[var(--sol-base1)]">-- intelligence per dollar (higher = better value)</span>
+    :          ^^^^
+ 43 |       </VimLine>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:44:8]
+ 43 |       </VimLine>
+ 44 |       <VimLine n={n++} />
+    :        ^^^^^^^
+ 45 | 
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:47:8]
+ 46 |       {/* Header */}
+ 47 |       <VimLine n={n++}>
+    :        ^^^^^^^
+ 48 |         <div
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:48:10]
+ 47 |       <VimLine n={n++}>
+ 48 |         <div
+    :          ^^^
+ 49 |           className="grid text-[var(--sol-base1)] border-b border-[var(--sol-base1)]"
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:52:12]
+ 51 |         >
+ 52 |           <span>Model</span>
+    :            ^^^^
+ 53 |           <span>Pass%</span>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:53:12]
+ 52 |           <span>Model</span>
+ 53 |           <span>Pass%</span>
+    :            ^^^^
+ 54 |           <span>Price/1M out</span>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:54:12]
+ 53 |           <span>Pass%</span>
+ 54 |           <span>Price/1M out</span>
+    :            ^^^^
+ 55 |           <span>Pass/$</span>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:55:12]
+ 54 |           <span>Price/1M out</span>
+ 55 |           <span>Pass/$</span>
+    :            ^^^^
+ 56 |         </div>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:60:10]
+ 59 |       {entries.map((e) => (
+ 60 |         <VimLine key={e.model} n={n++}>
+    :          ^^^^^^^
+ 61 |           <div className="grid" style={{ columnGap: gridGap, gridTemplateColumns }}>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:61:12]
+ 60 |         <VimLine key={e.model} n={n++}>
+ 61 |           <div className="grid" style={{ columnGap: gridGap, gridTemplateColumns }}>
+    :            ^^^
+ 62 |             <span className="text-[var(--sol-blue)]">{fmtModel(e.model)}</span>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:62:14]
+ 61 |           <div className="grid" style={{ columnGap: gridGap, gridTemplateColumns }}>
+ 62 |             <span className="text-[var(--sol-blue)]">{fmtModel(e.model)}</span>
+    :              ^^^^
+ 63 |             <span className="text-[var(--sol-magenta)]">{`${e.passRate.toFixed(1)}%`}</span>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:63:14]
+ 62 |             <span className="text-[var(--sol-blue)]">{fmtModel(e.model)}</span>
+ 63 |             <span className="text-[var(--sol-magenta)]">{`${e.passRate.toFixed(1)}%`}</span>
+    :              ^^^^
+ 64 |             <span className={e.pricePerMOutput > 0 ? "text-[var(--sol-cyan)]" : "text-[var(--sol-base1)]"}>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:64:14]
+ 63 |             <span className="text-[var(--sol-magenta)]">{`${e.passRate.toFixed(1)}%`}</span>
+ 64 |             <span className={e.pricePerMOutput > 0 ? "text-[var(--sol-cyan)]" : "text-[var(--sol-base1)]"}>
+    :              ^^^^
+ 65 |               {e.pricePerMOutput > 0 ? `$${e.pricePerMOutput.toFixed(2)}` : "N/A"}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:67:14]
+ 66 |             </span>
+ 67 |             <span className={e.pricePerMOutput > 0 ? "text-[var(--sol-green)]" : "text-[var(--sol-base1)]"}>
+    :              ^^^^
+ 68 |               {e.pricePerMOutput > 0 ? e.passPerDollar.toFixed(3) : "—"}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:74:8]
+ 73 | 
+ 74 |       <VimLine n={n++} />
+    :        ^^^^^^^
+ 75 |       <VimLine n={n++}>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:75:8]
+ 74 |       <VimLine n={n++} />
+ 75 |       <VimLine n={n++}>
+    :        ^^^^^^^
+ 76 |         <span className="text-[var(--sol-base1)]">{"-- pass/dollar = pass_rate% / price_per_1M_output_tokens"}</span>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:76:10]
+ 75 |       <VimLine n={n++}>
+ 76 |         <span className="text-[var(--sol-base1)]">{"-- pass/dollar = pass_rate% / price_per_1M_output_tokens"}</span>
+    :          ^^^^
+ 77 |       </VimLine>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:78:8]
+ 77 |       </VimLine>
+ 78 |       <TildeLine />
+    :        ^^^^^^^^^
+ 79 |       <TildeLine />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:79:8]
+ 78 |       <TildeLine />
+ 79 |       <TildeLine />
+    :        ^^^^^^^^^
+ 80 |       <TildeLine />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:80:8]
+ 79 |       <TildeLine />
+ 80 |       <TildeLine />
+    :        ^^^^^^^^^
+ 81 |       <TildeLine />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:81:8]
+ 80 |       <TildeLine />
+ 81 |       <TildeLine />
+    :        ^^^^^^^^^
+ 82 |       <TildeLine />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:82:8]
+ 81 |       <TildeLine />
+ 82 |       <TildeLine />
+    :        ^^^^^^^^^
+ 83 |       <TildeLine />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:83:8]
+ 82 |       <TildeLine />
+ 83 |       <TildeLine />
+    :        ^^^^^^^^^
+ 84 |       <TildeLine />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:84:8]
+ 83 |       <TildeLine />
+ 84 |       <TildeLine />
+    :        ^^^^^^^^^
+ 85 |       <TildeLine />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ValuePanel.tsx:85:8]
+ 84 |       <TildeLine />
+ 85 |       <TildeLine />
+    :        ^^^^^^^^^
+ 86 |     </div>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ElegancePanel.tsx:81:6]
+ 80 |   return (
+ 81 |     <div className="text-[var(--sol-base00)]">
+    :      ^^^
+ 82 |       <VimLine n={n++} />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ElegancePanel.tsx:82:8]
+ 81 |     <div className="text-[var(--sol-base00)]">
+ 82 |       <VimLine n={n++} />
+    :        ^^^^^^^
+ 83 |       <VimLine n={n++}>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ElegancePanel.tsx:83:8]
+ 82 |       <VimLine n={n++} />
+ 83 |       <VimLine n={n++}>
+    :        ^^^^^^^
+ 84 |         <span className="font-bold text-[var(--sol-yellow)]">LamBench</span>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ElegancePanel.tsx:84:10]
+ 83 |       <VimLine n={n++}>
+ 84 |         <span className="font-bold text-[var(--sol-yellow)]">LamBench</span>
+    :          ^^^^
+ 85 |         {"  "}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ElegancePanel.tsx:86:10]
+ 85 |         {"  "}
+ 86 |         <span className="text-[var(--sol-base1)]">-- Lambda Calculus Benchmark for AI</span>
+    :          ^^^^
+ 87 |       </VimLine>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ElegancePanel.tsx:88:8]
+ 87 |       </VimLine>
+ 88 |       <VimLine n={n++} />
+    :        ^^^^^^^
+ 89 |       <VimLine n={n++}>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ElegancePanel.tsx:89:8]
+ 88 |       <VimLine n={n++} />
+ 89 |       <VimLine n={n++}>
+    :        ^^^^^^^
+ 90 |         <span className="font-bold text-[var(--sol-orange)]">Elegance</span>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ElegancePanel.tsx:90:10]
+ 89 |       <VimLine n={n++}>
+ 90 |         <span className="font-bold text-[var(--sol-orange)]">Elegance</span>
+    :          ^^^^
+ 91 |         {"  "}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ElegancePanel.tsx:92:10]
+ 91 |         {"  "}
+ 92 |         <span className="text-[var(--sol-base1)]">-- how much shorter than reference (higher = more elegant)</span>
+    :          ^^^^
+ 93 |       </VimLine>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/ElegancePanel.tsx:94:8]
+ 93 |       </VimLine>
+ 94 |       <VimLine n={n++} />
+    :        ^^^^^^^
+ 95 | 
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/ElegancePanel.tsx:99:12]
+  98 |         return (
+  99 |           <VimLine key={e.model} n={n++}>
+     :            ^^^^^^^
+ 100 |             <BenchmarkRow
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/ElegancePanel.tsx:100:14]
+  99 |           <VimLine key={e.model} n={n++}>
+ 100 |             <BenchmarkRow
+     :              ^^^^^^^^^^^^
+ 101 |               name={fmtModel(e.model).padEnd(maxName + 1, " ")}
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/ElegancePanel.tsx:112:8]
+ 111 | 
+ 112 |       <VimLine n={n++} />
+     :        ^^^^^^^
+ 113 |       <VimLine n={n++}>
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/ElegancePanel.tsx:113:8]
+ 112 |       <VimLine n={n++} />
+ 113 |       <VimLine n={n++}>
+     :        ^^^^^^^
+ 114 |         <span className="text-[var(--sol-base1)]">{"-- mean: "}</span>
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/ElegancePanel.tsx:114:10]
+ 113 |       <VimLine n={n++}>
+ 114 |         <span className="text-[var(--sol-base1)]">{"-- mean: "}</span>
+     :          ^^^^
+ 115 |         <span className="text-[var(--sol-magenta)]">{fmtShorter(mean)}</span>
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/ElegancePanel.tsx:115:10]
+ 114 |         <span className="text-[var(--sol-base1)]">{"-- mean: "}</span>
+ 115 |         <span className="text-[var(--sol-magenta)]">{fmtShorter(mean)}</span>
+     :          ^^^^
+ 116 |         <span className="text-[var(--sol-base1)]">{"  shorter than reference"}</span>
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/ElegancePanel.tsx:116:10]
+ 115 |         <span className="text-[var(--sol-magenta)]">{fmtShorter(mean)}</span>
+ 116 |         <span className="text-[var(--sol-base1)]">{"  shorter than reference"}</span>
+     :          ^^^^
+ 117 |       </VimLine>
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/ElegancePanel.tsx:118:8]
+ 117 |       </VimLine>
+ 118 |       <TildeLine />
+     :        ^^^^^^^^^
+ 119 |       <TildeLine />
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/ElegancePanel.tsx:119:8]
+ 118 |       <TildeLine />
+ 119 |       <TildeLine />
+     :        ^^^^^^^^^
+ 120 |       <TildeLine />
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/ElegancePanel.tsx:120:8]
+ 119 |       <TildeLine />
+ 120 |       <TildeLine />
+     :        ^^^^^^^^^
+ 121 |       <TildeLine />
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/ElegancePanel.tsx:121:8]
+ 120 |       <TildeLine />
+ 121 |       <TildeLine />
+     :        ^^^^^^^^^
+ 122 |       <TildeLine />
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/ElegancePanel.tsx:122:8]
+ 121 |       <TildeLine />
+ 122 |       <TildeLine />
+     :        ^^^^^^^^^
+ 123 |       <TildeLine />
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/ElegancePanel.tsx:123:8]
+ 122 |       <TildeLine />
+ 123 |       <TildeLine />
+     :        ^^^^^^^^^
+ 124 |       <TildeLine />
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/ElegancePanel.tsx:124:8]
+ 123 |       <TildeLine />
+ 124 |       <TildeLine />
+     :        ^^^^^^^^^
+ 125 |       <TildeLine />
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/ElegancePanel.tsx:125:8]
+ 124 |       <TildeLine />
+ 125 |       <TildeLine />
+     :        ^^^^^^^^^
+ 126 |     </div>
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TaskModal.tsx:35:6]
+ 34 |   return (
+ 35 |     <div
+    :      ^^^
+ 36 |       className={cn(
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TaskModal.tsx:43:8]
+ 42 |       {/* Backdrop close button — covers the overlay area behind the panel */}
+ 43 |       <button type="button" aria-label="Close modal" className="fixed inset-0 -z-10 cursor-default" onClick={onClose} />
+    :        ^^^^^^
+ 44 |       <div className={cn("w-full max-w-[760px] text-sm", "bg-[var(--sol-base3)] border border-[var(--sol-base1)]")}>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TaskModal.tsx:44:8]
+ 43 |       <button type="button" aria-label="Close modal" className="fixed inset-0 -z-10 cursor-default" onClick={onClose} />
+ 44 |       <div className={cn("w-full max-w-[760px] text-sm", "bg-[var(--sol-base3)] border border-[var(--sol-base1)]")}>
+    :        ^^^
+ 45 |         {/* Title bar */}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TaskModal.tsx:46:10]
+ 45 |         {/* Title bar */}
+ 46 |         <div
+    :          ^^^
+ 47 |           className={cn(
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TaskModal.tsx:52:12]
+ 51 |         >
+ 52 |           <span className="font-bold text-[var(--sol-base00)]">{task.id}.tsk</span>
+    :            ^^^^
+ 53 |           <button
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TaskModal.tsx:53:12]
+ 52 |           <span className="font-bold text-[var(--sol-base00)]">{task.id}.tsk</span>
+ 53 |           <button
+    :            ^^^^^^
+ 54 |             type="button"
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TaskModal.tsx:66:10]
+ 65 |         {/* Body */}
+ 66 |         <div className="max-h-[65vh] overflow-y-auto p-0 text-[var(--sol-base00)]">
+    :          ^^^
+ 67 |           <VimLine n={1} />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TaskModal.tsx:67:12]
+ 66 |         <div className="max-h-[65vh] overflow-y-auto p-0 text-[var(--sol-base00)]">
+ 67 |           <VimLine n={1} />
+    :            ^^^^^^^
+ 68 |           <VimLine n={2}>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TaskModal.tsx:68:12]
+ 67 |           <VimLine n={1} />
+ 68 |           <VimLine n={2}>
+    :            ^^^^^^^
+ 69 |             <span className="font-bold text-[var(--sol-orange)]">{task.id}</span>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TaskModal.tsx:69:14]
+ 68 |           <VimLine n={2}>
+ 69 |             <span className="font-bold text-[var(--sol-orange)]">{task.id}</span>
+    :              ^^^^
+ 70 |             {"  "}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TaskModal.tsx:71:14]
+ 70 |             {"  "}
+ 71 |             <span className="text-[var(--sol-base1)]">{task.categoryName}</span>
+    :              ^^^^
+ 72 |           </VimLine>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TaskModal.tsx:73:12]
+ 72 |           </VimLine>
+ 73 |           <VimLine n={3} />
+    :            ^^^^^^^
+ 74 | 
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TaskModal.tsx:76:14]
+ 75 |           {task.description.split("\n").map((line, i) => (
+ 76 |             <VimLine key={line} n={i + 4}>
+    :              ^^^^^^^
+ 77 |               <span className="text-[var(--sol-base1)]">{`-- ${line}`}</span>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TaskModal.tsx:77:16]
+ 76 |             <VimLine key={line} n={i + 4}>
+ 77 |               <span className="text-[var(--sol-base1)]">{`-- ${line}`}</span>
+    :                ^^^^
+ 78 |             </VimLine>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TaskModal.tsx:84:15]
+ 83 |             return (
+ 84 |               <>
+    :               ^^
+ 85 |                 <VimLine n={n++} />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TaskModal.tsx:85:18]
+ 84 |               <>
+ 85 |                 <VimLine n={n++} />
+    :                  ^^^^^^^
+ 86 |                 <VimLine n={n++}>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TaskModal.tsx:86:18]
+ 85 |                 <VimLine n={n++} />
+ 86 |                 <VimLine n={n++}>
+    :                  ^^^^^^^
+ 87 |                   <span className="text-[var(--sol-violet)]">Tests</span>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TaskModal.tsx:87:20]
+ 86 |                 <VimLine n={n++}>
+ 87 |                   <span className="text-[var(--sol-violet)]">Tests</span>
+    :                    ^^^^
+ 88 |                   {"  "}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TaskModal.tsx:89:20]
+ 88 |                   {"  "}
+ 89 |                   <span className="text-[var(--sol-base1)]">
+    :                    ^^^^
+ 90 |                     ({task.tests.length} of {task.testCount})
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TaskModal.tsx:93:18]
+ 92 |                 </VimLine>
+ 93 |                 <VimLine n={n++} />
+    :                  ^^^^^^^
+ 94 | 
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TaskModal.tsx:96:20]
+ 95 |                 {task.tests.map((t) => (
+ 96 |                   <span key={t.input}>
+    :                    ^^^^
+ 97 |                     <VimLine n={n++}>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TaskModal.tsx:97:22]
+ 96 |                   <span key={t.input}>
+ 97 |                     <VimLine n={n++}>
+    :                      ^^^^^^^
+ 98 |                       <span className="text-[var(--sol-cyan)]">{t.input}</span>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/leaderboard/TaskModal.tsx:98:24]
+ 97 |                     <VimLine n={n++}>
+ 98 |                       <span className="text-[var(--sol-cyan)]">{t.input}</span>
+    :                        ^^^^
+ 99 |                     </VimLine>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/TaskModal.tsx:100:22]
+  99 |                     </VimLine>
+ 100 |                     <VimLine n={n++}>
+     :                      ^^^^^^^
+ 101 |                       <span className="text-[var(--sol-green)]">{`= ${t.expected}`}</span>
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/TaskModal.tsx:101:24]
+ 100 |                     <VimLine n={n++}>
+ 101 |                       <span className="text-[var(--sol-green)]">{`= ${t.expected}`}</span>
+     :                        ^^^^
+ 102 |                     </VimLine>
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/TaskModal.tsx:103:22]
+ 102 |                     </VimLine>
+ 103 |                     <VimLine n={n++} />
+     :                      ^^^^^^^
+ 104 |                   </span>
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/TaskModal.tsx:107:18]
+ 106 | 
+ 107 |                 <VimLine n={n++}>
+     :                  ^^^^^^^
+ 108 |                   <span className="text-[var(--sol-violet)]">Model Results</span>
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/TaskModal.tsx:108:20]
+ 107 |                 <VimLine n={n++}>
+ 108 |                   <span className="text-[var(--sol-violet)]">Model Results</span>
+     :                    ^^^^
+ 109 |                 </VimLine>
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/TaskModal.tsx:110:18]
+ 109 |                 </VimLine>
+ 110 |                 <VimLine n={n++} />
+     :                  ^^^^^^^
+ 111 | 
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/TaskModal.tsx:115:22]
+ 114 |                   return (
+ 115 |                     <VimLine key={r.model} n={n++}>
+     :                      ^^^^^^^
+ 116 |                       {passed ? (
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/TaskModal.tsx:117:26]
+ 116 |                       {passed ? (
+ 117 |                         <span className="text-[var(--sol-green)]">✓</span>
+     :                          ^^^^
+ 118 |                       ) : (
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/TaskModal.tsx:119:26]
+ 118 |                       ) : (
+ 119 |                         <span className="text-[var(--sol-red)]">✗</span>
+     :                          ^^^^
+ 120 |                       )}
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/TaskModal.tsx:127:18]
+ 126 | 
+ 127 |                 <VimLine n={n++} />
+     :                  ^^^^^^^
+ 128 |                 <TildeLine />
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/TaskModal.tsx:128:18]
+ 127 |                 <VimLine n={n++} />
+ 128 |                 <TildeLine />
+     :                  ^^^^^^^^^
+ 129 |                 <TildeLine />
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/TaskModal.tsx:129:18]
+ 128 |                 <TildeLine />
+ 129 |                 <TildeLine />
+     :                  ^^^^^^^^^
+ 130 |                 <TildeLine />
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/TaskModal.tsx:130:18]
+ 129 |                 <TildeLine />
+ 130 |                 <TildeLine />
+     :                  ^^^^^^^^^
+ 131 |                 <TildeLine />
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/TaskModal.tsx:131:18]
+ 130 |                 <TildeLine />
+ 131 |                 <TildeLine />
+     :                  ^^^^^^^^^
+ 132 |               </>
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/leaderboard/TaskModal.tsx:138:10]
+ 137 |         {/* Status line */}
+ 138 |         <div
+     :          ^^^
+ 139 |           className={cn(
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/button.stories.tsx:11:8]
+ 10 |     createFixtureDecorator(buttonFixtures, (fixture) => (
+ 11 |       <div className="p-4">
+    :        ^^^
+ 12 |         <Button variant={fixture.variant} size={fixture.size} disabled={fixture.disabled}>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/button.stories.tsx:12:10]
+ 11 |       <div className="p-4">
+ 12 |         <Button variant={fixture.variant} size={fixture.size} disabled={fixture.disabled}>
+    :          ^^^^^^
+ 13 |           {fixture.label}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/button.stories.tsx:74:6]
+ 73 |   render: () => (
+ 74 |     <div className="flex flex-wrap gap-2">
+    :      ^^^
+ 75 |       <Button variant="default">Default</Button>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/button.stories.tsx:75:8]
+ 74 |     <div className="flex flex-wrap gap-2">
+ 75 |       <Button variant="default">Default</Button>
+    :        ^^^^^^
+ 76 |       <Button variant="outline">Outline</Button>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/button.stories.tsx:76:8]
+ 75 |       <Button variant="default">Default</Button>
+ 76 |       <Button variant="outline">Outline</Button>
+    :        ^^^^^^
+ 77 |       <Button variant="secondary">Secondary</Button>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/button.stories.tsx:77:8]
+ 76 |       <Button variant="outline">Outline</Button>
+ 77 |       <Button variant="secondary">Secondary</Button>
+    :        ^^^^^^
+ 78 |       <Button variant="ghost">Ghost</Button>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/button.stories.tsx:78:8]
+ 77 |       <Button variant="secondary">Secondary</Button>
+ 78 |       <Button variant="ghost">Ghost</Button>
+    :        ^^^^^^
+ 79 |       <Button variant="destructive">Destructive</Button>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/button.stories.tsx:79:8]
+ 78 |       <Button variant="ghost">Ghost</Button>
+ 79 |       <Button variant="destructive">Destructive</Button>
+    :        ^^^^^^
+ 80 |       <Button variant="link">Link</Button>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/button.stories.tsx:80:8]
+ 79 |       <Button variant="destructive">Destructive</Button>
+ 80 |       <Button variant="link">Link</Button>
+    :        ^^^^^^
+ 81 |     </div>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/button.stories.tsx:87:6]
+ 86 |   render: () => (
+ 87 |     <div className="flex flex-wrap items-center gap-2">
+    :      ^^^
+ 88 |       <Button size="xs">Extra Small</Button>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/button.stories.tsx:88:8]
+ 87 |     <div className="flex flex-wrap items-center gap-2">
+ 88 |       <Button size="xs">Extra Small</Button>
+    :        ^^^^^^
+ 89 |       <Button size="sm">Small</Button>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/button.stories.tsx:89:8]
+ 88 |       <Button size="xs">Extra Small</Button>
+ 89 |       <Button size="sm">Small</Button>
+    :        ^^^^^^
+ 90 |       <Button size="default">Default</Button>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/button.stories.tsx:90:8]
+ 89 |       <Button size="sm">Small</Button>
+ 90 |       <Button size="default">Default</Button>
+    :        ^^^^^^
+ 91 |       <Button size="lg">Large</Button>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/button.stories.tsx:91:8]
+ 90 |       <Button size="default">Default</Button>
+ 91 |       <Button size="lg">Large</Button>
+    :        ^^^^^^
+ 92 |     </div>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! eslint(no-shadow): 'it' is already declared in the upper scope.
+   ,-[packages/rag/src/tokenizer/DelimTokenizer.test.ts:4:28]
+ 3 | import { Tokenizer, TokenizerError } from "@repo/domain/Chunk";
+ 4 | import { describe, expect, it } from "@effect/vitest";
+   :                            ^|
+   :                             `-- shadowed declaration is here
+ 5 | 
+ 6 | describe("CharacterTokenizer", () => {
+ 7 |   it.layer(CharacterTokenizerLive)((it) => {
+   :                                     ^|
+   :                                      `-- 'it' is declared here
+ 8 |     it.effect("encodes and decodes text", () =>
+   `----
+  help: Consider renaming 'it' to avoid shadowing the variable from the outer scope.
+
+  ! eslint(no-shadow): 'it' is already declared in the upper scope.
+   ,-[packages/rag/src/tokenizer/DelimTokenizer.test.ts:4:28]
+ 3 | import { Tokenizer, TokenizerError } from "@repo/domain/Chunk";
+ 4 | import { describe, expect, it } from "@effect/vitest";
+   :                            ^|
+   :                             `-- shadowed declaration is here
+ 5 | 
+   `----
+    ,-[packages/rag/src/tokenizer/DelimTokenizer.test.ts:59:32]
+ 58 | describe("SentenceTokenizer", () => {
+ 59 |   it.layer(WordTokenizerLive)((it) => {
+    :                                ^|
+    :                                 `-- 'it' is declared here
+ 60 |     it.effect("encodes and decodes text", () =>
+    `----
+  help: Consider renaming 'it' to avoid shadowing the variable from the outer scope.
+
+  ! eslint(no-shadow): 'it' is already declared in the upper scope.
+   ,-[packages/rag/src/tokenizer/DelimTokenizer.test.ts:4:28]
+ 3 | import { Tokenizer, TokenizerError } from "@repo/domain/Chunk";
+ 4 | import { describe, expect, it } from "@effect/vitest";
+   :                            ^|
+   :                             `-- shadowed declaration is here
+ 5 | 
+   `----
+     ,-[packages/rag/src/tokenizer/DelimTokenizer.test.ts:123:111]
+ 122 | describe("DelimTokenizer delimiters", () => {
+ 123 |   it.layer(Layer.effect(Tokenizer)(DelimTokenizer.make(["!\n", ". ", "? ", " ", "\n", ".", "?", "!"], " ")))((it) => {
+     :                                                                                                               ^|
+     :                                                                                                                `-- 'it' is declared here
+ 124 |     it.effect("supports array delimiters", () =>
+     `----
+  help: Consider renaming 'it' to avoid shadowing the variable from the outer scope.
+
+  ! eslint(no-shadow): 'it' is already declared in the upper scope.
+   ,-[packages/rag/src/tokenizer/DelimTokenizer.test.ts:4:28]
+ 3 | import { Tokenizer, TokenizerError } from "@repo/domain/Chunk";
+ 4 | import { describe, expect, it } from "@effect/vitest";
+   :                            ^|
+   :                             `-- shadowed declaration is here
+ 5 | 
+   `----
+     ,-[packages/rag/src/tokenizer/DelimTokenizer.test.ts:140:36]
+ 139 | describe("SentenceTokenizerLive", () => {
+ 140 |   it.layer(SentenceTokenizerLive)((it) => {
+     :                                    ^|
+     :                                     `-- 'it' is declared here
+ 141 |     it.effect("splits on newline and sentence punctuation", () =>
+     `----
+  help: Consider renaming 'it' to avoid shadowing the variable from the outer scope.
+
+  ! eslint(no-shadow): 'it' is already declared in the upper scope.
+   ,-[packages/rag/src/chunker/RecursiveChunker.test.ts:3:28]
+ 2 | import { RecursiveChunker, RecursiveChunkerConfig } from "./RecursiveChunker";
+ 3 | import { describe, expect, it } from "@effect/vitest";
+   :                            ^|
+   :                             `-- shadowed declaration is here
+ 4 | 
+   `----
+    ,-[packages/rag/src/chunker/RecursiveChunker.test.ts:31:6]
+ 30 |     }),
+ 31 |   )((it) => {
+    :      ^|
+    :       `-- 'it' is declared here
+ 32 |     it.effect("Given whitespace-only input, when chunking, then returns empty chunks", () =>
+    `----
+  help: Consider renaming 'it' to avoid shadowing the variable from the outer scope.
+
+  ! eslint(no-shadow): 'it' is already declared in the upper scope.
+   ,-[packages/rag/src/chunker/RecursiveChunker.test.ts:3:28]
+ 2 | import { RecursiveChunker, RecursiveChunkerConfig } from "./RecursiveChunker";
+ 3 | import { describe, expect, it } from "@effect/vitest";
+   :                            ^|
+   :                             `-- shadowed declaration is here
+ 4 | 
+   `----
+     ,-[packages/rag/src/chunker/RecursiveChunker.test.ts:107:6]
+ 106 |     }),
+ 107 |   )((it) => {
+     :      ^|
+     :       `-- 'it' is declared here
+ 108 |     it.effect("Given delimiter rules, when chunking, then metadata annotates rule", () =>
+     `----
+  help: Consider renaming 'it' to avoid shadowing the variable from the outer scope.
+
+  ! eslint(no-shadow): 'it' is already declared in the upper scope.
+   ,-[packages/rag/src/chunker/RecursiveChunker.test.ts:3:28]
+ 2 | import { RecursiveChunker, RecursiveChunkerConfig } from "./RecursiveChunker";
+ 3 | import { describe, expect, it } from "@effect/vitest";
+   :                            ^|
+   :                             `-- shadowed declaration is here
+ 4 | 
+   `----
+     ,-[packages/rag/src/chunker/RecursiveChunker.test.ts:130:6]
+ 129 |     }),
+ 130 |   )((it) => {
+     :      ^|
+     :       `-- 'it' is declared here
+ 131 |     it.effect("Given whitespace rules, when chunking, then metadata annotates rule", () =>
+     `----
+  help: Consider renaming 'it' to avoid shadowing the variable from the outer scope.
+
+  ! eslint(no-shadow): 'it' is already declared in the upper scope.
+   ,-[packages/rag/src/chunker/RecursiveChunker.test.ts:3:28]
+ 2 | import { RecursiveChunker, RecursiveChunkerConfig } from "./RecursiveChunker";
+ 3 | import { describe, expect, it } from "@effect/vitest";
+   :                            ^|
+   :                             `-- shadowed declaration is here
+ 4 | 
+   `----
+     ,-[packages/rag/src/chunker/RecursiveChunker.test.ts:154:6]
+ 153 |     }),
+ 154 |   )((it) => {
+     :      ^|
+     :       `-- 'it' is declared here
+ 155 |     it.effect("Given short splits, when chunking, then min length merges segments", () =>
+     `----
+  help: Consider renaming 'it' to avoid shadowing the variable from the outer scope.
+
+  ! eslint(no-underscore-dangle): Unexpected dangling '_' in '`_tag`'.
+    ,-[apps/server/src/client/LamBenchClient.test.ts:18:25]
+ 17 |       const error = new ApiError("test");
+ 18 |       strictEqual(error._tag, "ApiError");
+    :                         ^^^^
+ 19 |       strictEqual(error.cause, "test");
+    `----
+  help: Remove the dangling '_' or add `_tag` to the 'allow' configuration.
+
+  ! react(jsx-no-constructed-context-values): The Context `value` prop should not be constructed.
+    ,-[apps/client/src/components/ui/toggle-group.tsx:50:36]
+ 49 |     >
+ 50 |       <ToggleGroupContext.Provider value={{ orientation, size, spacing, variant }}>
+    :                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 51 |         {children}
+    `----
+  help: Wrap the `value` prop in useMemo() or useCallback(), or use a constant value to prevent unnecessary rerenders.
+        Alternatively, move the value outside the render function if it doesn't depend on props or state.
+
+  x react(jsx-no-undef): 'ToggleGroupPrimitive' is not defined.
+    ,-[apps/client/src/components/ui/toggle-group.tsx:37:6]
+ 36 |   return (
+ 37 |     <ToggleGroupPrimitive
+    :      ^^^^^^^^^^^^^^^^^^^^
+ 38 |       data-slot="toggle-group"
+    `----
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/button.tsx:46:11]
+ 45 | }: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+ 46 |   return <ButtonPrimitive data-slot="button" className={cn(buttonVariants({ className, size, variant }))} {...props} />;
+    :           ^^^^^^^^^^^^^^^
+ 47 | }
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! eslint(no-shadow): 'it' is already declared in the upper scope.
+   ,-[packages/rag/src/chunker/SentenceChunker.test.ts:4:28]
+ 3 | import { SentenceChunker, SentenceChunkerConfig } from "./SentenceChunker";
+ 4 | import { describe, expect, it } from "@effect/vitest";
+   :                            ^|
+   :                             `-- shadowed declaration is here
+ 5 | 
+   `----
+    ,-[packages/rag/src/chunker/SentenceChunker.test.ts:34:6]
+ 33 |     ),
+ 34 |   )((it) => {
+    :      ^|
+    :       `-- 'it' is declared here
+ 35 |     it.effect("Given sentence delimiters and overlap, when chunking, then windows overlap by sentence", () =>
+    `----
+  help: Consider renaming 'it' to avoid shadowing the variable from the outer scope.
+
+  ! eslint(no-shadow): 'it' is already declared in the upper scope.
+   ,-[packages/rag/src/chunker/SentenceChunker.test.ts:4:28]
+ 3 | import { SentenceChunker, SentenceChunkerConfig } from "./SentenceChunker";
+ 4 | import { describe, expect, it } from "@effect/vitest";
+   :                            ^|
+   :                             `-- shadowed declaration is here
+ 5 | 
+   `----
+     ,-[packages/rag/src/chunker/SentenceChunker.test.ts:117:6]
+ 116 |     ),
+ 117 |   )((it) => {
+     :      ^|
+     :       `-- 'it' is declared here
+ 118 |     it.effect("Given no delimiters present, when chunking, then returns a single span", () =>
+     `----
+  help: Consider renaming 'it' to avoid shadowing the variable from the outer scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/fixtures/decorator.tsx:87:8]
+ 86 |     return (
+ 87 |       <div key={remountKey} className="relative">
+    :        ^^^
+ 88 |         <div className="mb-4 p-2 bg-[var(--sol-base2)] text-[var(--sol-base00)] font-mono text-xs border border-[var(--sol-base1)]">
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/fixtures/decorator.tsx:88:10]
+ 87 |       <div key={remountKey} className="relative">
+ 88 |         <div className="mb-4 p-2 bg-[var(--sol-base2)] text-[var(--sol-base00)] font-mono text-xs border border-[var(--sol-base1)]">
+    :          ^^^
+ 89 |           <span className="text-[var(--sol-blue)] font-bold">
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/fixtures/decorator.tsx:89:12]
+ 88 |         <div className="mb-4 p-2 bg-[var(--sol-base2)] text-[var(--sol-base00)] font-mono text-xs border border-[var(--sol-base1)]">
+ 89 |           <span className="text-[var(--sol-blue)] font-bold">
+    :            ^^^^
+ 90 |             {fixtureIdx + 1}/{fixtures.length}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/fixtures/decorator.tsx:92:12]
+ 91 |           </span>{" "}
+ 92 |           <span className="text-[var(--sol-green)]">{fixtureName}</span>
+    :            ^^^^
+ 93 |           <span className="ml-4 text-[var(--sol-base1)]">
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/fixtures/decorator.tsx:93:12]
+ 92 |           <span className="text-[var(--sol-green)]">{fixtureName}</span>
+ 93 |           <span className="ml-4 text-[var(--sol-base1)]">
+    :            ^^^^
+ 94 |             [1-{Math.min(9, fixtures.length)}] switch [j/k] nav [r] re-render [q] reset
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! eslint(no-shadow): 'it' is already declared in the upper scope.
+   ,-[packages/rag/src/chunker/TokenChunker.test.ts:4:28]
+ 3 | import { TokenChunker, TokenChunkerConfig } from "./TokenChunker";
+ 4 | import { describe, expect, it } from "@effect/vitest";
+   :                            ^|
+   :                             `-- shadowed declaration is here
+ 5 | 
+   `----
+    ,-[packages/rag/src/chunker/TokenChunker.test.ts:22:74]
+ 21 | describe("TokenChunker", () => {
+ 22 |   it.layer(makeWordTokenChunkerLive({ chunkOverlap: 2, chunkSize: 5 }))((it) => {
+    :                                                                          ^|
+    :                                                                           `-- 'it' is declared here
+ 23 |     it.effect("Given overlap, when chunking tokens, then windows overlap with correct offsets", () =>
+    `----
+  help: Consider renaming 'it' to avoid shadowing the variable from the outer scope.
+
+  ! eslint(no-shadow): 'it' is already declared in the upper scope.
+   ,-[packages/rag/src/chunker/TokenChunker.test.ts:4:28]
+ 3 | import { TokenChunker, TokenChunkerConfig } from "./TokenChunker";
+ 4 | import { describe, expect, it } from "@effect/vitest";
+   :                            ^|
+   :                             `-- shadowed declaration is here
+ 5 | 
+   `----
+     ,-[packages/rag/src/chunker/TokenChunker.test.ts:121:6]
+ 120 |     }),
+ 121 |   )((it) => {
+     :      ^|
+     :       `-- 'it' is declared here
+ 122 |     it.effect("Given zero overlap, when chunking, then windows do not overlap and offsets advance", () =>
+     `----
+  help: Consider renaming 'it' to avoid shadowing the variable from the outer scope.
+
+  ! eslint(no-shadow): 'it' is already declared in the upper scope.
+   ,-[packages/rag/src/chunker/TokenChunker.test.ts:4:28]
+ 3 | import { TokenChunker, TokenChunkerConfig } from "./TokenChunker";
+ 4 | import { describe, expect, it } from "@effect/vitest";
+   :                            ^|
+   :                             `-- shadowed declaration is here
+ 5 | 
+   `----
+     ,-[packages/rag/src/chunker/TokenChunker.test.ts:142:6]
+ 141 |     }),
+ 142 |   )((it) => {
+     :      ^|
+     :       `-- 'it' is declared here
+ 143 |     it.effect("Given character tokenization, when chunking, then windows align to size and overlap", () =>
+     `----
+  help: Consider renaming 'it' to avoid shadowing the variable from the outer scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/toggle.tsx:33:11]
+ 32 | }: TogglePrimitive.Props & VariantProps<typeof toggleVariants>) {
+ 33 |   return <TogglePrimitive data-slot="toggle" className={cn(toggleVariants({ className, size, variant }))} {...props} />;
+    :           ^^^^^^^^^^^^^^^
+ 34 | }
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! eslint(no-shadow): 'it' is already declared in the upper scope.
+   ,-[packages/rag/src/chunker/TableChunker.test.ts:4:28]
+ 3 | import { TableChunker, TableChunkerConfig } from "./TableChunker";
+ 4 | import { describe, expect, it } from "@effect/vitest";
+   :                            ^|
+   :                             `-- shadowed declaration is here
+ 5 | 
+   `----
+    ,-[packages/rag/src/chunker/TableChunker.test.ts:36:6]
+ 35 |     }),
+ 36 |   )((it) => {
+    :      ^|
+    :       `-- 'it' is declared here
+ 37 |     it.effect("Given markdown table in row mode, when chunking, then header repeats per chunk", () =>
+    `----
+  help: Consider renaming 'it' to avoid shadowing the variable from the outer scope.
+
+  ! eslint(no-shadow): 'it' is already declared in the upper scope.
+   ,-[packages/rag/src/chunker/TableChunker.test.ts:4:28]
+ 3 | import { TableChunker, TableChunkerConfig } from "./TableChunker";
+ 4 | import { describe, expect, it } from "@effect/vitest";
+   :                            ^|
+   :                             `-- shadowed declaration is here
+ 5 | 
+   `----
+    ,-[packages/rag/src/chunker/TableChunker.test.ts:86:6]
+ 85 |     ),
+ 86 |   )((it) => {
+    :      ^|
+    :       `-- 'it' is declared here
+ 87 |     it.effect("Given markdown table in token mode, when chunking, then header is preserved", () =>
+    `----
+  help: Consider renaming 'it' to avoid shadowing the variable from the outer scope.
+
+  ! eslint(no-shadow): 'it' is already declared in the upper scope.
+   ,-[packages/rag/src/chunker/TableChunker.test.ts:4:28]
+ 3 | import { TableChunker, TableChunkerConfig } from "./TableChunker";
+ 4 | import { describe, expect, it } from "@effect/vitest";
+   :                            ^|
+   :                             `-- shadowed declaration is here
+ 5 | 
+   `----
+     ,-[packages/rag/src/chunker/TableChunker.test.ts:106:6]
+ 105 |     }),
+ 106 |   )((it) => {
+     :      ^|
+     :       `-- 'it' is declared here
+ 107 |     it.effect("Given html table in row mode, when chunking, then table shell is preserved", () =>
+     `----
+  help: Consider renaming 'it' to avoid shadowing the variable from the outer scope.
+
+  ! eslint(no-shadow): 'it' is already declared in the upper scope.
+   ,-[packages/rag/src/chunker/TableChunker.test.ts:4:28]
+ 3 | import { TableChunker, TableChunkerConfig } from "./TableChunker";
+ 4 | import { describe, expect, it } from "@effect/vitest";
+   :                            ^|
+   :                             `-- shadowed declaration is here
+ 5 | 
+   `----
+     ,-[packages/rag/src/chunker/TableChunker.test.ts:127:6]
+ 126 |     }),
+ 127 |   )((it) => {
+     :      ^|
+     :       `-- 'it' is declared here
+ 128 |     it.effect("Given auto format, when chunking, then markdown and html are detected", () =>
+     `----
+  help: Consider renaming 'it' to avoid shadowing the variable from the outer scope.
+
+  ! eslint(no-shadow): 'it' is already declared in the upper scope.
+   ,-[packages/rag/src/chunker/TableChunker.test.ts:4:28]
+ 3 | import { TableChunker, TableChunkerConfig } from "./TableChunker";
+ 4 | import { describe, expect, it } from "@effect/vitest";
+   :                            ^|
+   :                             `-- shadowed declaration is here
+ 5 | 
+   `----
+     ,-[packages/rag/src/chunker/TableChunker.test.ts:144:6]
+ 143 |     }),
+ 144 |   )((it) => {
+     :      ^|
+     :       `-- 'it' is declared here
+ 145 |     it.effect("Given row chunks, when chunking, then offsets are monotonic and valid", () =>
+     `----
+  help: Consider renaming 'it' to avoid shadowing the variable from the outer scope.
+
+  ! eslint(no-underscore-dangle): Unexpected dangling '_' in '`_tag`'.
+    ,-[apps/server/src/llm/OpenRouterClient.test.ts:70:16]
+ 69 |     expect(err.message).toBe("rate limited");
+ 70 |     expect(err._tag).toBe("LlmError");
+    :                ^^^^
+ 71 |   });
+    `----
+  help: Remove the dangling '_' or add `_tag` to the 'allow' configuration.
+
+  ! eslint(no-underscore-dangle): Unexpected dangling '_' in '`_tag`'.
+     ,-[apps/server/src/services/BatchService.test.ts:449:25]
+ 448 |         const exit = yield* batchService.runBatchJob(job.id).pipe(Effect.exit);
+ 449 |         assertTrue(exit._tag === "Failure");
+     :                         ^^^^
+ 450 | 
+     `----
+  help: Remove the dangling '_' or add `_tag` to the 'allow' configuration.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/separator.tsx:9:6]
+  8 |   return (
+  9 |     <SeparatorPrimitive
+    :      ^^^^^^^^^^^^^^^^^^
+ 10 |       data-slot="separator"
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/switch.tsx:13:6]
+ 12 |   return (
+ 13 |     <SwitchPrimitive.Root
+    :      ^^^^^^^^^^^^^^^^^^^^
+ 14 |       data-slot="switch"
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/switch.tsx:22:8]
+ 21 |     >
+ 22 |       <SwitchPrimitive.Thumb
+    :        ^^^^^^^^^^^^^^^^^^^^^
+ 23 |         data-slot="switch-thumb"
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! oxc(no-map-spread): Spreading to modify object properties in `map` calls is inefficient
+     ,-[apps/server/src/daemon/registry.ts:143:31]
+ 142 |     ...data,
+ 143 |     processes: data.processes.map((p) => (p.pid === pid ? { ...p, healthy, lastHealthCheck: now } : p)),
+     :                               ^|^                           ^^|^
+     :                                |                              `-- This spread allocates a new value on each iteration
+     :                                `-- This map call spreads an object
+ 144 |     updatedAt: now,
+     `----
+  help: If in-place mutation is acceptable, use `Object.assign` or direct property assignment instead of spreading
+  note: `Object.assign` mutates the first argument. Disable this rule if copy-on-write behavior is required.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+   ,-[apps/client/src/components/ui/tooltip.tsx:6:11]
+ 5 | function TooltipProvider({ delay = 0, ...props }: TooltipPrimitive.Provider.Props) {
+ 6 |   return <TooltipPrimitive.Provider data-slot="tooltip-provider" delay={delay} {...props} />;
+   :           ^^^^^^^^^^^^^^^^^^^^^^^^^
+ 7 | }
+   `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/tooltip.tsx:10:11]
+  9 | function Tooltip({ ...props }: TooltipPrimitive.Root.Props) {
+ 10 |   return <TooltipPrimitive.Root data-slot="tooltip" {...props} />;
+    :           ^^^^^^^^^^^^^^^^^^^^^
+ 11 | }
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/tooltip.tsx:14:11]
+ 13 | function TooltipTrigger({ ...props }: TooltipPrimitive.Trigger.Props) {
+ 14 |   return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />;
+    :           ^^^^^^^^^^^^^^^^^^^^^^^^
+ 15 | }
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/tooltip.tsx:28:6]
+ 27 |   return (
+ 28 |     <TooltipPrimitive.Portal>
+    :      ^^^^^^^^^^^^^^^^^^^^^^^
+ 29 |       <TooltipPrimitive.Positioner
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/tooltip.tsx:29:8]
+ 28 |     <TooltipPrimitive.Portal>
+ 29 |       <TooltipPrimitive.Positioner
+    :        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 30 |         align={align}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/tooltip.tsx:36:10]
+ 35 |       >
+ 36 |         <TooltipPrimitive.Popup
+    :          ^^^^^^^^^^^^^^^^^^^^^^
+ 37 |           data-slot="tooltip-content"
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/tooltip.tsx:45:12]
+ 44 |           {children}
+ 45 |           <TooltipPrimitive.Arrow className="z-50 size-2.5 translate-y-[calc(-50%-2px)] rotate-45 rounded-none bg-foreground fill-foreground data-[side=bottom]:top-1 data-[side=inline-end]:top-1/2! data-[side=inline-end]:-left-1 data-[side=inline-end]:-translate-y-1/2 data-[side=inline-start]:top-1/2! data-[side=inline-start]:-right-1 data-[side=inline-start]:-translate-y-1/2 data-[side=left]:top-1/2! data-[side=left]:-right-1 data-[side=left]:-translate-y-1/2 data-[side=right]:top-1/2! data-[side=right]:-left-1 data-[side=right]:-translate-y-1/2 data-[side=top]:-bottom-2.5" />
+    :            ^^^^^^^^^^^^^^^^^^^^^^
+ 46 |         </TooltipPrimitive.Popup>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! eslint(no-underscore-dangle): Unexpected dangling '_' in '`_values`'.
+    ,-[apps/client/src/components/ui/slider.tsx:10:9]
+  9 | function Slider({ className, defaultValue, value, min = 0, max = 100, ...props }: SliderPrimitive.Root.Props) {
+ 10 |   const _values = React.useMemo(
+    :         ^^^^^^^
+ 11 |     () => (Array.isArray(value) ? value : Array.isArray(defaultValue) ? defaultValue : [min, max]),
+    `----
+  help: Remove the dangling '_' or add `_values` to the 'allow' configuration.
+
+  ! eslint(no-underscore-dangle): Unexpected dangling '_' in '`_default`'.
+   ,-[apps/client/dist-node/vite.config.d.ts:1:15]
+ 1 | declare const _default: import("vite").UserConfig;
+   :               ^^^^^^^^
+ 2 | export default _default;
+   `----
+  help: Remove the dangling '_' or add `_default` to the 'allow' configuration.
+
+  ! eslint(no-await-in-loop): Unexpected `await` inside a loop.
+     ,-[apps/server/src/services/LamConfig.test.ts:142:30]
+ 141 |       vi.stubEnv("DEV_MODE", val);
+ 142 |       const { loadConfig } = await import("./LamConfig");
+     :                              ^^^^^
+ 143 |       expect(loadConfig().devMode).toBe(true);
+     `----
+  help: Collect all promises into an array and use `Promise.all()` to run them in parallel, rather than awaiting each one sequentially inside the loop.
+
+  ! eslint(no-await-in-loop): Unexpected `await` inside a loop.
+     ,-[apps/server/src/services/LamConfig.test.ts:152:30]
+ 151 |       vi.stubEnv("DEV_MODE", val);
+ 152 |       const { loadConfig } = await import("./LamConfig");
+     :                              ^^^^^
+ 153 |       expect(loadConfig().devMode).toBe(false);
+     `----
+  help: Collect all promises into an array and use `Promise.all()` to run them in parallel, rather than awaiting each one sequentially inside the loop.
+
+  ! eslint(no-await-in-loop): Unexpected `await` inside a loop.
+     ,-[apps/server/src/services/LamConfig.test.ts:162:30]
+ 161 |       if (val !== undefined) vi.stubEnv("DEV_MODE", val);
+ 162 |       const { loadConfig } = await import("./LamConfig");
+     :                              ^^^^^
+ 163 |       expect(loadConfig().devMode).toBe(false);
+     `----
+  help: Collect all promises into an array and use `Promise.all()` to run them in parallel, rather than awaiting each one sequentially inside the loop.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/markdown.tsx:11:4]
+ 10 | export const Markdown = memo(({ content }: MarkdownProps) => (
+ 11 |   <ReactMarkdown
+    :    ^^^^^^^^^^^^^
+ 12 |     remarkPlugins={[remarkGfm]}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/markdown.tsx:17:12]
+ 16 |         return (
+ 17 |           <a
+    :            ^
+ 18 |             className="text-primary hover:underline transition-colors"
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/markdown.tsx:29:12]
+ 28 |         return (
+ 29 |           <blockquote className="border-l-4 border-muted-foreground/20 pl-4 italic text-muted-foreground" {...props}>
+    :            ^^^^^^^^^^
+ 30 |             {children}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/markdown.tsx:37:12]
+ 36 |         return match ? (
+ 37 |           <code className={className} {...props}>
+    :            ^^^^
+ 38 |             {children}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/markdown.tsx:41:12]
+ 40 |         ) : (
+ 41 |           <code className="bg-muted px-1.5 py-0.5 rounded-none text-xs font-mono" {...props}>
+    :            ^^^^
+ 42 |             {children}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/markdown.tsx:48:12]
+ 47 |         return (
+ 48 |           <h1 className="text-xl font-extrabold mt-6 mb-3 tracking-tight" {...props}>
+    :            ^^
+ 49 |             {children}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/markdown.tsx:55:12]
+ 54 |         return (
+ 55 |           <h2 className="text-lg font-bold mt-5 mb-3" {...props}>
+    :            ^^
+ 56 |             {children}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/markdown.tsx:62:12]
+ 61 |         return (
+ 62 |           <h3 className="text-base font-semibold mt-4 mb-2" {...props}>
+    :            ^^
+ 63 |             {children}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/markdown.tsx:69:12]
+ 68 |         return (
+ 69 |           <ol className="list-decimal list-outside ml-6 space-y-2 my-4" {...props}>
+    :            ^^
+ 70 |             {children}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/markdown.tsx:76:12]
+ 75 |         return (
+ 76 |           <p className="mb-4 leading-relaxed last:mb-0" {...props}>
+    :            ^
+ 77 |             {children}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/markdown.tsx:83:12]
+ 82 |         return (
+ 83 |           <pre className="bg-muted p-4 rounded-none overflow-x-auto my-4 border border-border" {...props}>
+    :            ^^^
+ 84 |             {children}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/markdown.tsx:90:12]
+ 89 |         return (
+ 90 |           <ul className="list-disc list-outside ml-6 space-y-2 my-4" {...props}>
+    :            ^^
+ 91 |             {children}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/field.tsx:10:6]
+  9 |   return (
+ 10 |     <fieldset
+    :      ^^^^^^^^
+ 11 |       data-slot="field-set"
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/field.tsx:27:6]
+ 26 |   return (
+ 27 |     <legend
+    :      ^^^^^^
+ 28 |       data-slot="field-legend"
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/field.tsx:38:6]
+ 37 |   return (
+ 38 |     <div
+    :      ^^^
+ 39 |       data-slot="field-group"
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/field.tsx:70:6]
+ 69 |   return (
+ 70 |     <fieldset
+    :      ^^^^^^^^
+ 71 |       data-slot="field"
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/field.tsx:81:6]
+ 80 |   return (
+ 81 |     <div
+    :      ^^^
+ 82 |       data-slot="field-content"
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/field.tsx:91:6]
+ 90 |   return (
+ 91 |     <Label
+    :      ^^^^^
+ 92 |       data-slot="field-label"
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/ui/field.tsx:105:6]
+ 104 |   return (
+ 105 |     <div
+     :      ^^^
+ 106 |       data-slot="field-label"
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/ui/field.tsx:118:6]
+ 117 |   return (
+ 118 |     <p
+     :      ^
+ 119 |       data-slot="field-description"
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/ui/field.tsx:139:6]
+ 138 |   return (
+ 139 |     <div
+     :      ^^^
+ 140 |       data-slot="field-separator"
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/ui/field.tsx:145:8]
+ 144 |     >
+ 145 |       <Separator className="absolute inset-0 top-1/2" />
+     :        ^^^^^^^^^
+ 146 |       {children && (
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/ui/field.tsx:147:10]
+ 146 |       {children && (
+ 147 |         <span
+     :          ^^^^
+ 148 |           className="relative mx-auto block w-fit bg-background px-2 text-muted-foreground"
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/ui/field.tsx:182:8]
+ 181 |     return (
+ 182 |       <ul className="ml-4 flex list-disc flex-col gap-1">
+     :        ^^
+ 183 |         {uniqueErrors.map((error) => error?.message && <li key={error.message}>{error.message}</li>)}
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/ui/field.tsx:183:57]
+ 182 |       <ul className="ml-4 flex list-disc flex-col gap-1">
+ 183 |         {uniqueErrors.map((error) => error?.message && <li key={error.message}>{error.message}</li>)}
+     :                                                         ^^
+ 184 |       </ul>
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/ui/field.tsx:193:6]
+ 192 |   return (
+ 193 |     <div
+     :      ^^^
+ 194 |       role="alert"
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/segment.tsx:70:6]
+ 69 |   return (
+ 70 |     <div className="flex w-full flex-col gap-2">
+    :      ^^^
+ 71 |       <div className="max-w-full flex items-center gap-2 text-xs px-3 py-2 rounded-none bg-muted/50 border border-border flex-wrap">
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/segment.tsx:71:8]
+ 70 |     <div className="flex w-full flex-col gap-2">
+ 71 |       <div className="max-w-full flex items-center gap-2 text-xs px-3 py-2 rounded-none bg-muted/50 border border-border flex-wrap">
+    :        ^^^
+ 72 |         {segment.tool.status === "executing" && <Loader2 className={`h-3 w-3 animate-spin ${styles.icon}`} />}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/segment.tsx:72:50]
+ 71 |       <div className="max-w-full flex items-center gap-2 text-xs px-3 py-2 rounded-none bg-muted/50 border border-border flex-wrap">
+ 72 |         {segment.tool.status === "executing" && <Loader2 className={`h-3 w-3 animate-spin ${styles.icon}`} />}
+    :                                                  ^^^^^^^
+ 73 |         {segment.tool.status === "complete" && <CheckCircle className={`h-3 w-3 ${styles.icon}`} />}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/segment.tsx:73:49]
+ 72 |         {segment.tool.status === "executing" && <Loader2 className={`h-3 w-3 animate-spin ${styles.icon}`} />}
+ 73 |         {segment.tool.status === "complete" && <CheckCircle className={`h-3 w-3 ${styles.icon}`} />}
+    :                                                 ^^^^^^^^^^^
+ 74 |         {segment.tool.status === "failed" && <AlertCircle className={`h-3 w-3 ${styles.icon}`} />}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/segment.tsx:74:47]
+ 73 |         {segment.tool.status === "complete" && <CheckCircle className={`h-3 w-3 ${styles.icon}`} />}
+ 74 |         {segment.tool.status === "failed" && <AlertCircle className={`h-3 w-3 ${styles.icon}`} />}
+    :                                               ^^^^^^^^^^^
+ 75 |         {segment.tool.status === "proposed" && <Wrench className={`h-3 w-3 ${styles.icon}`} />}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/segment.tsx:75:49]
+ 74 |         {segment.tool.status === "failed" && <AlertCircle className={`h-3 w-3 ${styles.icon}`} />}
+ 75 |         {segment.tool.status === "proposed" && <Wrench className={`h-3 w-3 ${styles.icon}`} />}
+    :                                                 ^^^^^^
+ 76 |         <span
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/segment.tsx:76:10]
+ 75 |         {segment.tool.status === "proposed" && <Wrench className={`h-3 w-3 ${styles.icon}`} />}
+ 76 |         <span
+    :          ^^^^
+ 77 |           className={cn("text-[0.6rem] uppercase tracking-[0.2em] border rounded-none px-1.5 py-0.5", styles.badge)}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/segment.tsx:81:10]
+ 80 |         </span>
+ 81 |         <span className="font-mono font-medium">{segment.tool.name}</span>
+    :          ^^^^
+ 82 |         {segment.tool.result && segment.tool.status === "complete" && (
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/segment.tsx:83:12]
+ 82 |         {segment.tool.result && segment.tool.status === "complete" && (
+ 83 |           <span className="text-muted-foreground flex-1 truncate overflow-hidden break-all">
+    :            ^^^^
+ 84 |             &rarr; {segment.tool.result.length > 100 ? `${segment.tool.result.slice(0, 100)}...` : segment.tool.result}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/segment.tsx:89:12]
+ 88 |         (segment.tool.status === "failed" && toolArguments) ? (
+ 89 |           <div className="ml-auto flex items-center gap-2">
+    :            ^^^
+ 90 |             {segment.tool.status === "complete" && segment.tool.result && (
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/segment.tsx:91:16]
+ 90 |             {segment.tool.status === "complete" && segment.tool.result && (
+ 91 |               <Tooltip>
+    :                ^^^^^^^
+ 92 |                 <TooltipTrigger>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/segment.tsx:92:18]
+ 91 |               <Tooltip>
+ 92 |                 <TooltipTrigger>
+    :                  ^^^^^^^^^^^^^^
+ 93 |                   <MessageSquareMore className="text-muted-foreground size-5" />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/segment.tsx:93:20]
+ 92 |                 <TooltipTrigger>
+ 93 |                   <MessageSquareMore className="text-muted-foreground size-5" />
+    :                    ^^^^^^^^^^^^^^^^^
+ 94 |                 </TooltipTrigger>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/segment.tsx:95:18]
+ 94 |                 </TooltipTrigger>
+ 95 |                 <TooltipContent className="block max-w-lg overflow-hidden">
+    :                  ^^^^^^^^^^^^^^
+ 96 |                   <pre className="max-w-full overflow-x-auto whitespace-pre-wrap wrap-break-word font-mono text-xs">
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/components/ui/segment.tsx:96:20]
+ 95 |                 <TooltipContent className="block max-w-lg overflow-hidden">
+ 96 |                   <pre className="max-w-full overflow-x-auto whitespace-pre-wrap wrap-break-word font-mono text-xs">
+    :                    ^^^
+ 97 |                     {formatJsonValue(segment.tool.result)}
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/ui/segment.tsx:103:16]
+ 102 |             {segment.tool.status === "failed" && toolArguments && (
+ 103 |               <Tooltip>
+     :                ^^^^^^^
+ 104 |                 <TooltipTrigger>
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/ui/segment.tsx:104:18]
+ 103 |               <Tooltip>
+ 104 |                 <TooltipTrigger>
+     :                  ^^^^^^^^^^^^^^
+ 105 |                   <MessageSquareMore className="text-destructive size-5" />
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/ui/segment.tsx:105:20]
+ 104 |                 <TooltipTrigger>
+ 105 |                   <MessageSquareMore className="text-destructive size-5" />
+     :                    ^^^^^^^^^^^^^^^^^
+ 106 |                 </TooltipTrigger>
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/ui/segment.tsx:107:18]
+ 106 |                 </TooltipTrigger>
+ 107 |                 <TooltipContent className="block max-w-lg overflow-hidden">
+     :                  ^^^^^^^^^^^^^^
+ 108 |                   <pre className="max-w-full overflow-x-auto whitespace-pre-wrap wrap-break-word font-mono text-xs">
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/ui/segment.tsx:108:20]
+ 107 |                 <TooltipContent className="block max-w-lg overflow-hidden">
+ 108 |                   <pre className="max-w-full overflow-x-auto whitespace-pre-wrap wrap-break-word font-mono text-xs">
+     :                    ^^^
+ 109 |                     {formatJsonValue(toolArguments)}
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/ui/segment.tsx:129:6]
+ 128 |   return (
+ 129 |     <div className="flex gap-2 text-xs text-muted-foreground px-1">
+     :      ^^^
+ 130 |       <span className="flex items-center gap-1">
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/ui/segment.tsx:130:8]
+ 129 |     <div className="flex gap-2 text-xs text-muted-foreground px-1">
+ 130 |       <span className="flex items-center gap-1">
+     :        ^^^^
+ 131 |         <span className="font-mono">{response.usage.totalTokens} tokens</span>
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/ui/segment.tsx:131:10]
+ 130 |       <span className="flex items-center gap-1">
+ 131 |         <span className="font-mono">{response.usage.totalTokens} tokens</span>
+     :          ^^^^
+ 132 |         <span className="text-muted-foreground/60">
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/ui/segment.tsx:132:10]
+ 131 |         <span className="font-mono">{response.usage.totalTokens} tokens</span>
+ 132 |         <span className="text-muted-foreground/60">
+     :          ^^^^
+ 133 |           ({response.usage.promptTokens}&uarr; {response.usage.completionTokens}
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/ui/segment.tsx:137:8]
+ 136 |       </span>
+ 137 |       <span className="text-muted-foreground/60">&bull; {response.finishReason}</span>
+     :        ^^^^
+ 138 |     </div>
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/components/ui/segment.tsx:144:6]
+ 143 |   return (
+ 144 |     <div className={cn("flex flex-col gap-1 items-start w-full", className)} {...props}>
+     :      ^^^
+ 145 |       {children}
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! eslint(no-underscore-dangle): Unexpected dangling '_' in '`_tag`'.
+    ,-[apps/server/src/runtime.adversarial.test.ts:85:23]
+ 84 |       const exit = yield* Layer.build(layer).pipe(Effect.exit);
+ 85 |       assertTrue(exit._tag === "Success", "valid dbPath must produce a buildable layer");
+    :                       ^^^^
+ 86 |     }),
+    `----
+  help: Remove the dangling '_' or add `_tag` to the 'allow' configuration.
+
+  ! eslint(no-underscore-dangle): Unexpected dangling '_' in '`_tag`'.
+    ,-[apps/server/src/runtime.adversarial.test.ts:96:23]
+ 95 |       const exit = yield* Layer.build(layer).pipe(Effect.exit);
+ 96 |       assertTrue(exit._tag === "Failure", "10KB+ dbPath must not silently succeed — filesystem overflow risk");
+    :                       ^^^^
+ 97 |     }),
+    `----
+  help: Remove the dangling '_' or add `_tag` to the 'allow' configuration.
+
+  ! eslint(no-underscore-dangle): Unexpected dangling '_' in '`_tag`'.
+     ,-[apps/server/src/runtime.adversarial.test.ts:114:23]
+ 113 |       const exit = yield* Layer.build(layer).pipe(Effect.exit);
+ 114 |       assertTrue(exit._tag === "Success", "traversal to writable /tmp must succeed");
+     :                       ^^^^
+ 115 |       try {
+     `----
+  help: Remove the dangling '_' or add `_tag` to the 'allow' configuration.
+
+  ! eslint(no-underscore-dangle): Unexpected dangling '_' in '`_tag`'.
+     ,-[apps/server/src/runtime.adversarial.test.ts:135:16]
+ 134 |       // May succeed (writable /tmp) or fail (permissions)
+ 135 |       if (exit._tag === "Success") {
+     :                ^^^^
+ 136 |         try {
+     `----
+  help: Remove the dangling '_' or add `_tag` to the 'allow' configuration.
+
+  ! eslint(no-underscore-dangle): Unexpected dangling '_' in '`_tag`'.
+     ,-[apps/server/src/runtime.adversarial.test.ts:147:14]
+ 146 |       assertTrue(
+ 147 |         exit._tag === "Success" || exit._tag === "Failure",
+     :              ^^^^
+ 148 |         "absolute path should either succeed or fail cleanly, not crash",
+     `----
+  help: Remove the dangling '_' or add `_tag` to the 'allow' configuration.
+
+  ! eslint(no-underscore-dangle): Unexpected dangling '_' in '`_tag`'.
+     ,-[apps/server/src/runtime.adversarial.test.ts:147:41]
+ 146 |       assertTrue(
+ 147 |         exit._tag === "Success" || exit._tag === "Failure",
+     :                                         ^^^^
+ 148 |         "absolute path should either succeed or fail cleanly, not crash",
+     `----
+  help: Remove the dangling '_' or add `_tag` to the 'allow' configuration.
+
+  ! eslint(no-underscore-dangle): Unexpected dangling '_' in '`_tag`'.
+     ,-[apps/server/src/runtime.adversarial.test.ts:160:23]
+ 159 |       const exit = yield* Layer.build(layer).pipe(Effect.exit);
+ 160 |       assertTrue(exit._tag === "Failure", "null byte in dbPath must fail — C-string truncation attack vector");
+     :                       ^^^^
+ 161 |     }),
+     `----
+  help: Remove the dangling '_' or add `_tag` to the 'allow' configuration.
+
+  ! eslint(no-underscore-dangle): Unexpected dangling '_' in '`_tag`'.
+     ,-[apps/server/src/runtime.adversarial.test.ts:172:16]
+ 171 | 
+ 172 |       if (exit._tag === "Success") {
+     :                ^^^^
+ 173 |         // DB was created at the literal path — path is NOT interpreted as SQL
+     `----
+  help: Remove the dangling '_' or add `_tag` to the 'allow' configuration.
+
+  ! eslint(no-underscore-dangle): Unexpected dangling '_' in '`_tag`'.
+     ,-[apps/server/src/runtime.adversarial.test.ts:199:23]
+ 198 |       const exit = yield* Layer.build(layer).pipe(Effect.exit);
+ 199 |       assertTrue(exit._tag === "Success" || exit._tag === "Failure", "unicode path must not crash the process");
+     :                       ^^^^
+ 200 |       try {
+     `----
+  help: Remove the dangling '_' or add `_tag` to the 'allow' configuration.
+
+  ! eslint(no-underscore-dangle): Unexpected dangling '_' in '`_tag`'.
+     ,-[apps/server/src/runtime.adversarial.test.ts:199:50]
+ 198 |       const exit = yield* Layer.build(layer).pipe(Effect.exit);
+ 199 |       assertTrue(exit._tag === "Success" || exit._tag === "Failure", "unicode path must not crash the process");
+     :                                                  ^^^^
+ 200 |       try {
+     `----
+  help: Remove the dangling '_' or add `_tag` to the 'allow' configuration.
+
+  ! eslint(no-underscore-dangle): Unexpected dangling '_' in '`_tag`'.
+     ,-[apps/server/src/runtime.adversarial.test.ts:313:16]
+ 312 | 
+ 313 |       if (exit._tag === "Success") {
+     :                ^^^^
+ 314 |         assertTrue(true, "ServicesLive built successfully");
+     `----
+  help: Remove the dangling '_' or add `_tag` to the 'allow' configuration.
+
+  ! eslint(no-underscore-dangle): Unexpected dangling '_' in '`_tag`'.
+     ,-[apps/server/src/runtime.adversarial.test.ts:328:23]
+ 327 |       const exit = yield* Layer.build(layer).pipe(Effect.exit);
+ 328 |       assertTrue(exit._tag === "Success", "makeServicesLayer must produce a buildable layer for valid path");
+     :                       ^^^^
+ 329 | 
+     `----
+  help: Remove the dangling '_' or add `_tag` to the 'allow' configuration.
+
+  ! eslint(no-underscore-dangle): Unexpected dangling '_' in '`_cachedConfig`'.
+    ,-[apps/server/src/services/LamConfig.ts:63:5]
+ 62 | 
+ 63 | let _cachedConfig: LamConfig | undefined;
+    :     ^^^^^^^^^^^^^
+ 64 | 
+    `----
+  help: Remove the dangling '_' or add `_cachedConfig` to the 'allow' configuration.
+
+  ! eslint(no-underscore-dangle): Unexpected dangling '_' in '`_tag`'.
+     ,-[apps/server/src/daemon/process.test.ts:162:23]
+ 161 |       const err = new ProcessError("test error");
+ 162 |       strictEqual(err._tag, "ProcessError");
+     :                       ^^^^
+ 163 |       strictEqual(err.name, "ProcessError");
+     `----
+  help: Remove the dangling '_' or add `_tag` to the 'allow' configuration.
+
+  ! eslint(no-shadow): 'it' is already declared in the upper scope.
+    ,-[apps/server/src/rlm/LambdaRlm.test.ts:16:20]
+ 15 | import { defaultConfig, rlmEval } from "./LambdaRlm";
+ 16 | import { describe, it } from "@effect/vitest";
+    :                    ^|
+    :                     `-- shadowed declaration is here
+ 17 | 
+    `----
+    ,-[apps/server/src/rlm/LambdaRlm.test.ts:81:28]
+ 80 | describe("rlmEval", () => {
+ 81 |   it.layer(platformLayer)((it) => {
+    :                            ^|
+    :                             `-- 'it' is declared here
+ 82 |     it.effect("makes at least 2 LLM calls (1 probe + 1 leaf) for maxDepth=0", () =>
+    `----
+  help: Consider renaming 'it' to avoid shadowing the variable from the outer scope.
+
+  ! oxc(no-map-spread): Spreading to modify object properties in `map` calls is inefficient
+     ,-[apps/server/src/build/BuildResults.ts:238:43]
+ 237 | 
+ 238 |   const rankings: Array<Ranking> = latest.map((run) => {
+     :                                           ^|^
+     :                                            `-- This map call spreads an object
+ 239 |     const timed = run.tasks.filter((t) => t.time > 0);
+ 240 |     const avgTime = timed.length ? Arr.reduce(timed, 0, (s, t) => s + t.time) / timed.length : 0;
+ 241 |     const price = priceMap.get(run.model) ?? 0;
+ 242 | 
+ 243 |     return {
+ 244 |       avgTime: Number(avgTime.toFixed(1)),
+ 245 |       model: run.model,
+ 246 |       pct: ((run.right / run.total) * 100).toFixed(1),
+ 247 |       pricePerMOutputTokens: price,
+ 248 |       right: run.right,
+ 249 |       taskBits: Object.fromEntries(run.tasks.filter((t) => t.pass && t.bits !== undefined).map((t) => [t.id, t.bits!])),
+ 250 |       taskRefs: Object.fromEntries(run.tasks.filter((t) => t.ref !== undefined).map((t) => [t.id, t.ref!])),
+ 251 |       tasks: Object.fromEntries(run.tasks.map((t) => [t.id, t.pass])),
+ 252 |       timestamp: run.timestamp,
+ 253 |       total: run.total,
+ 254 |       ...(run.variant === "rlm" ? { rlm: true } : {}),
+     :       ^^^^^^^^^^^^^^^^^^^^^^^|^^^^^^^^^^^^^^^^^^^^^^^
+     :                              `-- These spreads allocate new values on each iteration
+ 255 |       ...(run.rlmDepth !== undefined ? { rlmDepth: run.rlmDepth } : {}),
+     :       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 256 |       ...(run.rlmAttempts !== undefined ? { rlmAttempts: run.rlmAttempts } : {}),
+     :       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ 257 |     };
+     `----
+  help: If in-place mutation is acceptable, use `Object.assign` or direct property assignment instead of spreading
+  note: `Object.assign` mutates the first argument. Disable this rule if copy-on-write behavior is required.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[packages/rag/scratchpad.ts:22:3]
+ 21 |   });
+ 22 |   console.log("Ingest result:", inputResult);
+    :   ^^^^^^^^^^^
+ 23 | 
+    `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[packages/rag/scratchpad.ts:32:3]
+ 31 | 
+ 32 |   console.log("Retrieval results:", outputResults);
+    :   ^^^^^^^^^^^
+ 33 | 
+    `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[packages/rag/scratchpad.ts:40:3]
+ 39 | 
+ 40 |   console.log("Listed documents:", listedDocuments.documents);
+    :   ^^^^^^^^^^^
+ 41 | });
+    `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[packages/rag/scratchpad.ts:44:3]
+ 43 | Effect.runPromise(main.pipe(Effect.provide(RagService.Default))).catch((error) => {
+ 44 |   console.error("Error in Rag Scratchpad:", error);
+    :   ^^^^^^^^^^^^^
+ 45 |   process.exit(1);
+    `----
+  help: Delete this console statement.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/main.tsx:12:6]
+ 11 |   createRoot(rootElement).render(
+ 12 |     <StrictMode>
+    :      ^^^^^^^^^^
+ 13 |       <App />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/main.tsx:13:8]
+ 12 |     <StrictMode>
+ 13 |       <App />
+    :        ^^^
+ 14 |     </StrictMode>,
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[apps/server/src/daemon-cli.ts:33:5]
+ 32 |   if (error instanceof ProcessError) {
+ 33 |     console.error(`Daemon error: ${error.message}`);
+    :     ^^^^^^^^^^^^^
+ 34 |   } else if (error instanceof Error) {
+    `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[apps/server/src/daemon-cli.ts:35:5]
+ 34 |   } else if (error instanceof Error) {
+ 35 |     console.error(`Unexpected error: ${error.message}`);
+    :     ^^^^^^^^^^^^^
+ 36 |   } else {
+    `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[apps/server/src/daemon-cli.ts:37:5]
+ 36 |   } else {
+ 37 |     console.error(`Unexpected error: ${String(error)}`);
+    :     ^^^^^^^^^^^^^
+ 38 |   }
+    `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[apps/server/src/daemon-cli.ts:54:7]
+ 53 |       );
+ 54 |       console.log(JSON.stringify(status, null, 2));
+    :       ^^^^^^^^^^^
+ 55 |       break;
+    `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[apps/server/src/daemon-cli.ts:64:7]
+ 63 |       );
+ 64 |       console.log(JSON.stringify(status, null, 2));
+    :       ^^^^^^^^^^^
+ 65 |       break;
+    `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[apps/server/src/daemon-cli.ts:74:7]
+ 73 |       );
+ 74 |       console.log(JSON.stringify(status, null, 2));
+    :       ^^^^^^^^^^^
+ 75 |       break;
+    `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[apps/server/src/daemon-cli.ts:84:7]
+ 83 |       );
+ 84 |       console.log(JSON.stringify(status, null, 2));
+    :       ^^^^^^^^^^^
+ 85 |       break;
+    `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[apps/server/src/daemon-cli.ts:93:9]
+ 92 |       if (command) {
+ 93 |         console.error(`Unknown command: ${command}`);
+    :         ^^^^^^^^^^^^^
+ 94 |       }
+    `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[apps/server/src/daemon-cli.ts:95:7]
+ 94 |       }
+ 95 |       console.log(usage);
+    :       ^^^^^^^^^^^
+ 96 |       process.exit(1);
+    `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[apps/server/src/cli.ts:10:5]
+  9 |   Effect.sync(() => {
+ 10 |     console.error("Usage: bun cli.ts <command> [options]");
+    :     ^^^^^^^^^^^^^
+ 11 |     console.error("");
+    `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[apps/server/src/cli.ts:11:5]
+ 10 |     console.error("Usage: bun cli.ts <command> [options]");
+ 11 |     console.error("");
+    :     ^^^^^^^^^^^^^
+ 12 |     console.error("Commands:");
+    `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[apps/server/src/cli.ts:12:5]
+ 11 |     console.error("");
+ 12 |     console.error("Commands:");
+    :     ^^^^^^^^^^^^^
+ 13 |     console.error("  eval single <model> <task> [--variant=standard|rlm] [--provider=openrouter|opencode-go]");
+    `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[apps/server/src/cli.ts:13:5]
+ 12 |     console.error("Commands:");
+ 13 |     console.error("  eval single <model> <task> [--variant=standard|rlm] [--provider=openrouter|opencode-go]");
+    :     ^^^^^^^^^^^^^
+ 14 |     console.error("  eval batch <models...> [--tasks=<task1,task2>] [--variant=both|standard|rlm]");
+    `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[apps/server/src/cli.ts:14:5]
+ 13 |     console.error("  eval single <model> <task> [--variant=standard|rlm] [--provider=openrouter|opencode-go]");
+ 14 |     console.error("  eval batch <models...> [--tasks=<task1,task2>] [--variant=both|standard|rlm]");
+    :     ^^^^^^^^^^^^^
+ 15 |     console.error("  status <jobId>");
+    `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[apps/server/src/cli.ts:15:5]
+ 14 |     console.error("  eval batch <models...> [--tasks=<task1,task2>] [--variant=both|standard|rlm]");
+ 15 |     console.error("  status <jobId>");
+    :     ^^^^^^^^^^^^^
+ 16 |     console.error("  results [--model=<model>] [--task=<task>] [--limit=<n>]");
+    `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[apps/server/src/cli.ts:16:5]
+ 15 |     console.error("  status <jobId>");
+ 16 |     console.error("  results [--model=<model>] [--task=<task>] [--limit=<n>]");
+    :     ^^^^^^^^^^^^^
+ 17 |     console.error("  tasks [--task=<taskId>]");
+    `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[apps/server/src/cli.ts:17:5]
+ 16 |     console.error("  results [--model=<model>] [--task=<task>] [--limit=<n>]");
+ 17 |     console.error("  tasks [--task=<taskId>]");
+    :     ^^^^^^^^^^^^^
+ 18 |     console.error("  models");
+    `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[apps/server/src/cli.ts:18:5]
+ 17 |     console.error("  tasks [--task=<taskId>]");
+ 18 |     console.error("  models");
+    :     ^^^^^^^^^^^^^
+ 19 |     console.error("  server");
+    `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[apps/server/src/cli.ts:19:5]
+ 18 |     console.error("  models");
+ 19 |     console.error("  server");
+    :     ^^^^^^^^^^^^^
+ 20 |     console.error("  gepa optimize <taskId>");
+    `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[apps/server/src/cli.ts:20:5]
+ 19 |     console.error("  server");
+ 20 |     console.error("  gepa optimize <taskId>");
+    :     ^^^^^^^^^^^^^
+ 21 |   });
+    `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[apps/server/src/cli.ts:44:11]
+ 43 |         if (!model || !task) {
+ 44 |           console.error("Error: model and task are required for 'eval single'");
+    :           ^^^^^^^^^^^^^
+ 45 |           yield* printUsage();
+    `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[apps/server/src/cli.ts:58:9]
+ 57 |         });
+ 58 |         console.log(JSON.stringify(result, null, 2));
+    :         ^^^^^^^^^^^
+ 59 |         return;
+    `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[apps/server/src/cli.ts:77:11]
+ 76 |         if (models.length === 0) {
+ 77 |           console.error("Error: at least one model is required for 'eval batch'");
+    :           ^^^^^^^^^^^^^
+ 78 |           yield* printUsage();
+    `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[apps/server/src/cli.ts:89:9]
+ 88 |         });
+ 89 |         console.log(JSON.stringify(result, null, 2));
+    :         ^^^^^^^^^^^
+ 90 |         return;
+    `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+    ,-[apps/server/src/cli.ts:93:7]
+ 92 | 
+ 93 |       console.error(`Error: unknown eval subcommand '${subCommand}'`);
+    :       ^^^^^^^^^^^^^
+ 94 |       yield* printUsage();
+    `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+     ,-[apps/server/src/cli.ts:101:9]
+ 100 |       if (!jobId) {
+ 101 |         console.error("Error: jobId is required for 'status'");
+     :         ^^^^^^^^^^^^^
+ 102 |         yield* printUsage();
+     `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+     ,-[apps/server/src/cli.ts:106:7]
+ 105 |       const result = yield* client.evalStatus(jobId);
+ 106 |       console.log(JSON.stringify(result, null, 2));
+     :       ^^^^^^^^^^^
+ 107 |       return;
+     `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+     ,-[apps/server/src/cli.ts:133:7]
+ 132 | 
+ 133 |       console.log(JSON.stringify(data, null, 2));
+     :       ^^^^^^^^^^^
+ 134 |       return;
+     `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+     ,-[apps/server/src/cli.ts:141:9]
+ 140 |         const result = yield* client.taskDetail(taskId);
+ 141 |         console.log(JSON.stringify(result, null, 2));
+     :         ^^^^^^^^^^^
+ 142 |         return;
+     `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+     ,-[apps/server/src/cli.ts:145:7]
+ 144 |       const result = yield* client.tasks();
+ 145 |       console.log(JSON.stringify(result, null, 2));
+     :       ^^^^^^^^^^^
+ 146 |       return;
+     `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+     ,-[apps/server/src/cli.ts:151:7]
+ 150 |       const result = yield* client.models();
+ 151 |       console.log(JSON.stringify(result, null, 2));
+     :       ^^^^^^^^^^^
+ 152 |       return;
+     `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+     ,-[apps/server/src/cli.ts:156:7]
+ 155 |     case "server": {
+ 156 |       console.log("Start the server with: bun dev --filter=server");
+     :       ^^^^^^^^^^^
+ 157 |       return;
+     `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+     ,-[apps/server/src/cli.ts:163:9]
+ 162 |       if (gepaSub === "optimize") {
+ 163 |         console.log("GEPA optimizer: not yet implemented");
+     :         ^^^^^^^^^^^
+ 164 |         return;
+     `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+     ,-[apps/server/src/cli.ts:166:7]
+ 165 |       }
+ 166 |       console.error(`Error: unknown gepa subcommand '${gepaSub}'`);
+     :       ^^^^^^^^^^^^^
+ 167 |       yield* printUsage();
+     `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+     ,-[apps/server/src/cli.ts:172:7]
+ 171 |     default: {
+ 172 |       console.error(`Error: unknown command '${command}'`);
+     :       ^^^^^^^^^^^^^
+ 173 |       yield* printUsage();
+     `----
+  help: Delete this console statement.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/app.tsx:20:6]
+ 19 |   return (
+ 20 |     <div className="flex items-center justify-center min-h-screen text-[var(--sol-base1)]">
+    :      ^^^
+ 21 |       <span className="animate-pulse">Loading benchmark data...</span>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/app.tsx:21:8]
+ 20 |     <div className="flex items-center justify-center min-h-screen text-[var(--sol-base1)]">
+ 21 |       <span className="animate-pulse">Loading benchmark data...</span>
+    :        ^^^^
+ 22 |     </div>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/app.tsx:28:6]
+ 27 |   return (
+ 28 |     <div className="flex items-center justify-center min-h-screen text-[var(--sol-red)]">
+    :      ^^^
+ 29 |       <div className="text-center">
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/app.tsx:29:8]
+ 28 |     <div className="flex items-center justify-center min-h-screen text-[var(--sol-red)]">
+ 29 |       <div className="text-center">
+    :        ^^^
+ 30 |         <div className="font-bold mb-2">Failed to load benchmark data</div>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/app.tsx:30:10]
+ 29 |       <div className="text-center">
+ 30 |         <div className="font-bold mb-2">Failed to load benchmark data</div>
+    :          ^^^
+ 31 |         <div className="text-sm text-[var(--sol-base1)]">{message}</div>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/app.tsx:31:10]
+ 30 |         <div className="font-bold mb-2">Failed to load benchmark data</div>
+ 31 |         <div className="text-sm text-[var(--sol-base1)]">{message}</div>
+    :          ^^^
+ 32 |       </div>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/app.tsx:47:24]
+ 46 |   return AsyncResult.match(result, {
+ 47 |     onFailure: (e) => <ErrorView message={String((e as { cause?: unknown }).cause ?? e)} />,
+    :                        ^^^^^^^^^
+ 48 |     onInitial: () => <LoadingView />,
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/app.tsx:48:23]
+ 47 |     onFailure: (e) => <ErrorView message={String((e as { cause?: unknown }).cause ?? e)} />,
+ 48 |     onInitial: () => <LoadingView />,
+    :                       ^^^^^^^^^^^
+ 49 |     onSuccess: (s) => {
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/app.tsx:53:10]
+ 52 |       return (
+ 53 |         <div
+    :          ^^^
+ 54 |           className={cn(
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/app.tsx:60:12]
+ 59 |           {/* Vim-style tabline (with ControlBar embedded on the right) — sticky top */}
+ 60 |           <TabLine active={activeTab} onTabChange={setActiveTab} muted={muted} onToggleMusic={toggleMusic} />
+    :            ^^^^^^^
+ 61 | 
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/app.tsx:63:12]
+ 62 |           {/* Buffer — each panel is pre-computed, hidden via display:none for instant switching */}
+ 63 |           <div className="flex-1 max-w-[820px] w-full mx-auto border-x border-[var(--sol-base2)]">
+    :            ^^^
+ 64 |             <div
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/app.tsx:64:14]
+ 63 |           <div className="flex-1 max-w-[820px] w-full mx-auto border-x border-[var(--sol-base2)]">
+ 64 |             <div
+    :              ^^^
+ 65 |               style={{
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/app.tsx:69:16]
+ 68 |             >
+ 69 |               <IntelligencePanel data={data} />
+    :                ^^^^^^^^^^^^^^^^^
+ 70 |             </div>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/app.tsx:71:14]
+ 70 |             </div>
+ 71 |             <div style={{ display: activeTab === "speed" ? "block" : "none" }}>
+    :              ^^^
+ 72 |               <SpeedPanel data={data} />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/app.tsx:72:16]
+ 71 |             <div style={{ display: activeTab === "speed" ? "block" : "none" }}>
+ 72 |               <SpeedPanel data={data} />
+    :                ^^^^^^^^^^
+ 73 |             </div>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/app.tsx:74:14]
+ 73 |             </div>
+ 74 |             <div style={{ display: activeTab === "elegance" ? "block" : "none" }}>
+    :              ^^^
+ 75 |               <ElegancePanel data={data} />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/app.tsx:75:16]
+ 74 |             <div style={{ display: activeTab === "elegance" ? "block" : "none" }}>
+ 75 |               <ElegancePanel data={data} />
+    :                ^^^^^^^^^^^^^
+ 76 |             </div>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/app.tsx:77:14]
+ 76 |             </div>
+ 77 |             <div style={{ display: activeTab === "value" ? "block" : "none" }}>
+    :              ^^^
+ 78 |               <ValuePanel data={data} />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/app.tsx:78:16]
+ 77 |             <div style={{ display: activeTab === "value" ? "block" : "none" }}>
+ 78 |               <ValuePanel data={data} />
+    :                ^^^^^^^^^^
+ 79 |             </div>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/app.tsx:80:14]
+ 79 |             </div>
+ 80 |             <div style={{ display: activeTab === "problems" ? "block" : "none" }}>
+    :              ^^^
+ 81 |               <ProblemsPanel data={data} onTaskClick={setSelectedTask} />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/app.tsx:81:16]
+ 80 |             <div style={{ display: activeTab === "problems" ? "block" : "none" }}>
+ 81 |               <ProblemsPanel data={data} onTaskClick={setSelectedTask} />
+    :                ^^^^^^^^^^^^^
+ 82 |             </div>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/app.tsx:83:14]
+ 82 |             </div>
+ 83 |             <div style={{ display: activeTab === "matrix" ? "block" : "none" }}>
+    :              ^^^
+ 84 |               <MatrixPanel data={data} onTaskClick={setSelectedTask} />
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/app.tsx:84:16]
+ 83 |             <div style={{ display: activeTab === "matrix" ? "block" : "none" }}>
+ 84 |               <MatrixPanel data={data} onTaskClick={setSelectedTask} />
+    :                ^^^^^^^^^^^
+ 85 |             </div>
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/app.tsx:89:12]
+ 88 |           {/* Statusline — sticky bottom */}
+ 89 |           <div
+    :            ^^^
+ 90 |             className={cn(
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/app.tsx:96:14]
+ 95 |           >
+ 96 |             <span>
+    :              ^^^^
+ 97 |               <a
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+    ,-[apps/client/src/app.tsx:97:16]
+ 96 |             <span>
+ 97 |               <a
+    :                ^
+ 98 |                 href="https://github.com/VictorTaelin/lambench"
+    `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/app.tsx:106:14]
+ 105 |             </span>
+ 106 |             <span>
+     :              ^^^^
+ 107 |               {data.rankings.length} models · {data.tasks.length} tasks ·{" "}
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! react(react-in-jsx-scope): `React` must be in scope when using JSX.
+     ,-[apps/client/src/app.tsx:113:12]
+ 112 |           {/* Task detail modal */}
+ 113 |           <TaskModal task={selectedTask} rankings={data.rankings} onClose={() => setSelectedTask(null)} />
+     :            ^^^^^^^^^
+ 114 |         </div>
+     `----
+  help: When using JSX, `<a />` expands to `React.createElement("a")`. Therefore the `React` variable must be in scope.
+
+  ! eslint(no-console): Unexpected console statement.
+     ,-[fix-imports.mjs:360:3]
+ 359 | if (files.length === 0) {
+ 360 |   console.error("Usage: node fix-imports.mjs <file1> [file2 ...]");
+     :   ^^^^^^^^^^^^^
+ 361 |   process.exit(1);
+     `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+     ,-[fix-imports.mjs:369:5]
+ 368 |   if (!existsSync(file)) {
+ 369 |     console.log(`SKIP: ${file} (not found)`);
+     :     ^^^^^^^^^^^
+ 370 |     continue;
+     `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+     ,-[fix-imports.mjs:377:7]
+ 376 |       writeFileSync(file, fixedContent, "utf-8");
+ 377 |       console.log(`FIXED: ${file}`);
+     :       ^^^^^^^^^^^
+ 378 |       fixed++;
+     `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+     ,-[fix-imports.mjs:380:7]
+ 379 |     } else {
+ 380 |       console.log(`NOCHANGE: ${file}`);
+     :       ^^^^^^^^^^^
+ 381 |       noChange++;
+     `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+     ,-[fix-imports.mjs:384:5]
+ 383 |   } catch (err) {
+ 384 |     console.error(`ERROR: ${file}: ${err.message}`);
+     :     ^^^^^^^^^^^^^
+ 385 |   }
+     `----
+  help: Delete this console statement.
+
+  ! eslint(no-console): Unexpected console statement.
+     ,-[fix-imports.mjs:388:1]
+ 387 | 
+ 388 | console.log(`\nFixed: ${fixed}, No change: ${noChange}`);
+     : ^^^^^^^^^^^
+     `----
+  help: Delete this console statement.
+
+  ! eslint(no-underscore-dangle): Unexpected dangling '_' in '`_runtimeA`'.
+     ,-[apps/server/src/runtime.test.ts:190:13]
+ 189 |     Effect.gen(function* () {
+ 190 |       const _runtimeA = makeRuntime(testDbPathA);
+     :             ^^^^^^^^^
+ 191 |       const _runtimeB = makeRuntime(testDbPathB);
+     `----
+  help: Remove the dangling '_' or add `_runtimeA` to the 'allow' configuration.
+
+  ! eslint(no-underscore-dangle): Unexpected dangling '_' in '`_runtimeB`'.
+     ,-[apps/server/src/runtime.test.ts:191:13]
+ 190 |       const _runtimeA = makeRuntime(testDbPathA);
+ 191 |       const _runtimeB = makeRuntime(testDbPathB);
+     :             ^^^^^^^^^
+ 192 | 
+     `----
+  help: Remove the dangling '_' or add `_runtimeB` to the 'allow' configuration.
+
+  ! eslint(no-underscore-dangle): Unexpected dangling '_' in '`_tag`'.
+    ,-[apps/server/src/httpApi.test.ts:27:14]
+ 26 |     const body = response.body as unknown as { _tag: string; body: Uint8Array };
+ 27 |     if (body._tag === "Uint8Array") {
+    :              ^^^^
+ 28 |       const text = new TextDecoder().decode(body.body);
+    `----
+  help: Remove the dangling '_' or add `_tag` to the 'allow' configuration.
+
+Found 406 warnings and 1 error.
+Finished in 404ms on 229 files with 202 rules using 12 threads.
