@@ -1,3 +1,47 @@
+> **Always use package.json CLI commands** (`bun lint`, `bun lint:fix`) — never invoke `npx oxlint` or `oxlint` directly.
+
+## Lint vs Format: What's the Difference?
+
+Our project uses **oxlint** for linting and **oxfmt** for formatting (not ESLint/Prettier/Biome). Two commands sound similar but do different things:
+
+| Command            | Script                           | What it does                                     | Speed |
+| ------------------ | -------------------------------- | ------------------------------------------------ | ----- |
+| `bun lint`         | `oxlint --config .oxlintrc.json` | Runs lint rules (correctness, suspicious, style) | Fast  |
+| `bun format:check` | `oxfmt . --check`                | Checks formatting only                           | Fast  |
+
+**When to use each:**
+
+- `bun lint` — Quick check during development. Catches the most common issues fast.
+- `bun format:check` — The **formatting gate**. This is what GitHub Actions runs. It catches formatting mistakes.
+- `bun lint:fix` — Auto-fixes lint issues via oxlint.
+- `bun format` — Auto-fixes formatting issues via oxfmt.
+
+**Why run both?** `bun lint` catches code issues. `bun format:check` catches formatting issues. Running both ensures nothing slips through.
+
+## oxlint Rules (Enforced in CI)
+
+From `.oxlintrc.json` — key rules:
+
+| Rule                              | What it means                        | Level |
+| --------------------------------- | ------------------------------------ | ----- |
+| `typescript/no-explicit-any`      | Ban the `any` type                   | warn  |
+| `eslint/prefer-const`             | Use `const` over `let`               | error |
+| `eslint/no-extra-boolean-cast`    | No unnecessary `!!` or `Boolean()`   | warn  |
+| `unicorn/no-useless-spread`       | No unnecessary spread operators      | warn  |
+| `eslint/no-underscore-dangle`     | No underscore prefixes (except `_tag`) | warn |
+| `eslint/no-console`               | No `console.log` in prod code        | warn  |
+| `repo/no-linter-disable-comments` | No blanket lint suppression comments | warn  |
+
+The `@mpsuesser/oxlint-plugin-effect` plugin adds 54 Effect-specific rules (`effect/prefer-effect-fn`, `effect/avoid-try-catch`, etc.). See the full plugin docs for details.
+
+Note: `eslint/no-console` is relaxed to `off` in test files (`**/*.test.ts`, `**/*.test.tsx`).
+
+## Important Files
+
+- `.github/workflows/check.yml` — CI lint/type-check/test
+- `.github/workflows/benchmark.yml` — Auto-commits results, deploys to Pages
+- `apps/client/public/data/results.json` — Auto-modified by CI; never edit manually
+
 # Writing oxlint Custom Rules with Effect
 
 > Skill: effect-ts/oxlint — Write custom oxlint rules using Effect v4 patterns

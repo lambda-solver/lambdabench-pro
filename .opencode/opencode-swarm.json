@@ -1,13 +1,13 @@
 {
   "agents": {
-    "coder": { "model": "opencode-go/deepseek-v4-flash" },
+    "coder": { "model": "opencode-go/deepseek-v4-pro" },
     "reviewer": { "model": "opencode-go/kimi-k2.6" },
-    "test_engineer": { "model": "opencode-go/deepseek-v4-flash" },
-    "explorer": { "model": "opencode-go/deepseek-v4-flash" },
+    "test_engineer": { "model": "opencode-go/deepseek-v4-pro" },
+    "explorer": { "model": "opencode-go/deepseek-v4-pro" },
     "sme": { "model": "opencode-go/kimi-k2.6" },
     "critic": { "model": "opencode-go/kimi-k2.6" },
-    "docs": { "model": "opencode-go/deepseek-v4-flash" },
-    "designer": { "model": "opencode-go/deepseek-v4-flash" }
+    "docs": { "model": "opencode-go/deepseek-v4-pro" },
+    "designer": { "model": "opencode-go/deepseek-v4-pro" }
   },
   "max_iterations": 5
 

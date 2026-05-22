@@ -8,12 +8,12 @@
 import { beforeAll, describe, expect, it } from "@effect/vitest";
 import { page } from "@vitest/browser/context";
 import React from "react";
+import { expectToHaveNoOverflow } from "@/lib/to-have-no-overflow-matcher";
 import {
 	renderComponent,
 	takeScreenshot,
 	viewports,
 } from "@/lib/visual-test-utils";
-import { expectToHaveNoOverflow } from "@/lib/to-have-no-overflow-matcher";
 import {
 	Card,
 	CardContent,
@@ -33,13 +33,34 @@ describe("Card visual regression", () => {
 			React.createElement(
 				Card,
 				{ className: "w-80" },
-				React.createElement(CardHeader, null, React.createElement(CardTitle, null, "Card Title"), React.createElement(CardDescription, null, "A brief description of the card content.")),
+				React.createElement(
+					CardHeader,
+					null,
+					React.createElement(CardTitle, null, "Card Title"),
+					React.createElement(
+						CardDescription,
+						null,
+						"A brief description of the card content.",
+					),
+				),
 				React.createElement(
 					CardContent,
 					null,
-					React.createElement("p", null, "This is the card content area. You can put any content here."),
+					React.createElement(
+						"p",
+						null,
+						"This is the card content area. You can put any content here.",
+					),
 				),
-				React.createElement(CardFooter, null, React.createElement("span", { className: "text-muted-foreground" }, "Card footer")),
+				React.createElement(
+					CardFooter,
+					null,
+					React.createElement(
+						"span",
+						{ className: "text-muted-foreground" },
+						"Card footer",
+					),
+				),
 			),
 		);
 		await takeScreenshot("card-full-composition-desktop");
@@ -51,7 +72,11 @@ describe("Card visual regression", () => {
 			React.createElement(
 				Card,
 				{ className: "w-80" },
-				React.createElement(CardContent, null, React.createElement("p", null, "Minimal card content.")),
+				React.createElement(
+					CardContent,
+					null,
+					React.createElement("p", null, "Minimal card content."),
+				),
 			),
 		);
 		await takeScreenshot("card-minimal-desktop");
@@ -65,13 +90,34 @@ describe("Card visual regression", () => {
 			React.createElement(
 				Card,
 				{ className: "w-80" },
-				React.createElement(CardHeader, null, React.createElement(CardTitle, null, "Card Title"), React.createElement(CardDescription, null, "A brief description of the card content.")),
+				React.createElement(
+					CardHeader,
+					null,
+					React.createElement(CardTitle, null, "Card Title"),
+					React.createElement(
+						CardDescription,
+						null,
+						"A brief description of the card content.",
+					),
+				),
 				React.createElement(
 					CardContent,
 					null,
-					React.createElement("p", null, "This is the card content area. You can put any content here."),
+					React.createElement(
+						"p",
+						null,
+						"This is the card content area. You can put any content here.",
+					),
 				),
-				React.createElement(CardFooter, null, React.createElement("span", { className: "text-muted-foreground" }, "Card footer")),
+				React.createElement(
+					CardFooter,
+					null,
+					React.createElement(
+						"span",
+						{ className: "text-muted-foreground" },
+						"Card footer",
+					),
+				),
 			),
 		);
 

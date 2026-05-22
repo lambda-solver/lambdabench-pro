@@ -15,7 +15,7 @@ bun lint
 #    Use --filter=<workspace> to check only modified packages for speed
 bun run type-check
 
-# 3. dprint format check
+# 3. oxfmt format check
 #    This is the gate CI uses.
 bun format:check
 
@@ -103,40 +103,9 @@ printf '\n' >> apps/client/public/data/results.json
 git add apps/client/public/data/results.json
 ```
 
-## Lint vs Format: What's the Difference?
+## Linting & Formatting
 
-Our project uses **oxlint** for linting and **dprint** for formatting (not ESLint/Prettier/Biome). Two commands sound similar but do different things:
-
-| Command            | Script                           | What it does                                     | Speed |
-| ------------------ | -------------------------------- | ------------------------------------------------ | ----- |
-| `bun lint`         | `oxlint --config .oxlintrc.json` | Runs lint rules (correctness, suspicious, style) | Fast  |
-| `bun format:check` | `dprint check`                   | Checks formatting only                           | Fast  |
-
-**When to use each:**
-
-- `bun lint` — Quick check during development. Catches the most common issues fast.
-- `bun format:check` — The **formatting gate**. This is what GitHub Actions runs. It catches formatting mistakes.
-- `bun lint:fix` — Auto-fixes lint issues via oxlint.
-- `bun format` — Auto-fixes formatting issues via dprint.
-
-**Why run both?** `bun lint` catches code issues. `bun format:check` catches formatting issues. Running both ensures nothing slips through.
-
-## oxlint Rules (Enforced in CI)
-
-| Rule              | What it means                            | Pattern to use                                                       |
-| ----------------- | ---------------------------------------- | -------------------------------------------------------------------- |
-| `noArrayIndexKey` | Never use `key={i}` in React `.map()`    | Use content-based keys                                               |
-| `useLiteralKeys`  | Prefer dot notation for known properties | `obj.field` for known keys; `obj["dynamic"]` for Record index access |
-| `noExplicitAny`   | Ban the `any` type                       | Use `unknown` + `as unknown as T`                                    |
-| `useYield`        | Only use `yield*` inside generators      | Plain arrows for simple mocks                                        |
-
-Note: `useLiteralKeys` infos on `Record<string, unknown>` bracket access are acceptable and do not fail CI.
-
-## Important Files
-
-- `.github/workflows/check.yml` — CI lint/type-check/test
-- `.github/workflows/benchmark.yml` — Auto-commits results, deploys to Pages
-- `apps/client/public/data/results.json` — Auto-modified by CI
+See `file:.opencode/skills/effect-ts/oxlint/SKILL.md` for oxlint rules and format check commands. The pre-commit checklist above already includes `bun lint` and `bun format:check`.
 
 ## Reference
 

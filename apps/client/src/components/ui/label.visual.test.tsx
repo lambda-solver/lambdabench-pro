@@ -14,8 +14,8 @@ import {
 	takeScreenshot,
 	viewports,
 } from "@/lib/visual-test-utils";
-import { Label } from "./label";
 import { Input } from "./input";
+import { Label } from "./label";
 
 beforeAll(() => {
 	expectToHaveNoOverflow();
@@ -44,11 +44,7 @@ describe("Label visual regression", () => {
 						className: "group flex flex-col gap-1.5",
 						"data-disabled": "true",
 					},
-					React.createElement(
-						Label,
-						{ htmlFor: "email-disabled" },
-						"Email",
-					),
+					React.createElement(Label, { htmlFor: "email-disabled" }, "Email"),
 					React.createElement(Input, {
 						id: "email-disabled",
 						type: "email",
