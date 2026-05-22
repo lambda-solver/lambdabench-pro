@@ -27,13 +27,13 @@ interface TabLineProps {
 export function TabLine({ active, onTabChange, muted, onToggleMusic }: TabLineProps) {
   return (
     <div
-      className={cn("flex items-stretch sticky top-0 z-10", "bg-[var(--sol-base2)] border-b border-[var(--sol-base1)]")}
+      className={cn("flex items-stretch sticky top-0 z-10 overflow-x-auto", "bg-[var(--sol-base2)] border-b border-[var(--sol-base1)]")}
     >
       {/* Left spacer — mirrors ControlBar width so tabs stay centered */}
       <div className="flex-1" />
 
       {/* Centered tabs */}
-      <div className="flex items-stretch">
+      <div className="flex items-stretch flex-shrink-0">
         {TABS.map(({ id, label }) => (
           <button
             key={id}
@@ -53,7 +53,7 @@ export function TabLine({ active, onTabChange, muted, onToggleMusic }: TabLinePr
       </div>
 
       {/* Right controls */}
-      <div className="flex-1 flex justify-end">
+      <div className="flex-1 flex justify-end flex-shrink-0">
         <ControlBar muted={muted} onToggleMusic={onToggleMusic} />
       </div>
     </div>

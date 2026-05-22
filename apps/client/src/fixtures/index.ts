@@ -23,3 +23,8 @@ export interface ButtonFixture {
   readonly disabled?: boolean;
   readonly label: string;
 }
+
+export interface BenchmarkFixture {
+  readonly name: string;
+  readonly data: import("@repo/domain/Benchmark").BenchmarkData;
+}

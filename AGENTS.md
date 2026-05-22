@@ -4,25 +4,34 @@
 > in doubt, prefer AGENTS.md over README.md. See nested AGENTS.md files in each
 > workspace for app-specific patterns.
 
+> **SKILLS:** Every agent MUST load `file:.opencode/skills/meta-skill/SKILL.md` first to discover which domain-specific skills apply to your task. The meta-skill contains the complete skill catalog with agent-specific routing trees.
+
 ## Commands
 
-| Command                                            | Purpose                                   |
-| -------------------------------------------------- | ----------------------------------------- |
-| `bun install`                                      | Install dependencies                      |
-| `bun dev`                                          | Start all apps (client:3000, server:9000) |
-| `bun dev --filter=client`                          | Start client only                         |
-| `bun dev --filter=server`                          | Start server only                         |
-| `bun run build`                                    | Build all apps                            |
-| `bun run type-check`                               | TypeScript check (all packages)           |
-| `bun lint`                                         | oxlint check (all packages)               |
-| `bun lint:fix`                                     | oxlint auto-fix (all packages)            |
-| `bun format`                                       | oxfmt format (all packages)               |
-| `bun format:check`                                 | oxfmt format check (all packages)         |
-| `bun run test`                                     | Run all tests via turbo (Vitest)          |
-| `bun run test --filter=server`                     | Run server tests only                     |
-| `bun test --filter=server -- src/file.test.ts`     | Run single test file                      |
-| `bun src/index.ts server > logs/server.log 2>&1 &` | Start server in background (logs/)        |
-| `lsof -ti:9000                                     | xargs kill -9`                            |
+| Command                                            | Purpose                                              |
+| -------------------------------------------------- | ---------------------------------------------------- |
+| `bun install`                                      | Install dependencies                                 |
+| `bun dev`                                          | Start all apps (client:3000, server:9000)            |
+| `bun dev --filter=client`                          | Start client only                                    |
+| `bun dev --filter=server`                          | Start server only                                    |
+| `bun run build`                                    | Build all apps                                       |
+| `bun run type-check`                               | TypeScript check (all packages)                      |
+| `bun lint`                                         | oxlint check (all packages)                          |
+| `bun lint:fix`                                     | oxlint auto-fix (all packages)                       |
+| `bun format`                                       | oxfmt format (all packages)                          |
+| `bun format:check`                                 | oxfmt format check (all packages)                    |
+| `bun run test`                                     | Run all tests via turbo (Vitest)                     |
+| `bun run test --filter=server`                     | Run server tests only                                |
+| `bun run test --filter=client`                     | Run client unit tests only                           |
+| `bun test --filter=server -- src/file.test.ts`     | Run single server test file                          |
+| `vitest run --config apps/client/vitest.visual.config.ts` | Run client visual regression tests (Playwright) |
+| `tmux new-session -d -s server 'bun dev --filter=server'` | Start server in tmux session (survives agent restart) |
+| `tmux new-session -d -s client 'bun dev --filter=client'` | Start client in tmux session                         |
+| `tmux new-session -d -s storybook 'bun run storybook'` | Start Storybook in tmux session                      |
+| `tmux attach -t <name>`                           | Attach to tmux session to see live logs              |
+| `tmux kill-session -t <name>`                     | Kill a tmux session                                  |
+| `tmux ls`                                         | List all running tmux sessions                       |
+| `lsof -ti:9000                                     | xargs kill -9`                                       |
 
 ## Tech Stack
 
@@ -121,7 +130,10 @@ must use the project-local `logs/` directory for temporary files, logs, scratch
 data, debug output, and any other file writes that are not source code.
 
 ```bash
-# ✅ ALLOWED — project-local logs/
+# ✅ PREFERRED — tmux sessions (survive agent restarts, scrollable logs)
+tmux new-session -d -s server 'bun dev --filter=server'
+
+# ✅ ALTERNATIVE — project-local logs/
 bun src/index.ts server > logs/server.log 2>&1 &
 
 # ❌ BLOCKED — /tmp is banned
@@ -132,6 +144,12 @@ cat data.json > /tmp/debug.json         # NEVER
 The `logs/` directory exists at the project root and is gitignored. If a
 subdirectory under `logs/` is needed, create it with `mkdir -p logs/<name>`.
 This keeps all generated files within the repo boundary.
+
+**tmux is the recommended approach for long-running processes** (dev servers,
+Storybook, watch mode) because sessions survive agent restarts and keep
+scrollable history. See the
+[tmux workflow skill](.opencode/skills/development/tmux-workflow/SKILL.md)
+for full documentation.
 
 ## Code Style
 
@@ -185,6 +203,8 @@ skill path in delegation prompts via `SKILLS:` field.
 | Git / CI workflow               | `.opencode/skills/git/SKILL.md`                                     |
 | React FP style                  | `.opencode/skills/react/patterns/01-fp-style/SKILL.md`              |
 | Writing oxlint rules            | `.opencode/skills/effect-ts/oxlint/SKILL.md`                        |
+| React animation                 | `.opencode/skills/react/animation/SKILL.md`                          |
+| tmux dev workflow               | `.opencode/skills/development/tmux-workflow/SKILL.md`                |
 
 Use the `Read` tool to load each file before starting implementation.
 **Do not guess Effect 4 APIs from memory** — verify against skill files or
@@ -392,178 +412,63 @@ git clone https://github.com/Effect-TS/effect-smol.git reference/effect-smol
 
 ## Running in Background
 
-See skill `.opencode/skills/effect-ts/platform/04-build-output/SKILL.md` for:
+Use **tmux** for long-running processes (dev servers, Storybook, watch mode).
+tmux sessions survive agent restarts, keep scrollable logs, and leave the
+main terminal free for OpenCode chat.
 
-- How to run Bun processes in the background
-- Build output directories (`apps/server/dist/`, `apps/client/dist/`)
-- Log directory: `logs/` (project root)
+See the [tmux workflow skill](.opencode/skills/development/tmux-workflow/SKILL.md) for
+full documentation including session management, split-pane layouts, and
+programmatic log capture.
+
+### Quick tmux reference
 
 ```bash
-# Start server in background, output to logs/
-bun src/index.ts server > logs/server.log 2>&1 &
+# Start dev servers in tmux sessions
+tmux new-session -d -s server 'bun dev --filter=server'
+tmux new-session -d -s client 'bun dev --filter=client'
 
 # Check if running
 curl -s http://127.0.0.1:9000/api/health
 
-# View logs
-tail -f logs/server.log
+# Attach to see live logs
+tmux attach -t server
+
+# Detach: Ctrl-b  then  d
+
+# Capture logs without attaching
+tmux capture-pane -t server -p -S -50
+
+# List all sessions
+tmux ls
 ```
 
 ---
 
 _This document is a living guide. Update it as the project evolves and new patterns emerge._
 
-Skills provide specialized instructions and workflows for specific tasks.
-Use the skill tool to load a skill when a task matches its description.
-<available_skills>
-<skill>
-<name>01-atoms</name>
-<description>Effect Atom reactivity — useAtomValue, Atom.make, React integration via @effect/atom-react</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/platform/01-atoms/SKILL.md</location>
-</skill>
-<skill>
-<name>01-best-practices</name>
-<description>Effect-TS 4 best practices — Effect.fn, Effect.fnUntraced, Context.Service, Layer conventions, and FP style</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/patterns/01-best-practices/SKILL.md</location>
-</skill>
-<skill>
-<name>01-fp-style</name>
-<description>React functional programming style — pure components, hooks conventions, Effect Atom integration, and Tailwind patterns</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/react/patterns/01-fp-style/SKILL.md</location>
-</skill>
-<skill>
-<name>01-fundamentals</name>
-<description>Effect-TS 4 fundamentals — Effect.gen, yield\*, pipe, basic combinators, and runtime execution</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/core/01-fundamentals/SKILL.md</location>
-</skill>
-<skill>
-<name>01-syntax</name>
-<description>Bend language syntax and types — algebraic data types, pattern matching, function definitions, and HVM primitives</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/bend-hvm/01-syntax/SKILL.md</location>
-</skill>
-<skill>
-<name>01-test-services</name>
-<description>Effect-TS 4 testing with layers — mock services, test Refs, Layer.succeed, and test dependency injection</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/testing/01-test-services/SKILL.md</location>
-</skill>
-<skill>
-<name>01-validation</name>
-<description>Effect-TS 4 Schema validation — Schema.decode, struct/union schemas, brand types, and export patterns</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/schema/01-validation/SKILL.md</location>
-</skill>
-<skill>
-<name>02-anti-patterns</name>
-<description>Effect-TS 4 anti-patterns — plain generators, .pipe after Effect.fn, ServiceMap, catchAll, for loops, and type pitfalls</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/patterns/02-anti-patterns/SKILL.md</location>
-</skill>
-<skill>
-<name>02-execution</name>
-<description>Bend/HVM execution model — lazy evaluation, reduction strategies, parallel execution, and runtime behavior</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/bend-hvm/02-execution/SKILL.md</location>
-</skill>
-<skill>
-<name>02-http-client</name>
-<description>Effect-TS 4 HTTP client — HttpClient, request building, response decoding, and error handling via effect/unstable/http</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/platform/02-http-client/SKILL.md</location>
-</skill>
-<skill>
-<name>02-services-layers</name>
-<description>Effect-TS 4 services and layers — ServiceMap.Service, Layer.effect, dependency injection, and Layer composition</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/core/02-services-layers/SKILL.md</location>
-</skill>
-<skill>
-<name>02-transformations</name>
-<description>Effect-TS 4 Schema transformations — Schema.transform, Schema.transformOrFail, and codec patterns</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/schema/02-transformations/SKILL.md</location>
-</skill>
-<skill>
-<name>02-vitest-patterns</name>
-<description>Effect-TS 4 Vitest patterns — it.effect, it.scoped, it.layer, @effect/vitest/utils assertions, ConfigProvider for env, and platform-node-shared for FileSystem</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/testing/02-vitest-patterns/SKILL.md</location>
-</skill>
-<skill>
-<name>03-ai-language-model</name>
-<description>Effect-TS 4 AI — LanguageModel.generateText, @effect/ai-openai layer factory, and mocking in tests</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/platform/03-ai-language-model/SKILL.md</location>
-</skill>
-<skill>
-<name>03-api-contracts</name>
-<description>Effect-TS 4 HttpApi schema-first REST contracts — route definitions, error schemas, and typed client</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/schema/03-api-contracts/SKILL.md</location>
-</skill>
-<skill>
-<name>03-error-handling</name>
-<description>Effect-TS 4 error handling — Effect.catch, catchTag, catchTags, typed channels, and absorb patterns</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/patterns/03-error-handling/SKILL.md</location>
-</skill>
-<skill>
-<name>03-error-model</name>
-<description>Effect-TS 4 error model — Schema.TaggedErrorClass, typed defects, union errors, and error channel semantics</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/core/03-error-model/SKILL.md</location>
-</skill>
-<skill>
-<name>03-patterns</name>
-<description>Bend/HVM programming patterns — recursion, fold/unfold, accumulator idioms, and common data structure encodings</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/bend-hvm/03-patterns/SKILL.md</location>
-</skill>
-<skill>
-<name>03-property-testing</name>
-<description>Effect-TS 4 property-based testing — Schema Arbitrary, fast-check, and generative test patterns</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/testing/03-property-testing/SKILL.md</location>
-</skill>
-<skill>
-<name>04-concurrency</name>
-<description>Bend/HVM concurrency models — parallel trees, fork/join, superposition, and GPU-parallel execution patterns</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/bend-hvm/04-concurrency/SKILL.md</location>
-</skill>
-<skill>
-<name>04-observability</name>
-<description>Effect-TS 4 observability — structured logging, spans, tracing, annotations, and metrics</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/patterns/04-observability/SKILL.md</location>
-</skill>
-<skill>
-<name>04-resources</name>
-<description>Effect-TS 4 resource management — Scope, acquireRelease, Layer.scoped, and safe resource lifecycle</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/core/04-resources/SKILL.md</location>
-</skill>
-<skill>
-<name>05-concurrency</name>
-<description>Effect-TS 4 concurrency — Effect.all, Effect.forEach, fibers, Ref, and structured concurrency patterns</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/core/05-concurrency/SKILL.md</location>
-</skill>
-<skill>
-<name>05-testing</name>
-<description>Bend/HVM testing strategies — unit testing Bend functions, property tests, and correctness verification</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/bend-hvm/05-testing/SKILL.md</location>
-</skill>
-<skill>
-<name>06-memory</name>
-<description>Bend/HVM memory management — interaction net nodes, garbage collection, memory layout, and allocation patterns</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/bend-hvm/06-memory/SKILL.md</location>
-</skill>
-<skill>
-<name>06-streams</name>
-<description>Effect-TS 4 streams — Stream creation, transformation, chunking, and sink consumption</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/core/06-streams/SKILL.md</location>
-</skill>
-<skill>
-<name>07-benchmarking</name>
-<description>Bend/HVM benchmarking — profiling HVM programs, measuring interactions per second, and performance tuning</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/bend-hvm/07-benchmarking/SKILL.md</location>
-</skill>
-<skill>
-<name>08-ffi</name>
-<description>Bend/HVM FFI integration — calling external functions, C interop, and binding native code to HVM programs</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/bend-hvm/08-ffi/SKILL.md</location>
-</skill>
-<skill>
-<name>customize-opencode</name>
-<description>Use ONLY when the user is editing or creating opencode's own configuration: opencode.json, opencode.jsonc, files under .opencode/, or files under ~/.config/opencode/. Also use when creating or fixing opencode agents, subagents, skills, plugins, MCP servers, or permission rules. Do not use for the user's own application code, or for any project that is not configuring opencode itself.</description>
-<location>file:///workspaces/typescript-node/lambench-pro/%3Cbuilt-in%3E</location>
-</skill>
-<skill>
-<name>oxlint</name>
-<description>Writing oxlint custom rules with Effect — Rule.define, Visitor combinators, AST matchers, Diagnostic builders, and testing with effect-oxlint</description>
-<location>file:///workspaces/typescript-node/lambench-pro/.opencode/skills/effect-ts/oxlint/SKILL.md</location>
-</skill>
-</available_skills>
+## Skills
+
+Skills provide specialized instructions and workflows for specific tasks. The architect MUST inject the meta-skill into EVERY agent delegation.
+
+### Meta-Skill (Mandatory for All Agents)
+
+**`file:.opencode/skills/meta-skill/SKILL.md`** — Complete skill catalog with agent-specific routing trees and universal reference table. Load this first to discover which domain-specific skills you need for your task.
+
+> **Note:** This meta-skill MUST be loaded by the architect into the context of EVERY agent delegation. The architect is responsible for injecting this skill; agents do not load it themselves.
+
+### How Skill Routing Works
+
+1. The architect injects `meta-skill` into every delegation via `SKILLS:`
+2. You (the agent) read the meta-skill to find your agent type's skill tree
+3. You load the domain-specific skills matching your task (Effect, React, Testing, etc.)
+4. If you need a skill not in your agent's tree, check the "Universal Reference" table — all 37 skills are listed there
+
+### Anti-patterns to Avoid
+
+- **Never skip the meta-skill** — it contains the complete routing guidance
+- **Never pass Effect skills for non-Effect code** — React visual tests don't use `Effect.fn` or `Effect.gen`
+- **Never skip domain skills for "simple" tasks** — even one-line changes can violate project conventions
+- **Never pass `01-test-services` to `coder` for non-Effect tests** — mock layers are only for Effect service tests
+- **Always forward `SKILLS_USED_BY_CODER` to `reviewer`** — the reviewer cannot verify skill compliance without knowing what skills the coder received
+- **Always pass `02-vitest-patterns` for ANY test file** — covers `@effect/vitest` imports, `it.effect`, `it.layer`, proper assertions
+- **Always pass React skills for React code** — `01-fp-style` minimum; add `02-component-composition` for compound components (Card, Accordion, etc.); add `04-anti-patterns` to catch JSX repetition, prop drilling, useEffect misuse

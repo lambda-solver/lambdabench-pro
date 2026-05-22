@@ -24,7 +24,7 @@ export function VimLine({ n, children, className, tilde = false }: VimLineProps)
       >
         {n == null ? "" : String(n)}
       </span>
-      <span className="flex-1 flex min-w-0 pl-[2ch] pr-[1ch] whitespace-pre">{children}</span>
+      <span className="flex-1 flex min-w-0 pl-[2ch] pr-[1ch] whitespace-pre-wrap">{children}</span>
     </div>
   );
 }
