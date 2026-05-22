@@ -1,3 +1,10 @@
+---
+name: meta-skill
+description: Complete skill catalog with agent-specific routing trees and universal reference table. Load this first to discover which domain-specific skills apply to your task.
+license: MIT
+compatibility: opencode
+---
+
 # Meta-Skill: Skill Router
 
 > **MANDATORY**: The architect MUST inject this skill into EVERY agent delegation via `SKILLS: file:.opencode/skills/meta-skill/SKILL.md`. This skill contains the complete catalog of all available skills and guidance on which skills to load for your task.
