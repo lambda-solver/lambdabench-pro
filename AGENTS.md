@@ -4,7 +4,7 @@
 > in doubt, prefer AGENTS.md over README.md. See nested AGENTS.md files in each
 > workspace for app-specific patterns.
 
-> **SKILLS:** Every agent MUST load `file:.opencode/skills/meta-skill/SKILL.md` first to discover which domain-specific skills apply to your task. The meta-skill contains the complete skill catalog with agent-specific routing trees.
+> **SKILLS:** This AGENTS.md file is the complete skill catalog with agent-specific routing trees. The architect MUST always pass this file to every agent delegation — agents read it to discover which domain-specific skills apply to their task.
 
 ## Commands
 
@@ -250,6 +250,6 @@ If a skill you need is not listed under your agent type above, it still exists h
 | tmux-workflow | `file:.opencode/skills/tmux/SKILL.md` | tmux sessions, dev servers |
 | git-workflow | `file:.opencode/skills/git/SKILL.md` | Git pre-commit checklist, push handling |
 
-### Meta-Skill (Legacy — Redirect)
+### Architect Requirement
 
-The meta-skill at `file:.opencode/skills/meta-skill/SKILL.md` now redirects to this AGENTS.md. All skill routing information lives here.
+The architect MUST always pass this AGENTS.md file to every agent delegation. This ensures all agents have access to the complete skill catalog, routing trees, and project conventions.
