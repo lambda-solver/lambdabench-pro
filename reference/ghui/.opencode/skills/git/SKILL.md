@@ -1,0 +1,112 @@
+# Git Workflow Skill
+
+## Pre-Commit Checklist (MUST PASS)
+
+**⚠️ CRITICAL: Do NOT commit or push until ALL of the following pass locally.**
+**Pushing code that fails CI blocks the entire team and wastes compute credits.**
+
+Run these commands in order and verify each exits with code 0:
+
+```bash
+# 1. oxlint (fastest gate — catches correctness issues first)
+bun lint
+
+# 2. TypeScript type check (catches type errors before they reach CI)
+#    Use --filter=<workspace> to check only modified packages for speed
+bun run type-check
+
+# 3. oxfmt format check
+#    This is the gate CI uses.
+bun format:check
+
+# 4. Build verification (catches bundling and import errors)
+bun run build
+
+# 5. Tests for modified packages (catches regressions)
+#    Run all packages if shared code changed:
+bun run test
+#    Or filter to specific workspaces:
+#    bun run test --filter=server
+#    bun run test --filter=client
+#    bun run test --filter=@repo/rag
+#    bun run test --filter=@repo/domain
+```
+
+If ANY command fails:
+
+- Fix the issue locally
+- Re-run the failing command until it passes
+- Only then proceed to commit
+
+## Commit and Push
+
+```bash
+git add -A
+git commit -m "type(scope): description"
+git push origin main
+```
+
+## Handling Push Rejections
+
+The `benchmark.yml` workflow auto-commits `results.json` after every push. This causes the remote `main` to diverge from your local branch.
+
+### Problem
+
+```
+! [rejected]  main -> main (fetch first)
+error: failed to push some refs
+```
+
+### Solution
+
+```bash
+# Option 1: Pull with rebase (clean history)
+git pull origin main --rebase && git push origin main
+
+# Option 2: Configure git to always rebase
+git config pull.rebase true
+# Then just: git pull && git push
+
+# Option 3: Force with lease (if you know no one else pushed)
+git push --force-with-lease origin main
+```
+
+### Workflow with Auto-Commits
+
+```bash
+# Before starting work, always pull latest
+git pull origin main --rebase
+
+# Make changes...
+
+# Run full pre-commit checklist
+bun lint && bun run type-check && bun format:check && bun run build && bun run test
+
+# Commit and push
+git add -A && git commit -m "..." && git push origin main
+
+# If rejected:
+git pull origin main --rebase && git push origin main
+```
+
+## Merge Conflicts in results.json
+
+The Benchmark workflow commits `results.json` with updated benchmark data. If you modified this file locally:
+
+```bash
+# Keep remote version (has latest benchmark data)
+git checkout --theirs apps/client/public/data/results.json
+git add apps/client/public/data/results.json
+
+# Then re-apply your formatting fix if needed
+printf '\n' >> apps/client/public/data/results.json
+git add apps/client/public/data/results.json
+```
+
+## Linting & Formatting
+
+See `file:.opencode/skills/effect-ts/oxlint/SKILL.md` for oxlint rules and format check commands. The pre-commit checklist above already includes `bun lint` and `bun format:check`.
+
+## Reference
+
+See root `AGENTS.md` for full project conventions.

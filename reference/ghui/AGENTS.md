@@ -33,6 +33,16 @@
 - Check Homebrew formula: `brew info kitlangton/tap/ghui`.
 - Test Homebrew install: `brew reinstall kitlangton/tap/ghui && /opt/homebrew/opt/ghui/bin/ghui --version`.
 
+### Starting the App
+
+Always use **tmux** to start `bun run` commands (e.g., `bun run dev`, `bun run build`). This keeps the app running in a persistent session and allows you to detach/reattach without interrupting the process.
+
+Example:
+```bash
+tmux new-session -d -s ghui 'bun run dev'
+tmux attach -t ghui
+```
+
 ## Commit Readiness
 
 - Before committing or pushing code changes, run `bun run format:check`, `bun run typecheck`, `bun run lint`, and `bun run test`.
@@ -48,6 +58,21 @@
 ## Plans
 
 Larger features and redesigns are captured in markdown under `plans/` before work starts. Each plan has Why / What / API mapping / Open questions / Status. When taking on something non-trivial, check `plans/` first; when sketching a future-direction idea, write a plan there rather than only mentioning it in chat or commits. See `plans/README.md` for the format and index.
+
+## Reference Documentation
+
+Consult these for domain context, architecture decisions, and implementation patterns. **Read only — never modify.**
+
+| Reference | Location | Use for |
+| --- | --- | --- |
+| Prompts | `docs/v2/00-prompts/` | Extraction, build, and grow prompts for AI-assisted development |
+
+> **Always load `2-build.md` and `3-grow.md` into context** when working on current app development.
+| Domain | `docs/v2/01-domain/` | Domain model, entities, and value objects |
+| Technical Spec | `docs/v2/02-technical-spec/` | Technical specification and architecture decisions |
+| Behavior Spec | `docs/v2/03-behavior-spec/` | Behavior specification and interaction design |
+| Developer Guide | `docs/v2/04-developer-guide/` | Developer guide, conventions, and setup |
+| Reference | `docs/v2/05-reference/` | Idiom notes and reference implementation patterns |
 
 ## Future Work
 
