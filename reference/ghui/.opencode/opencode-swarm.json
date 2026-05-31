@@ -1,0 +1,14 @@
+{
+  "agents": {
+    "coder": { "model": "opencode/mimo-v2.5-free" },
+    "reviewer": { "model": "opencode/mimo-v2.5-free" },
+    "test_engineer": { "model": "opencode/mimo-v2.5-free" },
+    "explorer": { "model": "opencode/mimo-v2.5-free" },
+    "sme": { "model": "opencode-go/qwen3.7-max" },
+    "critic": { "model": "opencode-go/qwen3.7-max" },
+    "docs": { "model": "opencode/mimo-v2.5-free" },
+    "designer": { "model": "opencode/mimo-v2.5-free" }
+  },
+  "max_iterations": 5
+
+}
